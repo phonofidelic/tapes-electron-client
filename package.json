@@ -70,6 +70,8 @@
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
     "@electron-forge/plugin-webpack": "6.0.0-beta.54",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+    "@types/app-root-dir": "^0.1.0",
+    "@types/electron-devtools-installer": "^2.2.0",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.2",
     "@types/react-redux": "^7.1.16",
@@ -79,6 +81,7 @@
     "@typescript-eslint/parser": "^4.0.1",
     "css-loader": "^4.2.1",
     "electron": "12.0.0",
+    "electron-devtools-installer": "^3.1.1",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.20.0",
     "fork-ts-checker-webpack-plugin": "^5.0.14",
@@ -89,6 +92,7 @@
     "typescript": "^4.0.2"
   },
   "dependencies": {
+    "app-root-dir": "^1.0.2",
     "electron-squirrel-startup": "^1.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
