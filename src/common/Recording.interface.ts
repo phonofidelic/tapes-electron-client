@@ -1,4 +1,4 @@
-export interface RecordingInterface {
+export interface Recording {
   id: string;
   location: string;
   title: string;

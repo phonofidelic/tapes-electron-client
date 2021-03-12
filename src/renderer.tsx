@@ -27,5 +27,18 @@
  */
 
 import './index.css';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import Root from './Root';
 
-console.log('👋 This message is being logged by "renderer.js", included via webpack');
+console.log(
+  '👋 This message is being logged by "renderer.js", included via webpack'
+);
+
+ReactDOM.render(
+  <Root>
+    <App />
+  </Root>,
+  document.getElementById('root')
+);
