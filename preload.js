@@ -2,16 +2,12 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 const validChannels = [
   'recorder:start',
-  // 'recorder:start:response',
   'recorder:stop',
-  // 'recorder:stop:response',
   'storage:load',
-  // 'storage:load:response',
   'storage:delete_one',
-  // 'storage:delete_one:response',
 ];
 
-vallidResponseChannels = [
+validResponseChannels = [
   'recorder:start:response:.*',
   'recorder:stop:response:.*',
   'storage:load:response:.*',
@@ -28,22 +24,10 @@ contextBridge.exposeInMainWorld('api', {
     }
   },
   receive: (channel, func) => {
-    console.log(
-      '*** RESPONSE CHANNELL CHECK:',
-      vallidResponseChannels
-        .map((responseChannel) => {
-          console.log(
-            `* ${responseChannel}: ${RegExp(responseChannel).test(channel)}`
-          );
-          return RegExp(responseChannel).test(channel);
-        })
-        .includes(true)
-    );
     if (
-      vallidResponseChannels
+      validResponseChannels
         .map((responseChannel) => RegExp(responseChannel).test(channel))
         .includes(true)
-      // true
     ) {
       // Deliberately strip event as it includes `sender`
       ipcRenderer.on(channel, (event, ...args) => func(...args));
