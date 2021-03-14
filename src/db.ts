@@ -1,4 +1,4 @@
-import { randomBytes } from 'crypto';
+// import { randomBytes } from 'crypto';
 import Dexie from 'dexie';
 import { Recording } from './common/Recording.interface';
 
@@ -9,7 +9,7 @@ export class AppDatabase extends Dexie {
     super('TapesDatabase');
 
     this.version(1).stores({
-      recordings: 'id, location, title, size, created',
+      recordings: '++id, location, title, size, created',
     });
 
     this.recordings.mapToClass(RecordingModel);
@@ -24,7 +24,8 @@ export class RecordingModel implements Recording {
   created: Date;
 
   constructor(location: string, title: string, size: number) {
-    this.id = randomBytes(12).toString('hex');
+    // this.id = randomBytes(12).toString('hex');
+    this.id = Date.now().toString();
     this.created = new Date();
     this.location = location;
     this.title = title;

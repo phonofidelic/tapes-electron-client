@@ -19,7 +19,7 @@ export class RecorderTray extends Tray {
     this.on("right-click", this.handleRightClick);
   }
 
-  handleClick(e: Event, bounds: Bounds): void {
+  handleClick = (e: Event, bounds: Bounds) => {
     const { x, y } = bounds;
     const { width, height } = this.recorderWindow.getBounds();
     const yPos = process.platform === "darwin" ? y : y - height;
@@ -37,7 +37,7 @@ export class RecorderTray extends Tray {
     }
   }
 
-  handleRightClick(e: Event, bounds: Bounds): void {
+  handleRightClick = (e: Event, bounds: Bounds) => {
     const menuConfig = Menu.buildFromTemplate([{ role: "quit" }]);
     this.popUpContextMenu(menuConfig);
   }

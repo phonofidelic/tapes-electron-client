@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
-import { RecordingInterface } from '../common/Recording.interface';
+import { Recording } from '../common/Recording.interface';
 import RecordingsListItem from './RecordingsListItem';
 import { List } from '@material-ui/core';
 
 interface RecordingsListProps {
-  recordings: RecordingInterface[];
+  recordings: Recording[];
   handleDeleteRecording(recordingId: string): void;
 }
 
@@ -14,7 +14,7 @@ export default function RecordingsList({
 }: RecordingsListProps): ReactElement {
   return (
     <List>
-      {recordings.map((recording: RecordingInterface) => (
+      {recordings.map((recording: Recording) => (
         <RecordingsListItem
           key={recording.id}
           recording={recording}

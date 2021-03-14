@@ -48,8 +48,10 @@ export class Main {
       resizable: false,
       show: false,
       webPreferences: {
-        nodeIntegration: true, // makes it possible to use `require` within our index.html
-        enableRemoteModule: true, //<-- https://github.com/electron-userland/spectron/pull/738#issuecomment-754810364
+        // nodeIntegration: true, // makes it possible to use `require` within our index.html
+        // enableRemoteModule: true, //<-- https://github.com/electron-userland/spectron/pull/738#issuecomment-754810364
+        preload: path.join(__dirname, '..', '..', 'preload.js'),
+        contextIsolation: true
       },
     });
 

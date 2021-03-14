@@ -1,8 +1,8 @@
 import React, { ReactElement, useState } from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../store/recorder/recorder.actions';
+import * as actions from '../store/actions';
 import prettyBytes from 'pretty-bytes';
-import { RecordingInterface } from '../common/Recording.interface';
+import { Recording } from '../common/Recording.interface';
 import IconButton from '@material-ui/core/IconButton';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -11,7 +11,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 interface RecordingsListItemProps {
-  recording: RecordingInterface;
+  recording: Recording;
   handleDeleteRecording(recordingId: string): void;
 }
 

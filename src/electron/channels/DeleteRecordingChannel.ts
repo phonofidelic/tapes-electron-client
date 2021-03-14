@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import { IpcMainEvent } from 'electron';
 import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
-import { RecordingInterface } from '../../common/Recording.interface';
+import { Recording } from '../../common/Recording.interface';
 
 export class DeleteRecordingChannel implements IpcChannel {
   get name(): string {
@@ -12,7 +12,7 @@ export class DeleteRecordingChannel implements IpcChannel {
   async handle(event: IpcMainEvent, request: IpcRequest) {
     console.log(this.name, request);
 
-    const recording: RecordingInterface = request.data;
+    const recording: Recording = request.data;
 
     await fs.unlink(recording.location);
 
