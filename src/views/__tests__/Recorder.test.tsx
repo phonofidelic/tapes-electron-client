@@ -35,11 +35,13 @@ beforeEach(() => {
       },
       createAnalyser: jest.fn().mockImplementation(() => {
         return {
+          connect: jest.fn(),
           disconnect: jest.fn(),
         };
       }),
       createMediaStreamSource: jest.fn().mockImplementation(() => {
         return {
+          connect: jest.fn(),
           disconnect: jest.fn(),
         };
       }),
