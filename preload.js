@@ -1,3 +1,6 @@
+/**
+ * https://github.com/electron/electron/issues/9920#issuecomment-575839738
+ */
 const { contextBridge, ipcRenderer } = require('electron');
 
 const validChannels = [
@@ -14,10 +17,7 @@ validResponseChannels = [
   'storage:delete_one:response:.*',
 ];
 
-/**
- * https://github.com/electron/electron/issues/9920#issuecomment-575839738
- */
-contextBridge.exposeInMainWorld('api', {
+const api = {
   send: (channel, data) => {
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
@@ -33,6 +33,6 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.on(channel, (event, ...args) => func(...args));
     }
   },
-});
+};
 
-console.log('*** preload ***');
+contextBridge.exposeInMainWorld('api', api);
