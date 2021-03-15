@@ -12,11 +12,15 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 interface RecordingsListItemProps {
   recording: Recording;
+  selectedRecording: string;
+  handleSelectRecording(recordingId: string): void;
   handleDeleteRecording(recordingId: string): void;
 }
 
 export function RecordingsListItem({
   recording,
+  selectedRecording,
+  handleSelectRecording,
   handleDeleteRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -35,7 +39,12 @@ export function RecordingsListItem({
   };
 
   return (
-    <ListItem key={recording.id} divider>
+    <ListItem
+      key={recording.id}
+      divider
+      selected={selectedRecording === recording.id}
+      onClick={() => handleSelectRecording(recording.id)}
+    >
       <ListItemText
         primary={recording.title}
         secondary={`Recorded: ${recording.created.toLocaleDateString()} - Size: ${prettyBytes(

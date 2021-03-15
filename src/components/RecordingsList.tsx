@@ -5,11 +5,15 @@ import { List } from '@material-ui/core';
 
 interface RecordingsListProps {
   recordings: Recording[];
+  selectedRecording: string;
+  handleSelectRecording(recordingId: string): void;
   handleDeleteRecording(recordingId: string): void;
 }
 
 export default function RecordingsList({
   recordings,
+  selectedRecording,
+  handleSelectRecording,
   handleDeleteRecording,
 }: RecordingsListProps): ReactElement {
   return (
@@ -18,6 +22,8 @@ export default function RecordingsList({
         <RecordingsListItem
           key={recording.id}
           recording={recording}
+          selectedRecording={selectedRecording}
+          handleSelectRecording={handleSelectRecording}
           handleDeleteRecording={handleDeleteRecording}
         />
       ))}

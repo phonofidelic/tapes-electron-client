@@ -6,12 +6,12 @@ import { Provider } from 'react-redux';
 import { RecorderState } from '../../store/types';
 import { initialState } from '../../store/reducer';
 import { store } from '../../store';
-import Recorder from '../Recorder';
+import Storage from '../Storage';
 
 const renderComponent = () =>
   render(
     <Provider store={store}>
-      <Recorder />
+      <Storage />
     </Provider>
   );
 
@@ -20,7 +20,7 @@ const renderMockedComponent = (state: RecorderState) => {
 
   return render(
     <Provider store={mockStore}>
-      <Recorder />
+      <Storage />
     </Provider>
   );
 };
@@ -47,17 +47,6 @@ beforeEach(() => {
   });
 });
 
-it('renders the Recorder', () => {
-  const { getByText } = renderComponent();
+it.todo('shows a default empty message');
 
-  expect(getByText(/rec/i)).toBeVisible();
-});
-
-it('shows a recording  indicator when recording', () => {
-  const { getByText } = renderMockedComponent({
-    ...initialState,
-    isRecording: true,
-  });
-
-  expect(getByText(/recording/i)).toBeVisible();
-});
+it.todo('shows a recording item');
