@@ -1,5 +1,5 @@
-import { hot } from 'react-hot-loader';
 import React from 'react';
+import { hot } from 'react-hot-loader';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Recorder from './views/Recorder';
 import Settings from './views/Settings';

@@ -77,7 +77,8 @@ export class IpcService {
     }
     // If there's no responseChannel let's auto-generate it
     if (!request.responseChannel) {
-      request.responseChannel = `${channel}:response`;
+      // request.responseChannel = `${channel}:response`;
+      request.responseChannel = `${channel}:response:${Date.now()}`;
     }
 
     const ipcRenderer = this.ipcRenderer;
@@ -85,9 +86,10 @@ export class IpcService {
 
     // This method returns a promise which will be resolved when the response has arrived.
     return new Promise((resolve) => {
-      ipcRenderer.receive(request.responseChannel, (response: any) =>
+      ipcRenderer.receive(request.responseChannel, (response: any) => {
+        console.log(request.responseChannel)
         resolve(response)
-      );
+      });
     });
   }
 }

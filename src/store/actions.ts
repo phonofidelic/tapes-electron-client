@@ -90,7 +90,6 @@ export function stopRecordingFailure(error: Error): StopRecordingFailureAction {
 }
 
 export function loadRecordingsRequest(): LoadRecordingsRequestAction {
-  console.log('loadRecordingsRequest');
   return {
     type: LOAD_RECORDINGS_REQUEST,
   };
@@ -99,7 +98,6 @@ export function loadRecordingsRequest(): LoadRecordingsRequestAction {
 export function loadRecordingsSuccess(
   recordings: Recording[]
 ): LoadRecordingsuccessAction {
-  console.log('loadRecordingsSuccess');
   return {
     type: LOAD_RECORDINGS_SUCCESS,
     payload: recordings,
@@ -109,7 +107,6 @@ export function loadRecordingsSuccess(
 export function loadRecordingsFailure(
   error: Error
 ): LoadRecordingsFailureAction {
-  console.log('loadRecordingsFailure');
   return {
     type: LOAD_RECORDINGS_FAILURE,
     payload: error,

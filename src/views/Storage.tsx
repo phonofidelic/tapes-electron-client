@@ -1,28 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, SyntheticEvent } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Recording } from '../common/Recording.interface';
 import * as actions from '../store/actions';
 import { loadRecordings, deleteRecording } from '../effects';
 import { RecorderState } from '../store/types';
-import { db } from '../db';
-import { IpcService } from '../IpcService';
 
-import { Button, Typography } from '@material-ui/core';
 import RecordingsList from '../components/RecordingsList';
 
-const ipc = new IpcService();
+import { Button, Typography } from '@material-ui/core';
 
 interface StorageProps {
   recordings?: Recording[];
-  // loadRecordings: () => void;
 }
 
 export function Storage({ recordings }: StorageProps) {
-  // const [recordings, setRecordings] = useState([]);
+  const [selectedRecording, setSelectedRecording] = useState(null);
   const dispatch = useDispatch();
 
+  const handleSelectRecording = (recordingId: string) => {
+    setSelectedRecording(recordingId);
+  };
+
   const handleDeleteRecording = (recordingId: string) => {
-    console.log('*** delete recording:', recordingId);
     dispatch(deleteRecording(recordingId));
   };
 
@@ -53,6 +52,8 @@ export function Storage({ recordings }: StorageProps) {
     return (
       <RecordingsList
         recordings={recordings}
+        selectedRecording={selectedRecording}
+        handleSelectRecording={handleSelectRecording}
         handleDeleteRecording={handleDeleteRecording}
       />
     );

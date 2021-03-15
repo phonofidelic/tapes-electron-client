@@ -9,6 +9,8 @@ import { RecorderTray } from "./RecorderTray";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
+const TESTING = process.env.NODE_ENV === 'test';
+
 export class Main {
   private mainWindow: BrowserWindow;
 
@@ -50,8 +52,8 @@ export class Main {
       webPreferences: {
         // nodeIntegration: true, // makes it possible to use `require` within our index.html
         // enableRemoteModule: true, //<-- https://github.com/electron-userland/spectron/pull/738#issuecomment-754810364
-        preload: path.join(__dirname, '..', '..', 'preload.js'),
-        contextIsolation: true
+        contextIsolation: true,
+        preload: process.env.NODE_ENV === "production" ? path.join(process.resourcesPath, 'preload.js') : path.join(__dirname, '..', '..', 'preload.js'),
       },
     });
 
