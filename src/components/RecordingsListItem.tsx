@@ -48,18 +48,19 @@ export function RecordingsListItem({
       onClick={() => handleSelectRecording(recording.id)}
     >
       <ListItemText
-        primary={recording.title}
+        disableTypography={true}
+        primary={<Typography>{recording.title}</Typography>}
         secondary={
           selectedRecording === recording.id && (
             <Grow in={true}>
-              <div>
+              <>
                 <Typography variant="body2">
                   {`${recording.created.toLocaleDateString()} ${recording.created.toLocaleTimeString()}`}
                 </Typography>
                 <Typography variant="body2">{`Size: ${prettyBytes(
                   recording.size
                 )}`}</Typography>
-              </div>
+              </>
             </Grow>
           )
         }
