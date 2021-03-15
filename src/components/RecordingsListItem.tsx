@@ -9,6 +9,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Typography from '@material-ui/core/Typography';
+import Grow from '@material-ui/core/Grow';
 
 interface RecordingsListItemProps {
   recording: Recording;
@@ -47,15 +49,26 @@ export function RecordingsListItem({
     >
       <ListItemText
         primary={recording.title}
-        secondary={`Recorded: ${recording.created.toLocaleDateString()} - Size: ${prettyBytes(
-          recording.size
-        )}`}
+        secondary={
+          selectedRecording === recording.id && (
+            <Grow in={true}>
+              <div>
+                <Typography variant="body2">
+                  {`${recording.created.toLocaleDateString()} ${recording.created.toLocaleTimeString()}`}
+                </Typography>
+                <Typography variant="body2">{`Size: ${prettyBytes(
+                  recording.size
+                )}`}</Typography>
+              </div>
+            </Grow>
+          )
+        }
       />
       <IconButton data-testid="button_recording-options" onClick={handleClick}>
         <MoreVertIcon />
       </IconButton>
       <Menu
-        id="simple-menu"
+        id="recording-menu"
         anchorEl={anchorEl}
         keepMounted
         open={Boolean(anchorEl)}
