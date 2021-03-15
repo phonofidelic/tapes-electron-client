@@ -99,7 +99,7 @@ export class StartRecordingChannel implements IpcChannel {
         sox.kill();
 
         const fileStats = await fs.stat(filePath);
-        console.log('*** recording file stats:', fileStats);
+        // console.log('*** recording file stats:', fileStats);
 
         const recording = {
           location: filePath,
@@ -107,6 +107,7 @@ export class StartRecordingChannel implements IpcChannel {
           size: fileStats.size,
         };
 
+        console.log('recording:', recording);
         event.sender.send(request.responseChannel, { data: recording });
       });
     } catch (err) {

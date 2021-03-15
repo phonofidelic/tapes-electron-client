@@ -47,8 +47,8 @@ export const stopRecording = (): Effect => async (dispatch) => {
 
   let ipcResponse;
   try {
-    ipcResponse = await ipc.send('recorder:stop');
-    console.log('recorder:stop, ipcResponse:', ipcResponse);
+    ipc.send('recorder:stop');
+    console.log('recorder:stop');
     // dispatch(stopRecordingSuccess());
   } catch (err) {
     dispatch(stopRecordingFailure(err));
