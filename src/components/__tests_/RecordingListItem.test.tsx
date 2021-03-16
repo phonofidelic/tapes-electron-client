@@ -15,9 +15,13 @@ const mockRecording: Recording = {
 
 let mockSelect: (recordingId: string) => void;
 let mockDelete: (recordingId: string) => void;
+let mockPlayRecording: (recordingId: string) => void;
+let mockPauseRecording: () => void;
 beforeEach(() => {
   mockSelect = jest.fn();
   mockDelete = jest.fn();
+  mockPlayRecording = jest.fn();
+  mockPauseRecording = jest.fn();
 });
 
 it('displays the default list item', () => {
@@ -25,8 +29,11 @@ it('displays the default list item', () => {
     <RecordingsListItem
       recording={mockRecording}
       selectedRecording={null}
+      playing={null}
       handleSelectRecording={mockSelect}
       handleDeleteRecording={mockDelete}
+      playRecording={mockPlayRecording}
+      pauseRecording={mockPauseRecording}
     />
   );
 
@@ -38,8 +45,11 @@ it('displays detail info when selected', () => {
     <RecordingsListItem
       recording={mockRecording}
       selectedRecording={'123'}
+      playing={null}
       handleSelectRecording={mockSelect}
       handleDeleteRecording={mockDelete}
+      playRecording={mockPlayRecording}
+      pauseRecording={mockPauseRecording}
     />
   );
 
@@ -51,3 +61,5 @@ it('displays detail info when selected', () => {
 
   expect(getByText('Size: 1.23 kB')).toBeInTheDocument();
 });
+
+it.todo('Recording list items should have a playback button');

@@ -15,6 +15,7 @@ interface StorageProps {
 
 export function Storage({ recordings }: StorageProps) {
   const [selectedRecording, setSelectedRecording] = useState(null);
+  const [playing, setPlaying] = useState(null);
   const dispatch = useDispatch();
 
   const handleSelectRecording = (recordingId: string) => {
@@ -23,6 +24,16 @@ export function Storage({ recordings }: StorageProps) {
 
   const handleDeleteRecording = (recordingId: string) => {
     dispatch(deleteRecording(recordingId));
+  };
+
+  const handlePlayRecording = (recordingId: string) => {
+    console.log('Play!');
+    setPlaying(recordingId);
+  };
+
+  const handlePauseRecording = () => {
+    console.log('Pause!');
+    setPlaying(null);
   };
 
   useEffect(() => {
