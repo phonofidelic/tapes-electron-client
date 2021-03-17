@@ -15,13 +15,19 @@ const mockRecording: Recording = {
 
 let mockSelect: (recordingId: string) => void;
 let mockDelete: (recordingId: string) => void;
-let mockPlayRecording: (recordingId: string) => void;
-let mockPauseRecording: () => void;
 beforeEach(() => {
   mockSelect = jest.fn();
   mockDelete = jest.fn();
-  mockPlayRecording = jest.fn();
-  mockPauseRecording = jest.fn();
+
+  /**
+   * https://github.com/jsdom/jsdom/issues/2155#issuecomment-366703395
+   * */
+  window.HTMLMediaElement.prototype.pause = () => {
+    /* do nothing */
+  };
+  window.HTMLMediaElement.prototype.load = () => {
+    /* do nothing */
+  };
 });
 
 it('displays the default list item', () => {
@@ -29,11 +35,8 @@ it('displays the default list item', () => {
     <RecordingsListItem
       recording={mockRecording}
       selectedRecording={null}
-      playing={null}
       handleSelectRecording={mockSelect}
       handleDeleteRecording={mockDelete}
-      playRecording={mockPlayRecording}
-      pauseRecording={mockPauseRecording}
     />
   );
 
@@ -45,11 +48,8 @@ it('displays detail info when selected', () => {
     <RecordingsListItem
       recording={mockRecording}
       selectedRecording={'123'}
-      playing={null}
       handleSelectRecording={mockSelect}
       handleDeleteRecording={mockDelete}
-      playRecording={mockPlayRecording}
-      pauseRecording={mockPauseRecording}
     />
   );
 
@@ -59,7 +59,7 @@ it('displays detail info when selected', () => {
     )
   ).toBeInTheDocument();
 
-  expect(getByText('Size: 1.23 kB')).toBeInTheDocument();
+  expect(getByText(/Size: 1.23 kB/)).toBeInTheDocument();
 });
 
 it.todo('Recording list items should have a playback button');

@@ -2,7 +2,7 @@
  * From: https://blog.logrocket.com/electron-ipc-response-request-architecture-with-typescript/
  */
 import path from "path";
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, protocol } from "electron";
 import installExtension, { REDUX_DEVTOOLS } from "electron-devtools-installer";
 import { IpcChannel } from "./IPC/IpcChannel.interface";
 import { RecorderTray } from "./RecorderTray";
@@ -38,6 +38,13 @@ export class Main {
   }
 
   private createWindow() {
+    protocol.registerFileProtocol('tapes', (request, callback) => {
+      const url = request.url.replace('tapes://', '')
+      const basename = path.basename(url)
+      // console.log('basename:', basename)
+      callback(path.join(app.getAppPath(), 'Data', basename))
+    })
+
     installExtension(REDUX_DEVTOOLS)
       .then((name) => console.log(`Added Extension:  ${name}`))
       .catch((err) => console.log("An error occurred: ", err));
