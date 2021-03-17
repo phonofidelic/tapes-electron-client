@@ -27,6 +27,10 @@ import {
   STOP_RECORDING_SUCCESS,
   StopRecordingFailureAction,
   STOP_RECORDING_FAILURE,
+  PlayRecordingAction,
+  PLAY_RECORDING,
+  PauseRecordingAction,
+  PAUSE_RECORDING,
 } from './types';
 import { Recording } from '../common/Recording.interface';
 
@@ -137,5 +141,18 @@ export function deleteRecordingFailure(
   return {
     type: DELETE_RECORDING_FAILURE,
     payload: error,
+  };
+}
+
+export function playRecording(recordingId: string): PlayRecordingAction {
+  return {
+    type: PLAY_RECORDING,
+    payload: recordingId,
+  };
+}
+
+export function pauseRecording(): PauseRecordingAction {
+  return {
+    type: PAUSE_RECORDING,
   };
 }

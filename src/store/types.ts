@@ -17,7 +17,9 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   LOAD_RECORDINGS_FAILURE = 'load_recordings_failure',
   DELETE_RECORDING_REQUEST = 'delete_recording_request',
   DELETE_RECORDING_SUCCESS = 'delete_recording_success',
-  DELETE_RECORDING_FAILURE = 'delete_recording_failure';
+  DELETE_RECORDING_FAILURE = 'delete_recording_failure',
+  PLAY_RECORDING = 'play_recording',
+  PAUSE_RECORDING = 'pause_recording';
 
 export interface RecorderState {
   isRecording: boolean;
@@ -26,6 +28,7 @@ export interface RecorderState {
   loading: boolean;
   error: Error | null;
   recordings: Recording[];
+  playing: string;
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -95,6 +98,13 @@ export interface DeleteRecordingFailureAction extends Action {
   type: typeof DELETE_RECORDING_FAILURE;
   payload: Error;
 }
+export interface PlayRecordingAction extends Action {
+  type: typeof PLAY_RECORDING;
+  payload: string;
+}
+export interface PauseRecordingAction extends Action {
+  type: typeof PAUSE_RECORDING;
+}
 
 export type RecorderAction =
   | StartRecordingRequestAction
@@ -111,4 +121,6 @@ export type RecorderAction =
   | LoadRecordingsFailureAction
   | DeleteRecordingRequestAction
   | DeleteRecordingSuccessAction
-  | DeleteRecordingFailureAction;
+  | DeleteRecordingFailureAction
+  | PlayRecordingAction
+  | PauseRecordingAction;

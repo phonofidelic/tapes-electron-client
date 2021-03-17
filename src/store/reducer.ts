@@ -15,6 +15,8 @@ import {
   DELETE_RECORDING_REQUEST,
   DELETE_RECORDING_SUCCESS,
   DELETE_RECORDING_FAILURE,
+  PLAY_RECORDING,
+  PAUSE_RECORDING,
 } from './types';
 
 export const initialState: RecorderState = {
@@ -24,6 +26,7 @@ export const initialState: RecorderState = {
   loading: false,
   error: null,
   recordings: [],
+  playing: null,
 };
 
 export const reducer = (
@@ -122,6 +125,18 @@ export const reducer = (
         recordings: state.recordings.filter(
           (recording) => recording.id !== action.payload
         ),
+      };
+
+    case PLAY_RECORDING:
+      return {
+        ...state,
+        playing: action.payload,
+      };
+
+    case PAUSE_RECORDING:
+      return {
+        ...state,
+        playing: null,
       };
 
     default:
