@@ -3,17 +3,11 @@
  */
 const { contextBridge, ipcRenderer } = require('electron');
 
-const validChannels = [
-  'recorder:start',
-  'recorder:stop',
-  'storage:load',
-  'storage:delete_one',
-];
+const validChannels = ['recorder:start', 'recorder:stop', 'storage:delete_one'];
 
 validResponseChannels = [
   'recorder:start:response:.*',
   'recorder:stop:response:.*',
-  'storage:load:response:.*',
   'storage:delete_one:response:.*',
 ];
 
