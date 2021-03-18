@@ -16,8 +16,9 @@ export default function Navigation({}: Props): ReactElement {
     <BottomNavigation
       style={{
         backgroundColor: '#e9eae6',
-        height: 56,
-        position: 'sticky',
+        height: theme.dimensions.Navigation.height,
+        position: 'fixed',
+        width: '100%',
         top: '0px',
         zIndex: theme.zIndex.appBar,
       }}

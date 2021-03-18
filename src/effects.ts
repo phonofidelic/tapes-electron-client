@@ -32,8 +32,15 @@ export const startRecording = (): Effect => async (dispatch) => {
 
     const recordingData = ipcResponse.data;
 
+    const recordingCount = await db.recordings.count();
+    console.log('recordingCount:', recordingCount);
+
     const recordingDoc = await db.recordings.add(
-      new RecordingModel(recordingData.location, 'Test 1', recordingData.size)
+      new RecordingModel(
+        recordingData.location,
+        `Recording #${recordingCount + 1}`,
+        recordingData.size
+      )
     );
     console.log('*** recordingDoc:', recordingDoc);
   } catch (err) {

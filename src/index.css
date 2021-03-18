@@ -4,4 +4,9 @@ body {
   max-width: 38rem;
   /* padding: 2rem; */
   background-color: #e9eae6;
+  
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
