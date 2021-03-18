@@ -1,4 +1,4 @@
-import React, { useState, useEffect, SyntheticEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Recording } from '../common/Recording.interface';
 import * as actions from '../store/actions';
@@ -7,7 +7,7 @@ import { RecorderState } from '../store/types';
 
 import RecordingsList from '../components/RecordingsList';
 
-import { Button, Typography } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
 
 interface StorageProps {
   recordings?: Recording[];
@@ -15,7 +15,6 @@ interface StorageProps {
 
 export function Storage({ recordings }: StorageProps) {
   const [selectedRecording, setSelectedRecording] = useState(null);
-  const [playing, setPlaying] = useState(null);
   const dispatch = useDispatch();
 
   const handleSelectRecording = (recordingId: string) => {
@@ -24,16 +23,6 @@ export function Storage({ recordings }: StorageProps) {
 
   const handleDeleteRecording = (recordingId: string) => {
     dispatch(deleteRecording(recordingId));
-  };
-
-  const handlePlayRecording = (recordingId: string) => {
-    console.log('Play!');
-    setPlaying(recordingId);
-  };
-
-  const handlePauseRecording = () => {
-    console.log('Pause!');
-    setPlaying(null);
   };
 
   useEffect(() => {
@@ -68,22 +57,6 @@ export function Storage({ recordings }: StorageProps) {
         handleDeleteRecording={handleDeleteRecording}
       />
     );
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        height: 400 - 56,
-        justifyContent: 'center',
-      }}
-    >
-      <div style={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
-        <Button>Add a storage location</Button>
-      </div>
-    </div>
-  );
 }
 
 const mapStateToProps = (state: RecorderState) => {
