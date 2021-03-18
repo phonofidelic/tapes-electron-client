@@ -89,4 +89,5 @@ typings/
 out/
 
 bin/*
+!bin/.gitkeep
 Data/*
