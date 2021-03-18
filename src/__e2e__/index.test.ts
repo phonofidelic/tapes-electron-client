@@ -26,7 +26,7 @@ afterAll(async function () {
 });
 
 test('displays the Recorder view', async function () {
-  let windowCount = await app.client.getWindowCount();
+  const windowCount = await app.client.getWindowCount();
 
   const text = await (await app.client.$('body')).getText();
 

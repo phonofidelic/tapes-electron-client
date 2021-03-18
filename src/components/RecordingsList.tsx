@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Recording } from '../common/Recording.interface';
 import RecordingsListItem from './RecordingsListItem';
-import { List } from '@material-ui/core';
+import List from '@material-ui/core/List';
 
 interface RecordingsListProps {
   recordings: Recording[];

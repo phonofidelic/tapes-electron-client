@@ -63,14 +63,10 @@ export function RecordingsListItem({
 
   const handlePlay = () => {
     setPlaying(true);
-    // dispatch(playRecording(recording.location));
-    console.log('Play!', recording.location);
   };
 
   const handleStop = () => {
     setPlaying(false);
-    // pauseRecording();
-    console.log('Pause!');
   };
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
