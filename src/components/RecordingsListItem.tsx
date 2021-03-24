@@ -69,11 +69,12 @@ export function RecordingsListItem({
     setPlaying(false);
   };
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
+    console.log(recording.remoteLocation);
   };
 
-  const handleClose = () => {
+  const handleCloseMenu = () => {
     setAnchorEl(null);
   };
 
@@ -114,7 +115,7 @@ export function RecordingsListItem({
                     {`${recording.created.toLocaleDateString()} ${recording.created.toLocaleTimeString()}`}
                   </Typography>
                   <Typography variant="caption">
-                    Duration: {msToTime(Math.trunc(duration * 1000))}
+                    Duration: {msToTime(Math.trunc(recording.duration * 1000))}
                   </Typography>
                   <Typography variant="caption">{` - Size: ${prettyBytes(
                     recording.size
@@ -136,7 +137,7 @@ export function RecordingsListItem({
         {isPlaying && <StopButton handleStop={handleStop} />}
         <IconButton
           data-testid="button_recording-options"
-          onClick={handleClick}
+          onClick={handleClickMenu}
         >
           <MoreVertIcon />
         </IconButton>
@@ -146,7 +147,7 @@ export function RecordingsListItem({
           anchorEl={anchorEl}
           keepMounted
           open={Boolean(anchorEl)}
-          onClose={handleClose}
+          onClose={handleCloseMenu}
         >
           <MenuItem
             data-testid="option_delete-recording"
@@ -156,12 +157,18 @@ export function RecordingsListItem({
             Delete
           </MenuItem>
         </Menu>
-        <audio id={recording.id} src={'tapes://' + recording.location}></audio>
+        <audio
+          id={recording.id}
+          // src={recording.remoteLocation || 'tapes://' + recording.location}
+        >
+          <source src={recording.remoteLocation} />
+          <source src={'tapes://' + recording.location} />
+        </audio>
       </ListItem>
       {playing && (
         <LinearProgress
           variant="determinate"
-          value={(curTime / duration) * 100}
+          value={(curTime / recording.duration) * 100}
         />
       )}
     </>

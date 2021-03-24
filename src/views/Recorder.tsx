@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
+// import { useTextile } from '../services/TextileProvider';
 import { startRecording, stopRecording } from '../effects';
 import {
   RecorderState,
@@ -25,6 +26,7 @@ function Recorder({
   stopMonitor,
 }: RecorderProps) {
   const dispatch = useDispatch();
+  // const { getBucketKey } = useTextile();
 
   const handleStartMonitor = async () => {
     const monitorInstance = await navigator.mediaDevices.getUserMedia({
@@ -39,6 +41,9 @@ function Recorder({
   };
 
   const handleStartRecording = async () => {
+    // const bucketKey = await getBucketKey();
+    // console.log('handleStartRecording, bucketKey:', bucketKey);
+
     dispatch(startRecording());
   };
 

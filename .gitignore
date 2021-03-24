@@ -91,3 +91,4 @@ out/
 bin/*
 !bin/.gitkeep
 Data/*
+src/keys.json
