@@ -40,7 +40,7 @@ const keyInfo: KeyInfo = {
   key: USER_API_KEY,
 };
 
-console.log('keyInfo:', keyInfo);
+// console.log('keyInfo:', keyInfo);
 
 const getBucketKey = async () => {
   const storedIdent = localStorage.getItem('identity');

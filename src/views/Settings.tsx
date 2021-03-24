@@ -1,12 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTextile } from '../services/TextileProvider';
 
 export default function Settings() {
-  const { identity, getIdentity, getBucketKey } = useTextile();
+  const { identity } = useTextile();
 
-  useEffect(() => {
-    getBucketKey();
-  }, []);
   return (
     <div>
       <div>Settigns View</div>
