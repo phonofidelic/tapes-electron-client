@@ -10,6 +10,7 @@ import * as mm from 'music-metadata';
 import { IpcMainEvent, ipcMain } from 'electron';
 import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
+import { Recording } from '../../common/Recording.interface';
 import { RecordingSettings } from '../../common/RecordingSettings.interface';
 import { RecordingFormats } from '../../common/RecordingFormats.enum';
 
@@ -99,13 +100,16 @@ export class StartRecordingChannel implements IpcChannel {
         console.log('Stopping recording.');
         sox.kill();
 
+        /**
+         * Create local recording file
+         */
         const fileStats = await fs.stat(filePath);
         // console.log('*** recording file stats:', fileStats);
 
         const metadata = await mm.parseFile(filePath);
         console.log(util.inspect(metadata, { showHidden: false, depth: null }));
 
-        const recording = {
+        const recording: Recording = {
           location: filePath,
           filename,
           size: fileStats.size,
@@ -114,6 +118,9 @@ export class StartRecordingChannel implements IpcChannel {
 
         const fileData = await fs.readFile(filePath);
 
+        /**
+         * Send response to render process
+         */
         console.log('recording:', recording);
         event.sender.send(request.responseChannel, {
           data: recording,

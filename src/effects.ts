@@ -31,6 +31,7 @@ const ipc = new IpcService();
 
 /**
  * Textile utils
+ * TODO: move to main process
  *
  * getBucketKey:
  * https://github.com/textileio/js-examples/blob/a8a5a9fe8cf8331f0bc4f811791e15dbc0597469/bucket-photo-gallery/src/App.tsx#L99
@@ -98,6 +99,7 @@ export const startRecording = (): Effect => async (dispatch) => {
 
     /**
      * Push audio data to IPFS
+     * TODO: move to main process
      */
     const { buckets, bucketKey } = await getBucketKey();
 
@@ -192,6 +194,7 @@ export const deleteRecording = (recordingId: string): Effect => async (
   try {
     /**
      * Delete in IPFS
+     * TODO: move to main process
      */
     const { buckets, bucketKey } = await getBucketKey();
     const removePathResult = await buckets.removePath(

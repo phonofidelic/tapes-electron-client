@@ -11,6 +11,7 @@ const mockRecording: Recording = {
   title: 'Mock recording',
   size: 1234,
   created: mockDate,
+  filename: '8g7i8fi7f7fi7ftituf76',
 };
 
 let mockSelect: (recordingId: string) => void;

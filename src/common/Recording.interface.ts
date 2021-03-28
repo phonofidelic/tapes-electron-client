@@ -1,11 +1,11 @@
 export interface Recording {
-  id: string;
   location: string;
-  remoteLocation?: string;
-  bucketPath?: string;
-  title: string;
   filename: string;
   size: number;
+  id?: string;
+  remoteLocation?: string;
+  bucketPath?: string;
+  title?: string;
   duration?: number;
-  created: Date;
+  created?: Date;
 }
