@@ -13,6 +13,9 @@ import {
   stopRecordingRequest,
   stopRecordingFailure,
   stopRecordingSuccess,
+  getBucketInfoRequest,
+  getBucketInfoSuccess,
+  getBucketInfoFailure,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
@@ -53,7 +56,7 @@ const getBucketKey = async () => {
   }
   const buckets = await Buckets.withKeyInfo(keyInfo, { debug: true });
   // Authorize the user and your insecure keys with getToken
-  await buckets.getToken(identity);
+  const token = await buckets.getToken(identity);
 
   const buck = await buckets.getOrCreate('com.phonofidelic.tapes', {
     encrypted: true,
@@ -64,7 +67,12 @@ const getBucketKey = async () => {
   console.log('buckets:', buckets);
   console.log('buck:', buck);
 
-  return { buckets: buckets, bucketKey: buck.root.key };
+  return {
+    buckets: buckets,
+    bucketKey: buck.root.key,
+    threadId: buck.threadID,
+    token,
+  };
 };
 /** End Textile utils */
 
@@ -99,9 +107,8 @@ export const startRecording = (): Effect => async (dispatch) => {
 
     /**
      * Push audio data to IPFS
-     * TODO: move to main process
      */
-    const { buckets, bucketKey } = await getBucketKey();
+    const { buckets, bucketKey, threadId, token } = await getBucketKey();
 
     const pushPathResult = await buckets.pushPath(
       bucketKey,
@@ -110,9 +117,19 @@ export const startRecording = (): Effect => async (dispatch) => {
     );
     console.log('pushPathResult:', pushPathResult);
 
-    // const remoteLocation = IPFS_GATEWAY + pushPathResult.path.path;
+    /**
+     * Set remote Textile Bucket location
+     */
     const remoteLocation =
-      IPFS_GATEWAY + pushPathResult.root + '/' + recordingData.filename;
+      IPFS_GATEWAY +
+      '/thread/' +
+      threadId +
+      '/buckets/' +
+      bucketKey +
+      '/' +
+      recordingData.filename +
+      '?token=' +
+      token;
 
     /**
      * Update recording doc with remoteLocation
@@ -130,7 +147,6 @@ export const startRecording = (): Effect => async (dispatch) => {
 export const stopRecording = (): Effect => async (dispatch) => {
   dispatch(stopRecordingRequest());
 
-  let ipcResponse;
   try {
     ipc.send('recorder:stop');
     console.log('recorder:stop');
@@ -143,12 +159,10 @@ export const stopRecording = (): Effect => async (dispatch) => {
 export const loadRecordings = (): Effect => async (dispatch) => {
   dispatch(loadRecordingsRequest());
 
-  // let ipcResponse;
+  // const { buckets, bucketKey } = await getBucketKey();
+
   let idbResponse;
   try {
-    // ipcResponse = await ipc.send('storage:load');
-    // console.log('loadRecordings, ipcResponse:', ipcResponse);
-
     idbResponse = await db.transaction('r', db.recordings, async () => {
       return await db.recordings.toArray();
     });
@@ -204,5 +218,26 @@ export const deleteRecording = (recordingId: string): Effect => async (
     console.log('removePathResult:', removePathResult);
   } catch (err) {
     console.error('Could not remove IPFS path:', err);
+  }
+};
+
+export const getBucketInfo = (): Effect => async (dispatch) => {
+  dispatch(getBucketInfoRequest());
+
+  try {
+    const { buckets, bucketKey } = await getBucketKey();
+    const links = await buckets.links(bucketKey);
+    console.log('links:', links);
+
+    const paths = await buckets.listPathFlat(bucketKey, '');
+    console.log('paths:', paths);
+
+    dispatch(
+      getBucketInfoSuccess({
+        ...links,
+      })
+    );
+  } catch (err) {
+    dispatch(getBucketInfoFailure(err));
   }
 };

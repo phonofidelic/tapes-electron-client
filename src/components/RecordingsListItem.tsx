@@ -47,7 +47,6 @@ export function RecordingsListItem({
   handleDeleteRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
-  // const [playing, setPlaying] = useState(false);
   const [hoverRef, hovered] = useHover();
   const {
     curTime,
@@ -71,7 +70,6 @@ export function RecordingsListItem({
 
   const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    console.log(recording.remoteLocation);
   };
 
   const handleCloseMenu = () => {
@@ -87,6 +85,7 @@ export function RecordingsListItem({
     if (!selected) {
       setPlaying(false);
     }
+    // console.log('recording remote location:', recording.remoteLocation);
   }, [selected]);
 
   return (
@@ -157,10 +156,7 @@ export function RecordingsListItem({
             Delete
           </MenuItem>
         </Menu>
-        <audio
-          id={recording.id}
-          // src={recording.remoteLocation || 'tapes://' + recording.location}
-        >
+        <audio id={recording.id}>
           <source src={recording.remoteLocation} />
           <source src={'tapes://' + recording.location} />
         </audio>

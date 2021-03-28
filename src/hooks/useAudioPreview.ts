@@ -45,7 +45,7 @@ function useAudioPlayer(recordingId: string) {
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', resetAudio);
     };
-  });
+  }, [playing]);
 
   return {
     curTime,

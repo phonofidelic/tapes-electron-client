@@ -19,7 +19,10 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   DELETE_RECORDING_SUCCESS = 'delete_recording_success',
   DELETE_RECORDING_FAILURE = 'delete_recording_failure',
   PLAY_RECORDING = 'play_recording',
-  PAUSE_RECORDING = 'pause_recording';
+  PAUSE_RECORDING = 'pause_recording',
+  GET_BUCKET_DATA_REQUEST = 'get_bucket_data_request',
+  GET_BUCKET_DATA_SUCCESS = 'get_bucket_data_success',
+  GET_BUCKET_DATA_FAILURE = 'get_bucket_data_failure';
 
 export interface RecorderState {
   isRecording: boolean;
@@ -29,6 +32,7 @@ export interface RecorderState {
   error: Error | null;
   recordings: Recording[];
   playing: string;
+  bucketInfo: any | null;
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -98,12 +102,28 @@ export interface DeleteRecordingFailureAction extends Action {
   type: typeof DELETE_RECORDING_FAILURE;
   payload: Error;
 }
+
 export interface PlayRecordingAction extends Action {
   type: typeof PLAY_RECORDING;
   payload: string;
 }
+
 export interface PauseRecordingAction extends Action {
   type: typeof PAUSE_RECORDING;
+}
+
+export interface GetBucketInfoRequestAction extends Action {
+  type: typeof GET_BUCKET_DATA_REQUEST;
+}
+
+export interface GetBucketInfoSuccessAction extends Action {
+  type: typeof GET_BUCKET_DATA_SUCCESS;
+  payload: any;
+}
+
+export interface GetBucketInfoFailureAction extends Action {
+  type: typeof GET_BUCKET_DATA_FAILURE;
+  payload: Error;
 }
 
 export type RecorderAction =
@@ -123,4 +143,7 @@ export type RecorderAction =
   | DeleteRecordingSuccessAction
   | DeleteRecordingFailureAction
   | PlayRecordingAction
-  | PauseRecordingAction;
+  | PauseRecordingAction
+  | GetBucketInfoRequestAction
+  | GetBucketInfoSuccessAction
+  | GetBucketInfoFailureAction;
