@@ -11,6 +11,8 @@ orbs:
   node: circleci/node@4.2.1
 jobs:
   test:
+    docker:
+      - image: cimg/python:3.9.2
     executor:
       name: node/default
       tag: 'current'
