@@ -8,11 +8,12 @@
 
 version: '2.1'
 orbs:
-  # node: circleci/node@4.2.1
-  node: circleci/python:3-node
+  node: circleci/node@4.2.1
+  # node: circleci/python:3-node
 jobs:
   test:
-    # docker:
+    docker:
+      - image: circleci/python:3-node
     #   - image: cimg/python:3.9.2
     #   - image: circleci/node@4.2.1
     executor:
