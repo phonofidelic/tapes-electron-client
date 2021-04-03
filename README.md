@@ -5,11 +5,9 @@ This project is second iteration of [Tapes](https://github.com/phonofidelic/Tape
 This project uses the SoX command line utility (v12.4.2) for recording audio. Install the Mac and Windows binaries from [here](https://sourceforge.net/projects/sox/files/sox/14.4.2/) and include them in the ```bin``` directory in the root of this project.
 
 ### Textile API keys
-To enable Textile Hub API authentication, create `src/keys.json` and set the USER_API_KEY field:
-```json
-{
-  "USER_API_KEY": "<YOUR_TEXTILE_HUB_USER_GROUP_KEY>"
-}
+To enable Textile Hub API authentication, create a `.env` in the root directory and set the USER_API_KEY field:
+```
+USER_API_KEY=<YOUR_TEXTILE_HUB_USER_GROUP_KEY>
 ```
 See [Textile Hub: Authentication & authorization](https://textileio.github.io/js-textile/docs/#authentication--authorization) for more information.
 

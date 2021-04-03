@@ -28,7 +28,10 @@ import {
   WithKeyInfoOptions,
   Identity,
 } from '@textile/hub';
-import { USER_API_KEY } from './keys.json';
+
+declare const USER_API_KEY: any;
+
+console.log('USER_API_KEY:', USER_API_KEY);
 
 const ipc = new IpcService();
 
