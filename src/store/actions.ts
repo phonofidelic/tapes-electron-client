@@ -31,6 +31,12 @@ import {
   PLAY_RECORDING,
   PauseRecordingAction,
   PAUSE_RECORDING,
+  GetBucketInfoRequestAction,
+  GET_BUCKET_DATA_REQUEST,
+  GetBucketInfoSuccessAction,
+  GET_BUCKET_DATA_SUCCESS,
+  GetBucketInfoFailureAction,
+  GET_BUCKET_DATA_FAILURE,
 } from './types';
 import { Recording } from '../common/Recording.interface';
 
@@ -154,5 +160,27 @@ export function playRecording(recordingId: string): PlayRecordingAction {
 export function pauseRecording(): PauseRecordingAction {
   return {
     type: PAUSE_RECORDING,
+  };
+}
+
+export function getBucketInfoRequest(): GetBucketInfoRequestAction {
+  return {
+    type: GET_BUCKET_DATA_REQUEST,
+  };
+}
+
+export function getBucketInfoSuccess(
+  bucketInfo: any
+): GetBucketInfoSuccessAction {
+  return {
+    type: GET_BUCKET_DATA_SUCCESS,
+    payload: bucketInfo,
+  };
+}
+
+export function getBucketInfoFailure(error: Error): GetBucketInfoFailureAction {
+  return {
+    type: GET_BUCKET_DATA_FAILURE,
+    payload: error,
   };
 }

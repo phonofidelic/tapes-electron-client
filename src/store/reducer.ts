@@ -17,6 +17,9 @@ import {
   DELETE_RECORDING_FAILURE,
   PLAY_RECORDING,
   PAUSE_RECORDING,
+  GET_BUCKET_DATA_REQUEST,
+  GET_BUCKET_DATA_SUCCESS,
+  GET_BUCKET_DATA_FAILURE,
 } from './types';
 
 export const initialState: RecorderState = {
@@ -27,6 +30,7 @@ export const initialState: RecorderState = {
   error: null,
   recordings: [],
   playing: null,
+  bucketInfo: null,
 };
 
 export const reducer = (
@@ -137,6 +141,26 @@ export const reducer = (
       return {
         ...state,
         playing: null,
+      };
+
+    case GET_BUCKET_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case GET_BUCKET_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        bucketInfo: action.payload,
+      };
+
+    case GET_BUCKET_DATA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
       };
 
     default:
