@@ -114,7 +114,7 @@ export function RecordingsListItem({
                     {`${recording.created.toLocaleDateString()} ${recording.created.toLocaleTimeString()}`}
                   </Typography>
                   <Typography variant="caption">
-                    Duration: {msToTime(Math.trunc(recording.duration * 1000))}
+                    Duration: {msToTime(Math.trunc(duration * 1000))}
                   </Typography>
                   <Typography variant="caption">{` - Size: ${prettyBytes(
                     recording.size
@@ -164,7 +164,7 @@ export function RecordingsListItem({
       {playing && (
         <LinearProgress
           variant="determinate"
-          value={(curTime / recording.duration) * 100}
+          value={(curTime / duration) * 100}
         />
       )}
     </>
