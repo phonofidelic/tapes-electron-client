@@ -30,14 +30,12 @@ import {
 } from '@textile/hub';
 
 declare const USER_API_KEY: any;
-
-console.log('USER_API_KEY:', USER_API_KEY);
+// console.log('effects, USER_API_KEY:', USER_API_KEY);
 
 const ipc = new IpcService();
 
 /**
  * Textile utils
- * TODO: move to main process
  *
  * getBucketKey:
  * https://github.com/textileio/js-examples/blob/a8a5a9fe8cf8331f0bc4f811791e15dbc0597469/bucket-photo-gallery/src/App.tsx#L99
