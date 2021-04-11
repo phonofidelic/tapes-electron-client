@@ -10,6 +10,7 @@ import useAudioPreview from '../hooks/useAudioPreview';
 import PlayButton from './PlayButton';
 import StopButton from './StopButton';
 
+import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import ListItem from '@material-ui/core/ListItem';

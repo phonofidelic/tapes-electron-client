@@ -7,8 +7,8 @@ declare module '@material-ui/core/styles/createMuiTheme' {
       Navigation: {
         width: number;
         height: number;
-      }
-    }
+      };
+    };
   }
 
   interface ThemeOptions {
@@ -16,22 +16,25 @@ declare module '@material-ui/core/styles/createMuiTheme' {
       Navigation?: {
         width?: number;
         height?: number;
-      }
-    }
+      };
+    };
   }
 }
 
 const theme = createMuiTheme({
   palette: {
+    primary: {
+      main: '#323332',
+    },
     background: {
       default: '#e9eae6',
     },
   },
   dimensions: {
     Navigation: {
-      height: 56
-    }
-  }
+      height: 56,
+    },
+  },
 });
 
 export { theme };
