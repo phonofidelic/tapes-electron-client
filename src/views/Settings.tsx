@@ -18,19 +18,12 @@ import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 
-// const SectionHeader = styled.div`
-//   background-color: ${(theme: Theme) => theme.palette.primary.main};
-//   color: ${(theme: Theme) =>
-//     theme.palette.getContrastText(theme.palette.primary.main)};
-//   padding-left: 8px;
-// `;
-
 const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
   backgroundColor: theme.palette.background.default,
   color: theme.palette.getContrastText(theme.palette.background.default),
   // paddingLeft: 8,
   paddingTop: 8,
-  borderBottom: `1px solid ${theme.palette.primary.main}`,
+  // borderBottom: `1px solid ${theme.palette.primary.main}`,
   marginLeft: 8,
 }));
 
@@ -55,31 +48,42 @@ export function Settings({ bucketInfo }: SettingsProps) {
     setChannelCount(event.target.value as string);
   };
 
+  const downloadToken = () => {
+    console.log('Downloading token');
+
+    const a = document.createElement('a');
+    a.href = 'data:text/plain;charset=utf-8, ' + encodeURIComponent(identity);
+    a.download = 'tapes_account.token';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   useEffect(() => {
     dispatch(getBucketInfo());
   }, []);
 
   return (
     <div>
-      <SectionHeader theme={theme}>
-        <Typography variant="caption">Account</Typography>
+      <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
+        <Typography variant="caption">Account Token</Typography>
       </SectionHeader>
       {/* <div>identity: {identity.toString()}</div> */}
       <div style={{ padding: 8 }}>
         <Typography variant="caption" color="textSecondary">
           Use this token to sync your data on multiple devices. Store this
-          seccurly and do not share it with anyone you do not want to have
-          access to your data.
+          seccurly and do not share it with anyone.
         </Typography>
       </div>
       <div
         style={{
           padding: 8,
-          textAlign: 'center',
+          paddingTop: 0,
+          // textAlign: 'center',
         }}
       >
-        <Button variant="outlined" size="small">
-          Download Token
+        <Button variant="outlined" size="small" onClick={downloadToken}>
+          Download Account Token
         </Button>
       </div>
       <SectionHeader theme={theme}>
