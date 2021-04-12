@@ -1,6 +1,6 @@
 (global as any).WebSocket = require('isomorphic-ws');
 import { Main } from './electron/Main';
-import { StartRecordingChannel } from './electron/channels/StartRecordingChannel';
+import { NewRecordingChannel } from './electron/channels/NewRecordingChannel';
 import { DeleteRecordingChannel } from './electron/channels/DeleteRecordingChannel';
 
-new Main().init([new StartRecordingChannel(), new DeleteRecordingChannel()]);
+new Main().init([new NewRecordingChannel(), new DeleteRecordingChannel()]);

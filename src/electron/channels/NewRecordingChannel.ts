@@ -26,7 +26,7 @@ const setStorageDir = async (folderName: string): Promise<string> => {
   return storagePath;
 };
 
-export class StartRecordingChannel implements IpcChannel {
+export class NewRecordingChannel implements IpcChannel {
   get name(): string {
     return 'recorder:start';
   }
