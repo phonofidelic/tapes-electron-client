@@ -19,6 +19,7 @@ import {
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
+import { RecordingSettings } from './common/RecordingSettings.interface';
 import { IpcService } from './IpcService';
 import {
   Buckets,
@@ -79,12 +80,14 @@ const getBucketKey = async () => {
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
-export const startRecording = (): Effect => async (dispatch) => {
+export const startRecording = (
+  recordingSettigs: RecordingSettings
+): Effect => async (dispatch) => {
   dispatch(startRecordingRequest());
 
   let ipcResponse: { data: Recording; file?: any; error?: Error };
   try {
-    ipcResponse = await ipc.send('recorder:start');
+    ipcResponse = await ipc.send('recorder:start', { data: recordingSettigs });
     console.log('recorder:start, ipcResponse:', ipcResponse);
 
     const recordingData = ipcResponse.data;

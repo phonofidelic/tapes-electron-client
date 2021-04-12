@@ -10,7 +10,7 @@ import RecordingsList from '../components/RecordingsList';
 import Typography from '@material-ui/core/Typography';
 
 interface StorageProps {
-  recordings?: Recording[];
+  recordings: Recording[];
 }
 
 export function Storage({ recordings }: StorageProps) {

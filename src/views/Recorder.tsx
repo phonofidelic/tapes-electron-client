@@ -8,6 +8,7 @@ import {
   StopMonitorAction,
 } from '../store/types';
 import * as actions from '../store/actions';
+import { RecordingFormats } from '../common/RecordingFormats.enum';
 import AudioAnalyser from '../components/AudioAnalyser';
 import RecorderControls from '../components/RecorderControls';
 import Timer from '../components/Timer';
@@ -44,7 +45,12 @@ function Recorder({
     // const bucketKey = await getBucketKey();
     // console.log('handleStartRecording, bucketKey:', bucketKey);
 
-    dispatch(startRecording());
+    const mockSettings = {
+      channels: 2,
+      format: 'mp3' as RecordingFormats,
+    };
+
+    dispatch(startRecording(mockSettings));
   };
 
   const handleStopRecording = () => {

@@ -14,7 +14,7 @@ import {
   LOAD_RECORDINGS_REQUEST,
   LoadRecordingsRequestAction,
   LOAD_RECORDINGS_SUCCESS,
-  LoadRecordingsuccessAction,
+  LoadRecordingsSuccessAction,
   LOAD_RECORDINGS_FAILURE,
   LoadRecordingsFailureAction,
   DELETE_RECORDING_REQUEST,
@@ -23,22 +23,25 @@ import {
   DeleteRecordingSuccessAction,
   DELETE_RECORDING_FAILURE,
   DeleteRecordingFailureAction,
-  StopRecordingSuccessAction,
   STOP_RECORDING_SUCCESS,
-  StopRecordingFailureAction,
+  StopRecordingSuccessAction,
   STOP_RECORDING_FAILURE,
-  PlayRecordingAction,
+  StopRecordingFailureAction,
   PLAY_RECORDING,
-  PauseRecordingAction,
+  PlayRecordingAction,
   PAUSE_RECORDING,
-  GetBucketInfoRequestAction,
+  PauseRecordingAction,
   GET_BUCKET_DATA_REQUEST,
-  GetBucketInfoSuccessAction,
+  GetBucketInfoRequestAction,
   GET_BUCKET_DATA_SUCCESS,
-  GetBucketInfoFailureAction,
+  GetBucketInfoSuccessAction,
   GET_BUCKET_DATA_FAILURE,
+  GetBucketInfoFailureAction,
+  SET_RECORDING_SETTINGS,
+  SetRecordingSettingsAction,
 } from './types';
 import { Recording } from '../common/Recording.interface';
+import { RecordingSettings } from '../common/RecordingSettings.interface';
 
 // export const startMonitor = (): AppThunk => async (dispatch) => {
 //   dispatch({})
@@ -107,7 +110,7 @@ export function loadRecordingsRequest(): LoadRecordingsRequestAction {
 
 export function loadRecordingsSuccess(
   recordings: Recording[]
-): LoadRecordingsuccessAction {
+): LoadRecordingsSuccessAction {
   return {
     type: LOAD_RECORDINGS_SUCCESS,
     payload: recordings,
@@ -182,5 +185,14 @@ export function getBucketInfoFailure(error: Error): GetBucketInfoFailureAction {
   return {
     type: GET_BUCKET_DATA_FAILURE,
     payload: error,
+  };
+}
+
+export function setRecordingSettings(
+  recordingSettings: RecordingSettings
+): SetRecordingSettingsAction {
+  return {
+    type: SET_RECORDING_SETTINGS,
+    payload: recordingSettings,
   };
 }

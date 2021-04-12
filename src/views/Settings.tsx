@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { connect, useDispatch } from 'react-redux';
 import * as actions from '../store/actions';
 import { useTextile } from '../services/TextileProvider';
 import { getBucketInfo } from '../effects';
-import { RecorderState } from '../store/types';
+import { RecorderState, SetRecordingSettingsAction } from '../store/types';
+import { RecordingSettings } from '../common/RecordingSettings.interface';
+import { RecordingFormats } from '../common/RecordingFormats.enum';
 import Typography from '@material-ui/core/Typography';
 import { useTheme } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
@@ -19,33 +21,41 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 
 const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
-  backgroundColor: theme.palette.background.default,
-  color: theme.palette.getContrastText(theme.palette.background.default),
-  // paddingLeft: 8,
+  // backgroundColor: theme.palette.background.default,
+  // color: theme.palette.getContrastText(theme.palette.background.default),
   paddingTop: 8,
-  // borderBottom: `1px solid ${theme.palette.primary.main}`,
   marginLeft: 8,
 }));
 
 interface SettingsProps {
-  bucketInfo: any;
+  recordingSettings: RecordingSettings;
+  setRecordingSettings(
+    recordingSettings: RecordingSettings
+  ): SetRecordingSettingsAction;
 }
 
-export function Settings({ bucketInfo }: SettingsProps) {
-  const [recordingFormat, setRecordingFormat] = useState('mp3');
-  const [channelCount, setChannelCount] = useState('2');
+export function Settings({
+  recordingSettings,
+  setRecordingSettings,
+}: SettingsProps) {
   const { identity } = useTextile();
   const dispatch = useDispatch();
   const theme: Theme = useTheme();
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setRecordingFormat(event.target.value as string);
+  const handleRecordingFormatChange = (
+    event: React.ChangeEvent<{ value: RecordingFormats }>
+  ) => {
+    setRecordingSettings({
+      ...recordingSettings,
+      format: event.target.value,
+    });
   };
 
-  const handleChannelSelect = (
-    event: React.ChangeEvent<{ value: unknown }>
-  ) => {
-    setChannelCount(event.target.value as string);
+  const handleChannelSelect = (event: React.ChangeEvent<{ value: string }>) => {
+    setRecordingSettings({
+      ...recordingSettings,
+      channels: parseInt(event.target.value),
+    });
   };
 
   const downloadToken = () => {
@@ -68,18 +78,16 @@ export function Settings({ bucketInfo }: SettingsProps) {
       <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
         <Typography variant="caption">Account Token</Typography>
       </SectionHeader>
-      {/* <div>identity: {identity.toString()}</div> */}
       <div style={{ padding: 8 }}>
         <Typography variant="caption" color="textSecondary">
           Use this token to sync your data on multiple devices. Store this
-          seccurly and do not share it with anyone.
+          securly and do not share it with anyone.
         </Typography>
       </div>
       <div
         style={{
           padding: 8,
           paddingTop: 0,
-          // textAlign: 'center',
         }}
       >
         <Button variant="outlined" size="small" onClick={downloadToken}>
@@ -102,13 +110,12 @@ export function Settings({ bucketInfo }: SettingsProps) {
           <Select
             labelId="recording-format-select-label"
             id="recording-format-select"
-            value={recordingFormat}
-            onChange={handleChange}
+            value={recordingSettings.format}
+            onChange={handleRecordingFormatChange}
             label="Recording Format"
           >
             <MenuItem value={'flac'}>flac</MenuItem>
             <MenuItem value={'mp3'}>mp3</MenuItem>
-            <MenuItem value={'ogg'}>ogg</MenuItem>
             <MenuItem value={'wav'}>wav</MenuItem>
           </Select>
         </FormControl>
@@ -122,7 +129,7 @@ export function Settings({ bucketInfo }: SettingsProps) {
             style={{
               display: 'inline',
             }}
-            value={channelCount}
+            value={recordingSettings.channels.toString()}
             id="input-format-channels"
             name="channels"
             onChange={handleChannelSelect}
@@ -146,7 +153,7 @@ export function Settings({ bucketInfo }: SettingsProps) {
 
 const mapStateToProps = (state: RecorderState) => {
   return {
-    bucketInfo: state.bucketInfo,
+    recordingSettings: state.recordingSettings,
   };
 };
 

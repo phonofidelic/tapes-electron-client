@@ -1,5 +1,6 @@
 import { Action } from 'redux';
 import { Recording } from '../common/Recording.interface';
+import { RecordingSettings } from '../common/RecordingSettings.interface';
 
 export const START_RECORDING_REQUEST = 'start_recording_request',
   START_RECORDING_SUCCESS = 'start_recording_success',
@@ -22,7 +23,8 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   PAUSE_RECORDING = 'pause_recording',
   GET_BUCKET_DATA_REQUEST = 'get_bucket_data_request',
   GET_BUCKET_DATA_SUCCESS = 'get_bucket_data_success',
-  GET_BUCKET_DATA_FAILURE = 'get_bucket_data_failure';
+  GET_BUCKET_DATA_FAILURE = 'get_bucket_data_failure',
+  SET_RECORDING_SETTINGS = 'set_recording_settings';
 
 export interface RecorderState {
   isRecording: boolean;
@@ -33,6 +35,8 @@ export interface RecorderState {
   recordings: Recording[];
   playing: string;
   bucketInfo: any | null;
+  recordingSettings: RecordingSettings;
+  version?: number;
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -78,7 +82,7 @@ export interface LoadRecordingsRequestAction extends Action {
   type: typeof LOAD_RECORDINGS_REQUEST;
 }
 
-export interface LoadRecordingsuccessAction extends Action {
+export interface LoadRecordingsSuccessAction extends Action {
   type: typeof LOAD_RECORDINGS_SUCCESS;
   payload: Recording[];
 }
@@ -126,6 +130,11 @@ export interface GetBucketInfoFailureAction extends Action {
   payload: Error;
 }
 
+export interface SetRecordingSettingsAction extends Action {
+  type: typeof SET_RECORDING_SETTINGS;
+  payload: RecordingSettings;
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -137,7 +146,7 @@ export type RecorderAction =
   | StopMonitorAction
   | AddNewRecAction
   | LoadRecordingsRequestAction
-  | LoadRecordingsuccessAction
+  | LoadRecordingsSuccessAction
   | LoadRecordingsFailureAction
   | DeleteRecordingRequestAction
   | DeleteRecordingSuccessAction
@@ -146,4 +155,5 @@ export type RecorderAction =
   | PauseRecordingAction
   | GetBucketInfoRequestAction
   | GetBucketInfoSuccessAction
-  | GetBucketInfoFailureAction;
+  | GetBucketInfoFailureAction
+  | SetRecordingSettingsAction;

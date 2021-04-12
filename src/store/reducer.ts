@@ -20,7 +20,9 @@ import {
   GET_BUCKET_DATA_REQUEST,
   GET_BUCKET_DATA_SUCCESS,
   GET_BUCKET_DATA_FAILURE,
+  SET_RECORDING_SETTINGS,
 } from './types';
+import { RecordingFormats } from '../common/RecordingFormats.enum';
 
 export const initialState: RecorderState = {
   isRecording: false,
@@ -31,6 +33,10 @@ export const initialState: RecorderState = {
   recordings: [],
   playing: null,
   bucketInfo: null,
+  recordingSettings: {
+    channels: 2,
+    format: RecordingFormats.Mp3,
+  },
 };
 
 export const reducer = (
@@ -161,6 +167,12 @@ export const reducer = (
         ...state,
         loading: false,
         error: action.payload,
+      };
+
+    case SET_RECORDING_SETTINGS:
+      return {
+        ...state,
+        recordingSettings: action.payload,
       };
 
     default:
