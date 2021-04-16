@@ -126,15 +126,15 @@ export const reducer = (
       return {
         ...state,
         loading: true,
+        recordings: state.recordings.filter(
+          (recording) => recording.id !== action.payload
+        ),
       };
 
     case DELETE_RECORDING_SUCCESS:
       return {
         ...state,
         loading: false,
-        recordings: state.recordings.filter(
-          (recording) => recording.id !== action.payload
-        ),
       };
 
     case PLAY_RECORDING:

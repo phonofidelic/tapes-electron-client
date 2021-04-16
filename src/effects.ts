@@ -23,6 +23,7 @@ import { RecordingSettings } from './common/RecordingSettings.interface';
 import { IpcService } from './IpcService';
 import {
   Buckets,
+  Client,
   PushPathResult,
   KeyInfo,
   PrivateKey,
@@ -75,6 +76,16 @@ const getBucketKey = async () => {
     threadId: buck.threadID,
     token,
   };
+};
+
+const listThreads = async () => {
+  const storedIdent = localStorage.getItem('identity');
+  const identity = PrivateKey.fromString(storedIdent);
+
+  const client = Client.withKeyInfo(keyInfo);
+
+  const threads = await (await client).listThreads();
+  console.log('listTrheads, threads:', threads);
 };
 /** End Textile utils */
 
@@ -181,14 +192,25 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 export const deleteRecording = (recordingId: string): Effect => async (
   dispatch
 ) => {
+  dispatch(deleteRecordingRequest(recordingId));
+
   let recording;
   try {
-    dispatch(deleteRecordingRequest(recordingId));
     /**
      * Get data for Recording to delete
      */
     recording = await db.recordings.get(recordingId);
     console.log('deleteRecording, recording:', recording);
+
+    /**
+     * Delete in IPFS
+     */
+    const { buckets, bucketKey } = await getBucketKey();
+    const removePathResult = await buckets.removePath(
+      bucketKey,
+      recording.filename
+    );
+    console.log('removePathResult:', removePathResult);
 
     /**
      * Remove Recording object in storage
@@ -205,23 +227,9 @@ export const deleteRecording = (recordingId: string): Effect => async (
 
     dispatch(deleteRecordingSuccess(recordingId));
   } catch (err) {
-    console.error(err);
-    dispatch(deleteRecordingFailure(err));
-  }
-
-  try {
-    /**
-     * Delete in IPFS
-     * TODO: move to main process
-     */
-    const { buckets, bucketKey } = await getBucketKey();
-    const removePathResult = await buckets.removePath(
-      bucketKey,
-      recording.filename
-    );
-    console.log('removePathResult:', removePathResult);
-  } catch (err) {
     console.error('Could not remove IPFS path:', err);
+
+    dispatch(deleteRecordingFailure(err));
   }
 };
 
