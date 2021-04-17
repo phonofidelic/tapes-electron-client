@@ -12,10 +12,12 @@ import { RecordingFormats } from '../common/RecordingFormats.enum';
 import AudioAnalyser from '../components/AudioAnalyser';
 import RecorderControls from '../components/RecorderControls';
 import Timer from '../components/Timer';
+import { RecordingSettings } from '../common/RecordingSettings.interface';
 
 interface RecorderProps {
   isMonitoring: boolean;
   isRecording: boolean;
+  recordingSettings: RecordingSettings;
   startMonitor(monitorInstance: MediaStream): StartMonitorAction;
   stopMonitor(): StopMonitorAction;
 }
@@ -23,6 +25,7 @@ interface RecorderProps {
 function Recorder({
   isMonitoring,
   isRecording,
+  recordingSettings,
   startMonitor,
   stopMonitor,
 }: RecorderProps) {
@@ -50,7 +53,7 @@ function Recorder({
       format: 'mp3' as RecordingFormats,
     };
 
-    dispatch(startRecording(mockSettings));
+    dispatch(startRecording(recordingSettings));
   };
 
   const handleStopRecording = () => {
@@ -77,6 +80,7 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     isMonitoring: state.isMonitoring,
     isRecording: state.isRecording,
+    recordingSettings: state.recordingSettings,
   };
 };
 

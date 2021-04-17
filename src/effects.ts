@@ -82,9 +82,10 @@ const listThreads = async () => {
   const storedIdent = localStorage.getItem('identity');
   const identity = PrivateKey.fromString(storedIdent);
 
-  const client = Client.withKeyInfo(keyInfo);
+  const client = await Client.withKeyInfo(keyInfo);
+  await client.getToken(identity);
 
-  const threads = await (await client).listThreads();
+  const threads = await client.listThreads();
   console.log('listTrheads, threads:', threads);
 };
 /** End Textile utils */
@@ -115,6 +116,8 @@ export const startRecording = (
         recordingData.filename,
         title,
         recordingData.size,
+        recordingData.format,
+        recordingData.channels,
         recordingData.duration
       )
     );
@@ -234,6 +237,7 @@ export const deleteRecording = (recordingId: string): Effect => async (
 };
 
 export const getBucketInfo = (): Effect => async (dispatch) => {
+  await listThreads();
   dispatch(getBucketInfoRequest());
 
   try {

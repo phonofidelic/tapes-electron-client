@@ -1,6 +1,7 @@
 // import { randomBytes } from 'crypto';
 import Dexie from 'dexie';
 import { Recording } from './common/Recording.interface';
+import { RecordingFormats } from './common/RecordingFormats.enum';
 
 export class AppDatabase extends Dexie {
   recordings: Dexie.Table<Recording, string>;
@@ -26,12 +27,16 @@ export class RecordingModel implements Recording {
   size: number;
   duration: number;
   created: Date;
+  format: RecordingFormats;
+  channels: number;
 
   constructor(
     location: string,
     filename: string,
     title: string,
     size: number,
+    format: RecordingFormats,
+    channels: number,
     duration: number,
     remoteLocation?: string,
     bucketPath?: string
@@ -46,6 +51,8 @@ export class RecordingModel implements Recording {
     this.title = title;
     this.size = size;
     this.duration = duration;
+    this.format = format;
+    this.channels = channels;
   }
 }
 

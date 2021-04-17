@@ -118,6 +118,8 @@ export class NewRecordingChannel implements IpcChannel {
           filename,
           size: fileStats.size,
           duration: metadata.format.duration,
+          format: recordingSettings.format,
+          channels: recordingSettings.channels,
         };
 
         const fileData = await fs.readFile(filePath);

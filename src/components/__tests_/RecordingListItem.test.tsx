@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import { render, fireEvent } from '@testing-library/react';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingsListItem } from '../RecordingsListItem';
+import { RecordingFormats } from '../../common/RecordingFormats.enum';
 
 const mockDate = new Date();
 const mockRecording: Recording = {
@@ -12,6 +13,8 @@ const mockRecording: Recording = {
   size: 1234,
   created: mockDate,
   filename: '8g7i8fi7f7fi7ftituf76',
+  format: 'mp3' as RecordingFormats,
+  channels: 2,
 };
 
 let mockSelect: (recordingId: string) => void;

@@ -20,6 +20,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import Grow from '@material-ui/core/Grow';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import MonoIcon from '@material-ui/icons/LooksOneOutlined';
+import StereoIcon from '@material-ui/icons/LooksTwoOutlined';
+import { useTheme } from '@material-ui/core/styles';
 
 interface RecordingsListItemProps {
   recording: Recording;
@@ -56,6 +59,7 @@ export function RecordingsListItem({
     setPlaying,
     setClickedTime,
   } = useAudioPreview(recording.id);
+  const theme = useTheme();
 
   const selected = selectedRecording === recording.id;
   // const isPlaying = playing?.recordingId === recording.id;
@@ -106,7 +110,32 @@ export function RecordingsListItem({
       >
         <ListItemText
           disableTypography={true}
-          primary={<Typography>{recording.title}</Typography>}
+          primary={
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography>{recording.title}</Typography>
+              {selected && (
+                <div style={{ color: theme.palette.text.secondary }}>
+                  <Chip
+                    label={
+                      <Typography variant="overline">
+                        {recording.format.toUpperCase() || 'MP3'}
+                      </Typography>
+                    }
+                    size="small"
+                    variant="outlined"
+                    style={{
+                      backgroundColor: theme.palette.background.default,
+                    }}
+                  />
+                  {recording.channels === 1 ? (
+                    <MonoIcon fontSize="small" />
+                  ) : (
+                    <StereoIcon fontSize="small" />
+                  )}
+                </div>
+              )}
+            </div>
+          }
           secondary={
             selected && (
               <Grow in={true}>
