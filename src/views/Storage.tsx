@@ -39,8 +39,6 @@ export function Storage({ recordings }: StorageProps) {
     dispatch(loadRecordings());
   }, []);
 
-  console.log('Storage, bucketToken:', bucketToken);
-
   if (!bucketToken) {
     return <div>Loading...</div>;
   }
