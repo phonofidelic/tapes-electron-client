@@ -37,6 +37,7 @@ beforeEach(() => {
 it('displays the default list item', () => {
   const { getByText } = render(
     <RecordingsListItem
+      bucketToken="123abc"
       recording={mockRecording}
       selectedRecording={null}
       handleSelectRecording={mockSelect}
@@ -50,6 +51,7 @@ it('displays the default list item', () => {
 it('displays detail info when selected', () => {
   const { getByText } = render(
     <RecordingsListItem
+      bucketToken="123abc"
       recording={mockRecording}
       selectedRecording={'123'}
       handleSelectRecording={mockSelect}
