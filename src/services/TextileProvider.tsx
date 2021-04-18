@@ -13,7 +13,11 @@ import {
   KeyInfo,
   PrivateKey,
   WithKeyInfoOptions,
+  ThreadID,
+  GetThreadResponse,
 } from '@textile/hub';
+import { Recording } from '../common/Recording.interface';
+import { RecordingFormats } from '../common/RecordingFormats.enum';
 
 const THREADS_DB_NAME = 'tapes-thread-db';
 
@@ -86,13 +90,15 @@ function TextileProvider({ children }: TextileProviderProps) {
     /**
      * Attempt to find existing DB thread
      */
-    let dbThread;
+    let dbThread: ThreadID;
     try {
-      dbThread = await user.getThread(THREADS_DB_NAME);
+      let getThreadResponse = await user.getThread(THREADS_DB_NAME);
+      dbThread = ThreadID.fromString(getThreadResponse.id);
       console.log('Remote Thread DB store found');
     } catch (err) {
       if (err.code === 5) {
         console.log('Could not find DB Thread:', err);
+
         /**
          * Create new DB Thread
          */
@@ -103,6 +109,55 @@ function TextileProvider({ children }: TextileProviderProps) {
       }
     }
     console.log('initUserThread, dbThread:', dbThread);
+
+    /**
+     * Set up collections
+     */
+    const collections = await client.listCollections(dbThread);
+    console.log('initUserThread, collections:', collections);
+
+    if (
+      !collections
+        .map((collectinoInfo) => collectinoInfo.name)
+        .includes('recordings')
+    ) {
+      console.log('No recordings collection found');
+      /**
+       * Initialize recordings collection
+       */
+      console.log('Creating new recordings collection...');
+      const recordingShema: Recording = {
+        _id: '',
+        location: '',
+        filename: '',
+        size: 0,
+        format: '' as RecordingFormats,
+        channels: 1,
+      };
+      await client.newCollectionFromObject(dbThread, recordingShema, {
+        name: 'recordings',
+      });
+    }
+
+    const collectionInfo = await client.getCollectionInfo(
+      dbThread,
+      'recordings'
+    );
+    console.log('initUserThread, collectionInfo:', collectionInfo);
+
+    const recordings = await client.find(dbThread, 'recordings', {});
+    console.log('initUserThread, recordings:', recordings);
+
+    /**
+     * Clear all recording docs
+     */
+    // const recIds = recordings.map((rec: Recording) => rec._id);
+    // await client.delete(dbThread, 'recordings', recIds);
+    // const recordingsAfterDelete = await client.find(dbThread, 'recordings', {});
+    // console.log(
+    //   'initUserThread, recordingsAfterDelete:',
+    //   recordingsAfterDelete
+    // );
   };
 
   useEffect(() => {

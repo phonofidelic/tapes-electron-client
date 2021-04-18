@@ -42,7 +42,7 @@ export class RecordingModel implements Recording {
     bucketPath?: string
   ) {
     // this.id = randomBytes(12).toString('hex');
-    this.id = Date.now().toString();
+    // this.id = Date.now().toString();
     this.filename = filename;
     this.created = new Date();
     this.location = location;

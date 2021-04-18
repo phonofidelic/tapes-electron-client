@@ -24,12 +24,16 @@ import { IpcService } from './IpcService';
 import {
   Buckets,
   Client,
+  Users,
   PushPathResult,
   KeyInfo,
   PrivateKey,
   WithKeyInfoOptions,
   Identity,
+  ThreadID,
 } from '@textile/hub';
+
+const THREADS_DB_NAME = 'tapes-thread-db';
 
 declare const USER_API_KEY: any;
 // console.log('effects, USER_API_KEY:', USER_API_KEY);
@@ -78,15 +82,27 @@ const getBucketKey = async () => {
   };
 };
 
-const listThreads = async () => {
+const getTextileClient = async () => {
   const storedIdent = localStorage.getItem('identity');
   const identity = PrivateKey.fromString(storedIdent);
 
   const client = await Client.withKeyInfo(keyInfo);
   await client.getToken(identity);
 
-  const threads = await client.listThreads();
-  console.log('listTrheads, threads:', threads);
+  return client;
+};
+
+const getDbThread = async () => {
+  const storedIdent = localStorage.getItem('identity');
+  const identity = PrivateKey.fromString(storedIdent);
+
+  const user = await Users.withKeyInfo(keyInfo);
+  await user.getToken(identity);
+
+  const getThreadResponse = await user.getThread(THREADS_DB_NAME);
+  const dbThread = ThreadID.fromString(getThreadResponse.id);
+
+  return dbThread;
 };
 /** End Textile utils */
 
@@ -109,19 +125,6 @@ export const startRecording = (
     console.log('recordingCount:', recordingCount);
 
     const title = `Recording #${recordingCount + 1}`;
-
-    const recordingDoc = await db.recordings.add(
-      new RecordingModel(
-        recordingData.location,
-        recordingData.filename,
-        title,
-        recordingData.size,
-        recordingData.format,
-        recordingData.channels,
-        recordingData.duration
-      )
-    );
-    console.log('recordingDoc:', recordingDoc);
 
     /**
      * Push audio data to IPFS
@@ -150,12 +153,50 @@ export const startRecording = (
       token;
 
     /**
+     * Save recorfing to IndexedDB
+     */
+    const recordingDoc = new RecordingModel(
+      recordingData.location,
+      recordingData.filename,
+      title,
+      recordingData.size,
+      recordingData.format,
+      recordingData.channels,
+      recordingData.duration,
+      remoteLocation
+    );
+
+    /**
+     * Add recording doc to Textile DB
+     */
+    const client = await getTextileClient();
+    const dbThread = await getDbThread();
+    const newRecordingDocs = await client.create(dbThread, 'recordings', [
+      recordingDoc,
+    ]);
+    console.log('newRecordingDocs:', newRecordingDocs);
+    const newRecordingId = newRecordingDocs[0];
+    recordingDoc.id = newRecordingId;
+
+    await db.recordings.add(recordingDoc);
+    console.log('recordingDoc:', recordingDoc);
+
+    /**
      * Update recording doc with remoteLocation
      */
-    await db.recordings.update(recordingDoc, {
+    await db.recordings.update(newRecordingId, {
       remoteLocation,
       bucketPath: pushPathResult.path.path,
     });
+
+    const threadRecordingDoc: Recording = await client.findByID(
+      dbThread,
+      'recordings',
+      newRecordingId
+    );
+    threadRecordingDoc.id = newRecordingId;
+    threadRecordingDoc.remoteLocation = remoteLocation;
+    await client.save(dbThread, 'recordings', [threadRecordingDoc]);
   } catch (err) {
     console.error('startRecordingRequest error:', err);
     dispatch(startRecordingFailure(err));
@@ -177,7 +218,10 @@ export const stopRecording = (): Effect => async (dispatch) => {
 export const loadRecordings = (): Effect => async (dispatch) => {
   dispatch(loadRecordingsRequest());
 
-  // const { buckets, bucketKey } = await getBucketKey();
+  const client = await getTextileClient();
+  const dbThread = await getDbThread();
+  const textileRecordings = await client.find(dbThread, 'recordings', {});
+  console.log('loadRecordings, textileRecordings:', textileRecordings);
 
   let idbResponse;
   try {
@@ -206,7 +250,7 @@ export const deleteRecording = (recordingId: string): Effect => async (
     console.log('deleteRecording, recording:', recording);
 
     /**
-     * Delete in IPFS
+     * Delete in Textile bucket
      */
     const { buckets, bucketKey } = await getBucketKey();
     const removePathResult = await buckets.removePath(
@@ -228,6 +272,13 @@ export const deleteRecording = (recordingId: string): Effect => async (
      */
     await db.recordings.delete(recordingId);
 
+    /**
+     * Delete record in Textile thread
+     */
+    const client = await getTextileClient();
+    const dbThread = await getDbThread();
+    await client.delete(dbThread, 'recordings', [recordingId]);
+
     dispatch(deleteRecordingSuccess(recordingId));
   } catch (err) {
     console.error('Could not remove IPFS path:', err);
@@ -237,7 +288,6 @@ export const deleteRecording = (recordingId: string): Effect => async (
 };
 
 export const getBucketInfo = (): Effect => async (dispatch) => {
-  await listThreads();
   dispatch(getBucketInfoRequest());
 
   try {

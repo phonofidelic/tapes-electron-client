@@ -45,14 +45,6 @@ function Recorder({
   };
 
   const handleStartRecording = async () => {
-    // const bucketKey = await getBucketKey();
-    // console.log('handleStartRecording, bucketKey:', bucketKey);
-
-    const mockSettings = {
-      channels: 2,
-      format: 'mp3' as RecordingFormats,
-    };
-
     dispatch(startRecording(recordingSettings));
   };
 
