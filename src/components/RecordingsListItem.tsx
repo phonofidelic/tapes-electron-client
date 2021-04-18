@@ -10,7 +10,6 @@ import useAudioPreview from '../hooks/useAudioPreview';
 import PlayButton from './PlayButton';
 import StopButton from './StopButton';
 
-import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import ListItem from '@material-ui/core/ListItem';
@@ -20,8 +19,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import Grow from '@material-ui/core/Grow';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import MonoIcon from '@material-ui/icons/LooksOneOutlined';
-import StereoIcon from '@material-ui/icons/LooksTwoOutlined';
 import { useTheme } from '@material-ui/core/styles';
 
 interface RecordingsListItemProps {
@@ -116,24 +113,39 @@ export function RecordingsListItem({
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography>{recording.title}</Typography>
               {selected && (
-                <div style={{ color: theme.palette.text.secondary }}>
-                  <Chip
-                    label={
-                      <Typography variant="overline">
-                        {recording.format.toUpperCase() || 'MP3'}
-                      </Typography>
-                    }
-                    size="small"
-                    variant="outlined"
+                <div
+                  style={{
+                    color: theme.palette.text.secondary,
+                    display: 'flex',
+                  }}
+                >
+                  <div
                     style={{
-                      backgroundColor: theme.palette.background.default,
+                      border: `2px solid ${theme.palette.text.secondary}`,
+                      borderRadius: 2,
+                      lineHeight: '16px',
+                      height: 16,
+                      fontSize: '0.8em',
+                      paddingLeft: 2,
+                      paddingRight: 2,
                     }}
-                  />
-                  {recording.channels === 1 ? (
-                    <MonoIcon fontSize="small" />
-                  ) : (
-                    <StereoIcon fontSize="small" />
-                  )}
+                  >
+                    {recording.format}
+                  </div>
+                  <div
+                    style={{
+                      border: `2px solid ${theme.palette.text.secondary}`,
+                      borderRadius: 2,
+                      lineHeight: '16px',
+                      height: 16,
+                      width: 16,
+                      fontSize: '0.8em',
+                      textAlign: 'center',
+                      marginLeft: 4,
+                    }}
+                  >
+                    {recording.channels}
+                  </div>
                 </div>
               )}
             </div>
