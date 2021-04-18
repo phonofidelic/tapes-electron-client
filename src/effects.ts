@@ -148,9 +148,9 @@ export const startRecording = (
       '/buckets/' +
       bucketKey +
       '/' +
-      recordingData.filename +
-      '?token=' +
-      token;
+      recordingData.filename;
+    // '?token=' +
+    // token;
 
     /**
      * Save recorfing to IndexedDB

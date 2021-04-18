@@ -4,10 +4,12 @@ import { Recording } from '../common/Recording.interface';
 import * as actions from '../store/actions';
 import { loadRecordings, deleteRecording } from '../effects';
 import { RecorderState } from '../store/types';
+import { useTextile } from '../services/TextileProvider';
 
-import RecordingsList from '../components/RecordingsList';
+import RecordingsListItem from '../components/RecordingsListItem';
 
 import Typography from '@material-ui/core/Typography';
+import List from '@material-ui/core/List';
 
 interface StorageProps {
   recordings: Recording[];
@@ -15,7 +17,9 @@ interface StorageProps {
 
 export function Storage({ recordings }: StorageProps) {
   const [selectedRecording, setSelectedRecording] = useState(null);
+  const [bucketToken, setBucketToken] = useState('');
   const dispatch = useDispatch();
+  const { getBucketToken } = useTextile();
 
   const handleSelectRecording = (recordingId: string) => {
     setSelectedRecording(recordingId);
@@ -26,8 +30,20 @@ export function Storage({ recordings }: StorageProps) {
   };
 
   useEffect(() => {
+    const setToken = async () => {
+      const token = await getBucketToken();
+      setBucketToken(token);
+    };
+    setToken();
+
     dispatch(loadRecordings());
   }, []);
+
+  console.log('Storage, bucketToken:', bucketToken);
+
+  if (!bucketToken) {
+    return <div>Loading...</div>;
+  }
 
   if (!recordings.length)
     return (
@@ -50,12 +66,18 @@ export function Storage({ recordings }: StorageProps) {
 
   if (recordings.length)
     return (
-      <RecordingsList
-        recordings={recordings}
-        selectedRecording={selectedRecording}
-        handleSelectRecording={handleSelectRecording}
-        handleDeleteRecording={handleDeleteRecording}
-      />
+      <List>
+        {recordings.map((recording: Recording) => (
+          <RecordingsListItem
+            key={recording.id}
+            bucketToken={bucketToken}
+            recording={recording}
+            selectedRecording={selectedRecording}
+            handleSelectRecording={handleSelectRecording}
+            handleDeleteRecording={handleDeleteRecording}
+          />
+        ))}
+      </List>
     );
 }
 

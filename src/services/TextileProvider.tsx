@@ -31,6 +31,12 @@ const TextileContext = createContext(null);
 
 function TextileProvider({ children }: TextileProviderProps) {
   const [identity, setIdentity] = useState(null);
+  const [bucketToken, setBucketToken] = useState('');
+
+  const keyInfo: KeyInfo = {
+    key: USER_API_KEY,
+  };
+
   /**
    * getIdentity uses a basic private key identity.
    * The user's identity will be cached client side. This is long
@@ -70,10 +76,6 @@ function TextileProvider({ children }: TextileProviderProps) {
   const initUserThread = async () => {
     const identity = await getIdentity();
     console.log('initUserThread, identity:', identity);
-
-    const keyInfo: KeyInfo = {
-      key: USER_API_KEY,
-    };
 
     /**
      * Initialize Textile User
@@ -160,12 +162,21 @@ function TextileProvider({ children }: TextileProviderProps) {
     // );
   };
 
+  const getBucketToken = async () => {
+    /**
+     * Initialize Buckets and set token
+     */
+    const buckets = await Buckets.withKeyInfo(keyInfo, { debug: true });
+    const token = await buckets.getToken(identity);
+    return token;
+  };
+
   useEffect(() => {
     initUserThread();
   }, []);
 
   return (
-    <TextileContext.Provider value={{ identity, getIdentity }}>
+    <TextileContext.Provider value={{ identity, getIdentity, getBucketToken }}>
       {children}
     </TextileContext.Provider>
   );

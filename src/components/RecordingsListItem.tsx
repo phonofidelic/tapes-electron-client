@@ -25,6 +25,7 @@ import StereoIcon from '@material-ui/icons/LooksTwoOutlined';
 import { useTheme } from '@material-ui/core/styles';
 
 interface RecordingsListItemProps {
+  bucketToken: string;
   recording: Recording;
   selectedRecording: string;
   handleSelectRecording(recordingId: string): void;
@@ -45,6 +46,7 @@ function msToTime(duration: number): string {
 }
 
 export function RecordingsListItem({
+  bucketToken,
   recording,
   selectedRecording,
   handleSelectRecording,
@@ -187,7 +189,7 @@ export function RecordingsListItem({
           </MenuItem>
         </Menu>
         <audio id={recording.id}>
-          <source src={recording.remoteLocation} />
+          <source src={recording.remoteLocation + `?token=${bucketToken}`} />
           <source src={'tapes://' + recording.location} />
         </audio>
       </ListItem>
