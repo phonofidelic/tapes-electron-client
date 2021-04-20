@@ -62,12 +62,12 @@ export function Storage({ recordings }: StorageProps) {
       </div>
     );
 
-  if (recordings.length)
+  if (recordings.length > 0)
     return (
       <List>
         {recordings.map((recording: Recording) => (
           <RecordingsListItem
-            key={recording.id}
+            key={recording._id}
             bucketToken={bucketToken}
             recording={recording}
             selectedRecording={selectedRecording}

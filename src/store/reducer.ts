@@ -127,7 +127,7 @@ export const reducer = (
         ...state,
         loading: true,
         recordings: state.recordings.filter(
-          (recording) => recording.id !== action.payload
+          (recording) => recording._id !== action.payload
         ),
       };
 

@@ -7,6 +7,7 @@ import { RecordingFormats } from '../../common/RecordingFormats.enum';
 
 const mockDate = new Date();
 const mockRecording: Recording = {
+  _id: '123',
   id: '123',
   location: 'fdefafafaf',
   title: 'Mock recording',

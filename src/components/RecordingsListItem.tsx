@@ -57,10 +57,10 @@ export function RecordingsListItem({
     playing,
     setPlaying,
     setClickedTime,
-  } = useAudioPreview(recording.id);
+  } = useAudioPreview(recording._id);
   const theme = useTheme();
 
-  const selected = selectedRecording === recording.id;
+  const selected = selectedRecording === recording._id;
   // const isPlaying = playing?.recordingId === recording.id;
   const isPlaying = playing;
 
@@ -102,10 +102,10 @@ export function RecordingsListItem({
           userSelect: 'none',
         }}
         ref={hoverRef}
-        key={recording.id}
+        key={recording._id}
         divider
         selected={selected}
-        onClick={() => handleSelectRecording(recording.id)}
+        onClick={() => handleSelectRecording(recording._id)}
       >
         <ListItemText
           disableTypography={true}
@@ -155,7 +155,11 @@ export function RecordingsListItem({
               <Grow in={true}>
                 <div>
                   <Typography variant="body2">
-                    {`${recording.created.toLocaleDateString()} ${recording.created.toLocaleTimeString()}`}
+                    {`${new Date(
+                      recording.created
+                    ).toLocaleDateString()} ${new Date(
+                      recording.created
+                    ).toLocaleTimeString()}`}
                   </Typography>
                   <Typography variant="caption">
                     Duration: {msToTime(Math.trunc(duration * 1000))}
@@ -195,12 +199,12 @@ export function RecordingsListItem({
           <MenuItem
             data-testid="option_delete-recording"
             dense
-            onClick={() => handleDelete(recording.id)}
+            onClick={() => handleDelete(recording._id)}
           >
             Delete
           </MenuItem>
         </Menu>
-        <audio id={recording.id}>
+        <audio id={recording._id}>
           <source src={recording.remoteLocation + `?token=${bucketToken}`} />
           <source src={'tapes://' + recording.location} />
         </audio>

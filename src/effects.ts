@@ -121,7 +121,9 @@ export const startRecording = (
     const recordingData = ipcResponse.data;
     console.log('recordingData:', recordingData);
 
-    const recordingCount = await db.recordings.count();
+    // DB_MOD
+    // const recordingCount = await db.recordings.count();
+    const recordingCount = (await db.find('Recording', {})).length;
     console.log('recordingCount:', recordingCount);
 
     const title = `Recording #${recordingCount + 1}`;
@@ -152,9 +154,6 @@ export const startRecording = (
     // '?token=' +
     // token;
 
-    /**
-     * Save recorfing to IndexedDB
-     */
     const recordingDoc = new RecordingModel(
       recordingData.location,
       recordingData.filename,
@@ -169,34 +168,45 @@ export const startRecording = (
     /**
      * Add recording doc to Textile DB
      */
-    const client = await getTextileClient();
-    const dbThread = await getDbThread();
-    const newRecordingDocs = await client.create(dbThread, 'recordings', [
-      recordingDoc,
-    ]);
-    console.log('newRecordingDocs:', newRecordingDocs);
-    const newRecordingId = newRecordingDocs[0];
-    recordingDoc.id = newRecordingId;
+    // const client = await getTextileClient();
+    // const dbThread = await getDbThread();
+    // const newRecordingDocs = await client.create(dbThread, 'recordings', [
+    //   recordingDoc,
+    // ]);
+    // console.log('newRecordingDocs:', newRecordingDocs);
+    // const newRecordingId = newRecordingDocs[0];
 
-    await db.recordings.add(recordingDoc);
+    /**
+     * Save recorfing to IndexedDB
+     */
+    // DB_MOD
+    // await db.recordings.add(recordingDoc);
+    const newRecordingId = await db.add('Recording', recordingDoc);
     console.log('recordingDoc:', recordingDoc);
+
+    recordingDoc.id = newRecordingId;
 
     /**
      * Update recording doc with remoteLocation
      */
-    await db.recordings.update(newRecordingId, {
+    // DB_MOD
+    // await db.recordings.update(newRecordingId, {
+    //   remoteLocation,
+    //   bucketPath: pushPathResult.path.path,
+    // });
+    await db.update('Recording', newRecordingId, {
       remoteLocation,
       bucketPath: pushPathResult.path.path,
     });
 
-    const threadRecordingDoc: Recording = await client.findByID(
-      dbThread,
-      'recordings',
-      newRecordingId
-    );
-    threadRecordingDoc.id = newRecordingId;
-    threadRecordingDoc.remoteLocation = remoteLocation;
-    await client.save(dbThread, 'recordings', [threadRecordingDoc]);
+    // const threadRecordingDoc: Recording = await client.findByID(
+    //   dbThread,
+    //   'recordings',
+    //   newRecordingId
+    // );
+    // threadRecordingDoc.id = newRecordingId;
+    // threadRecordingDoc.remoteLocation = remoteLocation;
+    // await client.save(dbThread, 'recordings', [threadRecordingDoc]);
   } catch (err) {
     console.error('startRecordingRequest error:', err);
     dispatch(startRecordingFailure(err));
@@ -218,18 +228,20 @@ export const stopRecording = (): Effect => async (dispatch) => {
 export const loadRecordings = (): Effect => async (dispatch) => {
   dispatch(loadRecordingsRequest());
 
-  const client = await getTextileClient();
-  const dbThread = await getDbThread();
-  const textileRecordings = await client.find(dbThread, 'recordings', {});
-  console.log('loadRecordings, textileRecordings:', textileRecordings);
+  // const client = await getTextileClient();
+  // const dbThread = await getDbThread();
+  // const textileRecordings = await client.find(dbThread, 'recordings', {});
+  // console.log('loadRecordings, textileRecordings:', textileRecordings);
 
-  let idbResponse;
   try {
-    idbResponse = await db.transaction('r', db.recordings, async () => {
-      return await db.recordings.toArray();
-    });
+    // DB_MOD
+    // const recordings = await db.transaction('r', db.recordings, async () => {
+    //   return await db.recordings.toArray();
+    // });
+    const recordings = await db.find('Recording', {});
 
-    dispatch(loadRecordingsSuccess(idbResponse));
+    //@ts-ignore
+    dispatch(loadRecordingsSuccess(recordings));
   } catch (err) {
     console.error(err);
     dispatch(loadRecordingsFailure(err));
@@ -246,7 +258,10 @@ export const deleteRecording = (recordingId: string): Effect => async (
     /**
      * Get data for Recording to delete
      */
-    recording = await db.recordings.get(recordingId);
+    // DB_MOD
+    // recording = await db.recordings.get(recordingId);
+    console.log('deleteRecording, recordingId:', recordingId);
+    recording = await db.findById('Recording', recordingId);
     console.log('deleteRecording, recording:', recording);
 
     /**
@@ -255,6 +270,7 @@ export const deleteRecording = (recordingId: string): Effect => async (
     const { buckets, bucketKey } = await getBucketKey();
     const removePathResult = await buckets.removePath(
       bucketKey,
+      // @ts-ignore
       recording.filename
     );
     console.log('removePathResult:', removePathResult);
@@ -270,14 +286,16 @@ export const deleteRecording = (recordingId: string): Effect => async (
     /**
      * Delete record in IDB
      */
-    await db.recordings.delete(recordingId);
+    // DB_MOD
+    // await db.recordings.delete(recordingId);
+    await db.delete('Recording', recordingId);
 
     /**
      * Delete record in Textile thread
      */
-    const client = await getTextileClient();
-    const dbThread = await getDbThread();
-    await client.delete(dbThread, 'recordings', [recordingId]);
+    // const client = await getTextileClient();
+    // const dbThread = await getDbThread();
+    // await client.delete(dbThread, 'recordings', [recordingId]);
 
     dispatch(deleteRecordingSuccess(recordingId));
   } catch (err) {

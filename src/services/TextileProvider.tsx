@@ -18,8 +18,10 @@ import {
 } from '@textile/hub';
 import { Recording } from '../common/Recording.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
+import { db } from '../db';
 
 const THREADS_DB_NAME = 'tapes-thread-db';
+const RECORDING_COLLECTION = 'Recording';
 
 declare const USER_API_KEY: any;
 
@@ -111,6 +113,7 @@ function TextileProvider({ children }: TextileProviderProps) {
       }
     }
     console.log('initUserThread, dbThread:', dbThread);
+    await db.initRemote(dbThread);
 
     /**
      * Set up collections
@@ -121,7 +124,7 @@ function TextileProvider({ children }: TextileProviderProps) {
     if (
       !collections
         .map((collectinoInfo) => collectinoInfo.name)
-        .includes('recordings')
+        .includes(RECORDING_COLLECTION)
     ) {
       console.log('No recordings collection found');
       /**
@@ -137,17 +140,17 @@ function TextileProvider({ children }: TextileProviderProps) {
         channels: 1,
       };
       await client.newCollectionFromObject(dbThread, recordingShema, {
-        name: 'recordings',
+        name: RECORDING_COLLECTION,
       });
     }
 
     const collectionInfo = await client.getCollectionInfo(
       dbThread,
-      'recordings'
+      RECORDING_COLLECTION
     );
     console.log('initUserThread, collectionInfo:', collectionInfo);
 
-    const recordings = await client.find(dbThread, 'recordings', {});
+    const recordings = await client.find(dbThread, RECORDING_COLLECTION, {});
     console.log('initUserThread, recordings:', recordings);
 
     /**

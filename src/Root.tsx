@@ -7,6 +7,10 @@ import { store } from './store';
 import { theme } from './theme';
 import { BrowserRouter as Router } from 'react-router-dom';
 
+import { db } from './db';
+
+db.init();
+
 export default function Root({ children }: { children: React.ReactElement }) {
   return (
     <Provider store={store}>
