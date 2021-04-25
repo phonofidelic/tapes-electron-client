@@ -1,6 +1,6 @@
 import React, { ReactElement, useState, useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import * as actions from '../store/actions';
+// import { connect, useDispatch } from 'react-redux';
+// import * as actions from '../store/actions';
 import prettyBytes from 'pretty-bytes';
 import { Recording } from '../common/Recording.interface';
 import useHover from '../hooks/useHover';
@@ -223,4 +223,5 @@ const mapStateToProps = (state: RecorderState) => {
   return { playing: state.playing };
 };
 
-export default connect(mapStateToProps, actions)(RecordingsListItem);
+// export default connect(mapStateToProps, actions)(RecordingsListItem);
+export default RecordingsListItem;

@@ -20,7 +20,7 @@ import { KeyInfo, PrivateKey, ThreadID, Users, Client } from '@textile/hub';
 // }
 
 export class RecordingModel implements Recording {
-  id: string;
+  // id: string;
   location: string;
   remoteLocation?: string;
   bucketPath?: string;
@@ -86,6 +86,19 @@ const getIdentity = async (): Promise<PrivateKey> => {
   }
 };
 
+const getDbThread = async () => {
+  const storedIdent = localStorage.getItem('identity');
+  const identity = PrivateKey.fromString(storedIdent);
+
+  const user = await Users.withKeyInfo(keyInfo);
+  await user.getToken(identity);
+
+  const getThreadResponse = await user.getThread(THREADS_DB_NAME);
+  const dbThread = ThreadID.fromString(getThreadResponse.id);
+
+  return dbThread;
+};
+
 declare const USER_API_KEY: any;
 const keyInfo: KeyInfo = {
   key: USER_API_KEY,
@@ -109,6 +122,9 @@ export class AppDatabase {
     const open = async () => {
       console.log('Opening local database...', this._db.verno);
       await this._db.open(1);
+
+      const dbThread = await getDbThread();
+      await this.initRemote(dbThread);
     };
     open();
   };

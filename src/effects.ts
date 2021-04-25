@@ -184,7 +184,7 @@ export const startRecording = (
     const newRecordingId = await db.add('Recording', recordingDoc);
     console.log('recordingDoc:', recordingDoc);
 
-    recordingDoc.id = newRecordingId;
+    // recordingDoc.id = newRecordingId;
 
     /**
      * Update recording doc with remoteLocation
