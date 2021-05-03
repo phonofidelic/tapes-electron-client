@@ -106,7 +106,6 @@ const keyInfo: KeyInfo = {
 
 export class AppDatabase {
   _db: Database;
-  _remote: Remote;
 
   constructor() {
     if (!this._db) {
@@ -117,50 +116,45 @@ export class AppDatabase {
     }
   }
 
-  init = () => {
+  init = async () => {
     console.log('Init DB');
-    const open = async () => {
-      console.log('Opening local database...', this._db.verno);
+    console.log('Opening local database...', this._db.verno);
+    try {
       await this._db.open(1);
+    } catch (err) {
+      console.error('Could not open DB:', err);
+    }
 
-      const dbThread = await getDbThread();
-      await this.initRemote(dbThread);
-    };
-    open();
+    await this.initRemote();
   };
 
-  initRemote = async (dbThread: ThreadID) => {
+  initRemote = async () => {
     console.log('Initializing remote database...');
-    this._remote = await this._db.remote.setKeyInfo(keyInfo);
+    const dbThread = await getDbThread();
+
+    await this._db.remote.setKeyInfo(keyInfo);
     const identity = await getIdentity();
-    console.log('*** identity:', identity);
-    await this._remote.authorize(identity);
-    console.log('*** remote:', this._remote);
+    await this._db.remote.authorize(identity);
 
     try {
-      console.log('*** dbThread:', dbThread);
-      this._remote.id = dbThread.toString();
-      await this._remote.initialize();
+      this._db.remote.id = dbThread.toString();
+      await this._db.remote.initialize();
     } catch (err) {
       console.error('Could not initialize remote database:', err);
     }
     console.log('Remote database initialized');
-
-    const remoteInfo = await this._remote.info();
-    console.log('*** remote info:', remoteInfo);
   };
 
   add = async (collectionName: string, doc: any) => {
     const collection = this._db.collection(collectionName);
     const result = await collection.insert(doc);
     const docId = result[0];
-    await this._remote.push(collectionName);
+    await this._db.remote.push(collectionName);
     return docId;
   };
 
   find = async (collectionName: string, query: any = {}) => {
-    // await this._remote.push(collectionName);
-    // await this._remote.pull(collectionName);
+    await this._db.remote.pull(collectionName);
     let collection;
     try {
       collection = this._db.collection(collectionName);
@@ -187,13 +181,13 @@ export class AppDatabase {
       ...update,
     };
     await collection.save(doc);
-    await this._remote.push(collectionName);
+    await this._db.remote.push(collectionName);
   };
 
   delete = async (collectionName: string, docId: string) => {
     const collection = this._db.collection(collectionName);
     await collection.delete(docId);
-    await this._remote.push(collectionName);
+    await this._db.remote.push(collectionName);
   };
 }
 

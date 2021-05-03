@@ -113,7 +113,7 @@ function TextileProvider({ children }: TextileProviderProps) {
       }
     }
     console.log('initUserThread, dbThread:', dbThread);
-    await db.initRemote(dbThread);
+    // await db.initRemote(dbThread);
 
     /**
      * Set up collections

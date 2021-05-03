@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { connect, useDispatch } from 'react-redux';
 import * as actions from '../store/actions';
@@ -7,6 +7,7 @@ import { getBucketInfo } from '../effects';
 import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
+import { useDropzone } from 'react-dropzone';
 import Typography from '@material-ui/core/Typography';
 import { useTheme } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
@@ -19,11 +20,13 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
+import GetAppIcon from '@material-ui/icons/GetApp';
 
 const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
   // backgroundColor: theme.palette.background.default,
   // color: theme.palette.getContrastText(theme.palette.background.default),
   paddingTop: 8,
+  paddingBottom: 0,
   marginLeft: 8,
 }));
 
@@ -41,6 +44,22 @@ export function Settings({
   const { identity } = useTextile();
   const dispatch = useDispatch();
   const theme: Theme = useTheme();
+
+  const onDrop = useCallback(async (acceptedFiles) => {
+    // Do something with the files
+    console.log(acceptedFiles[0]);
+    const tokenFile = acceptedFiles[0];
+
+    const fileReader = new FileReader();
+    fileReader.readAsText(tokenFile);
+
+    fileReader.onloadend = () => {
+      console.log('tokenFile result:', fileReader.result);
+      const tokenString = fileReader.result as string;
+      localStorage.setItem('identity', tokenString.trim());
+    };
+  }, []);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const handleRecordingFormatChange = (
     event: React.ChangeEvent<{ value: RecordingFormats }>
@@ -75,29 +94,83 @@ export function Settings({
 
   return (
     <div>
-      <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
-        <Typography variant="caption">Account Token</Typography>
-      </SectionHeader>
-      <div style={{ padding: 8 }}>
-        <Typography variant="caption" color="textSecondary">
-          Use this token to sync your data on multiple devices. Store this
-          securly and do not share it with anyone.
-        </Typography>
-      </div>
       <div
-        style={{
-          padding: 8,
-          paddingTop: 0,
-        }}
+        {...getRootProps({
+          onClick: (e) => e.stopPropagation(),
+        })}
       >
-        <Button variant="outlined" size="small" onClick={downloadToken}>
-          Download Account Token
-        </Button>
+        <input {...getInputProps()} type="file" name="identity" />
+        <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
+          <Typography variant="caption">Account Token</Typography>
+        </SectionHeader>
+        {isDragActive ? (
+          <div
+            style={{
+              // width: '100%',
+              height: 72,
+              border: `4px dashed #ccc`,
+              borderRadius: 4,
+              textAlign: 'center',
+              padding: 8,
+              margin: 8,
+            }}
+          >
+            <Typography variant="caption" color="textSecondary">
+              Drop your <b>.token</b> file here ...
+            </Typography>
+          </div>
+        ) : (
+          <>
+            <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
+              <Typography variant="caption" color="textSecondary">
+                Use this token to sync your data on multiple devices. Store this
+                securly and do not share it with anyone.
+              </Typography>
+            </div>
+
+            <div
+              style={{
+                // padding: 8,
+                // paddingTop: 0,
+                // paddingBottom: 0,
+                display: 'flex',
+              }}
+            >
+              <Button
+                style={{
+                  margin: 8,
+                }}
+                variant="outlined"
+                size="small"
+                endIcon={<GetAppIcon />}
+                onClick={downloadToken}
+              >
+                <Typography noWrap variant="caption" color="textSecondary">
+                  Download Token
+                </Typography>
+              </Button>
+              <div
+                style={{
+                  border: `4px dashed #ccc`,
+                  borderRadius: 4,
+                  margin: 8,
+                  padding: 8,
+                  marginLeft: 0,
+                  flex: 1,
+                }}
+              >
+                <Typography variant="caption" color="textSecondary">
+                  Drop a .token file
+                </Typography>
+              </div>
+            </div>
+          </>
+        )}
       </div>
       <SectionHeader theme={theme}>
         <Typography variant="caption">Recording</Typography>
       </SectionHeader>
-      <div style={{ padding: 8 }}>
+      <div style={{ padding: 8, paddingTop: 0 }}>
         <Typography variant="caption" color="textSecondary">
           Set your desired recording format.
         </Typography>
