@@ -59,7 +59,9 @@ export function Settings({
       localStorage.setItem('identity', tokenString.trim());
     };
   }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+    onDrop,
+  });
 
   const handleRecordingFormatChange = (
     event: React.ChangeEvent<{ value: RecordingFormats }>
@@ -139,6 +141,7 @@ export function Settings({
               <Button
                 style={{
                   margin: 8,
+                  flex: 1,
                 }}
                 variant="outlined"
                 size="small"
@@ -146,7 +149,7 @@ export function Settings({
                 onClick={downloadToken}
               >
                 <Typography noWrap variant="caption" color="textSecondary">
-                  Download Token
+                  Save token file
                 </Typography>
               </Button>
               <div
@@ -157,10 +160,12 @@ export function Settings({
                   padding: 8,
                   marginLeft: 0,
                   flex: 1,
+                  cursor: 'pointer',
                 }}
+                onClick={open}
               >
                 <Typography variant="caption" color="textSecondary">
-                  Drop a .token file
+                  Drop a <b>.token</b> file
                 </Typography>
               </div>
             </div>
