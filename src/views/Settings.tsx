@@ -1,13 +1,17 @@
 import React, { useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { connect, useDispatch } from 'react-redux';
+import { useDropzone } from 'react-dropzone';
+
+import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
 import { useTextile } from '../services/TextileProvider';
 import { getBucketInfo } from '../effects';
-import { RecorderState, SetRecordingSettingsAction } from '../store/types';
+import { db } from '../db';
+
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
-import { useDropzone } from 'react-dropzone';
+
 import Typography from '@material-ui/core/Typography';
 import { useTheme } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
@@ -53,10 +57,16 @@ export function Settings({
     const fileReader = new FileReader();
     fileReader.readAsText(tokenFile);
 
-    fileReader.onloadend = () => {
+    fileReader.onloadend = async () => {
       console.log('tokenFile result:', fileReader.result);
       const tokenString = fileReader.result as string;
       localStorage.setItem('identity', tokenString.trim());
+
+      /**
+       * Delete previous IDB before initializing the new one
+       */
+      db._db.delete();
+      await db.init();
     };
   }, []);
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
@@ -82,8 +92,10 @@ export function Settings({
   const downloadToken = () => {
     console.log('Downloading token');
 
+    const identity = localStorage.getItem('identity');
+
     const a = document.createElement('a');
-    a.href = 'data:text/plain;charset=utf-8, ' + encodeURIComponent(identity);
+    a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(identity);
     a.download = 'tapes_account.token';
     document.body.appendChild(a);
     a.click();
