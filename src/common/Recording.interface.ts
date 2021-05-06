@@ -8,7 +8,6 @@ export interface Recording {
   format: RecordingFormats;
   channels: number;
   remoteLocation?: string;
-  bucketPath?: string;
   title?: string;
   duration?: number;
   created?: Date;
