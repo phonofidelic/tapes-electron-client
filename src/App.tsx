@@ -23,7 +23,7 @@ function App() {
           <Route path="/settings">
             <Settings />
           </Route>
-          <Route>
+          <Route path="/recorder">
             <Recorder />
           </Route>
         </Switch>
