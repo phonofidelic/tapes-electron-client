@@ -17,8 +17,12 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
 import Grow from '@material-ui/core/Grow';
+import Fade from '@material-ui/core/Fade';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import EditIcon from '@material-ui/icons/Edit';
+import CloseIcon from '@material-ui/icons/Close';
 import { useTheme } from '@material-ui/core/styles';
 
 interface RecordingsListItemProps {
@@ -50,7 +54,11 @@ export function RecordingsListItem({
   handleDeleteRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [editing, setEditing] = useState(false);
+
   const [hoverRef, hovered] = useHover();
+  const [titleHoverRef, titleHovered] = useHover();
+
   const {
     curTime,
     duration,
@@ -96,22 +104,62 @@ export function RecordingsListItem({
     <>
       <ListItem
         style={{
-          cursor: 'pointer',
+          cursor: selected ? 'auto' : 'pointer',
           maxHeight: selected ? 76 + 8 : 48 + 8,
           transition: 'max-height 3 ease-in-out',
           userSelect: 'none',
+          // backgroundColor: selected ? '#fff' : 'inherit',
         }}
         ref={hoverRef}
         key={recording._id}
         divider
-        selected={selected}
+        // selected={selected}
         onClick={() => handleSelectRecording(recording._id)}
       >
         <ListItemText
           disableTypography={true}
           primary={
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography>{recording.title}</Typography>
+              {!editing ? (
+                <div style={{ display: 'flex' }}>
+                  <div
+                    ref={titleHoverRef}
+                    style={{
+                      cursor: 'pointer',
+                      textDecoration:
+                        selected && titleHovered ? 'underline' : 'none',
+                    }}
+                    onClick={() => selected && setEditing(true)}
+                  >
+                    <Typography>{recording.title}</Typography>
+                  </div>
+
+                  {selected && (
+                    <div style={{ marginLeft: 8 }}>
+                      <Fade in={titleHovered}>
+                        <EditIcon fontSize="small" />
+                      </Fade>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ display: 'flex' }}>
+                  <div>
+                    <TextField
+                      id="edit-title-input"
+                      // label={recording.title}
+                      placeholder={recording.title}
+                      size="small"
+                      autoFocus
+                    />
+                  </div>
+                  <div style={{ marginLeft: 8 }}>
+                    <IconButton size="small" onClick={() => setEditing(false)}>
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </div>
+              )}
               {selected && (
                 <div
                   style={{
