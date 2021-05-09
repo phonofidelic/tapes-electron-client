@@ -13,9 +13,10 @@ import List from '@material-ui/core/List';
 
 interface StorageProps {
   recordings: Recording[];
+  loading: boolean;
 }
 
-export function Storage({ recordings }: StorageProps) {
+export function Storage({ recordings, loading }: StorageProps) {
   const [selectedRecording, setSelectedRecording] = useState(null);
   const [bucketToken, setBucketToken] = useState('');
   const dispatch = useDispatch();
@@ -39,8 +40,12 @@ export function Storage({ recordings }: StorageProps) {
     dispatch(loadRecordings());
   }, []);
 
-  if (!bucketToken) {
+  if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (!bucketToken) {
+    return <div>Loading token...</div>;
   }
 
   if (!recordings.length)
@@ -82,6 +87,7 @@ export function Storage({ recordings }: StorageProps) {
 const mapStateToProps = (state: RecorderState) => {
   return {
     recordings: state.recordings,
+    loading: state.loading,
   };
 };
 

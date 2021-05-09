@@ -1,26 +1,9 @@
-// import { randomBytes } from 'crypto';
-import Dexie from 'dexie';
 import { Recording } from './common/Recording.interface';
 import { RecordingFormats } from './common/RecordingFormats.enum';
-import { Database, Remote } from '@textile/threaddb';
-import { KeyInfo, PrivateKey, ThreadID, Users, Client } from '@textile/hub';
-
-// export class AppDatabase extends Dexie {
-//   recordings: Dexie.Table<Recording, string>;
-
-//   constructor() {
-//     super('TapesDatabase');
-
-//     this.version(1).stores({
-//       recordings: '++id, location, title, size, created',
-//     });
-
-//     this.recordings.mapToClass(RecordingModel);
-//   }
-// }
+import { Database } from '@textile/threaddb';
+import { KeyInfo, PrivateKey, ThreadID, Users } from '@textile/hub';
 
 export class RecordingModel implements Recording {
-  // id: string;
   location: string;
   remoteLocation?: string;
   bucketPath?: string;
@@ -43,8 +26,6 @@ export class RecordingModel implements Recording {
     remoteLocation?: string,
     bucketPath?: string
   ) {
-    // this.id = randomBytes(12).toString('hex');
-    // this.id = Date.now().toString();
     this.filename = filename;
     this.created = new Date();
     this.location = location;
@@ -104,6 +85,9 @@ const keyInfo: KeyInfo = {
   key: USER_API_KEY,
 };
 
+/**
+ * TODO: Create abstract to implement AppDatabase
+ */
 export class AppDatabase {
   _db: Database;
 

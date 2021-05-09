@@ -13,6 +13,9 @@ import {
   stopRecordingRequest,
   stopRecordingFailure,
   stopRecordingSuccess,
+  addRecordingRequest,
+  addRecordingSuccess,
+  addRecordingFailure,
   getBucketInfoRequest,
   getBucketInfoSuccess,
   getBucketInfoFailure,
@@ -114,15 +117,20 @@ export const startRecording = (
   dispatch(startRecordingRequest());
 
   let ipcResponse: { data: Recording; file?: any; error?: Error };
+  let recordingData;
   try {
     ipcResponse = await ipc.send('recorder:start', { data: recordingSettigs });
     console.log('recorder:start, ipcResponse:', ipcResponse);
 
-    const recordingData = ipcResponse.data;
+    recordingData = ipcResponse.data;
     console.log('recordingData:', recordingData);
+  } catch (err) {
+    dispatch(startRecordingFailure(err));
+  }
 
-    // DB_MOD
-    // const recordingCount = await db.recordings.count();
+  try {
+    dispatch(addRecordingRequest());
+
     const recordingCount = (await db.find('Recording', {})).length;
     console.log('recordingCount:', recordingCount);
 
@@ -168,48 +176,23 @@ export const startRecording = (
     /**
      * Add recording doc to Textile DB
      */
-    // const client = await getTextileClient();
-    // const dbThread = await getDbThread();
-    // const newRecordingDocs = await client.create(dbThread, 'recordings', [
-    //   recordingDoc,
-    // ]);
-    // console.log('newRecordingDocs:', newRecordingDocs);
-    // const newRecordingId = newRecordingDocs[0];
-
-    /**
-     * Save recorfing to IndexedDB
-     */
-    // DB_MOD
-    // await db.recordings.add(recordingDoc);
     const newRecordingId = await db.add('Recording', recordingDoc);
     console.log('recordingDoc:', recordingDoc);
-
-    // recordingDoc.id = newRecordingId;
 
     /**
      * Update recording doc with remoteLocation
      */
-    // DB_MOD
-    // await db.recordings.update(newRecordingId, {
-    //   remoteLocation,
-    //   bucketPath: pushPathResult.path.path,
-    // });
     await db.update('Recording', newRecordingId, {
       remoteLocation,
       bucketPath: pushPathResult.path.path,
     });
 
-    // const threadRecordingDoc: Recording = await client.findByID(
-    //   dbThread,
-    //   'recordings',
-    //   newRecordingId
-    // );
-    // threadRecordingDoc.id = newRecordingId;
-    // threadRecordingDoc.remoteLocation = remoteLocation;
-    // await client.save(dbThread, 'recordings', [threadRecordingDoc]);
+    const createdRecording = await db.findById('Recording', newRecordingId);
+
+    dispatch(addRecordingSuccess(createdRecording));
   } catch (err) {
     console.error('startRecordingRequest error:', err);
-    dispatch(startRecordingFailure(err));
+    dispatch(addRecordingFailure(err));
   }
 };
 

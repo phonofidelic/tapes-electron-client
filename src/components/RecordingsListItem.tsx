@@ -151,6 +151,8 @@ export function RecordingsListItem({
                       placeholder={recording.title}
                       size="small"
                       autoFocus
+                      onBlur={() => setEditing(false)}
+                      onChange={(e) => console.log(e.target.value)}
                     />
                   </div>
                   <div style={{ marginLeft: 8 }}>

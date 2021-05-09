@@ -7,6 +7,9 @@ import {
   STOP_RECORDING_REQUEST,
   STOP_RECORDING_SUCCESS,
   STOP_RECORDING_FAILURE,
+  ADD_RECORDING_REQUEST,
+  ADD_RECORDING_SUCCESS,
+  ADD_RECORDING_FAILURE,
   START_MONITOR,
   STOP_MONITOR,
   LOAD_RECORDINGS_REQUEST,
@@ -68,14 +71,14 @@ export const reducer = (
     case START_RECORDING_SUCCESS:
       return {
         ...state,
-        loading: false,
+        // loading: false,
         isRecording: true,
       };
 
     case START_RECORDING_FAILURE:
       return {
         ...state,
-        loading: false,
+        // loading: false,
         isRecording: false,
         error: action.payload,
       };
@@ -90,15 +93,35 @@ export const reducer = (
     case STOP_RECORDING_SUCCESS:
       return {
         ...state,
-        loading: false,
+        // loading: false,
         isRecording: false,
       };
 
     case STOP_RECORDING_FAILURE:
       return {
         ...state,
-        loaing: false,
+        loading: false,
         isRecording: false,
+        error: action.payload,
+      };
+
+    case ADD_RECORDING_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case ADD_RECORDING_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        recordings: [...state.recordings, action.payload],
+      };
+
+    case ADD_RECORDING_FAILURE:
+      return {
+        ...state,
+        loading: false,
         error: action.payload,
       };
 
@@ -125,7 +148,7 @@ export const reducer = (
     case DELETE_RECORDING_REQUEST:
       return {
         ...state,
-        loading: true,
+        // loading: true,
         recordings: state.recordings.filter(
           (recording) => recording._id !== action.payload
         ),
@@ -134,7 +157,14 @@ export const reducer = (
     case DELETE_RECORDING_SUCCESS:
       return {
         ...state,
-        loading: false,
+        // loading: false,
+      };
+
+    case DELETE_RECORDING_FAILURE:
+      return {
+        ...state,
+        // loading: false,
+        error: action.payload,
       };
 
     case PLAY_RECORDING:

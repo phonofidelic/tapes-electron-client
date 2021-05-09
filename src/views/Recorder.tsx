@@ -18,6 +18,7 @@ interface RecorderProps {
   isMonitoring: boolean;
   isRecording: boolean;
   recordingSettings: RecordingSettings;
+  loading: boolean;
   startMonitor(monitorInstance: MediaStream): StartMonitorAction;
   stopMonitor(): StopMonitorAction;
 }
@@ -26,6 +27,7 @@ function Recorder({
   isMonitoring,
   isRecording,
   recordingSettings,
+  loading,
   startMonitor,
   stopMonitor,
 }: RecorderProps) {
@@ -52,6 +54,10 @@ function Recorder({
     dispatch(stopRecording());
   };
 
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
+
   return (
     <div>
       {isRecording && <Timer />}
@@ -73,6 +79,7 @@ const mapStateToProps = (state: RecorderState) => {
     isMonitoring: state.isMonitoring,
     isRecording: state.isRecording,
     recordingSettings: state.recordingSettings,
+    loading: state.loading,
   };
 };
 

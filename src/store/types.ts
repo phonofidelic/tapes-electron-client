@@ -1,6 +1,7 @@
 import { Action } from 'redux';
 import { Recording } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
+import { ThreadDBDoc } from '../common/TreadDBDoc.interface';
 
 export const START_RECORDING_REQUEST = 'start_recording_request',
   START_RECORDING_SUCCESS = 'start_recording_success',
@@ -13,6 +14,9 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   ADD_RECORDING_REQUEST = 'add_recording_request',
   ADD_RECORDING_SUCCESS = 'add_recording_success',
   ADD_RECORDING_FAILURE = 'add_recording_failure',
+  EDIT_RECORDING_REQUEST = 'edit_recording_request',
+  EDIT_RECORDING_SUCCESS = 'edit_recording_success',
+  EDIT_RECORDING_FAILURE = 'edit_recording_failure',
   LOAD_RECORDINGS_REQUEST = 'load_recordings_request',
   LOAD_RECORDINGS_SUCCESS = 'load_recordings_success',
   LOAD_RECORDINGS_FAILURE = 'load_recordings_failure',
@@ -74,8 +78,20 @@ export interface StopMonitorAction extends Action {
   type: typeof STOP_MONITOR;
 }
 
-export interface AddNewRecAction extends Action {
+// NOT IN USE?
+export interface AddRecordingRequestAction extends Action {
   type: typeof ADD_RECORDING_REQUEST;
+}
+
+export interface AddRecordingSuccessAction extends Action {
+  type: typeof ADD_RECORDING_SUCCESS;
+  // TODO: add Recording or recording ID payload?
+  payload: ThreadDBDoc;
+}
+
+export interface AddRecordingFailureAction extends Action {
+  type: typeof ADD_RECORDING_FAILURE;
+  payload: Error;
 }
 
 export interface LoadRecordingsRequestAction extends Action {
@@ -144,7 +160,9 @@ export type RecorderAction =
   | StopRecordingFailureAction
   | StartMonitorAction
   | StopMonitorAction
-  | AddNewRecAction
+  | AddRecordingRequestAction
+  | AddRecordingSuccessAction
+  | AddRecordingFailureAction
   | LoadRecordingsRequestAction
   | LoadRecordingsSuccessAction
   | LoadRecordingsFailureAction

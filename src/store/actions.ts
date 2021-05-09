@@ -11,6 +11,12 @@ import {
   StartRecordingFailureAction,
   STOP_RECORDING_REQUEST,
   StopRecordingRequestAction,
+  ADD_RECORDING_REQUEST,
+  AddRecordingRequestAction,
+  ADD_RECORDING_SUCCESS,
+  AddRecordingSuccessAction,
+  ADD_RECORDING_FAILURE,
+  AddRecordingFailureAction,
   LOAD_RECORDINGS_REQUEST,
   LoadRecordingsRequestAction,
   LOAD_RECORDINGS_SUCCESS,
@@ -42,10 +48,7 @@ import {
 } from './types';
 import { Recording } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
-
-// export const startMonitor = (): AppThunk => async (dispatch) => {
-//   dispatch({})
-// }
+import { ThreadDBDoc } from '../common/TreadDBDoc.interface';
 
 export function startMonitor(): StartMonitorAction {
   return {
@@ -92,6 +95,28 @@ export function stopRecordingRequest(): StopRecordingRequestAction {
 export function stopRecordingSuccess(): StopRecordingSuccessAction {
   return {
     type: STOP_RECORDING_SUCCESS,
+  };
+}
+
+export function addRecordingRequest(): AddRecordingRequestAction {
+  return {
+    type: ADD_RECORDING_REQUEST,
+  };
+}
+
+export function addRecordingSuccess(
+  recording: ThreadDBDoc
+): AddRecordingSuccessAction {
+  return {
+    type: ADD_RECORDING_SUCCESS,
+    payload: recording,
+  };
+}
+
+export function addRecordingFailure(error: Error): AddRecordingFailureAction {
+  return {
+    type: ADD_RECORDING_FAILURE,
+    payload: error,
   };
 }
 
