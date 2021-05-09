@@ -1,12 +1,6 @@
 import React from 'react';
 import { hot } from 'react-hot-loader';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect,
-  useLocation,
-} from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import Recorder from './views/Recorder';
 import Settings from './views/Settings';
 import Storage from './views/Storage';
@@ -15,8 +9,6 @@ import { useTheme } from '@material-ui/core/styles';
 
 function App() {
   const theme = useTheme();
-  const location = useLocation();
-  console.log('location:', location);
 
   return (
     <div className="main">

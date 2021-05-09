@@ -40,6 +40,7 @@ export const initialState: RecorderState = {
     channels: 2,
     format: RecordingFormats.Mp3,
   },
+  recordingQueue: [],
 };
 
 export const reducer = (
@@ -72,7 +73,8 @@ export const reducer = (
       return {
         ...state,
         // loading: false,
-        isRecording: true,
+        // isRecording: true,
+        recordingQue: [...state.recordingQueue, action.payload.filename],
       };
 
     case START_RECORDING_FAILURE:
@@ -116,6 +118,9 @@ export const reducer = (
         ...state,
         loading: false,
         recordings: [...state.recordings, action.payload],
+        recordingQueue: state.recordingQueue.filter(
+          (filename) => action.payload.filename !== filename
+        ),
       };
 
     case ADD_RECORDING_FAILURE:

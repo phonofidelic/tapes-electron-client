@@ -105,7 +105,7 @@ export function addRecordingRequest(): AddRecordingRequestAction {
 }
 
 export function addRecordingSuccess(
-  recording: ThreadDBDoc
+  recording: Recording
 ): AddRecordingSuccessAction {
   return {
     type: ADD_RECORDING_SUCCESS,

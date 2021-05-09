@@ -40,7 +40,7 @@ export interface RecorderState {
   playing: string;
   bucketInfo: any | null;
   recordingSettings: RecordingSettings;
-  version?: number;
+  recordingQueue: string[];
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -86,7 +86,7 @@ export interface AddRecordingRequestAction extends Action {
 export interface AddRecordingSuccessAction extends Action {
   type: typeof ADD_RECORDING_SUCCESS;
   // TODO: add Recording or recording ID payload?
-  payload: ThreadDBDoc;
+  payload: Recording;
 }
 
 export interface AddRecordingFailureAction extends Action {

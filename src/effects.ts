@@ -124,6 +124,7 @@ export const startRecording = (
 
     recordingData = ipcResponse.data;
     console.log('recordingData:', recordingData);
+    // dispatch(startRecordingSuccess(recordingData));
   } catch (err) {
     dispatch(startRecordingFailure(err));
   }
@@ -159,8 +160,6 @@ export const startRecording = (
       bucketKey +
       '/' +
       recordingData.filename;
-    // '?token=' +
-    // token;
 
     const recordingDoc = new RecordingModel(
       recordingData.location,
@@ -187,9 +186,13 @@ export const startRecording = (
       bucketPath: pushPathResult.path.path,
     });
 
-    const createdRecording = await db.findById('Recording', newRecordingId);
+    const createdRecording = ((await db.findById(
+      'Recording',
+      newRecordingId
+    )) as unknown) as Recording;
 
     dispatch(addRecordingSuccess(createdRecording));
+    await db.push('Recording');
   } catch (err) {
     console.error('startRecordingRequest error:', err);
     dispatch(addRecordingFailure(err));
@@ -211,19 +214,13 @@ export const stopRecording = (): Effect => async (dispatch) => {
 export const loadRecordings = (): Effect => async (dispatch) => {
   dispatch(loadRecordingsRequest());
 
-  // const client = await getTextileClient();
-  // const dbThread = await getDbThread();
-  // const textileRecordings = await client.find(dbThread, 'recordings', {});
-  // console.log('loadRecordings, textileRecordings:', textileRecordings);
-
   try {
-    // DB_MOD
-    // const recordings = await db.transaction('r', db.recordings, async () => {
-    //   return await db.recordings.toArray();
-    // });
-    const recordings = await db.find('Recording', {});
+    await db.pull('Recordings');
+    const recordings = ((await db.find(
+      'Recording',
+      {}
+    )) as unknown) as Recording[];
 
-    //@ts-ignore
     dispatch(loadRecordingsSuccess(recordings));
   } catch (err) {
     console.error(err);
@@ -281,6 +278,7 @@ export const deleteRecording = (recordingId: string): Effect => async (
     // await client.delete(dbThread, 'recordings', [recordingId]);
 
     dispatch(deleteRecordingSuccess(recordingId));
+    await db.push('Recording');
   } catch (err) {
     console.error('Could not remove IPFS path:', err);
 
