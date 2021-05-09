@@ -37,9 +37,9 @@ import {
 } from '@textile/hub';
 
 const THREADS_DB_NAME = 'tapes-thread-db';
+const RECORDING_COLLECTION = 'Recording';
 
 declare const USER_API_KEY: any;
-// console.log('effects, USER_API_KEY:', USER_API_KEY);
 
 const ipc = new IpcService();
 
@@ -54,19 +54,16 @@ const keyInfo: KeyInfo = {
   key: USER_API_KEY,
 };
 
-// console.log('keyInfo:', keyInfo);
-
 const getBucketKey = async () => {
   const storedIdent = localStorage.getItem('identity');
   const identity = PrivateKey.fromString(storedIdent);
 
   if (!identity) {
     throw new Error('Identity not set');
-    // getIdentity();
   }
   const buckets = await Buckets.withKeyInfo(keyInfo, { debug: true });
   // Authorize the user and your insecure keys with getToken
-  const token = await buckets.getToken(identity);
+  await buckets.getToken(identity);
 
   const buck = await buckets.getOrCreate('com.phonofidelic.tapes', {
     encrypted: true,
@@ -81,31 +78,7 @@ const getBucketKey = async () => {
     buckets: buckets,
     bucketKey: buck.root.key,
     threadId: buck.threadID,
-    token,
   };
-};
-
-const getTextileClient = async () => {
-  const storedIdent = localStorage.getItem('identity');
-  const identity = PrivateKey.fromString(storedIdent);
-
-  const client = await Client.withKeyInfo(keyInfo);
-  await client.getToken(identity);
-
-  return client;
-};
-
-const getDbThread = async () => {
-  const storedIdent = localStorage.getItem('identity');
-  const identity = PrivateKey.fromString(storedIdent);
-
-  const user = await Users.withKeyInfo(keyInfo);
-  await user.getToken(identity);
-
-  const getThreadResponse = await user.getThread(THREADS_DB_NAME);
-  const dbThread = ThreadID.fromString(getThreadResponse.id);
-
-  return dbThread;
 };
 /** End Textile utils */
 
@@ -132,7 +105,7 @@ export const startRecording = (
   try {
     dispatch(addRecordingRequest());
 
-    const recordingCount = (await db.find('Recording', {})).length;
+    const recordingCount = (await db.find(RECORDING_COLLECTION, {})).length;
     console.log('recordingCount:', recordingCount);
 
     const title = `Recording #${recordingCount + 1}`;
@@ -140,7 +113,7 @@ export const startRecording = (
     /**
      * Push audio data to IPFS
      */
-    const { buckets, bucketKey, threadId, token } = await getBucketKey();
+    const { buckets, bucketKey, threadId } = await getBucketKey();
 
     const pushPathResult = await buckets.pushPath(
       bucketKey,
@@ -175,24 +148,24 @@ export const startRecording = (
     /**
      * Add recording doc to Textile DB
      */
-    const newRecordingId = await db.add('Recording', recordingDoc);
+    const newRecordingId = await db.add(RECORDING_COLLECTION, recordingDoc);
     console.log('recordingDoc:', recordingDoc);
 
     /**
      * Update recording doc with remoteLocation
      */
-    await db.update('Recording', newRecordingId, {
+    await db.update(RECORDING_COLLECTION, newRecordingId, {
       remoteLocation,
       bucketPath: pushPathResult.path.path,
     });
 
     const createdRecording = ((await db.findById(
-      'Recording',
+      RECORDING_COLLECTION,
       newRecordingId
     )) as unknown) as Recording;
 
     dispatch(addRecordingSuccess(createdRecording));
-    await db.push('Recording');
+    await db.push(RECORDING_COLLECTION);
   } catch (err) {
     console.error('startRecordingRequest error:', err);
     dispatch(addRecordingFailure(err));
@@ -215,9 +188,9 @@ export const loadRecordings = (): Effect => async (dispatch) => {
   dispatch(loadRecordingsRequest());
 
   try {
-    await db.pull('Recordings');
+    await db.pull(RECORDING_COLLECTION);
     const recordings = ((await db.find(
-      'Recording',
+      RECORDING_COLLECTION,
       {}
     )) as unknown) as Recording[];
 
@@ -238,11 +211,10 @@ export const deleteRecording = (recordingId: string): Effect => async (
     /**
      * Get data for Recording to delete
      */
-    // DB_MOD
-    // recording = await db.recordings.get(recordingId);
-    console.log('deleteRecording, recordingId:', recordingId);
-    recording = await db.findById('Recording', recordingId);
-    console.log('deleteRecording, recording:', recording);
+    recording = ((await db.findById(
+      RECORDING_COLLECTION,
+      recordingId
+    )) as unknown) as Recording;
 
     /**
      * Delete in Textile bucket
@@ -250,7 +222,6 @@ export const deleteRecording = (recordingId: string): Effect => async (
     const { buckets, bucketKey } = await getBucketKey();
     const removePathResult = await buckets.removePath(
       bucketKey,
-      // @ts-ignore
       recording.filename
     );
     console.log('removePathResult:', removePathResult);
@@ -266,19 +237,10 @@ export const deleteRecording = (recordingId: string): Effect => async (
     /**
      * Delete record in IDB
      */
-    // DB_MOD
-    // await db.recordings.delete(recordingId);
-    await db.delete('Recording', recordingId);
-
-    /**
-     * Delete record in Textile thread
-     */
-    // const client = await getTextileClient();
-    // const dbThread = await getDbThread();
-    // await client.delete(dbThread, 'recordings', [recordingId]);
+    await db.delete(RECORDING_COLLECTION, recordingId);
 
     dispatch(deleteRecordingSuccess(recordingId));
-    await db.push('Recording');
+    await db.push(RECORDING_COLLECTION);
   } catch (err) {
     console.error('Could not remove IPFS path:', err);
 

@@ -140,23 +140,23 @@ export class AppDatabase {
   };
 
   pull = async (collectionName: string) => {
+    console.log('Pulling data from remote DB...');
     try {
       await this._db.remote.pull(collectionName);
     } catch (err) {
       console.error('Could not pull changes from remote DB:', err);
     }
+    console.log('Local DB synced');
   };
 
   add = async (collectionName: string, doc: any) => {
     const collection = this._db.collection(collectionName);
     const result = await collection.insert(doc);
     const docId = result[0];
-    // await this._db.remote.push(collectionName);
     return docId;
   };
 
   find = async (collectionName: string, query: any = {}) => {
-    // await this._db.remote.pull(collectionName);
     let collection;
     try {
       collection = this._db.collection(collectionName);
@@ -183,13 +183,11 @@ export class AppDatabase {
       ...update,
     };
     await collection.save(doc);
-    // await this._db.remote.push(collectionName);
   };
 
   delete = async (collectionName: string, docId: string) => {
     const collection = this._db.collection(collectionName);
     await collection.delete(docId);
-    // await this._db.remote.push(collectionName);
   };
 }
 
