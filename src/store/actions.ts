@@ -17,6 +17,12 @@ import {
   AddRecordingSuccessAction,
   ADD_RECORDING_FAILURE,
   AddRecordingFailureAction,
+  EDIT_RECORDING_REQUEST,
+  EditRecordingRequestAction,
+  EDIT_RECORDING_SUCCESS,
+  EditRecordingSuccessAction,
+  EDIT_RECORDING_FAILURE,
+  EditRecordingFailureAction,
   LOAD_RECORDINGS_REQUEST,
   LoadRecordingsRequestAction,
   LOAD_RECORDINGS_SUCCESS,
@@ -116,6 +122,28 @@ export function addRecordingSuccess(
 export function addRecordingFailure(error: Error): AddRecordingFailureAction {
   return {
     type: ADD_RECORDING_FAILURE,
+    payload: error,
+  };
+}
+
+export function editRecordingRequest(): EditRecordingRequestAction {
+  return {
+    type: EDIT_RECORDING_REQUEST,
+  };
+}
+
+export function editRecordingSuccess(
+  updatedRecording: Recording
+): EditRecordingSuccessAction {
+  return {
+    type: EDIT_RECORDING_SUCCESS,
+    payload: updatedRecording,
+  };
+}
+
+export function editRecordingFailure(error: Error): EditRecordingFailureAction {
+  return {
+    type: EDIT_RECORDING_FAILURE,
     payload: error,
   };
 }

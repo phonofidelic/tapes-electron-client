@@ -16,6 +16,9 @@ import {
   addRecordingRequest,
   addRecordingSuccess,
   addRecordingFailure,
+  editRecordingRequest,
+  editRecordingSuccess,
+  editRecordingFailure,
   getBucketInfoRequest,
   getBucketInfoSuccess,
   getBucketInfoFailure,
@@ -24,17 +27,7 @@ import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
 import { RecordingSettings } from './common/RecordingSettings.interface';
 import { IpcService } from './IpcService';
-import {
-  Buckets,
-  Client,
-  Users,
-  PushPathResult,
-  KeyInfo,
-  PrivateKey,
-  WithKeyInfoOptions,
-  Identity,
-  ThreadID,
-} from '@textile/hub';
+import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
 
 const THREADS_DB_NAME = 'tapes-thread-db';
 const RECORDING_COLLECTION = 'Recording';
@@ -198,6 +191,27 @@ export const loadRecordings = (): Effect => async (dispatch) => {
   } catch (err) {
     console.error(err);
     dispatch(loadRecordingsFailure(err));
+  }
+};
+
+export const editRecording = (
+  recordingId: string,
+  update: any
+): Effect => async (dispatch) => {
+  dispatch(editRecordingRequest());
+
+  try {
+    await db.update(RECORDING_COLLECTION, recordingId, update);
+    await db.push(RECORDING_COLLECTION);
+    const updatedRecording = ((await db.findById(
+      RECORDING_COLLECTION,
+      recordingId
+    )) as unknown) as Recording;
+    console.log('updatedRecording:', updatedRecording);
+    dispatch(editRecordingSuccess(updatedRecording));
+  } catch (err) {
+    console.error('Could not update Recording document:', err);
+    dispatch(editRecordingFailure(err));
   }
 };
 

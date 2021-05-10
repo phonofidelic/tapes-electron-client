@@ -10,6 +10,9 @@ import {
   ADD_RECORDING_REQUEST,
   ADD_RECORDING_SUCCESS,
   ADD_RECORDING_FAILURE,
+  EDIT_RECORDING_REQUEST,
+  EDIT_RECORDING_SUCCESS,
+  EDIT_RECORDING_FAILURE,
   START_MONITOR,
   STOP_MONITOR,
   LOAD_RECORDINGS_REQUEST,
@@ -128,6 +131,21 @@ export const reducer = (
         ...state,
         loading: false,
         error: action.payload,
+      };
+
+    case EDIT_RECORDING_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case EDIT_RECORDING_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        recordings: state.recordings.map((recording) =>
+          recording._id === action.payload._id ? action.payload : recording
+        ),
       };
 
     case LOAD_RECORDINGS_REQUEST:

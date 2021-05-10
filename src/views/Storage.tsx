@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Recording } from '../common/Recording.interface';
 import * as actions from '../store/actions';
-import { loadRecordings, deleteRecording } from '../effects';
+import { loadRecordings, deleteRecording, editRecording } from '../effects';
 import { RecorderState } from '../store/types';
 import { useTextile } from '../services/TextileProvider';
 
@@ -24,6 +24,10 @@ export function Storage({ recordings, loading }: StorageProps) {
 
   const handleSelectRecording = (recordingId: string) => {
     setSelectedRecording(recordingId);
+  };
+
+  const handleEditRecording = (recordingId: string, update: any) => {
+    dispatch(editRecording(recordingId, update));
   };
 
   const handleDeleteRecording = (recordingId: string) => {
@@ -78,6 +82,7 @@ export function Storage({ recordings, loading }: StorageProps) {
             selectedRecording={selectedRecording}
             handleSelectRecording={handleSelectRecording}
             handleDeleteRecording={handleDeleteRecording}
+            handleEditRecording={handleEditRecording}
           />
         ))}
       </List>

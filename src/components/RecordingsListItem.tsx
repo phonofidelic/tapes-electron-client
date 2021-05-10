@@ -31,6 +31,7 @@ interface RecordingsListItemProps {
   selectedRecording: string;
   handleSelectRecording(recordingId: string): void;
   handleDeleteRecording(recordingId: string): void;
+  handleEditRecording(recordingId: string, update: any): void;
 }
 
 function msToTime(duration: number): string {
@@ -52,9 +53,11 @@ export function RecordingsListItem({
   selectedRecording,
   handleSelectRecording,
   handleDeleteRecording,
+  handleEditRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
   const [editing, setEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
 
   const [hoverRef, hovered] = useHover();
   const [titleHoverRef, titleHovered] = useHover();
@@ -69,7 +72,6 @@ export function RecordingsListItem({
   const theme = useTheme();
 
   const selected = selectedRecording === recording._id;
-  // const isPlaying = playing?.recordingId === recording.id;
   const isPlaying = playing;
 
   const handlePlay = () => {
@@ -93,11 +95,17 @@ export function RecordingsListItem({
     handleDeleteRecording(recordingId);
   };
 
+  const handleTitleChange = () => {
+    console.log('handleTitleChange, newTitle:', newTitle);
+    newTitle && handleEditRecording(recording._id, { title: newTitle });
+    setEditing(false);
+    setNewTitle('');
+  };
+
   useEffect(() => {
     if (!selected) {
       setPlaying(false);
     }
-    // console.log('recording remote location:', recording.remoteLocation);
   }, [selected]);
 
   return (
@@ -131,7 +139,9 @@ export function RecordingsListItem({
                     }}
                     onClick={() => selected && setEditing(true)}
                   >
-                    <Typography>{recording.title}</Typography>
+                    <Typography style={{ maxWidth: '50vw' }} noWrap>
+                      {recording.title}
+                    </Typography>
                   </div>
 
                   {selected && (
@@ -147,12 +157,11 @@ export function RecordingsListItem({
                   <div>
                     <TextField
                       id="edit-title-input"
-                      // label={recording.title}
                       placeholder={recording.title}
                       size="small"
                       autoFocus
-                      onBlur={() => setEditing(false)}
-                      onChange={(e) => console.log(e.target.value)}
+                      onBlur={handleTitleChange}
+                      onChange={(e) => setNewTitle(e.target.value)}
                     />
                   </div>
                   <div style={{ marginLeft: 8 }}>

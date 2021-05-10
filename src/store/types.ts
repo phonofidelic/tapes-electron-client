@@ -94,6 +94,21 @@ export interface AddRecordingFailureAction extends Action {
   payload: Error;
 }
 
+export interface EditRecordingRequestAction extends Action {
+  type: typeof EDIT_RECORDING_REQUEST;
+  // TODO: Fix any type
+}
+
+export interface EditRecordingSuccessAction extends Action {
+  type: typeof EDIT_RECORDING_SUCCESS;
+  payload: Recording;
+}
+
+export interface EditRecordingFailureAction extends Action {
+  type: typeof EDIT_RECORDING_FAILURE;
+  payload: Error;
+}
+
 export interface LoadRecordingsRequestAction extends Action {
   type: typeof LOAD_RECORDINGS_REQUEST;
 }
@@ -163,6 +178,9 @@ export type RecorderAction =
   | AddRecordingRequestAction
   | AddRecordingSuccessAction
   | AddRecordingFailureAction
+  | EditRecordingRequestAction
+  | EditRecordingSuccessAction
+  | EditRecordingFailureAction
   | LoadRecordingsRequestAction
   | LoadRecordingsSuccessAction
   | LoadRecordingsFailureAction
