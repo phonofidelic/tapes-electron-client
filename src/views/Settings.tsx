@@ -5,7 +5,6 @@ import { useDropzone } from 'react-dropzone';
 
 import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
-import { useTextile } from '../services/TextileProvider';
 import { getBucketInfo } from '../effects';
 import { db } from '../db';
 
@@ -45,7 +44,6 @@ export function Settings({
   recordingSettings,
   setRecordingSettings,
 }: SettingsProps) {
-  const { identity } = useTextile();
   const dispatch = useDispatch();
   const theme: Theme = useTheme();
 
