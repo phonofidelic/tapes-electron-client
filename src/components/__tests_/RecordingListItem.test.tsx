@@ -8,7 +8,6 @@ import { RecordingFormats } from '../../common/RecordingFormats.enum';
 const mockDate = new Date();
 const mockRecording: Recording = {
   _id: '123',
-  id: '123',
   location: 'fdefafafaf',
   title: 'Mock recording',
   size: 1234,
@@ -20,9 +19,11 @@ const mockRecording: Recording = {
 
 let mockSelect: (recordingId: string) => void;
 let mockDelete: (recordingId: string) => void;
+let mockEdit: (recordingId: string) => void;
 beforeEach(() => {
   mockSelect = jest.fn();
   mockDelete = jest.fn();
+  mockEdit = jest.fn();
 
   /**
    * https://github.com/jsdom/jsdom/issues/2155#issuecomment-366703395
@@ -43,6 +44,7 @@ it('displays the default list item', () => {
       selectedRecording={null}
       handleSelectRecording={mockSelect}
       handleDeleteRecording={mockDelete}
+      handleEditRecording={mockEdit}
     />
   );
 
@@ -57,6 +59,7 @@ it('displays detail info when selected', () => {
       selectedRecording={'123'}
       handleSelectRecording={mockSelect}
       handleDeleteRecording={mockDelete}
+      handleEditRecording={mockEdit}
     />
   );
 
