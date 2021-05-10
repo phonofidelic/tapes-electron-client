@@ -1,5 +1,6 @@
 import { Recording } from './common/Recording.interface';
 import { RecordingFormats } from './common/RecordingFormats.enum';
+import { THREADS_DB_NAME } from './common/constants';
 import { Database } from '@textile/threaddb';
 import { KeyInfo, PrivateKey, ThreadID, Users } from '@textile/hub';
 
@@ -38,8 +39,6 @@ export class RecordingModel implements Recording {
     this.channels = channels;
   }
 }
-
-const THREADS_DB_NAME = 'tapes-thread-db';
 
 const getIdentity = async (): Promise<PrivateKey> => {
   try {

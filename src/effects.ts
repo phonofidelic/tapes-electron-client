@@ -26,11 +26,12 @@ import {
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
 import { RecordingSettings } from './common/RecordingSettings.interface';
+import { RECORDING_COLLECTION } from './common/constants';
 import { IpcService } from './IpcService';
 import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
 
-const THREADS_DB_NAME = 'tapes-thread-db';
-const RECORDING_COLLECTION = 'Recording';
+// const THREADS_DB_NAME = 'tapes-thread-db';
+// const RECORDING_COLLECTION = 'Recording';
 
 declare const USER_API_KEY: any;
 

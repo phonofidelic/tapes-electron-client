@@ -18,10 +18,7 @@ import {
 } from '@textile/hub';
 import { Recording } from '../common/Recording.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
-import { db } from '../db';
-
-const THREADS_DB_NAME = 'tapes-thread-db';
-const RECORDING_COLLECTION = 'Recording';
+import { THREADS_DB_NAME, RECORDING_COLLECTION } from '../common/constants';
 
 declare const USER_API_KEY: any;
 
