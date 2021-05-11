@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Recording } from '../common/Recording.interface';
 import * as actions from '../store/actions';
-import { loadRecordings, deleteRecording, editRecording } from '../effects';
+import {
+  loadRecordings,
+  deleteRecording,
+  editRecording,
+  getBucketToken,
+} from '../effects';
 import { RecorderState } from '../store/types';
 import { useTextile } from '../services/TextileProvider';
 
@@ -13,14 +18,13 @@ import List from '@material-ui/core/List';
 
 interface StorageProps {
   recordings: Recording[];
+  bucketToken: string | null;
   loading: boolean;
 }
 
-export function Storage({ recordings, loading }: StorageProps) {
+export function Storage({ recordings, bucketToken, loading }: StorageProps) {
   const [selectedRecording, setSelectedRecording] = useState(null);
-  const [bucketToken, setBucketToken] = useState('');
   const dispatch = useDispatch();
-  const { getBucketToken } = useTextile();
 
   const handleSelectRecording = (recordingId: string) => {
     setSelectedRecording(recordingId);
@@ -35,12 +39,7 @@ export function Storage({ recordings, loading }: StorageProps) {
   };
 
   useEffect(() => {
-    const setToken = async () => {
-      const token = await getBucketToken();
-      setBucketToken(token);
-    };
-    setToken();
-
+    dispatch(getBucketToken());
     dispatch(loadRecordings());
   }, []);
 
@@ -93,6 +92,7 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     recordings: state.recordings,
     loading: state.loading,
+    bucketToken: state.bucketToken,
   };
 };
 

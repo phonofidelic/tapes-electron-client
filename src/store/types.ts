@@ -1,7 +1,6 @@
 import { Action } from 'redux';
 import { Recording } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
-import { ThreadDBDoc } from '../common/TreadDBDoc.interface';
 
 export const START_RECORDING_REQUEST = 'start_recording_request',
   START_RECORDING_SUCCESS = 'start_recording_success',
@@ -25,9 +24,9 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   DELETE_RECORDING_FAILURE = 'delete_recording_failure',
   PLAY_RECORDING = 'play_recording',
   PAUSE_RECORDING = 'pause_recording',
-  GET_BUCKET_DATA_REQUEST = 'get_bucket_data_request',
-  GET_BUCKET_DATA_SUCCESS = 'get_bucket_data_success',
-  GET_BUCKET_DATA_FAILURE = 'get_bucket_data_failure',
+  GET_BUCKET_TOKEN_REQUEST = 'get_bucket_token_request',
+  GET_BUCKET_TOKEN_SUCCESS = 'get_bucket_token_success',
+  GET_BUCKET_TOKEN_FAILURE = 'get_bucket_token_failure',
   SET_RECORDING_SETTINGS = 'set_recording_settings';
 
 export interface RecorderState {
@@ -38,7 +37,7 @@ export interface RecorderState {
   error: Error | null;
   recordings: Recording[];
   playing: string;
-  bucketInfo: any | null;
+  bucketToken: string | null;
   recordingSettings: RecordingSettings;
   recordingQueue: string[];
 }
@@ -147,17 +146,17 @@ export interface PauseRecordingAction extends Action {
   type: typeof PAUSE_RECORDING;
 }
 
-export interface GetBucketInfoRequestAction extends Action {
-  type: typeof GET_BUCKET_DATA_REQUEST;
+export interface GetBucketTokenRequestAction extends Action {
+  type: typeof GET_BUCKET_TOKEN_REQUEST;
 }
 
-export interface GetBucketInfoSuccessAction extends Action {
-  type: typeof GET_BUCKET_DATA_SUCCESS;
-  payload: any;
+export interface GetBucketTokenSuccessAction extends Action {
+  type: typeof GET_BUCKET_TOKEN_SUCCESS;
+  payload: string;
 }
 
-export interface GetBucketInfoFailureAction extends Action {
-  type: typeof GET_BUCKET_DATA_FAILURE;
+export interface GetBucketTokenFailureAction extends Action {
+  type: typeof GET_BUCKET_TOKEN_FAILURE;
   payload: Error;
 }
 
@@ -189,7 +188,7 @@ export type RecorderAction =
   | DeleteRecordingFailureAction
   | PlayRecordingAction
   | PauseRecordingAction
-  | GetBucketInfoRequestAction
-  | GetBucketInfoSuccessAction
-  | GetBucketInfoFailureAction
+  | GetBucketTokenRequestAction
+  | GetBucketTokenSuccessAction
+  | GetBucketTokenFailureAction
   | SetRecordingSettingsAction;

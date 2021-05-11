@@ -23,9 +23,9 @@ import {
   DELETE_RECORDING_FAILURE,
   PLAY_RECORDING,
   PAUSE_RECORDING,
-  GET_BUCKET_DATA_REQUEST,
-  GET_BUCKET_DATA_SUCCESS,
-  GET_BUCKET_DATA_FAILURE,
+  GET_BUCKET_TOKEN_REQUEST,
+  GET_BUCKET_TOKEN_SUCCESS,
+  GET_BUCKET_TOKEN_FAILURE,
   SET_RECORDING_SETTINGS,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
@@ -38,7 +38,7 @@ export const initialState: RecorderState = {
   error: null,
   recordings: [],
   playing: null,
-  bucketInfo: null,
+  bucketToken: null,
   recordingSettings: {
     channels: 2,
     format: RecordingFormats.Mp3,
@@ -202,20 +202,20 @@ export const reducer = (
         playing: null,
       };
 
-    case GET_BUCKET_DATA_REQUEST:
+    case GET_BUCKET_TOKEN_REQUEST:
       return {
         ...state,
         loading: true,
       };
 
-    case GET_BUCKET_DATA_SUCCESS:
+    case GET_BUCKET_TOKEN_SUCCESS:
       return {
         ...state,
         loading: false,
-        bucketInfo: action.payload,
+        bucketToken: action.payload,
       };
 
-    case GET_BUCKET_DATA_FAILURE:
+    case GET_BUCKET_TOKEN_FAILURE:
       return {
         ...state,
         loading: false,

@@ -19,9 +19,9 @@ import {
   editRecordingRequest,
   editRecordingSuccess,
   editRecordingFailure,
-  getBucketInfoRequest,
-  getBucketInfoSuccess,
-  getBucketInfoFailure,
+  getBucketTokenRequest,
+  getBucketTokenSuccess,
+  getBucketTokenFailure,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
@@ -40,7 +40,7 @@ const ipc = new IpcService();
 /**
  * Textile utils
  *
- * getBucketKey:
+ * getBucket:
  * https://github.com/textileio/js-examples/blob/a8a5a9fe8cf8331f0bc4f811791e15dbc0597469/bucket-photo-gallery/src/App.tsx#L99
  */
 const IPFS_GATEWAY = 'https://hub.textile.io';
@@ -48,7 +48,7 @@ const keyInfo: KeyInfo = {
   key: USER_API_KEY,
 };
 
-const getBucketKey = async () => {
+const getBucket = async () => {
   const storedIdent = localStorage.getItem('identity');
   const identity = PrivateKey.fromString(storedIdent);
 
@@ -57,7 +57,7 @@ const getBucketKey = async () => {
   }
   const buckets = await Buckets.withKeyInfo(keyInfo, { debug: true });
   // Authorize the user and your insecure keys with getToken
-  await buckets.getToken(identity);
+  const token = await buckets.getToken(identity);
 
   const buck = await buckets.getOrCreate('com.phonofidelic.tapes', {
     encrypted: true,
@@ -69,6 +69,7 @@ const getBucketKey = async () => {
   console.log('buck:', buck);
 
   return {
+    token,
     buckets: buckets,
     bucketKey: buck.root.key,
     threadId: buck.threadID,
@@ -107,7 +108,7 @@ export const startRecording = (
     /**
      * Push audio data to IPFS
      */
-    const { buckets, bucketKey, threadId } = await getBucketKey();
+    const { buckets, bucketKey, threadId } = await getBucket();
 
     const pushPathResult = await buckets.pushPath(
       bucketKey,
@@ -234,7 +235,7 @@ export const deleteRecording = (recordingId: string): Effect => async (
     /**
      * Delete in Textile bucket
      */
-    const { buckets, bucketKey } = await getBucketKey();
+    const { buckets, bucketKey } = await getBucket();
     const removePathResult = await buckets.removePath(
       bucketKey,
       recording.filename
@@ -263,23 +264,13 @@ export const deleteRecording = (recordingId: string): Effect => async (
   }
 };
 
-export const getBucketInfo = (): Effect => async (dispatch) => {
-  dispatch(getBucketInfoRequest());
+export const getBucketToken = (): Effect => async (dispatch) => {
+  dispatch(getBucketTokenRequest());
 
   try {
-    const { buckets, bucketKey } = await getBucketKey();
-    const links = await buckets.links(bucketKey);
-    console.log('links:', links);
-
-    const paths = await buckets.listPathFlat(bucketKey, '');
-    console.log('paths:', paths);
-
-    dispatch(
-      getBucketInfoSuccess({
-        ...links,
-      })
-    );
+    const { token } = await getBucket();
+    dispatch(getBucketTokenSuccess(token));
   } catch (err) {
-    dispatch(getBucketInfoFailure(err));
+    dispatch(getBucketTokenFailure(err));
   }
 };

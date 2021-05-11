@@ -1,11 +1,10 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { connect, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 
 import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
-import { getBucketInfo } from '../effects';
 import { db } from '../db';
 
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -99,10 +98,6 @@ export function Settings({
     a.click();
     document.body.removeChild(a);
   };
-
-  useEffect(() => {
-    dispatch(getBucketInfo());
-  }, []);
 
   return (
     <div>

@@ -43,12 +43,12 @@ import {
   PlayRecordingAction,
   PAUSE_RECORDING,
   PauseRecordingAction,
-  GET_BUCKET_DATA_REQUEST,
-  GetBucketInfoRequestAction,
-  GET_BUCKET_DATA_SUCCESS,
-  GetBucketInfoSuccessAction,
-  GET_BUCKET_DATA_FAILURE,
-  GetBucketInfoFailureAction,
+  GET_BUCKET_TOKEN_REQUEST,
+  GetBucketTokenRequestAction,
+  GET_BUCKET_TOKEN_SUCCESS,
+  GetBucketTokenSuccessAction,
+  GET_BUCKET_TOKEN_FAILURE,
+  GetBucketTokenFailureAction,
   SET_RECORDING_SETTINGS,
   SetRecordingSettingsAction,
 } from './types';
@@ -219,24 +219,26 @@ export function pauseRecording(): PauseRecordingAction {
   };
 }
 
-export function getBucketInfoRequest(): GetBucketInfoRequestAction {
+export function getBucketTokenRequest(): GetBucketTokenRequestAction {
   return {
-    type: GET_BUCKET_DATA_REQUEST,
+    type: GET_BUCKET_TOKEN_REQUEST,
   };
 }
 
-export function getBucketInfoSuccess(
-  bucketInfo: any
-): GetBucketInfoSuccessAction {
+export function getBucketTokenSuccess(
+  bucketToken: any
+): GetBucketTokenSuccessAction {
   return {
-    type: GET_BUCKET_DATA_SUCCESS,
-    payload: bucketInfo,
+    type: GET_BUCKET_TOKEN_SUCCESS,
+    payload: bucketToken,
   };
 }
 
-export function getBucketInfoFailure(error: Error): GetBucketInfoFailureAction {
+export function getBucketTokenFailure(
+  error: Error
+): GetBucketTokenFailureAction {
   return {
-    type: GET_BUCKET_DATA_FAILURE,
+    type: GET_BUCKET_TOKEN_FAILURE,
     payload: error,
   };
 }
