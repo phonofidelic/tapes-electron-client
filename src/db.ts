@@ -1,6 +1,6 @@
 import { Recording } from './common/Recording.interface';
 import { RecordingFormats } from './common/RecordingFormats.enum';
-import { THREADS_DB_NAME } from './common/constants';
+import { THREADS_DB_NAME, IDENTITY_STORE } from './common/constants';
 import { Database } from '@textile/threaddb';
 import { KeyInfo, PrivateKey, ThreadID, Users } from '@textile/hub';
 
@@ -42,7 +42,7 @@ export class RecordingModel implements Recording {
 
 const getIdentity = async (): Promise<PrivateKey> => {
   try {
-    var storedIdent = localStorage.getItem('identity');
+    var storedIdent = localStorage.getItem(IDENTITY_STORE);
     if (storedIdent === null) {
       throw new Error('No identity');
     }
@@ -56,7 +56,7 @@ const getIdentity = async (): Promise<PrivateKey> => {
     try {
       const identity = PrivateKey.fromRandom();
       const identityString = identity.toString();
-      localStorage.setItem('identity', identityString);
+      localStorage.setItem(IDENTITY_STORE, identityString);
 
       console.log('New identity:', identity);
       return identity;
@@ -67,7 +67,7 @@ const getIdentity = async (): Promise<PrivateKey> => {
 };
 
 const getDbThread = async () => {
-  const storedIdent = localStorage.getItem('identity');
+  const storedIdent = localStorage.getItem(IDENTITY_STORE);
   const identity = PrivateKey.fromString(storedIdent);
 
   const user = await Users.withKeyInfo(keyInfo);
