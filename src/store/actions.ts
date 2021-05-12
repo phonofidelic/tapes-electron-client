@@ -49,6 +49,12 @@ import {
   GetBucketTokenSuccessAction,
   GET_BUCKET_TOKEN_FAILURE,
   GetBucketTokenFailureAction,
+  LOAD_ACCOUNT_TOKEN_REQUEST,
+  LoadAccountTokenRequestAction,
+  LOAD_ACCOUNT_TOKEN_SUCCESS,
+  LoadAccountTokenSuccessAction,
+  LOAD_ACCOUNT_TOKEN_FAILURE,
+  LoadAccountTokenFailureAction,
   SET_RECORDING_SETTINGS,
   SetRecordingSettingsAction,
 } from './types';
@@ -239,6 +245,30 @@ export function getBucketTokenFailure(
 ): GetBucketTokenFailureAction {
   return {
     type: GET_BUCKET_TOKEN_FAILURE,
+    payload: error,
+  };
+}
+
+export function loadAccountTokenRequest(): LoadAccountTokenRequestAction {
+  return {
+    type: LOAD_ACCOUNT_TOKEN_REQUEST,
+  };
+}
+
+export function loadAccountTokenSuccess(
+  identityString: string
+): LoadAccountTokenSuccessAction {
+  return {
+    type: LOAD_ACCOUNT_TOKEN_SUCCESS,
+    payload: identityString,
+  };
+}
+
+export function loadAccountTokenFailure(
+  error: Error
+): LoadAccountTokenFailureAction {
+  return {
+    type: LOAD_ACCOUNT_TOKEN_FAILURE,
     payload: error,
   };
 }

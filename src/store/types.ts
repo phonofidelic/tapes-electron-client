@@ -27,6 +27,9 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   GET_BUCKET_TOKEN_REQUEST = 'get_bucket_token_request',
   GET_BUCKET_TOKEN_SUCCESS = 'get_bucket_token_success',
   GET_BUCKET_TOKEN_FAILURE = 'get_bucket_token_failure',
+  LOAD_ACCOUNT_TOKEN_REQUEST = 'load_account_token_request',
+  LOAD_ACCOUNT_TOKEN_SUCCESS = 'load_account_token_success',
+  LOAD_ACCOUNT_TOKEN_FAILURE = 'load_account_token_failure',
   SET_RECORDING_SETTINGS = 'set_recording_settings';
 
 export interface RecorderState {
@@ -40,6 +43,7 @@ export interface RecorderState {
   bucketToken: string | null;
   recordingSettings: RecordingSettings;
   recordingQueue: string[];
+  accountToken: string | null;
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -160,6 +164,20 @@ export interface GetBucketTokenFailureAction extends Action {
   payload: Error;
 }
 
+export interface LoadAccountTokenRequestAction extends Action {
+  type: typeof LOAD_ACCOUNT_TOKEN_REQUEST;
+}
+
+export interface LoadAccountTokenSuccessAction extends Action {
+  type: typeof LOAD_ACCOUNT_TOKEN_SUCCESS;
+  payload: string;
+}
+
+export interface LoadAccountTokenFailureAction extends Action {
+  type: typeof LOAD_ACCOUNT_TOKEN_FAILURE;
+  payload: Error;
+}
+
 export interface SetRecordingSettingsAction extends Action {
   type: typeof SET_RECORDING_SETTINGS;
   payload: RecordingSettings;
@@ -191,4 +209,7 @@ export type RecorderAction =
   | GetBucketTokenRequestAction
   | GetBucketTokenSuccessAction
   | GetBucketTokenFailureAction
+  | LoadAccountTokenRequestAction
+  | LoadAccountTokenSuccessAction
+  | LoadAccountTokenFailureAction
   | SetRecordingSettingsAction;

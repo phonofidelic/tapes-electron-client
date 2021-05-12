@@ -113,13 +113,14 @@ export class AppDatabase {
 
   initRemote = async () => {
     console.log('Initializing remote database...');
-    const dbThread = await getDbThread();
-
-    await this._db.remote.setKeyInfo(keyInfo);
-    const identity = await getIdentity();
-    await this._db.remote.authorize(identity);
-
     try {
+      const identity = await getIdentity();
+
+      const dbThread = await getDbThread();
+
+      await this._db.remote.setKeyInfo(keyInfo);
+      await this._db.remote.authorize(identity);
+
       this._db.remote.id = dbThread.toString();
       await this._db.remote.initialize();
     } catch (err) {
@@ -187,6 +188,10 @@ export class AppDatabase {
   delete = async (collectionName: string, docId: string) => {
     const collection = this._db.collection(collectionName);
     await collection.delete(docId);
+  };
+
+  deleteDB = async () => {
+    await this._db.delete();
   };
 }
 

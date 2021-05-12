@@ -22,11 +22,14 @@ import {
   getBucketTokenRequest,
   getBucketTokenSuccess,
   getBucketTokenFailure,
+  loadAccountTokenRequest,
+  loadAccountTokenSuccess,
+  loadAccountTokenFailure,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
 import { RecordingSettings } from './common/RecordingSettings.interface';
-import { RECORDING_COLLECTION } from './common/constants';
+import { RECORDING_COLLECTION, IDENTITY_STORE } from './common/constants';
 import { IpcService } from './IpcService';
 import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
 
@@ -273,3 +276,21 @@ export const getBucketToken = (): Effect => async (dispatch) => {
     dispatch(getBucketTokenFailure(err));
   }
 };
+
+export const loadAccountToken =
+  (tokenString: string): Effect =>
+  async (dispatch) => {
+    dispatch(loadAccountTokenRequest());
+
+    try {
+      localStorage.setItem(IDENTITY_STORE, tokenString);
+
+      await db.deleteDB();
+      await db.init();
+
+      dispatch(loadAccountTokenSuccess(tokenString));
+    } catch (err) {
+      console.error('Could not load account token:', err);
+      dispatch(loadAccountTokenFailure(err));
+    }
+  };

@@ -26,9 +26,13 @@ import {
   GET_BUCKET_TOKEN_REQUEST,
   GET_BUCKET_TOKEN_SUCCESS,
   GET_BUCKET_TOKEN_FAILURE,
+  LOAD_ACCOUNT_TOKEN_REQUEST,
+  LOAD_ACCOUNT_TOKEN_SUCCESS,
+  LOAD_ACCOUNT_TOKEN_FAILURE,
   SET_RECORDING_SETTINGS,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
+import { IDENTITY_STORE } from '../common/constants';
 
 export const initialState: RecorderState = {
   isRecording: false,
@@ -44,6 +48,7 @@ export const initialState: RecorderState = {
     format: RecordingFormats.Mp3,
   },
   recordingQueue: [],
+  accountToken: localStorage.getItem(IDENTITY_STORE), // <-- ANTI-PATTERN?
 };
 
 export const reducer = (
@@ -216,6 +221,26 @@ export const reducer = (
       };
 
     case GET_BUCKET_TOKEN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case LOAD_ACCOUNT_TOKEN_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case LOAD_ACCOUNT_TOKEN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        accountToken: action.payload,
+      };
+
+    case LOAD_ACCOUNT_TOKEN_FAILURE:
       return {
         ...state,
         loading: false,

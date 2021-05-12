@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone';
 
 import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
+import { loadAccountToken } from '../effects';
 import { db } from '../db';
 
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -35,6 +36,7 @@ const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
 }));
 
 interface SettingsProps {
+  loading: boolean;
   recordingSettings: RecordingSettings;
   setRecordingSettings(
     recordingSettings: RecordingSettings
@@ -42,6 +44,7 @@ interface SettingsProps {
 }
 
 export function Settings({
+  loading,
   recordingSettings,
   setRecordingSettings,
 }: SettingsProps) {
@@ -49,28 +52,17 @@ export function Settings({
   const theme: Theme = useTheme();
 
   const onDrop = useCallback(async (acceptedFiles) => {
-    // Do something with the files
-    console.log(acceptedFiles[0]);
     const tokenFile = acceptedFiles[0];
 
     const fileReader = new FileReader();
     fileReader.readAsText(tokenFile);
 
     fileReader.onloadend = async () => {
-      /**
-       * TODO: Create actions to handle this
-       */
-      console.log('tokenFile result:', fileReader.result);
       const tokenString = fileReader.result as string;
-      localStorage.setItem('identity', tokenString.trim());
-
-      /**
-       * Delete previous IDB before initializing the new one
-       */
-      db._db.delete();
-      await db.init();
+      dispatch(loadAccountToken(tokenString.trim()));
     };
   }, []);
+
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
   });
@@ -103,6 +95,10 @@ export function Settings({
     a.click();
     document.body.removeChild(a);
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
@@ -254,6 +250,7 @@ export function Settings({
 const mapStateToProps = (state: RecorderState) => {
   return {
     recordingSettings: state.recordingSettings,
+    loading: state.loading,
   };
 };
 
