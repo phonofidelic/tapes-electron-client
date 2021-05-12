@@ -14,7 +14,8 @@
     "test:ci": "jest",
     "test:e2e": "yarn package && jest --config jest.e2e.config.js",
     "test:e2e:nopack": "jest --detectOpenHandles --forceExit --config jest.e2e.config.js",
-    "icon": "./node_modules/.bin/electron-icon-builder --input=/Users/christopherclemons/Projects/Sandbox/try_electron-forge/src/assets/icon@16.png --output=./assets"
+    "icon": "./node_modules/.bin/electron-icon-builder --input=/Users/christopherclemons/Projects/Sandbox/try_electron-forge/src/assets/icon@16.png --output=./assets",
+    "dep": "arkit -c arkit.json"
   },
   "keywords": [],
   "author": {
@@ -99,6 +100,7 @@
     "@types/testing-library__react": "^10.2.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
+    "arkit": "^1.6.4",
     "css-loader": "^4.2.1",
     "electron": "12.0.0",
     "electron-devtools-installer": "^3.1.1",

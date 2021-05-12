@@ -1,0 +1,55 @@
+{
+  "$schema": "https://arkit.pro/schema.json",
+  "components": [
+    {
+      "type": "Entry",
+      "patterns": ["*.js", "*.ts", "*.tsx"]
+    },
+    {
+      "type": "Common",
+      "patterns": ["src/common/**/*.ts"]
+    },
+    {
+      "type": "Interface",
+      "patterns": ["src/**/*.interface.ts"]
+    },
+    {
+      "type": "Component",
+      "patterns": ["src/**/*.ts", "src/**/*.tsx"],
+      "excludePatterns": ["**/__tests__/**", "**/*-test.ts"]
+    }
+  ],
+  "output": {
+    "path": "arkit.svg",
+    "groups": [
+      {
+        "first": true,
+        "components": ["Entry"],
+        "patterns":  ["src/index.ts", "src/renderer.tsx"]
+      },
+      {
+        "type": "Common",
+        "patterns": ["src/common/**"]
+      },
+      {
+        "type": "Electron",
+        "patterns": ["src/electron/**"]
+      },
+      {
+        "type": "Store",
+        "patterns": ["src/store/**"]
+      },
+      {
+        "type": "Views",
+        "patterns": ["src/views/**"]
+      },
+      {
+        "type": "Components",
+        "patterns": ["src/components/**"]
+      },
+      {
+        "components": ["Component", "Entry", "Common"]
+      }
+    ]
+  }
+}

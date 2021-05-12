@@ -11,6 +11,7 @@ import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
 import Typography from '@material-ui/core/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
 import { useTheme } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import Button from '@material-ui/core/Button';
@@ -23,6 +24,7 @@ import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import HelpIcon from '@material-ui/icons/Help';
 
 const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
   // backgroundColor: theme.palette.background.default,
@@ -55,6 +57,9 @@ export function Settings({
     fileReader.readAsText(tokenFile);
 
     fileReader.onloadend = async () => {
+      /**
+       * TODO: Create actions to handle this
+       */
       console.log('tokenFile result:', fileReader.result);
       const tokenString = fileReader.result as string;
       localStorage.setItem('identity', tokenString.trim());
@@ -137,9 +142,6 @@ export function Settings({
 
             <div
               style={{
-                // padding: 8,
-                // paddingTop: 0,
-                // paddingBottom: 0,
                 display: 'flex',
               }}
             >
@@ -157,6 +159,7 @@ export function Settings({
                   Save token file
                 </Typography>
               </Button>
+
               <div
                 style={{
                   border: `4px dashed #ccc`,
@@ -166,12 +169,26 @@ export function Settings({
                   marginLeft: 0,
                   flex: 1,
                   cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
                 }}
                 onClick={open}
               >
-                <Typography variant="caption" color="textSecondary">
-                  Drop a <b>.token</b> file
+                <Typography
+                  variant="caption"
+                  color="textSecondary"
+                  style={{
+                    lineHeight: '20px',
+                  }}
+                >
+                  Drop a <b>.token</b> file{' '}
                 </Typography>
+                <Tooltip
+                  arrow
+                  title="Click or drag a .token file here to load an existing account"
+                >
+                  <HelpIcon fontSize="small" color="disabled" />
+                </Tooltip>
               </div>
             </div>
           </>

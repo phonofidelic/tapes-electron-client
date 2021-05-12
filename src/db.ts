@@ -47,7 +47,7 @@ const getIdentity = async (): Promise<PrivateKey> => {
       throw new Error('No identity');
     }
     const restored = PrivateKey.fromString(storedIdent);
-    console.log('Stored identity:', restored);
+    console.log('Stored identity found');
     return restored;
   } catch (e) {
     /**
@@ -58,7 +58,7 @@ const getIdentity = async (): Promise<PrivateKey> => {
       const identityString = identity.toString();
       localStorage.setItem(IDENTITY_STORE, identityString);
 
-      console.log('New identity:', identity);
+      console.log('New identity created');
       return identity;
     } catch (err) {
       return err.message;

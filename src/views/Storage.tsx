@@ -9,7 +9,6 @@ import {
   getBucketToken,
 } from '../effects';
 import { RecorderState } from '../store/types';
-import { useTextile } from '../services/TextileProvider';
 
 import RecordingsListItem from '../components/RecordingsListItem';
 
