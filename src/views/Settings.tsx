@@ -7,9 +7,10 @@ import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
 import { loadAccountToken } from '../effects';
 import { db } from '../db';
-
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
+
+import Loader from '../components/Loader';
 
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -97,7 +98,7 @@ export function Settings({
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (

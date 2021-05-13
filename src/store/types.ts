@@ -30,13 +30,15 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   LOAD_ACCOUNT_TOKEN_REQUEST = 'load_account_token_request',
   LOAD_ACCOUNT_TOKEN_SUCCESS = 'load_account_token_success',
   LOAD_ACCOUNT_TOKEN_FAILURE = 'load_account_token_failure',
-  SET_RECORDING_SETTINGS = 'set_recording_settings';
+  SET_RECORDING_SETTINGS = 'set_recording_settings',
+  SET_LOADING_MESSAGE = 'set_loading_message';
 
 export interface RecorderState {
   isRecording: boolean;
   isMonitoring: boolean;
   time: number;
-  loading: boolean;
+  loading: boolean | { message: string };
+  loadingMessage: string | null;
   error: Error | null;
   recordings: Recording[];
   playing: string;
@@ -183,6 +185,11 @@ export interface SetRecordingSettingsAction extends Action {
   payload: RecordingSettings;
 }
 
+export interface SettLoadingMessageAction extends Action {
+  type: typeof SET_LOADING_MESSAGE;
+  payload: string;
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -212,4 +219,5 @@ export type RecorderAction =
   | LoadAccountTokenRequestAction
   | LoadAccountTokenSuccessAction
   | LoadAccountTokenFailureAction
-  | SetRecordingSettingsAction;
+  | SetRecordingSettingsAction
+  | SettLoadingMessageAction;

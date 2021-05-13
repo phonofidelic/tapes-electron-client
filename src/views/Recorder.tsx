@@ -7,10 +7,12 @@ import {
   StopMonitorAction,
 } from '../store/types';
 import * as actions from '../store/actions';
+import { RecordingSettings } from '../common/RecordingSettings.interface';
+
+// import Loader from '../components/Loader';
 import AudioAnalyser from '../components/AudioAnalyser';
 import RecorderControls from '../components/RecorderControls';
 import Timer from '../components/Timer';
-import { RecordingSettings } from '../common/RecordingSettings.interface';
 
 interface RecorderProps {
   isMonitoring: boolean;

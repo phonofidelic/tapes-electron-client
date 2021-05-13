@@ -57,6 +57,8 @@ import {
   LoadAccountTokenFailureAction,
   SET_RECORDING_SETTINGS,
   SetRecordingSettingsAction,
+  SET_LOADING_MESSAGE,
+  SettLoadingMessageAction,
 } from './types';
 import { Recording } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -279,5 +281,12 @@ export function setRecordingSettings(
   return {
     type: SET_RECORDING_SETTINGS,
     payload: recordingSettings,
+  };
+}
+
+export function setLoadingMessage(message: string): SettLoadingMessageAction {
+  return {
+    type: SET_LOADING_MESSAGE,
+    payload: message,
   };
 }

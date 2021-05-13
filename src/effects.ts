@@ -25,6 +25,7 @@ import {
   loadAccountTokenRequest,
   loadAccountTokenSuccess,
   loadAccountTokenFailure,
+  setLoadingMessage,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
@@ -285,10 +286,14 @@ export const loadAccountToken =
     try {
       localStorage.setItem(IDENTITY_STORE, tokenString);
 
+      dispatch(setLoadingMessage('Cleaning up local database...'));
       await db.deleteDB();
+
+      dispatch(setLoadingMessage('Initializing new database...'));
       await db.init();
 
       dispatch(loadAccountTokenSuccess(tokenString));
+      dispatch(setLoadingMessage(null));
     } catch (err) {
       console.error('Could not load account token:', err);
       dispatch(loadAccountTokenFailure(err));

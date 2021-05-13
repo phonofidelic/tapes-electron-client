@@ -30,6 +30,7 @@ import {
   LOAD_ACCOUNT_TOKEN_SUCCESS,
   LOAD_ACCOUNT_TOKEN_FAILURE,
   SET_RECORDING_SETTINGS,
+  SET_LOADING_MESSAGE,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -39,6 +40,7 @@ export const initialState: RecorderState = {
   isMonitoring: false,
   time: 0,
   loading: false,
+  loadingMessage: null,
   error: null,
   recordings: [],
   playing: null,
@@ -251,6 +253,12 @@ export const reducer = (
       return {
         ...state,
         recordingSettings: action.payload,
+      };
+
+    case SET_LOADING_MESSAGE:
+      return {
+        ...state,
+        loadingMessage: action.payload,
       };
 
     default:

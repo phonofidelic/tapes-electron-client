@@ -10,6 +10,7 @@ import {
 } from '../effects';
 import { RecorderState } from '../store/types';
 
+import Loader from '../components/Loader';
 import RecordingsListItem from '../components/RecordingsListItem';
 
 import Typography from '@material-ui/core/Typography';
@@ -43,7 +44,7 @@ export function Storage({ recordings, bucketToken, loading }: StorageProps) {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   if (!bucketToken) {
