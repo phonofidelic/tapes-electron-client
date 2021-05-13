@@ -187,13 +187,16 @@ export const loadRecordings = (): Effect => async (dispatch) => {
   dispatch(loadRecordingsRequest());
 
   try {
+    dispatch(setLoadingMessage('Retrieving remote data...'));
     await db.pull(RECORDING_COLLECTION);
+    dispatch(setLoadingMessage('Loading library...'));
     const recordings = (await db.find(
       RECORDING_COLLECTION,
       {}
     )) as unknown as Recording[];
 
     dispatch(loadRecordingsSuccess(recordings));
+    dispatch(setLoadingMessage(null));
   } catch (err) {
     console.error(err);
     dispatch(loadRecordingsFailure(err));
