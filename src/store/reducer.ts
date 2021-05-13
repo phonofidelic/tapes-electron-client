@@ -155,6 +155,13 @@ export const reducer = (
         ),
       };
 
+    case EDIT_RECORDING_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
     case LOAD_RECORDINGS_REQUEST:
       return {
         ...state,
