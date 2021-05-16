@@ -39,7 +39,7 @@ export function Storage({ recordings, bucketToken, loading }: StorageProps) {
   };
 
   useEffect(() => {
-    dispatch(getBucketToken());
+    !bucketToken && dispatch(getBucketToken());
     dispatch(loadRecordings());
   }, []);
 

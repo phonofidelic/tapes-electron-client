@@ -53,7 +53,7 @@ const keyInfo: KeyInfo = {
 };
 
 const getBucket = async () => {
-  const storedIdent = localStorage.getItem('identity');
+  const storedIdent = localStorage.getItem(IDENTITY_STORE);
   const identity = PrivateKey.fromString(storedIdent);
 
   if (!identity) {
