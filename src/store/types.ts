@@ -31,7 +31,10 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   LOAD_ACCOUNT_TOKEN_SUCCESS = 'load_account_token_success',
   LOAD_ACCOUNT_TOKEN_FAILURE = 'load_account_token_failure',
   SET_RECORDING_SETTINGS = 'set_recording_settings',
-  SET_LOADING_MESSAGE = 'set_loading_message';
+  SET_LOADING_MESSAGE = 'set_loading_message',
+  INIT_DATABASE_REQUEST = 'init_database_request',
+  INIT_DATABASE_SUCCESS = 'init_database_success',
+  INIT_DATABASE_FAILURE = 'init_database_failure';
 
 export interface RecorderState {
   isRecording: boolean;
@@ -190,6 +193,19 @@ export interface SettLoadingMessageAction extends Action {
   payload: string;
 }
 
+export interface InitDatabaseRequestAction extends Action {
+  type: typeof INIT_DATABASE_REQUEST;
+}
+
+export interface InitDatabaseSuccessAction extends Action {
+  type: typeof INIT_DATABASE_SUCCESS;
+}
+
+export interface InitDatabaseFailureAction extends Action {
+  type: typeof INIT_DATABASE_FAILURE;
+  payload: Error;
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -220,4 +236,7 @@ export type RecorderAction =
   | LoadAccountTokenSuccessAction
   | LoadAccountTokenFailureAction
   | SetRecordingSettingsAction
-  | SettLoadingMessageAction;
+  | SettLoadingMessageAction
+  | InitDatabaseRequestAction
+  | InitDatabaseSuccessAction
+  | InitDatabaseFailureAction;

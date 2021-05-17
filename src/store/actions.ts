@@ -59,6 +59,12 @@ import {
   SetRecordingSettingsAction,
   SET_LOADING_MESSAGE,
   SettLoadingMessageAction,
+  INIT_DATABASE_REQUEST,
+  InitDatabaseRequestAction,
+  INIT_DATABASE_SUCCESS,
+  InitDatabaseSuccessAction,
+  INIT_DATABASE_FAILURE,
+  InitDatabaseFailureAction,
 } from './types';
 import { Recording } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -288,5 +294,24 @@ export function setLoadingMessage(message: string): SettLoadingMessageAction {
   return {
     type: SET_LOADING_MESSAGE,
     payload: message,
+  };
+}
+
+export function initDatabaseRequest(): InitDatabaseRequestAction {
+  return {
+    type: INIT_DATABASE_REQUEST,
+  };
+}
+
+export function initDatabaseSuccess(): InitDatabaseSuccessAction {
+  return {
+    type: INIT_DATABASE_SUCCESS,
+  };
+}
+
+export function initDatabaseFailure(error: Error): InitDatabaseFailureAction {
+  return {
+    type: INIT_DATABASE_FAILURE,
+    payload: error,
   };
 }

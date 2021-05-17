@@ -26,6 +26,9 @@ import {
   loadAccountTokenSuccess,
   loadAccountTokenFailure,
   setLoadingMessage,
+  initDatabaseRequest,
+  initDatabaseSuccess,
+  initDatabaseFailure,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
@@ -302,3 +305,15 @@ export const loadAccountToken =
       dispatch(loadAccountTokenFailure(err));
     }
   };
+
+export const initDatabase = (): Effect => async (dispatch) => {
+  dispatch(initDatabaseRequest());
+  try {
+    await db.init();
+    console.log('Database initialized');
+    dispatch(initDatabaseSuccess());
+  } catch (err) {
+    console.error('Could not initialize database:', err);
+    dispatch(initDatabaseFailure(err));
+  }
+};

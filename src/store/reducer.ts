@@ -31,6 +31,9 @@ import {
   LOAD_ACCOUNT_TOKEN_FAILURE,
   SET_RECORDING_SETTINGS,
   SET_LOADING_MESSAGE,
+  INIT_DATABASE_REQUEST,
+  INIT_DATABASE_SUCCESS,
+  INIT_DATABASE_FAILURE,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -266,6 +269,25 @@ export const reducer = (
       return {
         ...state,
         loadingMessage: action.payload,
+      };
+
+    case INIT_DATABASE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case INIT_DATABASE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+
+    case INIT_DATABASE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
       };
 
     default:
