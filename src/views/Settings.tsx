@@ -6,7 +6,6 @@ import { useDropzone } from 'react-dropzone';
 import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
 import { loadAccountToken } from '../effects';
-import { db } from '../db';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
