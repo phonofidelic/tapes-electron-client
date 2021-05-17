@@ -130,6 +130,7 @@
     "@textile/threads-id": "^0.5.1",
     "app-root-dir": "^1.0.2",
     "datauri": "^3.0.0",
+    "dayjs": "^1.10.4",
     "dexie": "^3.0.3",
     "dotenv": "^8.2.0",
     "electron-squirrel-startup": "^1.0.0",

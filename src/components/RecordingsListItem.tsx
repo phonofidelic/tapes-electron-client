@@ -2,6 +2,11 @@ import React, { ReactElement, useState, useEffect } from 'react';
 // import { connect, useDispatch } from 'react-redux';
 // import * as actions from '../store/actions';
 import prettyBytes from 'pretty-bytes';
+import styled from 'styled-components';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import dayjsDuration from 'dayjs/plugin/duration';
 import { Recording } from '../common/Recording.interface';
 import useHover from '../hooks/useHover';
 import { RecorderState } from '../store/types';
@@ -25,14 +30,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import CloseIcon from '@material-ui/icons/Close';
 import { useTheme } from '@material-ui/core/styles';
 
-interface RecordingsListItemProps {
-  bucketToken: string;
-  recording: Recording;
-  selectedRecording: string;
-  handleSelectRecording(recordingId: string): void;
-  handleDeleteRecording(recordingId: string): void;
-  handleEditRecording(recordingId: string, update: any): void;
-}
+dayjs.extend(customParseFormat);
+dayjs.extend(advancedFormat);
+dayjs.extend(dayjsDuration);
 
 function msToTime(duration: number): string {
   let milliseconds: string | number = (duration % 1000) / 100,
@@ -45,6 +45,27 @@ function msToTime(duration: number): string {
   seconds = seconds < 10 ? '0' + seconds : seconds;
 
   return hours + ':' + minutes + ':' + seconds;
+}
+
+const PlaybackButtonContainer = styled.div`
+  &:not(:focus) {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+`;
+
+interface RecordingsListItemProps {
+  bucketToken: string;
+  recording: Recording;
+  selectedRecording: string;
+  handleSelectRecording(recordingId: string): void;
+  handleDeleteRecording(recordingId: string): void;
+  handleEditRecording(recordingId: string, update: any): void;
 }
 
 export function RecordingsListItem({
@@ -62,17 +83,13 @@ export function RecordingsListItem({
   const [hoverRef, hovered] = useHover();
   const [titleHoverRef, titleHovered] = useHover();
 
-  const {
-    curTime,
-    duration,
-    playing,
-    setPlaying,
-    setClickedTime,
-  } = useAudioPreview(recording._id);
+  const { curTime, duration, playing, setPlaying, setClickedTime } =
+    useAudioPreview(recording._id);
   const theme = useTheme();
 
   const selected = selectedRecording === recording._id;
   const isPlaying = playing;
+  const durationObj = dayjs.duration(duration * 1000);
 
   const handlePlay = () => {
     setPlaying(true);
@@ -111,26 +128,38 @@ export function RecordingsListItem({
   return (
     <>
       <ListItem
+        tabIndex={0}
+        role="listitem"
         style={{
           cursor: selected ? 'auto' : 'pointer',
           maxHeight: selected ? 76 + 8 : 48 + 8,
           transition: 'max-height 3 ease-in-out',
           userSelect: 'none',
           // backgroundColor: selected ? '#fff' : 'inherit',
+          outline: 'none',
         }}
         ref={hoverRef}
         key={recording._id}
         divider
         // selected={selected}
         onClick={() => handleSelectRecording(recording._id)}
+        onFocus={() => handleSelectRecording(recording._id)}
       >
         <ListItemText
           disableTypography={true}
           primary={
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}
+            >
               {!editing ? (
                 <div style={{ display: 'flex' }}>
                   <div
+                    role="button"
+                    aria-lable={`Edit ${recording.title}`}
+                    tabIndex={0}
                     ref={titleHoverRef}
                     style={{
                       cursor: 'pointer',
@@ -202,6 +231,7 @@ export function RecordingsListItem({
                       textAlign: 'center',
                       marginLeft: 4,
                     }}
+                    aria-label={recording.channels === 1 ? 'Mono' : 'Stereo'}
                   >
                     {recording.channels}
                   </div>
@@ -213,15 +243,32 @@ export function RecordingsListItem({
             selected && (
               <Grow in={true}>
                 <div>
-                  <Typography variant="body2">
+                  <Typography
+                    variant="body2"
+                    aria-label={`Recorded ${dayjs(recording.created).format(
+                      'MMMM Do YYYY, h:mm A'
+                    )}`}
+                  >
                     {`${new Date(
                       recording.created
                     ).toLocaleDateString()} ${new Date(
                       recording.created
                     ).toLocaleTimeString()}`}
                   </Typography>
-                  <Typography variant="caption">
-                    Duration: {msToTime(Math.trunc(duration * 1000))}
+                  <Typography
+                    variant="caption"
+                    aria-label={
+                      'Duration: ' +
+                      (durationObj.hours() &&
+                        `${durationObj.hours()} hours, `) +
+                      (durationObj.minutes() &&
+                        `${durationObj.minutes()} minutes, `) +
+                      (durationObj.seconds() &&
+                        `${durationObj.seconds()} seconds `)
+                    }
+                  >
+                    Duration:
+                    {' ' + msToTime(Math.trunc(duration * 1000))}
                   </Typography>
                   <Typography variant="caption">{` - Size: ${prettyBytes(
                     recording.size
@@ -232,8 +279,8 @@ export function RecordingsListItem({
           }
         />
         <div
+          // aria-haspopup="true"
           style={{
-            visibility: hovered ? 'visible' : 'hidden',
             opacity: hovered ? 1 : 0,
             transition: 'opacity .3s ease-in-out',
           }}
@@ -243,6 +290,7 @@ export function RecordingsListItem({
         {isPlaying && <StopButton handleStop={handleStop} />}
         <IconButton
           data-testid="button_recording-options"
+          aria-label="Options"
           onClick={handleClickMenu}
         >
           <MoreVertIcon />
