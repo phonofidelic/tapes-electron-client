@@ -132,10 +132,7 @@ export function RecordingsListItem({
         role="listitem"
         style={{
           cursor: selected ? 'auto' : 'pointer',
-          maxHeight: selected ? 76 + 8 : 48 + 8,
-          transition: 'max-height 3 ease-in-out',
           userSelect: 'none',
-          // backgroundColor: selected ? '#fff' : 'inherit',
           outline: 'none',
         }}
         ref={hoverRef}
@@ -158,7 +155,7 @@ export function RecordingsListItem({
                 <div style={{ display: 'flex' }}>
                   <div
                     role="button"
-                    aria-lable={`Edit ${recording.title}`}
+                    aria-label={`Edit ${recording.title}`}
                     tabIndex={0}
                     ref={titleHoverRef}
                     style={{
@@ -224,16 +221,16 @@ export function RecordingsListItem({
                     style={{
                       border: `2px solid ${theme.palette.text.secondary}`,
                       borderRadius: 2,
-                      lineHeight: '16px',
                       height: 16,
-                      width: 16,
+                      lineHeight: '16px',
                       fontSize: '0.8em',
                       textAlign: 'center',
                       marginLeft: 4,
+                      paddingLeft: 2,
+                      paddingRight: 2,
                     }}
-                    aria-label={recording.channels === 1 ? 'Mono' : 'Stereo'}
                   >
-                    {recording.channels}
+                    {recording.channels === 1 ? 'Mono' : 'Stereo'}
                   </div>
                 </div>
               )}
@@ -243,43 +240,41 @@ export function RecordingsListItem({
             selected && (
               <Grow in={true}>
                 <div>
-                  <Typography
-                    variant="body2"
-                    aria-label={`Recorded ${dayjs(recording.created).format(
-                      'MMMM Do YYYY, h:mm A'
-                    )}`}
-                  >
-                    {`${new Date(
-                      recording.created
-                    ).toLocaleDateString()} ${new Date(
-                      recording.created
-                    ).toLocaleTimeString()}`}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    aria-label={
-                      'Duration: ' +
-                      (durationObj.hours() &&
-                        `${durationObj.hours()} hours, `) +
-                      (durationObj.minutes() &&
-                        `${durationObj.minutes()} minutes, `) +
-                      (durationObj.seconds() &&
-                        `${durationObj.seconds()} seconds `)
-                    }
-                  >
-                    Duration:
-                    {' ' + msToTime(Math.trunc(duration * 1000))}
-                  </Typography>
-                  <Typography variant="caption">{` - Size: ${prettyBytes(
-                    recording.size
-                  )}`}</Typography>
+                  <div>
+                    <Typography variant="caption">
+                      {`Recorded: ${dayjs(recording.created).format(
+                        'MMMM Do YYYY, h:mm A'
+                      )}`}
+                    </Typography>
+                  </div>
+                  <div>
+                    <Typography variant="caption" aria-hidden="true">
+                      Duration:
+                      {' ' + msToTime(Math.trunc(duration * 1000))}
+                    </Typography>
+                    <Typography variant="srOnly">
+                      {'Duration: ' +
+                        (durationObj.hours()
+                          ? `${durationObj.hours()} hours, `
+                          : '') +
+                        (durationObj.minutes()
+                          ? `${durationObj.minutes()} minutes, `
+                          : '') +
+                        (durationObj.seconds()
+                          ? `${durationObj.seconds()} seconds `
+                          : '')}
+                    </Typography>
+
+                    <Typography variant="caption">{` - Size: ${prettyBytes(
+                      recording.size
+                    )}`}</Typography>
+                  </div>
                 </div>
               </Grow>
             )
           }
         />
         <div
-          // aria-haspopup="true"
           style={{
             opacity: hovered ? 1 : 0,
             transition: 'opacity .3s ease-in-out',
@@ -291,6 +286,7 @@ export function RecordingsListItem({
         <IconButton
           data-testid="button_recording-options"
           aria-label="Options"
+          aria-haspopup="true"
           onClick={handleClickMenu}
         >
           <MoreVertIcon />
@@ -326,9 +322,9 @@ export function RecordingsListItem({
   );
 }
 
-const mapStateToProps = (state: RecorderState) => {
-  return { playing: state.playing };
-};
+// const mapStateToProps = (state: RecorderState) => {
+//   return { playing: state.playing };
+// };
 
 // export default connect(mapStateToProps, actions)(RecordingsListItem);
 export default RecordingsListItem;
