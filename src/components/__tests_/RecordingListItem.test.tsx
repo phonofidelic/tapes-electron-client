@@ -1,9 +1,17 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { render, fireEvent } from '@testing-library/react';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import dayjsDuration from 'dayjs/plugin/duration';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingsListItem } from '../RecordingsListItem';
 import { RecordingFormats } from '../../common/RecordingFormats.enum';
+
+dayjs.extend(customParseFormat);
+dayjs.extend(advancedFormat);
+dayjs.extend(dayjsDuration);
 
 const mockDate = new Date();
 const mockRecording: Recording = {
@@ -65,11 +73,11 @@ it('displays detail info when selected', () => {
 
   expect(
     getByText(
-      `${mockDate.toLocaleDateString()} ${mockDate.toLocaleTimeString()}`
+      `Recorded: ${dayjs(mockRecording.created).format('MMMM Do YYYY, h:mm A')}`
     )
   ).toBeInTheDocument();
 
-  expect(getByText(/Size: 1.23 kB/)).toBeInTheDocument();
+  expect(getByText(/Size: 1.23 kb/i)).toBeInTheDocument();
 });
 
 it.todo('Recording list items should have a playback button');
