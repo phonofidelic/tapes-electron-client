@@ -7,6 +7,12 @@ import {
   STOP_RECORDING_REQUEST,
   STOP_RECORDING_SUCCESS,
   STOP_RECORDING_FAILURE,
+  ADD_RECORDING_REQUEST,
+  ADD_RECORDING_SUCCESS,
+  ADD_RECORDING_FAILURE,
+  EDIT_RECORDING_REQUEST,
+  EDIT_RECORDING_SUCCESS,
+  EDIT_RECORDING_FAILURE,
   START_MONITOR,
   STOP_MONITOR,
   LOAD_RECORDINGS_REQUEST,
@@ -17,20 +23,37 @@ import {
   DELETE_RECORDING_FAILURE,
   PLAY_RECORDING,
   PAUSE_RECORDING,
-  GET_BUCKET_DATA_REQUEST,
-  GET_BUCKET_DATA_SUCCESS,
-  GET_BUCKET_DATA_FAILURE,
+  GET_BUCKET_TOKEN_REQUEST,
+  GET_BUCKET_TOKEN_SUCCESS,
+  GET_BUCKET_TOKEN_FAILURE,
+  LOAD_ACCOUNT_TOKEN_REQUEST,
+  LOAD_ACCOUNT_TOKEN_SUCCESS,
+  LOAD_ACCOUNT_TOKEN_FAILURE,
+  SET_RECORDING_SETTINGS,
+  SET_LOADING_MESSAGE,
+  INIT_DATABASE_REQUEST,
+  INIT_DATABASE_SUCCESS,
+  INIT_DATABASE_FAILURE,
 } from './types';
+import { RecordingFormats } from '../common/RecordingFormats.enum';
+import { IDENTITY_STORE } from '../common/constants';
 
 export const initialState: RecorderState = {
   isRecording: false,
   isMonitoring: false,
   time: 0,
   loading: false,
+  loadingMessage: null,
   error: null,
   recordings: [],
   playing: null,
-  bucketInfo: null,
+  bucketToken: null,
+  recordingSettings: {
+    channels: 2,
+    format: RecordingFormats.Mp3,
+  },
+  recordingQueue: [],
+  accountToken: localStorage.getItem(IDENTITY_STORE), // <-- ANTI-PATTERN?
 };
 
 export const reducer = (
@@ -62,14 +85,15 @@ export const reducer = (
     case START_RECORDING_SUCCESS:
       return {
         ...state,
-        loading: false,
-        isRecording: true,
+        // loading: false,
+        // isRecording: true,
+        recordingQue: [...state.recordingQueue, action.payload.filename],
       };
 
     case START_RECORDING_FAILURE:
       return {
         ...state,
-        loading: false,
+        // loading: false,
         isRecording: false,
         error: action.payload,
       };
@@ -84,15 +108,60 @@ export const reducer = (
     case STOP_RECORDING_SUCCESS:
       return {
         ...state,
-        loading: false,
+        // loading: false,
         isRecording: false,
       };
 
     case STOP_RECORDING_FAILURE:
       return {
         ...state,
-        loaing: false,
+        loading: false,
         isRecording: false,
+        error: action.payload,
+      };
+
+    case ADD_RECORDING_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case ADD_RECORDING_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        recordings: [...state.recordings, action.payload],
+        recordingQueue: state.recordingQueue.filter(
+          (filename) => action.payload.filename !== filename
+        ),
+      };
+
+    case ADD_RECORDING_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case EDIT_RECORDING_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case EDIT_RECORDING_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        recordings: state.recordings.map((recording) =>
+          recording._id === action.payload._id ? action.payload : recording
+        ),
+      };
+
+    case EDIT_RECORDING_FAILURE:
+      return {
+        ...state,
+        loading: false,
         error: action.payload,
       };
 
@@ -119,16 +188,23 @@ export const reducer = (
     case DELETE_RECORDING_REQUEST:
       return {
         ...state,
-        loading: true,
+        // loading: true,
+        recordings: state.recordings.filter(
+          (recording) => recording._id !== action.payload
+        ),
       };
 
     case DELETE_RECORDING_SUCCESS:
       return {
         ...state,
-        loading: false,
-        recordings: state.recordings.filter(
-          (recording) => recording.id !== action.payload
-        ),
+        // loading: false,
+      };
+
+    case DELETE_RECORDING_FAILURE:
+      return {
+        ...state,
+        // loading: false,
+        error: action.payload,
       };
 
     case PLAY_RECORDING:
@@ -143,20 +219,71 @@ export const reducer = (
         playing: null,
       };
 
-    case GET_BUCKET_DATA_REQUEST:
+    case GET_BUCKET_TOKEN_REQUEST:
       return {
         ...state,
         loading: true,
       };
 
-    case GET_BUCKET_DATA_SUCCESS:
+    case GET_BUCKET_TOKEN_SUCCESS:
       return {
         ...state,
         loading: false,
-        bucketInfo: action.payload,
+        bucketToken: action.payload,
       };
 
-    case GET_BUCKET_DATA_FAILURE:
+    case GET_BUCKET_TOKEN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case LOAD_ACCOUNT_TOKEN_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case LOAD_ACCOUNT_TOKEN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        accountToken: action.payload,
+      };
+
+    case LOAD_ACCOUNT_TOKEN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case SET_RECORDING_SETTINGS:
+      return {
+        ...state,
+        recordingSettings: action.payload,
+      };
+
+    case SET_LOADING_MESSAGE:
+      return {
+        ...state,
+        loadingMessage: action.payload,
+      };
+
+    case INIT_DATABASE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case INIT_DATABASE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+
+    case INIT_DATABASE_FAILURE:
       return {
         ...state,
         loading: false,

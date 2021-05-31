@@ -11,10 +11,22 @@ import {
   StartRecordingFailureAction,
   STOP_RECORDING_REQUEST,
   StopRecordingRequestAction,
+  ADD_RECORDING_REQUEST,
+  AddRecordingRequestAction,
+  ADD_RECORDING_SUCCESS,
+  AddRecordingSuccessAction,
+  ADD_RECORDING_FAILURE,
+  AddRecordingFailureAction,
+  EDIT_RECORDING_REQUEST,
+  EditRecordingRequestAction,
+  EDIT_RECORDING_SUCCESS,
+  EditRecordingSuccessAction,
+  EDIT_RECORDING_FAILURE,
+  EditRecordingFailureAction,
   LOAD_RECORDINGS_REQUEST,
   LoadRecordingsRequestAction,
   LOAD_RECORDINGS_SUCCESS,
-  LoadRecordingsuccessAction,
+  LoadRecordingsSuccessAction,
   LOAD_RECORDINGS_FAILURE,
   LoadRecordingsFailureAction,
   DELETE_RECORDING_REQUEST,
@@ -23,26 +35,40 @@ import {
   DeleteRecordingSuccessAction,
   DELETE_RECORDING_FAILURE,
   DeleteRecordingFailureAction,
-  StopRecordingSuccessAction,
   STOP_RECORDING_SUCCESS,
-  StopRecordingFailureAction,
+  StopRecordingSuccessAction,
   STOP_RECORDING_FAILURE,
-  PlayRecordingAction,
+  StopRecordingFailureAction,
   PLAY_RECORDING,
-  PauseRecordingAction,
+  PlayRecordingAction,
   PAUSE_RECORDING,
-  GetBucketInfoRequestAction,
-  GET_BUCKET_DATA_REQUEST,
-  GetBucketInfoSuccessAction,
-  GET_BUCKET_DATA_SUCCESS,
-  GetBucketInfoFailureAction,
-  GET_BUCKET_DATA_FAILURE,
+  PauseRecordingAction,
+  GET_BUCKET_TOKEN_REQUEST,
+  GetBucketTokenRequestAction,
+  GET_BUCKET_TOKEN_SUCCESS,
+  GetBucketTokenSuccessAction,
+  GET_BUCKET_TOKEN_FAILURE,
+  GetBucketTokenFailureAction,
+  LOAD_ACCOUNT_TOKEN_REQUEST,
+  LoadAccountTokenRequestAction,
+  LOAD_ACCOUNT_TOKEN_SUCCESS,
+  LoadAccountTokenSuccessAction,
+  LOAD_ACCOUNT_TOKEN_FAILURE,
+  LoadAccountTokenFailureAction,
+  SET_RECORDING_SETTINGS,
+  SetRecordingSettingsAction,
+  SET_LOADING_MESSAGE,
+  SettLoadingMessageAction,
+  INIT_DATABASE_REQUEST,
+  InitDatabaseRequestAction,
+  INIT_DATABASE_SUCCESS,
+  InitDatabaseSuccessAction,
+  INIT_DATABASE_FAILURE,
+  InitDatabaseFailureAction,
 } from './types';
 import { Recording } from '../common/Recording.interface';
-
-// export const startMonitor = (): AppThunk => async (dispatch) => {
-//   dispatch({})
-// }
+import { RecordingSettings } from '../common/RecordingSettings.interface';
+import { ThreadDBDoc } from '../common/TreadDBDoc.interface';
 
 export function startMonitor(): StartMonitorAction {
   return {
@@ -92,6 +118,50 @@ export function stopRecordingSuccess(): StopRecordingSuccessAction {
   };
 }
 
+export function addRecordingRequest(): AddRecordingRequestAction {
+  return {
+    type: ADD_RECORDING_REQUEST,
+  };
+}
+
+export function addRecordingSuccess(
+  recording: Recording
+): AddRecordingSuccessAction {
+  return {
+    type: ADD_RECORDING_SUCCESS,
+    payload: recording,
+  };
+}
+
+export function addRecordingFailure(error: Error): AddRecordingFailureAction {
+  return {
+    type: ADD_RECORDING_FAILURE,
+    payload: error,
+  };
+}
+
+export function editRecordingRequest(): EditRecordingRequestAction {
+  return {
+    type: EDIT_RECORDING_REQUEST,
+  };
+}
+
+export function editRecordingSuccess(
+  updatedRecording: Recording
+): EditRecordingSuccessAction {
+  return {
+    type: EDIT_RECORDING_SUCCESS,
+    payload: updatedRecording,
+  };
+}
+
+export function editRecordingFailure(error: Error): EditRecordingFailureAction {
+  return {
+    type: EDIT_RECORDING_FAILURE,
+    payload: error,
+  };
+}
+
 export function stopRecordingFailure(error: Error): StopRecordingFailureAction {
   return {
     type: STOP_RECORDING_FAILURE,
@@ -107,7 +177,7 @@ export function loadRecordingsRequest(): LoadRecordingsRequestAction {
 
 export function loadRecordingsSuccess(
   recordings: Recording[]
-): LoadRecordingsuccessAction {
+): LoadRecordingsSuccessAction {
   return {
     type: LOAD_RECORDINGS_SUCCESS,
     payload: recordings,
@@ -163,24 +233,85 @@ export function pauseRecording(): PauseRecordingAction {
   };
 }
 
-export function getBucketInfoRequest(): GetBucketInfoRequestAction {
+export function getBucketTokenRequest(): GetBucketTokenRequestAction {
   return {
-    type: GET_BUCKET_DATA_REQUEST,
+    type: GET_BUCKET_TOKEN_REQUEST,
   };
 }
 
-export function getBucketInfoSuccess(
-  bucketInfo: any
-): GetBucketInfoSuccessAction {
+export function getBucketTokenSuccess(
+  bucketToken: any
+): GetBucketTokenSuccessAction {
   return {
-    type: GET_BUCKET_DATA_SUCCESS,
-    payload: bucketInfo,
+    type: GET_BUCKET_TOKEN_SUCCESS,
+    payload: bucketToken,
   };
 }
 
-export function getBucketInfoFailure(error: Error): GetBucketInfoFailureAction {
+export function getBucketTokenFailure(
+  error: Error
+): GetBucketTokenFailureAction {
   return {
-    type: GET_BUCKET_DATA_FAILURE,
+    type: GET_BUCKET_TOKEN_FAILURE,
+    payload: error,
+  };
+}
+
+export function loadAccountTokenRequest(): LoadAccountTokenRequestAction {
+  return {
+    type: LOAD_ACCOUNT_TOKEN_REQUEST,
+  };
+}
+
+export function loadAccountTokenSuccess(
+  identityString: string
+): LoadAccountTokenSuccessAction {
+  return {
+    type: LOAD_ACCOUNT_TOKEN_SUCCESS,
+    payload: identityString,
+  };
+}
+
+export function loadAccountTokenFailure(
+  error: Error
+): LoadAccountTokenFailureAction {
+  return {
+    type: LOAD_ACCOUNT_TOKEN_FAILURE,
+    payload: error,
+  };
+}
+
+export function setRecordingSettings(
+  recordingSettings: RecordingSettings
+): SetRecordingSettingsAction {
+  return {
+    type: SET_RECORDING_SETTINGS,
+    payload: recordingSettings,
+  };
+}
+
+export function setLoadingMessage(message: string): SettLoadingMessageAction {
+  return {
+    type: SET_LOADING_MESSAGE,
+    payload: message,
+  };
+}
+
+export function initDatabaseRequest(): InitDatabaseRequestAction {
+  return {
+    type: INIT_DATABASE_REQUEST,
+  };
+}
+
+export function initDatabaseSuccess(): InitDatabaseSuccessAction {
+  return {
+    type: INIT_DATABASE_SUCCESS,
+  };
+}
+
+export function initDatabaseFailure(error: Error): InitDatabaseFailureAction {
+  return {
+    type: INIT_DATABASE_FAILURE,
     payload: error,
   };
 }

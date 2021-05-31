@@ -13,31 +13,41 @@ import {
   stopRecordingRequest,
   stopRecordingFailure,
   stopRecordingSuccess,
-  getBucketInfoRequest,
-  getBucketInfoSuccess,
-  getBucketInfoFailure,
+  addRecordingRequest,
+  addRecordingSuccess,
+  addRecordingFailure,
+  editRecordingRequest,
+  editRecordingSuccess,
+  editRecordingFailure,
+  getBucketTokenRequest,
+  getBucketTokenSuccess,
+  getBucketTokenFailure,
+  loadAccountTokenRequest,
+  loadAccountTokenSuccess,
+  loadAccountTokenFailure,
+  setLoadingMessage,
+  initDatabaseRequest,
+  initDatabaseSuccess,
+  initDatabaseFailure,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
+import { RecordingSettings } from './common/RecordingSettings.interface';
+import { RECORDING_COLLECTION, IDENTITY_STORE } from './common/constants';
 import { IpcService } from './IpcService';
-import {
-  Buckets,
-  PushPathResult,
-  KeyInfo,
-  PrivateKey,
-  WithKeyInfoOptions,
-  Identity,
-} from '@textile/hub';
+import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
+
+// const THREADS_DB_NAME = 'tapes-thread-db';
+// const RECORDING_COLLECTION = 'Recording';
 
 declare const USER_API_KEY: any;
-// console.log('effects, USER_API_KEY:', USER_API_KEY);
 
 const ipc = new IpcService();
 
 /**
  * Textile utils
  *
- * getBucketKey:
+ * getBucket:
  * https://github.com/textileio/js-examples/blob/a8a5a9fe8cf8331f0bc4f811791e15dbc0597469/bucket-photo-gallery/src/App.tsx#L99
  */
 const IPFS_GATEWAY = 'https://hub.textile.io';
@@ -45,15 +55,12 @@ const keyInfo: KeyInfo = {
   key: USER_API_KEY,
 };
 
-// console.log('keyInfo:', keyInfo);
-
-const getBucketKey = async () => {
-  const storedIdent = localStorage.getItem('identity');
+const getBucket = async () => {
+  const storedIdent = localStorage.getItem(IDENTITY_STORE);
   const identity = PrivateKey.fromString(storedIdent);
 
   if (!identity) {
     throw new Error('Identity not set');
-    // getIdentity();
   }
   const buckets = await Buckets.withKeyInfo(keyInfo, { debug: true });
   // Authorize the user and your insecure keys with getToken
@@ -65,85 +72,107 @@ const getBucketKey = async () => {
   if (!buck.root) {
     throw new Error('Failed to open bucket');
   }
-  console.log('buckets:', buckets);
-  console.log('buck:', buck);
 
   return {
+    token,
     buckets: buckets,
     bucketKey: buck.root.key,
     threadId: buck.threadID,
-    token,
   };
 };
 /** End Textile utils */
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
-export const startRecording = (): Effect => async (dispatch) => {
-  dispatch(startRecordingRequest());
+export const startRecording =
+  (recordingSettings: RecordingSettings): Effect =>
+  async (dispatch) => {
+    dispatch(startRecordingRequest());
 
-  let ipcResponse: { data: Recording; file?: any; error?: Error };
-  try {
-    ipcResponse = await ipc.send('recorder:start');
-    console.log('recorder:start, ipcResponse:', ipcResponse);
+    let ipcResponse: { data: Recording; file?: any; error?: Error };
+    let recordingData;
+    try {
+      ipcResponse = await ipc.send('recorder:start', {
+        data: recordingSettings,
+      });
+      console.log('recorder:start, ipcResponse:', ipcResponse);
 
-    const recordingData = ipcResponse.data;
-    console.log('recordingData:', recordingData);
+      recordingData = ipcResponse.data;
+      console.log('recordingData:', recordingData);
+      // dispatch(startRecordingSuccess(recordingData));
+    } catch (err) {
+      dispatch(startRecordingFailure(err));
+    }
 
-    const recordingCount = await db.recordings.count();
-    console.log('recordingCount:', recordingCount);
+    try {
+      dispatch(addRecordingRequest());
 
-    const title = `Recording #${recordingCount + 1}`;
+      const recordingCount = (await db.find(RECORDING_COLLECTION, {})).length;
+      console.log('recordingCount:', recordingCount);
 
-    const recordingDoc = await db.recordings.add(
-      new RecordingModel(
+      const title = `Recording #${recordingCount + 1}`;
+
+      /**
+       * Push audio data to IPFS
+       */
+      const { buckets, bucketKey, threadId } = await getBucket();
+
+      const pushPathResult = await buckets.pushPath(
+        bucketKey,
+        recordingData.filename,
+        await ipcResponse.file
+      );
+      console.log('pushPathResult:', pushPathResult);
+
+      /**
+       * Set remote Textile Bucket location
+       */
+      const remoteLocation =
+        IPFS_GATEWAY +
+        '/thread/' +
+        threadId +
+        '/buckets/' +
+        bucketKey +
+        '/' +
+        recordingData.filename;
+
+      const recordingDoc = new RecordingModel(
         recordingData.location,
         recordingData.filename,
         title,
         recordingData.size,
-        recordingData.duration
-      )
-    );
-    console.log('recordingDoc:', recordingDoc);
+        recordingData.format,
+        recordingData.channels,
+        recordingData.duration,
+        remoteLocation
+      );
 
-    /**
-     * Push audio data to IPFS
-     */
-    const { buckets, bucketKey, threadId, token } = await getBucketKey();
+      /**
+       * Add recording doc to Textile DB
+       */
+      const newRecordingId = await db.add(RECORDING_COLLECTION, recordingDoc);
+      console.log('recordingDoc:', recordingDoc);
 
-    const pushPathResult = await buckets.pushPath(
-      bucketKey,
-      recordingData.filename,
-      await ipcResponse.file
-    );
-    console.log('pushPathResult:', pushPathResult);
+      /**
+       * Update recording doc with remoteLocation
+       */
+      await db.update(RECORDING_COLLECTION, newRecordingId, {
+        remoteLocation,
+        bucketPath: pushPathResult.path.path,
+      });
 
-    /**
-     * Set remote Textile Bucket location
-     */
-    const remoteLocation =
-      IPFS_GATEWAY +
-      '/thread/' +
-      threadId +
-      '/buckets/' +
-      bucketKey +
-      '/' +
-      recordingData.filename +
-      '?token=' +
-      token;
+      const createdRecording = (await db.findById(
+        RECORDING_COLLECTION,
+        newRecordingId
+      )) as unknown as Recording;
 
-    /**
-     * Update recording doc with remoteLocation
-     */
-    await db.recordings.update(recordingDoc, {
-      remoteLocation,
-      bucketPath: pushPathResult.path.path,
-    });
-  } catch (err) {
-    console.error('startRecordingRequest error:', err);
-    dispatch(startRecordingFailure(err));
-  }
-};
+      dispatch(addRecordingSuccess(createdRecording));
+      await db.push(RECORDING_COLLECTION);
+    } catch (err) {
+      console.error('startRecordingRequest error:', err);
+      dispatch(addRecordingFailure(err));
+    }
+  };
 
 export const stopRecording = (): Effect => async (dispatch) => {
   dispatch(stopRecordingRequest());
@@ -160,85 +189,131 @@ export const stopRecording = (): Effect => async (dispatch) => {
 export const loadRecordings = (): Effect => async (dispatch) => {
   dispatch(loadRecordingsRequest());
 
-  // const { buckets, bucketKey } = await getBucketKey();
-
-  let idbResponse;
   try {
-    idbResponse = await db.transaction('r', db.recordings, async () => {
-      return await db.recordings.toArray();
-    });
+    dispatch(setLoadingMessage('Retrieving remote data...'));
+    await db.pull(RECORDING_COLLECTION);
+    dispatch(setLoadingMessage('Loading library...'));
+    const recordings = (await db.find(
+      RECORDING_COLLECTION,
+      {}
+    )) as unknown as Recording[];
 
-    dispatch(loadRecordingsSuccess(idbResponse));
+    dispatch(loadRecordingsSuccess(recordings));
+    dispatch(setLoadingMessage(null));
   } catch (err) {
     console.error(err);
     dispatch(loadRecordingsFailure(err));
   }
 };
 
-export const deleteRecording = (recordingId: string): Effect => async (
-  dispatch
-) => {
-  let recording;
-  try {
+export const editRecording =
+  (recordingId: string, update: any): Effect =>
+  async (dispatch) => {
+    dispatch(editRecordingRequest());
+
+    try {
+      await db.update(RECORDING_COLLECTION, recordingId, update);
+      await db.push(RECORDING_COLLECTION);
+      const updatedRecording = (await db.findById(
+        RECORDING_COLLECTION,
+        recordingId
+      )) as unknown as Recording;
+      console.log('updatedRecording:', updatedRecording);
+      dispatch(editRecordingSuccess(updatedRecording));
+    } catch (err) {
+      console.error('Could not update Recording document:', err);
+      dispatch(editRecordingFailure(err));
+    }
+  };
+
+export const deleteRecording =
+  (recordingId: string): Effect =>
+  async (dispatch) => {
     dispatch(deleteRecordingRequest(recordingId));
-    /**
-     * Get data for Recording to delete
-     */
-    recording = await db.recordings.get(recordingId);
-    console.log('deleteRecording, recording:', recording);
 
-    /**
-     * Remove Recording object in storage
-     */
-    const ipcResponse = await ipc.send('storage:delete_one', {
-      data: recording,
-    });
-    console.log('deleteRecording, ipcResponse:', ipcResponse);
+    let recording;
+    try {
+      /**
+       * Get data for Recording to delete
+       */
+      recording = (await db.findById(
+        RECORDING_COLLECTION,
+        recordingId
+      )) as unknown as Recording;
 
-    /**
-     * Delete record in IDB
-     */
-    await db.recordings.delete(recordingId);
+      /**
+       * Delete in Textile bucket
+       */
+      const { buckets, bucketKey } = await getBucket();
+      const removePathResult = await buckets.removePath(
+        bucketKey,
+        recording.filename
+      );
+      console.log('removePathResult:', removePathResult);
 
-    dispatch(deleteRecordingSuccess(recordingId));
-  } catch (err) {
-    console.error(err);
-    dispatch(deleteRecordingFailure(err));
-  }
+      /**
+       * Remove Recording object in storage
+       */
+      const ipcResponse = await ipc.send('storage:delete_one', {
+        data: recording,
+      });
+      console.log('deleteRecording, ipcResponse:', ipcResponse);
+
+      /**
+       * Delete record in IDB
+       */
+      await db.delete(RECORDING_COLLECTION, recordingId);
+
+      dispatch(deleteRecordingSuccess(recordingId));
+      await db.push(RECORDING_COLLECTION);
+    } catch (err) {
+      console.error('Could not remove IPFS path:', err);
+
+      dispatch(deleteRecordingFailure(err));
+    }
+  };
+
+export const getBucketToken = (): Effect => async (dispatch) => {
+  dispatch(getBucketTokenRequest());
 
   try {
-    /**
-     * Delete in IPFS
-     * TODO: move to main process
-     */
-    const { buckets, bucketKey } = await getBucketKey();
-    const removePathResult = await buckets.removePath(
-      bucketKey,
-      recording.filename
-    );
-    console.log('removePathResult:', removePathResult);
+    const { token } = await getBucket();
+    dispatch(getBucketTokenSuccess(token));
   } catch (err) {
-    console.error('Could not remove IPFS path:', err);
+    dispatch(getBucketTokenFailure(err));
   }
 };
 
-export const getBucketInfo = (): Effect => async (dispatch) => {
-  dispatch(getBucketInfoRequest());
+export const loadAccountToken =
+  (tokenString: string): Effect =>
+  async (dispatch) => {
+    dispatch(loadAccountTokenRequest());
 
+    try {
+      localStorage.setItem(IDENTITY_STORE, tokenString);
+
+      dispatch(setLoadingMessage('Cleaning up local database...'));
+      await db.deleteDB();
+
+      dispatch(setLoadingMessage('Initializing new database...'));
+      await db.init();
+
+      dispatch(loadAccountTokenSuccess(tokenString));
+      dispatch(setLoadingMessage(null));
+    } catch (err) {
+      console.error('Could not load account token:', err);
+      dispatch(loadAccountTokenFailure(err));
+    }
+  };
+
+export const initDatabase = (): Effect => async (dispatch) => {
+  dispatch(initDatabaseRequest());
   try {
-    const { buckets, bucketKey } = await getBucketKey();
-    const links = await buckets.links(bucketKey);
-    console.log('links:', links);
-
-    const paths = await buckets.listPathFlat(bucketKey, '');
-    console.log('paths:', paths);
-
-    dispatch(
-      getBucketInfoSuccess({
-        ...links,
-      })
-    );
+    await db.init();
+    console.log('Database initialized');
+    dispatch(initDatabaseSuccess());
   } catch (err) {
-    dispatch(getBucketInfoFailure(err));
+    console.error('Could not initialize database:', err);
+    dispatch(initDatabaseFailure(err));
   }
 };

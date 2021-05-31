@@ -26,7 +26,14 @@ const setStorageDir = async (folderName: string): Promise<string> => {
   return storagePath;
 };
 
-export class StartRecordingChannel implements IpcChannel {
+const getRecordingType = (format: RecordingFormats) => {
+  if (format === 'mp3') {
+    return 'wav';
+  }
+  return format;
+};
+
+export class NewRecordingChannel implements IpcChannel {
   get name(): string {
     return 'recorder:start';
   }
@@ -34,27 +41,24 @@ export class StartRecordingChannel implements IpcChannel {
   async handle(event: IpcMainEvent, request: IpcRequest) {
     console.log(this.name);
 
-    const recordingSettings: RecordingSettings = {
-      channels: 1,
-      type: 'wav',
-      extension: RecordingFormats.Wav,
-      storageLocation: await setStorageDir('Data'),
-    };
+    // const recordingSettings: RecordingSettings = {
+    //   channels: 1,
+    //   format: RecordingFormats.Mp3,
+    // };
+    const recordingSettings: RecordingSettings = request.data;
 
-    console.log('*** recordingSettings:', recordingSettings);
-    console.log('*** process.resourcesPath:', process.resourcesPath);
+    console.log('*** recordingSettings:', request.data);
 
     const filename = `${randomBytes(16).toString('hex')}.${
-      recordingSettings.extension
+      recordingSettings.format
     }`;
 
-    const filePath = path.resolve(recordingSettings.storageLocation, filename);
+    const filePath = path.resolve(await setStorageDir('Data'), filename);
 
     let soxPath;
     const platform = os.platform();
     switch (platform) {
       case 'darwin':
-        // soxPath = path.resolve(appRootDir.get(), 'bin', 'sox-14.4.2-macOS');
         soxPath =
           process.env.NODE_ENV === 'production'
             ? path.resolve(process.resourcesPath, 'bin', 'sox-14.4.2-macOS')
@@ -80,9 +84,7 @@ export class StartRecordingChannel implements IpcChannel {
         '-d',
         '-q',
         `-c${recordingSettings.channels}`,
-        `-t${recordingSettings.type}`,
-        '-t',
-        'wav',
+        `-t${getRecordingType(recordingSettings.format)}`,
         filePath,
       ]);
 
@@ -101,19 +103,23 @@ export class StartRecordingChannel implements IpcChannel {
         sox.kill();
 
         /**
-         * Create local recording file
+         * Create recording data
          */
         const fileStats = await fs.stat(filePath);
-        // console.log('*** recording file stats:', fileStats);
 
         const metadata = await mm.parseFile(filePath);
-        console.log(util.inspect(metadata, { showHidden: false, depth: null }));
+        console.log(
+          'Recording metadata:',
+          util.inspect(metadata, { showHidden: false, depth: null })
+        );
 
         const recording: Recording = {
           location: filePath,
           filename,
           size: fileStats.size,
           duration: metadata.format.duration,
+          format: recordingSettings.format,
+          channels: recordingSettings.channels,
         };
 
         const fileData = await fs.readFile(filePath);

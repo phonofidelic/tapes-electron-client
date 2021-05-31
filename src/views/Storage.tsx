@@ -2,18 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Recording } from '../common/Recording.interface';
 import * as actions from '../store/actions';
-import { loadRecordings, deleteRecording } from '../effects';
+import {
+  loadRecordings,
+  deleteRecording,
+  editRecording,
+  getBucketToken,
+} from '../effects';
 import { RecorderState } from '../store/types';
 
-import RecordingsList from '../components/RecordingsList';
+import Loader from '../components/Loader';
+import RecordingsListItem from '../components/RecordingsListItem';
 
 import Typography from '@material-ui/core/Typography';
+import List from '@material-ui/core/List';
 
 interface StorageProps {
-  recordings?: Recording[];
+  recordings: Recording[];
+  bucketToken: string | null;
+  loading: boolean;
 }
 
-export function Storage({ recordings }: StorageProps) {
+export function Storage({ recordings, bucketToken, loading }: StorageProps) {
   const [selectedRecording, setSelectedRecording] = useState(null);
   const dispatch = useDispatch();
 
@@ -21,13 +30,26 @@ export function Storage({ recordings }: StorageProps) {
     setSelectedRecording(recordingId);
   };
 
+  const handleEditRecording = (recordingId: string, update: any) => {
+    dispatch(editRecording(recordingId, update));
+  };
+
   const handleDeleteRecording = (recordingId: string) => {
     dispatch(deleteRecording(recordingId));
   };
 
   useEffect(() => {
+    !bucketToken && dispatch(getBucketToken());
     dispatch(loadRecordings());
   }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (!bucketToken) {
+    return <div>Loading token...</div>;
+  }
 
   if (!recordings.length)
     return (
@@ -48,20 +70,29 @@ export function Storage({ recordings }: StorageProps) {
       </div>
     );
 
-  if (recordings.length)
+  if (recordings.length > 0)
     return (
-      <RecordingsList
-        recordings={recordings}
-        selectedRecording={selectedRecording}
-        handleSelectRecording={handleSelectRecording}
-        handleDeleteRecording={handleDeleteRecording}
-      />
+      <List>
+        {recordings.map((recording: Recording) => (
+          <RecordingsListItem
+            key={recording._id}
+            bucketToken={bucketToken}
+            recording={recording}
+            selectedRecording={selectedRecording}
+            handleSelectRecording={handleSelectRecording}
+            handleDeleteRecording={handleDeleteRecording}
+            handleEditRecording={handleEditRecording}
+          />
+        ))}
+      </List>
     );
 }
 
 const mapStateToProps = (state: RecorderState) => {
   return {
     recordings: state.recordings,
+    loading: state.loading,
+    bucketToken: state.bucketToken,
   };
 };
 

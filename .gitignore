@@ -92,3 +92,4 @@ bin/*
 !bin/.gitkeep
 Data/*
 src/keys.json
+arkit.svg

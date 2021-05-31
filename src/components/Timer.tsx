@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 
 const Container = styled.div`
-  background-color: #e63c36;
+  /* background-color: #e63c36; */
   height: 19px;
   line-height: 19px;
   vertical-align: middle;
@@ -38,7 +38,8 @@ export default function Timer({}: TimerProps): ReactElement {
     <Container>
       <div
         style={{
-          color: theme.palette.background.default,
+          // color: theme.palette.background.default,
+          color: '#e63c36',
           textAlign: 'right',
           paddingRight: 8,
         }}

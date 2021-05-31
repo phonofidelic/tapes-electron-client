@@ -1,8 +1,12 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, fireEvent } from '@testing-library/react';
-import { createStore } from 'redux';
+import { render, fireEvent, waitFor } from '@testing-library/react';
+import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
+import reduxThunk from 'redux-thunk';
+import configureMockStore from 'redux-mock-store';
+
+import { RecordingFormats } from '../../common/RecordingFormats.enum';
 import { RecorderState } from '../../store/types';
 import { initialState } from '../../store/reducer';
 import { store } from '../../store';
@@ -16,7 +20,13 @@ const renderComponent = () =>
   );
 
 const renderMockedComponent = (state: RecorderState) => {
-  const mockStore = createStore(() => state);
+  // const mockStore = createStore(() => state);
+  // const mockStore = configureMockStore([reduxThunk]);
+  const mockStore = createStore(
+    () => state,
+    initialState,
+    applyMiddleware(reduxThunk)
+  );
 
   return render(
     <Provider store={mockStore}>
@@ -26,27 +36,55 @@ const renderMockedComponent = (state: RecorderState) => {
 };
 
 beforeEach(() => {
-  //@ts-ignore
-  global.navigator.mediaDevices = { getUserMedia: jest.fn() };
-  global.window.AudioContext = jest.fn().mockImplementation(() => {
+  /**
+   * Mock HTMLAudioElement used in useAudioPreview hook.
+   */
+  global.document.getElementById = jest.fn().mockImplementation(() => {
     return {
-      destination: {
-        disconnect: jest.fn(),
-      },
-      createAnalyser: jest.fn().mockImplementation(() => {
-        return {
-          disconnect: jest.fn(),
-        };
-      }),
-      createMediaStreamSource: jest.fn().mockImplementation(() => {
-        return {
-          disconnect: jest.fn(),
-        };
-      }),
+      pause: jest.fn(),
+      load: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
     };
   });
 });
 
-it.todo('shows a default empty message');
+it('shows a default empty message', async () => {
+  const { getByText, findByText } = renderMockedComponent({
+    ...initialState,
+    bucketToken: 'abc123',
+  });
 
-it.todo('shows a recording item');
+  await waitFor(
+    () => expect(getByText(/your recordings will live here/i)).toBeVisible(),
+    { timeout: 2000 }
+  );
+});
+
+it('shows a recording item', async () => {
+  const mockRecording = {
+    bucketPath:
+      '/ipfs/bafybeia6sisiwx32kiun5hnxifoi4dxrdxpfgbseb5tt6o42grlnt3keua',
+    channels: 2,
+    created: new Date(),
+    filename: 'c676d7f077fe24769e027d7692502133.mp3',
+    format: RecordingFormats.Mp3,
+    location:
+      '/Users/christopherclemons/Projects/tapes-electron-client/Data/c676d7f077fe24769e027d7692502133.mp3',
+    remoteLocation:
+      'https://hub.textile.io/thread/bafkue5uudcgxzfkurv6ygbla7i4qn4gg26indimhnyunyvlouxm3sey/buckets/bafzbeihp4v2tujypowwg6bgr5e3xktgibnhq2jjhx4icsvlxnfo2znncqa/c676d7f077fe24769e027d7692502133.mp3',
+    size: 2457600,
+    title: 'Test Recording #1',
+    _id: '01F3NGJHJG520NG1VKJS7JAR5W',
+  };
+
+  const { getByText, findByText } = renderMockedComponent({
+    ...initialState,
+    bucketToken: 'abc123',
+    recordings: [mockRecording],
+  });
+
+  await waitFor(() => expect(getByText(/Test Recording #1/i)).toBeVisible(), {
+    timeout: 2000,
+  });
+});

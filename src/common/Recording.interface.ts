@@ -1,10 +1,13 @@
+import { RecordingFormats } from './RecordingFormats.enum';
+
 export interface Recording {
+  _id?: string;
   location: string;
   filename: string;
   size: number;
-  id?: string;
+  format: RecordingFormats;
+  channels: number;
   remoteLocation?: string;
-  bucketPath?: string;
   title?: string;
   duration?: number;
   created?: Date;

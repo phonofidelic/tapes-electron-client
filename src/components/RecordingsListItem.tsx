@@ -1,7 +1,12 @@
 import React, { ReactElement, useState, useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import * as actions from '../store/actions';
+// import { connect, useDispatch } from 'react-redux';
+// import * as actions from '../store/actions';
 import prettyBytes from 'pretty-bytes';
+import styled from 'styled-components';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import dayjsDuration from 'dayjs/plugin/duration';
 import { Recording } from '../common/Recording.interface';
 import useHover from '../hooks/useHover';
 import { RecorderState } from '../store/types';
@@ -17,15 +22,17 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
 import Grow from '@material-ui/core/Grow';
+import Fade from '@material-ui/core/Fade';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import EditIcon from '@material-ui/icons/Edit';
+import CloseIcon from '@material-ui/icons/Close';
+import { useTheme } from '@material-ui/core/styles';
 
-interface RecordingsListItemProps {
-  recording: Recording;
-  selectedRecording: string;
-  handleSelectRecording(recordingId: string): void;
-  handleDeleteRecording(recordingId: string): void;
-}
+dayjs.extend(customParseFormat);
+dayjs.extend(advancedFormat);
+dayjs.extend(dayjsDuration);
 
 function msToTime(duration: number): string {
   let milliseconds: string | number = (duration % 1000) / 100,
@@ -40,25 +47,49 @@ function msToTime(duration: number): string {
   return hours + ':' + minutes + ':' + seconds;
 }
 
+const PlaybackButtonContainer = styled.div`
+  &:not(:focus) {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+`;
+
+interface RecordingsListItemProps {
+  bucketToken: string;
+  recording: Recording;
+  selectedRecording: string;
+  handleSelectRecording(recordingId: string): void;
+  handleDeleteRecording(recordingId: string): void;
+  handleEditRecording(recordingId: string, update: any): void;
+}
+
 export function RecordingsListItem({
+  bucketToken,
   recording,
   selectedRecording,
   handleSelectRecording,
   handleDeleteRecording,
+  handleEditRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [hoverRef, hovered] = useHover();
-  const {
-    curTime,
-    duration,
-    playing,
-    setPlaying,
-    setClickedTime,
-  } = useAudioPreview(recording.id);
+  const [editing, setEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
 
-  const selected = selectedRecording === recording.id;
-  // const isPlaying = playing?.recordingId === recording.id;
+  const [hoverRef, hovered] = useHover();
+  const [titleHoverRef, titleHovered] = useHover();
+
+  const { curTime, duration, playing, setPlaying, setClickedTime } =
+    useAudioPreview(recording._id);
+  const theme = useTheme();
+
+  const selected = selectedRecording === recording._id;
   const isPlaying = playing;
+  const durationObj = dayjs.duration(duration * 1000);
 
   const handlePlay = () => {
     setPlaying(true);
@@ -81,44 +112,163 @@ export function RecordingsListItem({
     handleDeleteRecording(recordingId);
   };
 
+  const handleTitleChange = () => {
+    console.log('handleTitleChange, newTitle:', newTitle);
+    newTitle && handleEditRecording(recording._id, { title: newTitle });
+    setEditing(false);
+    setNewTitle('');
+  };
+
   useEffect(() => {
     if (!selected) {
       setPlaying(false);
     }
-    // console.log('recording remote location:', recording.remoteLocation);
   }, [selected]);
 
   return (
     <>
       <ListItem
+        tabIndex={0}
+        role="listitem"
         style={{
-          cursor: 'pointer',
-          maxHeight: selected ? 76 + 8 : 48 + 8,
-          transition: 'max-height 3 ease-in-out',
+          cursor: selected ? 'auto' : 'pointer',
           userSelect: 'none',
+          outline: 'none',
         }}
         ref={hoverRef}
-        key={recording.id}
+        key={recording._id}
         divider
-        selected={selected}
-        onClick={() => handleSelectRecording(recording.id)}
+        // selected={selected}
+        onClick={() => handleSelectRecording(recording._id)}
+        onFocus={() => handleSelectRecording(recording._id)}
       >
         <ListItemText
           disableTypography={true}
-          primary={<Typography>{recording.title}</Typography>}
+          primary={
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}
+            >
+              {!editing ? (
+                <div style={{ display: 'flex' }}>
+                  <div
+                    role="button"
+                    aria-label={`Edit ${recording.title}`}
+                    tabIndex={0}
+                    ref={titleHoverRef}
+                    style={{
+                      cursor: 'pointer',
+                      textDecoration:
+                        selected && titleHovered ? 'underline' : 'none',
+                    }}
+                    onClick={() => selected && setEditing(true)}
+                  >
+                    <Typography style={{ maxWidth: '50vw' }} noWrap>
+                      {recording.title}
+                    </Typography>
+                  </div>
+
+                  {selected && (
+                    <div style={{ marginLeft: 8 }}>
+                      <Fade in={titleHovered}>
+                        <EditIcon fontSize="small" />
+                      </Fade>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ display: 'flex' }}>
+                  <div>
+                    <TextField
+                      id="edit-title-input"
+                      placeholder={recording.title}
+                      size="small"
+                      autoFocus
+                      onBlur={handleTitleChange}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                    />
+                  </div>
+                  <div style={{ marginLeft: 8 }}>
+                    <IconButton size="small" onClick={() => setEditing(false)}>
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </div>
+              )}
+              {selected && (
+                <div
+                  style={{
+                    color: theme.palette.text.secondary,
+                    display: 'flex',
+                  }}
+                >
+                  <div
+                    style={{
+                      border: `2px solid ${theme.palette.text.secondary}`,
+                      borderRadius: 2,
+                      lineHeight: '16px',
+                      height: 16,
+                      fontSize: '0.8em',
+                      paddingLeft: 2,
+                      paddingRight: 2,
+                    }}
+                  >
+                    {recording.format}
+                  </div>
+                  <div
+                    style={{
+                      border: `2px solid ${theme.palette.text.secondary}`,
+                      borderRadius: 2,
+                      height: 16,
+                      lineHeight: '16px',
+                      fontSize: '0.8em',
+                      textAlign: 'center',
+                      marginLeft: 4,
+                      paddingLeft: 2,
+                      paddingRight: 2,
+                    }}
+                  >
+                    {recording.channels === 1 ? 'Mono' : 'Stereo'}
+                  </div>
+                </div>
+              )}
+            </div>
+          }
           secondary={
             selected && (
               <Grow in={true}>
                 <div>
-                  <Typography variant="body2">
-                    {`${recording.created.toLocaleDateString()} ${recording.created.toLocaleTimeString()}`}
-                  </Typography>
-                  <Typography variant="caption">
-                    Duration: {msToTime(Math.trunc(recording.duration * 1000))}
-                  </Typography>
-                  <Typography variant="caption">{` - Size: ${prettyBytes(
-                    recording.size
-                  )}`}</Typography>
+                  <div>
+                    <Typography variant="caption">
+                      {`Recorded: ${dayjs(recording.created).format(
+                        'MMMM Do YYYY, h:mm A'
+                      )}`}
+                    </Typography>
+                  </div>
+                  <div>
+                    <Typography variant="caption" aria-hidden="true">
+                      Duration:
+                      {' ' + msToTime(Math.trunc(duration * 1000))}
+                    </Typography>
+                    <Typography variant="srOnly">
+                      {'Duration: ' +
+                        (durationObj.hours()
+                          ? `${durationObj.hours()} hours, `
+                          : '') +
+                        (durationObj.minutes()
+                          ? `${durationObj.minutes()} minutes, `
+                          : '') +
+                        (durationObj.seconds()
+                          ? `${durationObj.seconds()} seconds `
+                          : '')}
+                    </Typography>
+
+                    <Typography variant="caption">{` - Size: ${prettyBytes(
+                      recording.size
+                    )}`}</Typography>
+                  </div>
                 </div>
               </Grow>
             )
@@ -126,7 +276,6 @@ export function RecordingsListItem({
         />
         <div
           style={{
-            visibility: hovered ? 'visible' : 'hidden',
             opacity: hovered ? 1 : 0,
             transition: 'opacity .3s ease-in-out',
           }}
@@ -136,6 +285,8 @@ export function RecordingsListItem({
         {isPlaying && <StopButton handleStop={handleStop} />}
         <IconButton
           data-testid="button_recording-options"
+          aria-label="Options"
+          aria-haspopup="true"
           onClick={handleClickMenu}
         >
           <MoreVertIcon />
@@ -151,28 +302,29 @@ export function RecordingsListItem({
           <MenuItem
             data-testid="option_delete-recording"
             dense
-            onClick={() => handleDelete(recording.id)}
+            onClick={() => handleDelete(recording._id)}
           >
             Delete
           </MenuItem>
         </Menu>
-        <audio id={recording.id}>
-          <source src={recording.remoteLocation} />
+        <audio id={recording._id}>
+          <source src={recording.remoteLocation + `?token=${bucketToken}`} />
           <source src={'tapes://' + recording.location} />
         </audio>
       </ListItem>
       {playing && (
         <LinearProgress
           variant="determinate"
-          value={(curTime / recording.duration) * 100}
+          value={(curTime / duration) * 100}
         />
       )}
     </>
   );
 }
 
-const mapStateToProps = (state: RecorderState) => {
-  return { playing: state.playing };
-};
+// const mapStateToProps = (state: RecorderState) => {
+//   return { playing: state.playing };
+// };
 
-export default connect(mapStateToProps, actions)(RecordingsListItem);
+// export default connect(mapStateToProps, actions)(RecordingsListItem);
+export default RecordingsListItem;

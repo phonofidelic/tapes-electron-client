@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
-// import { useTextile } from '../services/TextileProvider';
 import { startRecording, stopRecording } from '../effects';
 import {
   RecorderState,
@@ -8,6 +7,9 @@ import {
   StopMonitorAction,
 } from '../store/types';
 import * as actions from '../store/actions';
+import { RecordingSettings } from '../common/RecordingSettings.interface';
+
+// import Loader from '../components/Loader';
 import AudioAnalyser from '../components/AudioAnalyser';
 import RecorderControls from '../components/RecorderControls';
 import Timer from '../components/Timer';
@@ -15,6 +17,8 @@ import Timer from '../components/Timer';
 interface RecorderProps {
   isMonitoring: boolean;
   isRecording: boolean;
+  recordingSettings: RecordingSettings;
+  loading: boolean;
   startMonitor(monitorInstance: MediaStream): StartMonitorAction;
   stopMonitor(): StopMonitorAction;
 }
@@ -22,11 +26,12 @@ interface RecorderProps {
 function Recorder({
   isMonitoring,
   isRecording,
+  recordingSettings,
+  loading,
   startMonitor,
   stopMonitor,
 }: RecorderProps) {
   const dispatch = useDispatch();
-  // const { getBucketKey } = useTextile();
 
   const handleStartMonitor = async () => {
     const monitorInstance = await navigator.mediaDevices.getUserMedia({
@@ -41,15 +46,16 @@ function Recorder({
   };
 
   const handleStartRecording = async () => {
-    // const bucketKey = await getBucketKey();
-    // console.log('handleStartRecording, bucketKey:', bucketKey);
-
-    dispatch(startRecording());
+    dispatch(startRecording(recordingSettings));
   };
 
   const handleStopRecording = () => {
     dispatch(stopRecording());
   };
+
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <div>
@@ -71,6 +77,8 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     isMonitoring: state.isMonitoring,
     isRecording: state.isRecording,
+    recordingSettings: state.recordingSettings,
+    loading: state.loading,
   };
 };
 
