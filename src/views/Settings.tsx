@@ -211,7 +211,6 @@ export function Settings({
             label="Recording Format"
           >
             <MenuItem value={'flac'}>flac</MenuItem>
-            <MenuItem value={'mp3'}>mp3</MenuItem>
             <MenuItem value={'wav'}>wav</MenuItem>
           </Select>
         </FormControl>

@@ -68,7 +68,7 @@ it('shows a recording item', async () => {
     channels: 2,
     created: new Date(),
     filename: 'c676d7f077fe24769e027d7692502133.mp3',
-    format: RecordingFormats.Mp3,
+    format: RecordingFormats.Wav,
     location:
       '/Users/christopherclemons/Projects/tapes-electron-client/Data/c676d7f077fe24769e027d7692502133.mp3',
     remoteLocation:

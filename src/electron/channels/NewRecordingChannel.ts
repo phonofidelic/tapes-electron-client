@@ -12,7 +12,6 @@ import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingSettings } from '../../common/RecordingSettings.interface';
-import { RecordingFormats } from '../../common/RecordingFormats.enum';
 
 const setStorageDir = async (folderName: string): Promise<string> => {
   const storagePath =
@@ -26,13 +25,6 @@ const setStorageDir = async (folderName: string): Promise<string> => {
   return storagePath;
 };
 
-const getRecordingType = (format: RecordingFormats) => {
-  if (format === 'mp3') {
-    return 'wav';
-  }
-  return format;
-};
-
 export class NewRecordingChannel implements IpcChannel {
   get name(): string {
     return 'recorder:start';
@@ -41,10 +33,6 @@ export class NewRecordingChannel implements IpcChannel {
   async handle(event: IpcMainEvent, request: IpcRequest) {
     console.log(this.name);
 
-    // const recordingSettings: RecordingSettings = {
-    //   channels: 1,
-    //   format: RecordingFormats.Mp3,
-    // };
     const recordingSettings: RecordingSettings = request.data;
 
     console.log('*** recordingSettings:', request.data);
@@ -84,7 +72,7 @@ export class NewRecordingChannel implements IpcChannel {
         '-d',
         '-q',
         `-c${recordingSettings.channels}`,
-        `-t${getRecordingType(recordingSettings.format)}`,
+        `-t${recordingSettings.format}`,
         filePath,
       ]);
 
