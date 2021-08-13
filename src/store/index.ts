@@ -5,6 +5,7 @@ import throttle from 'lodash/throttle';
 
 import { reducer, initialState } from './reducer';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
+import { RecordingFormats } from '../common/RecordingFormats.enum';
 
 export type RootState = ReturnType<typeof reducer>;
 
@@ -51,7 +52,7 @@ const persistedState =
   { ...initialState, recordingSettings: loadState() } || initialState;
 
 const persistedRecordingSettings: RecordingSettings = loadState() || {
-  format: 'mp3',
+  format: RecordingFormats.Wav,
   channels: 2,
 };
 

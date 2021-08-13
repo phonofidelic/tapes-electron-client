@@ -50,7 +50,7 @@ export const initialState: RecorderState = {
   bucketToken: null,
   recordingSettings: {
     channels: 2,
-    format: RecordingFormats.Mp3,
+    format: RecordingFormats.Wav,
   },
   recordingQueue: [],
   accountToken: localStorage.getItem(IDENTITY_STORE), // <-- ANTI-PATTERN?
