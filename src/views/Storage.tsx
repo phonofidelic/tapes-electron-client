@@ -48,7 +48,7 @@ export function Storage({ recordings, bucketToken, loading }: StorageProps) {
   }
 
   if (!bucketToken) {
-    return <div>Loading token...</div>;
+    return <Loader />;
   }
 
   if (!recordings.length)
