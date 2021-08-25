@@ -188,7 +188,7 @@ export const reducer = (
     case DELETE_RECORDING_REQUEST:
       return {
         ...state,
-        // loading: true,
+        loading: true,
         recordings: state.recordings.filter(
           (recording) => recording._id !== action.payload
         ),
@@ -197,13 +197,13 @@ export const reducer = (
     case DELETE_RECORDING_SUCCESS:
       return {
         ...state,
-        // loading: false,
+        loading: false,
       };
 
     case DELETE_RECORDING_FAILURE:
       return {
         ...state,
-        // loading: false,
+        loading: false,
         error: action.payload,
       };
 
