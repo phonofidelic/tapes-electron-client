@@ -3,6 +3,7 @@ import { IpcMainEvent } from 'electron';
 import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
+import { ErrorRounded } from '@material-ui/icons';
 
 export class DeleteRecordingChannel implements IpcChannel {
   get name(): string {
@@ -14,10 +15,15 @@ export class DeleteRecordingChannel implements IpcChannel {
 
     const recording: Recording = request.data;
 
-    await fs.unlink(recording.location);
-
-    event.sender.send(request.responseChannel, {
-      message: 'Successful file deletion',
-    });
+    try {
+      await fs.unlink(recording.location);
+      event.sender.send(request.responseChannel, {
+        message: 'Successful file deletion',
+      });
+    } catch (err) {
+      event.sender.send(request.responseChannel, {
+        message: err.message,
+      });
+    }
   }
 }

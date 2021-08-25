@@ -240,7 +240,12 @@ export const deleteRecording =
         RECORDING_COLLECTION,
         recordingId
       )) as unknown as Recording;
+    } catch (err) {
+      console.error('Could not find Recording to be deleted:', err);
+      return dispatch(deleteRecordingFailure(err));
+    }
 
+    try {
       /**
        * Delete in Textile bucket
        */
@@ -250,7 +255,12 @@ export const deleteRecording =
         recording.filename
       );
       console.log('removePathResult:', removePathResult);
+    } catch (err) {
+      console.error('Could not remove file from Textile bucket:', err);
+      dispatch(deleteRecordingFailure(err));
+    }
 
+    try {
       /**
        * Remove Recording object in storage
        */
@@ -258,7 +268,12 @@ export const deleteRecording =
         data: recording,
       });
       console.log('deleteRecording, ipcResponse:', ipcResponse);
+    } catch (err) {
+      console.error('Could not remove Recording file locally:', err);
+      dispatch(deleteRecordingFailure(err));
+    }
 
+    try {
       /**
        * Delete record in IDB
        */
@@ -275,6 +290,7 @@ export const deleteRecording =
 
 export const getBucketToken = (): Effect => async (dispatch) => {
   dispatch(getBucketTokenRequest());
+  dispatch(setLoadingMessage('Loading token...'));
 
   try {
     const { token } = await getBucket();
