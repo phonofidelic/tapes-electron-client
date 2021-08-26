@@ -16,13 +16,13 @@ import RecordingsListItem from '../components/RecordingsListItem';
 import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 
-interface StorageProps {
+interface LibraryProps {
   recordings: Recording[];
   bucketToken: string | null;
   loading: boolean;
 }
 
-export function Storage({ recordings, bucketToken, loading }: StorageProps) {
+export function Library({ recordings, bucketToken, loading }: LibraryProps) {
   const [selectedRecording, setSelectedRecording] = useState(null);
   const dispatch = useDispatch();
 
@@ -96,4 +96,4 @@ const mapStateToProps = (state: RecorderState) => {
   };
 };
 
-export default connect(mapStateToProps, actions)(Storage);
+export default connect(mapStateToProps, actions)(Library);

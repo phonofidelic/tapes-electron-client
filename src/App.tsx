@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { initDatabase } from './effects';
 import Recorder from './views/Recorder';
 import Settings from './views/Settings';
-import Storage from './views/Storage';
+import Library from './views/Library';
 import Navigation from './components/Navigation';
 
 import { useTheme } from '@material-ui/core/styles';
@@ -26,8 +26,8 @@ function App() {
       </nav>
       <main style={{ paddingTop: theme.dimensions.Navigation.height }}>
         <Switch>
-          <Route path="/storage">
-            <Storage />
+          <Route path="/library">
+            <Library />
           </Route>
           <Route path="/settings">
             <Settings />

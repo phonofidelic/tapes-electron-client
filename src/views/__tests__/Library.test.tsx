@@ -10,12 +10,12 @@ import { RecordingFormats } from '../../common/RecordingFormats.enum';
 import { RecorderState } from '../../store/types';
 import { initialState } from '../../store/reducer';
 import { store } from '../../store';
-import Storage from '../Storage';
+import Library from '../Library';
 
 const renderComponent = () =>
   render(
     <Provider store={store}>
-      <Storage />
+      <Library />
     </Provider>
   );
 
@@ -30,7 +30,7 @@ const renderMockedComponent = (state: RecorderState) => {
 
   return render(
     <Provider store={mockStore}>
-      <Storage />
+      <Library />
     </Provider>
   );
 };
