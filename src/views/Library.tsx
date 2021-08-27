@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
+import { matchSorter } from 'match-sorter';
 import { Recording } from '../common/Recording.interface';
 import * as actions from '../store/actions';
 import {
@@ -11,8 +12,10 @@ import {
 import { RecorderState } from '../store/types';
 
 import Loader from '../components/Loader';
+import SearchBar from '../components/SearchBar';
 import RecordingsListItem from '../components/RecordingsListItem';
 
+import { useTheme } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 
@@ -24,7 +27,14 @@ interface LibraryProps {
 
 export function Library({ recordings, bucketToken, loading }: LibraryProps) {
   const [selectedRecording, setSelectedRecording] = useState(null);
+  const [filteredRecordings, setFilteredRecordings] =
+    useState<Recording[]>(recordings);
+
   const dispatch = useDispatch();
+  const theme = useTheme();
+
+  console.log('recordings:', recordings);
+  console.log('filteredRecordings:', filteredRecordings);
 
   const handleSelectRecording = (recordingId: string) => {
     setSelectedRecording(recordingId);
@@ -38,10 +48,19 @@ export function Library({ recordings, bucketToken, loading }: LibraryProps) {
     dispatch(deleteRecording(recordingId));
   };
 
+  const searchLibrary = (searchTerm: string) => {
+    const filtered = matchSorter(recordings, searchTerm, {
+      keys: ['title', 'format'],
+      baseSort: (a, b) => (a.index < b.index ? -1 : 1),
+    });
+    setFilteredRecordings(filtered);
+  };
+
   useEffect(() => {
     !bucketToken && dispatch(getBucketToken());
-    dispatch(loadRecordings());
-  }, []);
+    !recordings.length && dispatch(loadRecordings());
+    searchLibrary('');
+  }, [recordings]);
 
   if (loading) {
     return <Loader />;
@@ -58,7 +77,8 @@ export function Library({ recordings, bucketToken, loading }: LibraryProps) {
           display: 'flex',
           flexDirection: 'column',
           width: '100%',
-          height: 400 - 56,
+          height:
+            theme.dimensions.Tray.height - theme.dimensions.Navigation.height,
           justifyContent: 'center',
         }}
       >
@@ -72,20 +92,61 @@ export function Library({ recordings, bucketToken, loading }: LibraryProps) {
 
   if (recordings.length > 0)
     return (
-      <List>
-        {recordings.map((recording: Recording) => (
-          <RecordingsListItem
-            key={recording._id}
-            bucketToken={bucketToken}
-            recording={recording}
-            selectedRecording={selectedRecording}
-            handleSelectRecording={handleSelectRecording}
-            handleDeleteRecording={handleDeleteRecording}
-            handleEditRecording={handleEditRecording}
-          />
-        ))}
-      </List>
+      <div>
+        <div
+          style={{
+            position: 'sticky',
+            top: theme.dimensions.Navigation.height,
+            zIndex: theme.zIndex.appBar,
+            padding: 4,
+            paddingTop: 0,
+          }}
+        >
+          <SearchBar searchLibrary={searchLibrary} />
+        </div>
+        <div>
+          {filteredRecordings.length ? (
+            <List>
+              {filteredRecordings.map((recording: Recording) => (
+                <RecordingsListItem
+                  key={recording._id}
+                  bucketToken={bucketToken}
+                  recording={recording}
+                  selectedRecording={selectedRecording}
+                  handleSelectRecording={handleSelectRecording}
+                  handleDeleteRecording={handleDeleteRecording}
+                  handleEditRecording={handleEditRecording}
+                />
+              ))}
+            </List>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height:
+                  theme.dimensions.Tray.height -
+                  theme.dimensions.Navigation.height,
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  width: '100%',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography>No results found</Typography>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     );
+
+  return <Loader />;
 }
 
 const mapStateToProps = (state: RecorderState) => {
