@@ -56,6 +56,14 @@ export function Library({ recordings, bucketToken, loading }: LibraryProps) {
     setFilteredRecordings(filtered);
   };
 
+  const sortLibrary = (sortBy: keyof Recording) => {
+    const sorted = [...filteredRecordings].sort((a, b) =>
+      a[sortBy] < b[sortBy] ? -1 : 1
+    );
+
+    setFilteredRecordings(sorted);
+  };
+
   useEffect(() => {
     !bucketToken && dispatch(getBucketToken());
     !recordings.length && dispatch(loadRecordings());
@@ -102,7 +110,7 @@ export function Library({ recordings, bucketToken, loading }: LibraryProps) {
             paddingTop: 0,
           }}
         >
-          <SearchBar searchLibrary={searchLibrary} />
+          <SearchBar searchLibrary={searchLibrary} sortLibrary={sortLibrary} />
         </div>
         <div>
           {filteredRecordings.length ? (
