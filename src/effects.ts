@@ -236,6 +236,7 @@ export const deleteRecording =
       /**
        * Get data for Recording to delete
        */
+      dispatch(setLoadingMessage('Retrieving data to remove...'));
       recording = (await db.findById(
         RECORDING_COLLECTION,
         recordingId
@@ -249,6 +250,7 @@ export const deleteRecording =
       /**
        * Delete in Textile bucket
        */
+      dispatch(setLoadingMessage('Removing remote Recording file...'));
       const { buckets, bucketKey } = await getBucket();
       const removePathResult = await buckets.removePath(
         bucketKey,
@@ -264,6 +266,7 @@ export const deleteRecording =
       /**
        * Remove Recording object in storage
        */
+      dispatch(setLoadingMessage('Removing local Recording file...'));
       const ipcResponse = await ipc.send('storage:delete_one', {
         data: recording,
       });
@@ -277,6 +280,8 @@ export const deleteRecording =
       /**
        * Delete record in IDB
        */
+      dispatch(setLoadingMessage('Updating database...'));
+
       await db.delete(RECORDING_COLLECTION, recordingId);
 
       dispatch(deleteRecordingSuccess(recordingId));
@@ -286,6 +291,7 @@ export const deleteRecording =
 
       dispatch(deleteRecordingFailure(err));
     }
+    dispatch(setLoadingMessage(null));
   };
 
 export const getBucketToken = (): Effect => async (dispatch) => {

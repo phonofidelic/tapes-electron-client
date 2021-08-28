@@ -43,13 +43,14 @@ export class RecordingModel implements Recording {
 const getIdentity = async (): Promise<PrivateKey> => {
   try {
     var storedIdent = localStorage.getItem(IDENTITY_STORE);
-    if (storedIdent === null) {
-      throw new Error('No identity');
+    if (!storedIdent) {
+      throw new Error('No stored identity');
     }
     const restored = PrivateKey.fromString(storedIdent);
     console.log('Stored identity found');
     return restored;
-  } catch (e) {
+  } catch (err) {
+    console.error('Could not retrieve stored identity:', err);
     /**
      * If any error, create a new identity.
      */

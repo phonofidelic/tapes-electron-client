@@ -4,6 +4,10 @@ import { Theme } from '@material-ui/core/styles/createMuiTheme';
 declare module '@material-ui/core/styles/createMuiTheme' {
   interface Theme {
     dimensions: {
+      Tray: {
+        width: number;
+        height: number;
+      };
       Navigation: {
         width: number;
         height: number;
@@ -13,6 +17,10 @@ declare module '@material-ui/core/styles/createMuiTheme' {
 
   interface ThemeOptions {
     dimensions?: {
+      Tray?: {
+        width?: number;
+        height?: number;
+      };
       Navigation?: {
         width?: number;
         height?: number;
@@ -31,6 +39,10 @@ const theme = createMuiTheme({
     },
   },
   dimensions: {
+    Tray: {
+      width: 350,
+      height: 400,
+    },
     Navigation: {
       height: 56,
     },

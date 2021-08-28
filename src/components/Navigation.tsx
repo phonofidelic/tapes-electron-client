@@ -22,59 +22,6 @@ export default function Navigation({}: Props): ReactElement {
 
   const theme = useTheme();
 
-  // return (
-  //   <div
-  //     style={{
-  //       display: 'flex',
-  //       justifyContent: 'space-between',
-  //       backgroundColor: '#e9eae6',
-  //       height: theme.dimensions.Navigation.height,
-  //       position: 'fixed',
-  //       width: '100%',
-  //       top: '0px',
-  //       zIndex: theme.zIndex.appBar,
-  //       color: theme.palette.text.primary,
-  //     }}
-  //   >
-  //     <StyledNavLink
-  //       theme={theme}
-  //       activeStyle={{
-  //         borderBottom: `2px solid ${theme.palette.text.primary}`,
-  //       }}
-  //       to="/recorder"
-  //     >
-  //       <div>
-  //         <MicIcon />
-  //       </div>
-  //       <div>Recorder</div>
-  //     </StyledNavLink>
-  //     <StyledNavLink
-  //       theme={theme}
-  //       activeStyle={{
-  //         borderBottom: `2px solid ${theme.palette.text.primary}`,
-  //       }}
-  //       to="/storage"
-  //     >
-  //       <div>
-  //         <StorageIcon />
-  //       </div>
-  //       <div>Library</div>
-  //     </StyledNavLink>
-  //     <StyledNavLink
-  //       theme={theme}
-  //       activeStyle={{
-  //         borderBottom: `2px solid ${theme.palette.text.primary}`,
-  //       }}
-  //       to="/settings"
-  //     >
-  //       <div>
-  //         <SettingsIcon />
-  //       </div>
-  //       <div>Settings</div>
-  //     </StyledNavLink>
-  //   </div>
-  // );
-
   return (
     <BottomNavigation
       style={{
@@ -96,11 +43,11 @@ export default function Navigation({}: Props): ReactElement {
         to="/recorder"
       />
       <BottomNavigationAction
-        data-testid="nav-link_storage"
-        label="Storage"
+        data-testid="nav-link_library"
+        label="Library"
         icon={<StorageIcon />}
         component={Link}
-        to="/storage"
+        to="/library"
       />
       <BottomNavigationAction
         data-testid="nav-link_settings"
