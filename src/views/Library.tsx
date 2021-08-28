@@ -33,9 +33,6 @@ export function Library({ recordings, bucketToken, loading }: LibraryProps) {
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  console.log('recordings:', recordings);
-  console.log('filteredRecordings:', filteredRecordings);
-
   const handleSelectRecording = (recordingId: string) => {
     setSelectedRecording(recordingId);
   };

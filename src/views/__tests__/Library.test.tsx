@@ -5,12 +5,15 @@ import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import reduxThunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
+import { MuiThemeProvider } from '@material-ui/core/styles';
 
 import { RecordingFormats } from '../../common/RecordingFormats.enum';
 import { RecorderState } from '../../store/types';
 import { initialState } from '../../store/reducer';
 import { store } from '../../store';
 import Library from '../Library';
+import Root from '../../Root';
+import { theme } from '../../theme';
 
 const renderComponent = () =>
   render(
@@ -30,9 +33,16 @@ const renderMockedComponent = (state: RecorderState) => {
 
   return render(
     <Provider store={mockStore}>
-      <Library />
+      <MuiThemeProvider theme={theme}>
+        <Library />
+      </MuiThemeProvider>
     </Provider>
   );
+  // return render(
+  //   <Root>
+  //     <Library />
+  //   </Root>
+  // );
 };
 
 beforeEach(() => {
