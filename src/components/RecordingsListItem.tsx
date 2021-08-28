@@ -1,6 +1,7 @@
 import React, { ReactElement, useState, useEffect } from 'react';
 // import { connect, useDispatch } from 'react-redux';
 // import * as actions from '../store/actions';
+import { useHistory } from 'react-router-dom';
 import prettyBytes from 'pretty-bytes';
 import styled from 'styled-components';
 import dayjs from 'dayjs';
@@ -82,6 +83,7 @@ export function RecordingsListItem({
 
   const [hoverRef, hovered] = useHover();
   const [titleHoverRef, titleHovered] = useHover();
+  const history = useHistory();
 
   const { curTime, duration, playing, setPlaying, setClickedTime } =
     useAudioPreview(recording._id);
@@ -107,7 +109,12 @@ export function RecordingsListItem({
     setAnchorEl(null);
   };
 
-  const handleDelete = (recordingId: string) => {
+  const handleSelectViewRecording = (recordingId: string) => {
+    setAnchorEl(null);
+    history.push({ pathname: `/library/${recordingId}` });
+  };
+
+  const handleSelectDelete = (recordingId: string) => {
     setAnchorEl(null);
     handleDeleteRecording(recordingId);
   };
@@ -117,6 +124,10 @@ export function RecordingsListItem({
     newTitle && handleEditRecording(recording._id, { title: newTitle });
     setEditing(false);
     setNewTitle('');
+  };
+
+  const handleOpenDetailView = (recordingId: string) => {
+    history.push({ pathname: `/library/${recordingId}` });
   };
 
   useEffect(() => {
@@ -141,6 +152,7 @@ export function RecordingsListItem({
         // selected={selected}
         onClick={() => handleSelectRecording(recording._id)}
         onFocus={() => handleSelectRecording(recording._id)}
+        onDoubleClick={() => handleOpenDetailView(recording._id)}
       >
         <ListItemText
           disableTypography={true}
@@ -300,9 +312,17 @@ export function RecordingsListItem({
           onClose={handleCloseMenu}
         >
           <MenuItem
+            data-testid="option_view-recording"
+            dense
+            onClick={() => handleSelectViewRecording(recording._id)}
+          >
+            View Recording
+          </MenuItem>
+          <MenuItem
+            style={{ color: 'red' }}
             data-testid="option_delete-recording"
             dense
-            onClick={() => handleDelete(recording._id)}
+            onClick={() => handleSelectDelete(recording._id)}
           >
             Delete
           </MenuItem>

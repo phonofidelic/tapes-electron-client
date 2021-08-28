@@ -7,6 +7,7 @@ import { initDatabase } from './effects';
 import Recorder from './views/Recorder';
 import Settings from './views/Settings';
 import Library from './views/Library';
+import RecordingDetail from './views/RecordingDetail';
 import Navigation from './components/Navigation';
 
 import { useTheme } from '@material-ui/core/styles';
@@ -26,6 +27,9 @@ function App() {
       </nav>
       <main style={{ paddingTop: theme.dimensions.Navigation.height }}>
         <Switch>
+          <Route path="/library/:id">
+            <RecordingDetail />
+          </Route>
           <Route path="/library">
             <Library />
           </Route>
