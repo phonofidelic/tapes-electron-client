@@ -34,7 +34,8 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   SET_LOADING_MESSAGE = 'set_loading_message',
   INIT_DATABASE_REQUEST = 'init_database_request',
   INIT_DATABASE_SUCCESS = 'init_database_success',
-  INIT_DATABASE_FAILURE = 'init_database_failure';
+  INIT_DATABASE_FAILURE = 'init_database_failure',
+  SELECT_RECORDING = 'select_recording';
 
 export interface RecorderState {
   isRecording: boolean;
@@ -49,6 +50,7 @@ export interface RecorderState {
   recordingSettings: RecordingSettings;
   recordingQueue: string[];
   accountToken: string | null;
+  selectedRecording: Recording | null;
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -206,6 +208,11 @@ export interface InitDatabaseFailureAction extends Action {
   payload: Error;
 }
 
+export interface SelectRecordingAction extends Action {
+  type: typeof SELECT_RECORDING;
+  payload: Recording;
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -239,4 +246,5 @@ export type RecorderAction =
   | SettLoadingMessageAction
   | InitDatabaseRequestAction
   | InitDatabaseSuccessAction
-  | InitDatabaseFailureAction;
+  | InitDatabaseFailureAction
+  | SelectRecordingAction;

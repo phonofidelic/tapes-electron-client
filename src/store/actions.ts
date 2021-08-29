@@ -65,6 +65,8 @@ import {
   InitDatabaseSuccessAction,
   INIT_DATABASE_FAILURE,
   InitDatabaseFailureAction,
+  SELECT_RECORDING,
+  SelectRecordingAction,
 } from './types';
 import { Recording } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -313,5 +315,12 @@ export function initDatabaseFailure(error: Error): InitDatabaseFailureAction {
   return {
     type: INIT_DATABASE_FAILURE,
     payload: error,
+  };
+}
+
+export function selectRecording(recording: Recording): SelectRecordingAction {
+  return {
+    type: SELECT_RECORDING,
+    payload: recording,
   };
 }

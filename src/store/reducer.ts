@@ -34,6 +34,7 @@ import {
   INIT_DATABASE_REQUEST,
   INIT_DATABASE_SUCCESS,
   INIT_DATABASE_FAILURE,
+  SELECT_RECORDING,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -54,6 +55,7 @@ export const initialState: RecorderState = {
   },
   recordingQueue: [],
   accountToken: localStorage.getItem(IDENTITY_STORE), // <-- ANTI-PATTERN?
+  selectedRecording: null,
 };
 
 export const reducer = (
@@ -288,6 +290,12 @@ export const reducer = (
         ...state,
         loading: false,
         error: action.payload,
+      };
+
+    case SELECT_RECORDING:
+      return {
+        ...state,
+        selectedRecording: action.payload,
       };
 
     default:

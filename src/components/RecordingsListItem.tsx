@@ -10,7 +10,7 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 import dayjsDuration from 'dayjs/plugin/duration';
 import { Recording } from '../common/Recording.interface';
 import useHover from '../hooks/useHover';
-import { RecorderState } from '../store/types';
+import { RecorderState, SelectRecordingAction } from '../store/types';
 import useAudioPreview from '../hooks/useAudioPreview';
 
 import PlayButton from './PlayButton';
@@ -63,8 +63,8 @@ const PlaybackButtonContainer = styled.div`
 interface RecordingsListItemProps {
   bucketToken: string;
   recording: Recording;
-  selectedRecording: string;
-  handleSelectRecording(recordingId: string): void;
+  selectedRecording: Recording;
+  handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
   handleEditRecording(recordingId: string, update: any): void;
 }
@@ -89,7 +89,7 @@ export function RecordingsListItem({
     useAudioPreview(recording._id);
   const theme = useTheme();
 
-  const selected = selectedRecording === recording._id;
+  const selected = selectedRecording?._id === recording._id;
   const isPlaying = playing;
   const durationObj = dayjs.duration(duration * 1000);
 
@@ -111,7 +111,7 @@ export function RecordingsListItem({
 
   const handleSelectViewRecording = (recordingId: string) => {
     setAnchorEl(null);
-    history.push({ pathname: `/library/${recordingId}` });
+    history.push({ pathname: `/library/${recordingId}`, state: recording });
   };
 
   const handleSelectDelete = (recordingId: string) => {
@@ -127,7 +127,7 @@ export function RecordingsListItem({
   };
 
   const handleOpenDetailView = (recordingId: string) => {
-    history.push({ pathname: `/library/${recordingId}` });
+    history.push({ pathname: `/library/${recordingId}`, state: recording });
   };
 
   useEffect(() => {
@@ -150,8 +150,8 @@ export function RecordingsListItem({
         key={recording._id}
         divider
         // selected={selected}
-        onClick={() => handleSelectRecording(recording._id)}
-        onFocus={() => handleSelectRecording(recording._id)}
+        onClick={() => handleSelectRecording(recording)}
+        onFocus={() => handleSelectRecording(recording)}
         onDoubleClick={() => handleOpenDetailView(recording._id)}
       >
         <ListItemText

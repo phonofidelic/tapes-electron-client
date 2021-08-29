@@ -9,7 +9,7 @@ import {
   editRecording,
   getBucketToken,
 } from '../effects';
-import { RecorderState } from '../store/types';
+import { RecorderState, SelectRecordingAction } from '../store/types';
 
 import Loader from '../components/Loader';
 import SearchBar from '../components/SearchBar';
@@ -23,18 +23,25 @@ interface LibraryProps {
   recordings: Recording[];
   bucketToken: string | null;
   loading: boolean;
+  selectedRecording: Recording | null;
+  selectRecording(recording: Recording): SelectRecordingAction;
 }
 
-export function Library({ recordings, bucketToken, loading }: LibraryProps) {
-  const [selectedRecording, setSelectedRecording] = useState(null);
+export function Library({
+  recordings,
+  bucketToken,
+  loading,
+  selectedRecording,
+  selectRecording,
+}: LibraryProps) {
   const [filteredRecordings, setFilteredRecordings] =
     useState<Recording[]>(recordings);
 
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const handleSelectRecording = (recordingId: string) => {
-    setSelectedRecording(recordingId);
+  const handleSelectRecording = (recording: Recording) => {
+    selectRecording(recording);
   };
 
   const handleEditRecording = (recordingId: string, update: any) => {
@@ -159,6 +166,7 @@ const mapStateToProps = (state: RecorderState) => {
     recordings: state.recordings,
     loading: state.loading,
     bucketToken: state.bucketToken,
+    selectedRecording: state.selectedRecording,
   };
 };
 
