@@ -12,6 +12,7 @@ import { Recording } from '../common/Recording.interface';
 import useHover from '../hooks/useHover';
 import { RecorderState, SelectRecordingAction } from '../store/types';
 import useAudioPreview from '../hooks/useAudioPreview';
+import { msToTime } from '../utils';
 
 import PlayButton from './PlayButton';
 import StopButton from './StopButton';
@@ -34,19 +35,6 @@ import { useTheme } from '@material-ui/core/styles';
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
-
-function msToTime(duration: number): string {
-  let milliseconds: string | number = (duration % 1000) / 100,
-    seconds: string | number = Math.floor((duration / 1000) % 60),
-    minutes: string | number = Math.floor((duration / (1000 * 60)) % 60),
-    hours: string | number = Math.floor((duration / (1000 * 60 * 60)) % 24);
-
-  hours = hours < 10 ? '0' + hours : hours;
-  minutes = minutes < 10 ? '0' + minutes : minutes;
-  seconds = seconds < 10 ? '0' + seconds : seconds;
-
-  return hours + ':' + minutes + ':' + seconds;
-}
 
 const PlaybackButtonContainer = styled.div`
   &:not(:focus) {
