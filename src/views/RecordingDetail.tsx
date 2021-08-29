@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import dayjsDuration from 'dayjs/plugin/duration';
+import prettyBytes from 'pretty-bytes';
 
 import useAudioPreview from '../hooks/useAudioPreview';
 import { msToTime } from '../utils';
@@ -98,6 +99,26 @@ export function RecordingDetail({
                   ? `${durationObj.seconds()} seconds `
                   : '')}
             </Typography>
+          </div>
+        </div>
+        <div style={{ marginTop: 16 }}>
+          <div>
+            <Typography
+              variant="caption"
+              color="textSecondary"
+            >{`Size: ${prettyBytes(recording.size)}`}</Typography>
+          </div>
+          <div>
+            <Typography
+              variant="caption"
+              color="textSecondary"
+            >{`Format: ${recording.format}`}</Typography>
+          </div>
+          <div>
+            <Typography
+              variant="caption"
+              color="textSecondary"
+            >{`Channels: ${recording.channels}`}</Typography>
           </div>
         </div>
         {/* <div style={{ flex: 1 }}></div> */}
