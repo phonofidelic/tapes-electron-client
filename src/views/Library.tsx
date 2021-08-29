@@ -14,6 +14,7 @@ import { RecorderState, SelectRecordingAction } from '../store/types';
 import Loader from '../components/Loader';
 import SearchBar from '../components/SearchBar';
 import RecordingsListItem from '../components/RecordingsListItem';
+import FileDrop from '../components/FileDrop';
 
 import { useTheme } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
@@ -104,7 +105,7 @@ export function Library({
 
   if (recordings.length > 0)
     return (
-      <div>
+      <FileDrop>
         <div
           style={{
             position: 'sticky',
@@ -155,7 +156,7 @@ export function Library({
             </div>
           )}
         </div>
-      </div>
+      </FileDrop>
     );
 
   return <Loader />;
