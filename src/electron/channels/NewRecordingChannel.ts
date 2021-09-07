@@ -33,7 +33,8 @@ export class NewRecordingChannel implements IpcChannel {
   async handle(event: IpcMainEvent, request: IpcRequest) {
     console.log(this.name);
 
-    const recordingSettings: RecordingSettings = request.data;
+    const recordingSettings: RecordingSettings = request.data.recordingSettings;
+    const title: string = request.data.title;
 
     console.log('*** recordingSettings:', request.data);
 
@@ -103,11 +104,13 @@ export class NewRecordingChannel implements IpcChannel {
 
         const recording: Recording = {
           location: filePath,
+          title,
           filename,
           size: fileStats.size,
           duration: metadata.format.duration,
           format: recordingSettings.format,
           channels: recordingSettings.channels,
+          fileData: await fs.readFile(filePath),
         };
 
         const fileData = await fs.readFile(filePath);

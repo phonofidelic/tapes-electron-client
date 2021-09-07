@@ -34,6 +34,10 @@ import {
   INIT_DATABASE_REQUEST,
   INIT_DATABASE_SUCCESS,
   INIT_DATABASE_FAILURE,
+  SELECT_RECORDING,
+  UPLOAD_RECORDINGS_REQUEST,
+  UPLOAD_RECORDINGS_SUCCESS,
+  UPLOAD_RECORDINGS_FAILURE,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -54,6 +58,7 @@ export const initialState: RecorderState = {
   },
   recordingQueue: [],
   accountToken: localStorage.getItem(IDENTITY_STORE), // <-- ANTI-PATTERN?
+  selectedRecording: null,
 };
 
 export const reducer = (
@@ -284,6 +289,32 @@ export const reducer = (
       };
 
     case INIT_DATABASE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case SELECT_RECORDING:
+      return {
+        ...state,
+        selectedRecording: action.payload,
+      };
+
+    case UPLOAD_RECORDINGS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case UPLOAD_RECORDINGS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        recordings: [...action.payload, ...state.recordings],
+      };
+
+    case UPLOAD_RECORDINGS_FAILURE:
       return {
         ...state,
         loading: false,

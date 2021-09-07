@@ -25,7 +25,7 @@ const mockRecording: Recording = {
   channels: 2,
 };
 
-let mockSelect: (recordingId: string) => void;
+let mockSelect: (recording: Recording) => void;
 let mockDelete: (recordingId: string) => void;
 let mockEdit: (recordingId: string) => void;
 beforeEach(() => {
@@ -64,7 +64,7 @@ it('displays detail info when selected', () => {
     <RecordingsListItem
       bucketToken="123abc"
       recording={mockRecording}
-      selectedRecording={'123'}
+      selectedRecording={mockRecording}
       handleSelectRecording={mockSelect}
       handleDeleteRecording={mockDelete}
       handleEditRecording={mockEdit}
@@ -73,7 +73,7 @@ it('displays detail info when selected', () => {
 
   expect(
     getByText(
-      `Recorded: ${dayjs(mockRecording.created).format('MMMM Do YYYY, h:mm A')}`
+      `Recorded: ${dayjs(mockRecording.created).format('MMM Do YYYY, h:mm A')}`
     )
   ).toBeInTheDocument();
 

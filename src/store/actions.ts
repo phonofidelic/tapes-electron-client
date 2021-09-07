@@ -65,6 +65,14 @@ import {
   InitDatabaseSuccessAction,
   INIT_DATABASE_FAILURE,
   InitDatabaseFailureAction,
+  SELECT_RECORDING,
+  SelectRecordingAction,
+  UPLOAD_RECORDINGS_REQUEST,
+  UploadRecordingsRequestAction,
+  UPLOAD_RECORDINGS_SUCCESS,
+  UploadRecordingsSuccessAction,
+  UPLOAD_RECORDINGS_FAILURE,
+  UploadRecordingsFailureAction,
 } from './types';
 import { Recording } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -312,6 +320,37 @@ export function initDatabaseSuccess(): InitDatabaseSuccessAction {
 export function initDatabaseFailure(error: Error): InitDatabaseFailureAction {
   return {
     type: INIT_DATABASE_FAILURE,
+    payload: error,
+  };
+}
+
+export function selectRecording(recording: Recording): SelectRecordingAction {
+  return {
+    type: SELECT_RECORDING,
+    payload: recording,
+  };
+}
+
+export function uploadRecordingsRequest(): UploadRecordingsRequestAction {
+  return {
+    type: UPLOAD_RECORDINGS_REQUEST,
+  };
+}
+
+export function uploadRecordingsSuccess(
+  recordings: Recording[]
+): UploadRecordingsSuccessAction {
+  return {
+    type: UPLOAD_RECORDINGS_SUCCESS,
+    payload: recordings,
+  };
+}
+
+export function uploadRecordingsFailure(
+  error: Error
+): UploadRecordingsFailureAction {
+  return {
+    type: UPLOAD_RECORDINGS_FAILURE,
     payload: error,
   };
 }

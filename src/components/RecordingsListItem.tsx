@@ -1,6 +1,7 @@
 import React, { ReactElement, useState, useEffect } from 'react';
 // import { connect, useDispatch } from 'react-redux';
 // import * as actions from '../store/actions';
+import { useHistory } from 'react-router-dom';
 import prettyBytes from 'pretty-bytes';
 import styled from 'styled-components';
 import dayjs from 'dayjs';
@@ -9,8 +10,9 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 import dayjsDuration from 'dayjs/plugin/duration';
 import { Recording } from '../common/Recording.interface';
 import useHover from '../hooks/useHover';
-import { RecorderState } from '../store/types';
+import { RecorderState, SelectRecordingAction } from '../store/types';
 import useAudioPreview from '../hooks/useAudioPreview';
+import { msToTime } from '../utils';
 
 import PlayButton from './PlayButton';
 import StopButton from './StopButton';
@@ -34,19 +36,6 @@ dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
 
-function msToTime(duration: number): string {
-  let milliseconds: string | number = (duration % 1000) / 100,
-    seconds: string | number = Math.floor((duration / 1000) % 60),
-    minutes: string | number = Math.floor((duration / (1000 * 60)) % 60),
-    hours: string | number = Math.floor((duration / (1000 * 60 * 60)) % 24);
-
-  hours = hours < 10 ? '0' + hours : hours;
-  minutes = minutes < 10 ? '0' + minutes : minutes;
-  seconds = seconds < 10 ? '0' + seconds : seconds;
-
-  return hours + ':' + minutes + ':' + seconds;
-}
-
 const PlaybackButtonContainer = styled.div`
   &:not(:focus) {
     clip: rect(0 0 0 0);
@@ -62,8 +51,8 @@ const PlaybackButtonContainer = styled.div`
 interface RecordingsListItemProps {
   bucketToken: string;
   recording: Recording;
-  selectedRecording: string;
-  handleSelectRecording(recordingId: string): void;
+  selectedRecording: Recording;
+  handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
   handleEditRecording(recordingId: string, update: any): void;
 }
@@ -82,12 +71,13 @@ export function RecordingsListItem({
 
   const [hoverRef, hovered] = useHover();
   const [titleHoverRef, titleHovered] = useHover();
+  const history = useHistory();
 
   const { curTime, duration, playing, setPlaying, setClickedTime } =
     useAudioPreview(recording._id);
   const theme = useTheme();
 
-  const selected = selectedRecording === recording._id;
+  const selected = selectedRecording?._id === recording._id;
   const isPlaying = playing;
   const durationObj = dayjs.duration(duration * 1000);
 
@@ -107,7 +97,12 @@ export function RecordingsListItem({
     setAnchorEl(null);
   };
 
-  const handleDelete = (recordingId: string) => {
+  const handleSelectViewRecording = (recordingId: string) => {
+    setAnchorEl(null);
+    history.push({ pathname: `/library/${recordingId}`, state: recording });
+  };
+
+  const handleSelectDelete = (recordingId: string) => {
     setAnchorEl(null);
     handleDeleteRecording(recordingId);
   };
@@ -117,6 +112,10 @@ export function RecordingsListItem({
     newTitle && handleEditRecording(recording._id, { title: newTitle });
     setEditing(false);
     setNewTitle('');
+  };
+
+  const handleOpenDetailView = (recordingId: string) => {
+    history.push({ pathname: `/library/${recordingId}`, state: recording });
   };
 
   useEffect(() => {
@@ -139,8 +138,9 @@ export function RecordingsListItem({
         key={recording._id}
         divider
         // selected={selected}
-        onClick={() => handleSelectRecording(recording._id)}
-        onFocus={() => handleSelectRecording(recording._id)}
+        onClick={() => handleSelectRecording(recording)}
+        onFocus={() => handleSelectRecording(recording)}
+        onDoubleClick={() => handleOpenDetailView(recording._id)}
       >
         <ListItemText
           disableTypography={true}
@@ -243,7 +243,7 @@ export function RecordingsListItem({
                   <div>
                     <Typography variant="caption">
                       {`Recorded: ${dayjs(recording.created).format(
-                        'MMMM Do YYYY, h:mm A'
+                        'MMM Do YYYY, h:mm A'
                       )}`}
                     </Typography>
                   </div>
@@ -300,9 +300,17 @@ export function RecordingsListItem({
           onClose={handleCloseMenu}
         >
           <MenuItem
+            data-testid="option_view-recording"
+            dense
+            onClick={() => handleSelectViewRecording(recording._id)}
+          >
+            View Recording
+          </MenuItem>
+          <MenuItem
+            style={{ color: 'red' }}
             data-testid="option_delete-recording"
             dense
-            onClick={() => handleDelete(recording._id)}
+            onClick={() => handleSelectDelete(recording._id)}
           >
             Delete
           </MenuItem>
