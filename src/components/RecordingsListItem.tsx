@@ -243,7 +243,7 @@ export function RecordingsListItem({
                   <div>
                     <Typography variant="caption">
                       {`Recorded: ${dayjs(recording.created).format(
-                        'MMMM Do YYYY, h:mm A'
+                        'MMM Do YYYY, h:mm A'
                       )}`}
                     </Typography>
                   </div>

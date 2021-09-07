@@ -73,7 +73,7 @@ it('displays detail info when selected', () => {
 
   expect(
     getByText(
-      `Recorded: ${dayjs(mockRecording.created).format('MMMM Do YYYY, h:mm A')}`
+      `Recorded: ${dayjs(mockRecording.created).format('MMM Do YYYY, h:mm A')}`
     )
   ).toBeInTheDocument();
 
