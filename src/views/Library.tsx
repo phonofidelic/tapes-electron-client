@@ -8,6 +8,7 @@ import {
   deleteRecording,
   editRecording,
   getBucketToken,
+  uploadAudioFiles,
 } from '../effects';
 import { RecorderState, SelectRecordingAction } from '../store/types';
 
@@ -69,6 +70,11 @@ export function Library({
     setFilteredRecordings(sorted);
   };
 
+  const handleFileDrop = (audioFiles: File[]) => {
+    console.log('handleFileDrop, audioFiles:', audioFiles);
+    dispatch(uploadAudioFiles(audioFiles));
+  };
+
   useEffect(() => {
     !bucketToken && dispatch(getBucketToken());
     !recordings.length && dispatch(loadRecordings());
@@ -105,7 +111,7 @@ export function Library({
 
   if (recordings.length > 0)
     return (
-      <FileDrop>
+      <FileDrop handleFileDrop={handleFileDrop}>
         <div
           style={{
             position: 'sticky',

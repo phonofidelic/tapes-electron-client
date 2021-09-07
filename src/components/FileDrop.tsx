@@ -6,13 +6,18 @@ import { fade } from '@material-ui/core/styles/colorManipulator';
 
 interface Props {
   children?: ReactElement[];
+  handleFileDrop(files: File[]): void;
 }
 
-export default function FileDrop({ children }: Props): ReactElement {
+export default function FileDrop({
+  handleFileDrop,
+  children,
+}: Props): ReactElement {
   const theme = useTheme();
 
   const onDrop = useCallback(async (acceptedFiles) => {
-    console.log('Droped files:', acceptedFiles);
+    // console.log('Droped files:', acceptedFiles);
+    handleFileDrop(acceptedFiles);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({

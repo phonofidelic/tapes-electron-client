@@ -1,3 +1,4 @@
+import { ICommonTagsResult } from 'music-metadata';
 import { RecordingFormats } from './RecordingFormats.enum';
 
 export interface Recording {
@@ -11,4 +12,6 @@ export interface Recording {
   title?: string;
   duration?: number;
   created?: Date;
+  common?: ICommonTagsResult;
+  fileData?: any;
 }

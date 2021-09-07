@@ -35,7 +35,10 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   INIT_DATABASE_REQUEST = 'init_database_request',
   INIT_DATABASE_SUCCESS = 'init_database_success',
   INIT_DATABASE_FAILURE = 'init_database_failure',
-  SELECT_RECORDING = 'select_recording';
+  SELECT_RECORDING = 'select_recording',
+  UPLOAD_RECORDINGS_REQUEST = 'upload_recordings_request',
+  UPLOAD_RECORDINGS_SUCCESS = 'upload_recordings_success',
+  UPLOAD_RECORDINGS_FAILURE = 'upload_recordings_failure';
 
 export interface RecorderState {
   isRecording: boolean;
@@ -213,6 +216,20 @@ export interface SelectRecordingAction extends Action {
   payload: Recording;
 }
 
+export interface UploadRecordingsRequestAction extends Action {
+  type: typeof UPLOAD_RECORDINGS_REQUEST;
+}
+
+export interface UploadRecordingsSuccessAction extends Action {
+  type: typeof UPLOAD_RECORDINGS_SUCCESS;
+  payload: Recording[];
+}
+
+export interface UploadRecordingsFailureAction extends Action {
+  type: typeof UPLOAD_RECORDINGS_FAILURE;
+  payload: Error;
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -247,4 +264,7 @@ export type RecorderAction =
   | InitDatabaseRequestAction
   | InitDatabaseSuccessAction
   | InitDatabaseFailureAction
-  | SelectRecordingAction;
+  | SelectRecordingAction
+  | UploadRecordingsRequestAction
+  | UploadRecordingsSuccessAction
+  | UploadRecordingsFailureAction;

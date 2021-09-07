@@ -1,3 +1,4 @@
+import { ICommonTagsResult } from 'music-metadata';
 import { Recording } from './common/Recording.interface';
 import { RecordingFormats } from './common/RecordingFormats.enum';
 import { THREADS_DB_NAME, IDENTITY_STORE } from './common/constants';
@@ -15,6 +16,7 @@ export class RecordingModel implements Recording {
   created: Date;
   format: RecordingFormats;
   channels: number;
+  common?: ICommonTagsResult;
 
   constructor(
     location: string,
@@ -25,7 +27,8 @@ export class RecordingModel implements Recording {
     channels: number,
     duration: number,
     remoteLocation?: string,
-    bucketPath?: string
+    bucketPath?: string,
+    common?: ICommonTagsResult
   ) {
     this.filename = filename;
     this.created = new Date();
@@ -37,6 +40,7 @@ export class RecordingModel implements Recording {
     this.duration = duration;
     this.format = format;
     this.channels = channels;
+    this.common = common;
   }
 }
 

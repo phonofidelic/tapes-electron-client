@@ -29,6 +29,9 @@ import {
   initDatabaseRequest,
   initDatabaseSuccess,
   initDatabaseFailure,
+  uploadRecordingsRequest,
+  uploadRecordingsFailure,
+  uploadRecordingsSuccess,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
@@ -80,20 +83,132 @@ const getBucket = async () => {
     threadId: buck.threadID,
   };
 };
+
+const addRemoteRecording = async (
+  recordingData: Recording
+): Promise<Recording> => {
+  const { buckets, bucketKey, threadId } = await getBucket();
+  /**
+   * Push audio data to IPFS
+   */
+  if (!recordingData.fileData)
+    throw new Error('No file data for ' + recordingData.title);
+  const pushPathResult = await buckets.pushPath(
+    bucketKey,
+    recordingData.filename,
+    await recordingData.fileData
+  );
+  console.log('pushPathResult:', pushPathResult);
+
+  /**
+   * Set remote Textile Bucket location
+   */
+  const remoteLocation =
+    IPFS_GATEWAY +
+    '/thread/' +
+    threadId +
+    '/buckets/' +
+    bucketKey +
+    '/' +
+    recordingData.filename;
+
+  const recordingDoc = new RecordingModel(
+    recordingData.location,
+    recordingData.filename,
+    recordingData.title,
+    recordingData.size,
+    recordingData.format,
+    recordingData.channels,
+    recordingData.duration,
+    remoteLocation
+  );
+
+  /**
+   * Add recording doc to Textile DB
+   */
+  const newRecordingId = await db.add(RECORDING_COLLECTION, recordingDoc);
+  console.log('recordingDoc:', recordingDoc);
+
+  /**
+   * Update recording doc with remoteLocation
+   */
+  await db.update(RECORDING_COLLECTION, newRecordingId, {
+    remoteLocation,
+    bucketPath: pushPathResult.path.path,
+  });
+
+  const createdRecording = (await db.findById(
+    RECORDING_COLLECTION,
+    newRecordingId
+  )) as unknown as Recording;
+
+  return createdRecording;
+};
 /** End Textile utils */
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
+
+export const uploadAudioFiles =
+  (audioFiles: File[]): Effect =>
+  async (dispatch) => {
+    dispatch(uploadRecordingsRequest());
+    dispatch(setLoadingMessage('Processing audio files...'));
+    console.log('uploadAudioFiles, audioFiles:', audioFiles);
+
+    /**
+     * Parse data needed for Recording object
+     */
+    const parsedFiles = audioFiles.map((file) => ({
+      path: file.path,
+      name: file.name,
+      size: file.size,
+    }));
+
+    /**
+     * Get Recordings with metadata from files
+     */
+    let ipcResponse: { message: string; data: Recording[]; error?: Error };
+    try {
+      ipcResponse = await ipc.send('storage:upload', {
+        data: { files: parsedFiles },
+      });
+      console.log('uploadAudioFiles, response:', ipcResponse);
+    } catch (err) {
+      console.error('Could not upload audio files:', err);
+      dispatch(uploadRecordingsFailure(err));
+    }
+
+    let createdRecordings = [];
+    try {
+      for await (let recordingData of ipcResponse.data) {
+        dispatch(setLoadingMessage(`Uploading "${recordingData.title}"`));
+        const createdRecording = await addRemoteRecording(recordingData);
+        createdRecordings.push(createdRecording);
+      }
+    } catch (err) {
+      console.error('Could not push audio files to remote:', err);
+      dispatch(uploadRecordingsFailure(err));
+    }
+
+    dispatch(uploadRecordingsSuccess(createdRecordings));
+    dispatch(setLoadingMessage(null));
+  };
 
 export const startRecording =
   (recordingSettings: RecordingSettings): Effect =>
   async (dispatch) => {
     dispatch(startRecordingRequest());
 
+    const recordingCount = (await db.find(RECORDING_COLLECTION, {})).length;
+    console.log('recordingCount:', recordingCount);
+
+    const title = `Recording #${recordingCount + 1}`;
+
     let ipcResponse: { data: Recording; file?: any; error?: Error };
     let recordingData;
     try {
       ipcResponse = await ipc.send('recorder:start', {
-        data: recordingSettings,
+        data: { recordingSettings, title },
       });
       console.log('recorder:start, ipcResponse:', ipcResponse);
 
@@ -107,64 +222,7 @@ export const startRecording =
     try {
       dispatch(addRecordingRequest());
 
-      const recordingCount = (await db.find(RECORDING_COLLECTION, {})).length;
-      console.log('recordingCount:', recordingCount);
-
-      const title = `Recording #${recordingCount + 1}`;
-
-      /**
-       * Push audio data to IPFS
-       */
-      const { buckets, bucketKey, threadId } = await getBucket();
-
-      const pushPathResult = await buckets.pushPath(
-        bucketKey,
-        recordingData.filename,
-        await ipcResponse.file
-      );
-      console.log('pushPathResult:', pushPathResult);
-
-      /**
-       * Set remote Textile Bucket location
-       */
-      const remoteLocation =
-        IPFS_GATEWAY +
-        '/thread/' +
-        threadId +
-        '/buckets/' +
-        bucketKey +
-        '/' +
-        recordingData.filename;
-
-      const recordingDoc = new RecordingModel(
-        recordingData.location,
-        recordingData.filename,
-        title,
-        recordingData.size,
-        recordingData.format,
-        recordingData.channels,
-        recordingData.duration,
-        remoteLocation
-      );
-
-      /**
-       * Add recording doc to Textile DB
-       */
-      const newRecordingId = await db.add(RECORDING_COLLECTION, recordingDoc);
-      console.log('recordingDoc:', recordingDoc);
-
-      /**
-       * Update recording doc with remoteLocation
-       */
-      await db.update(RECORDING_COLLECTION, newRecordingId, {
-        remoteLocation,
-        bucketPath: pushPathResult.path.path,
-      });
-
-      const createdRecording = (await db.findById(
-        RECORDING_COLLECTION,
-        newRecordingId
-      )) as unknown as Recording;
+      const createdRecording = await addRemoteRecording(recordingData);
 
       dispatch(addRecordingSuccess(createdRecording));
       await db.push(RECORDING_COLLECTION);
