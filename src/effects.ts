@@ -185,6 +185,7 @@ export const uploadAudioFiles =
         const createdRecording = await addRemoteRecording(recordingData);
         createdRecordings.push(createdRecording);
       }
+      await db.push(RECORDING_COLLECTION);
     } catch (err) {
       console.error('Could not push audio files to remote:', err);
       dispatch(uploadRecordingsFailure(err));
