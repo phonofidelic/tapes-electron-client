@@ -173,9 +173,10 @@ export const uploadAudioFiles =
         data: { files: parsedFiles },
       });
       console.log('uploadAudioFiles, response:', ipcResponse);
+      if (ipcResponse.error) throw ipcResponse.error;
     } catch (err) {
-      console.error('Could not upload audio files:', err);
-      dispatch(uploadRecordingsFailure(err));
+      console.error('Could not upload audio files:', err.message);
+      return dispatch(uploadRecordingsFailure(err));
     }
 
     let createdRecordings = [];
@@ -188,7 +189,7 @@ export const uploadAudioFiles =
       await db.push(RECORDING_COLLECTION);
     } catch (err) {
       console.error('Could not push audio files to remote:', err);
-      dispatch(uploadRecordingsFailure(err));
+      return dispatch(uploadRecordingsFailure(err));
     }
 
     dispatch(uploadRecordingsSuccess(createdRecordings));

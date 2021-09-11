@@ -1,15 +1,17 @@
-import { LocalConvenienceStoreOutlined } from '@material-ui/icons';
 import React, { ReactElement, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+
 import { useTheme } from '@material-ui/core';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 
 interface Props {
+  accept: string;
   children?: ReactElement[];
   handleFileDrop(files: File[]): void;
 }
 
 export default function FileDrop({
+  accept,
   handleFileDrop,
   children,
 }: Props): ReactElement {
@@ -17,11 +19,12 @@ export default function FileDrop({
 
   const onDrop = useCallback(async (acceptedFiles) => {
     // console.log('Droped files:', acceptedFiles);
-    handleFileDrop(acceptedFiles);
+    if (acceptedFiles.length) handleFileDrop(acceptedFiles);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    accept,
   });
 
   return (

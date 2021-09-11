@@ -38,7 +38,8 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   SELECT_RECORDING = 'select_recording',
   UPLOAD_RECORDINGS_REQUEST = 'upload_recordings_request',
   UPLOAD_RECORDINGS_SUCCESS = 'upload_recordings_success',
-  UPLOAD_RECORDINGS_FAILURE = 'upload_recordings_failure';
+  UPLOAD_RECORDINGS_FAILURE = 'upload_recordings_failure',
+  CONFIRM_ERROR = 'confirm_error';
 
 export interface RecorderState {
   isRecording: boolean;
@@ -230,6 +231,10 @@ export interface UploadRecordingsFailureAction extends Action {
   payload: Error;
 }
 
+export interface ConfirmErrorAction extends Action {
+  type: typeof CONFIRM_ERROR;
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -267,4 +272,5 @@ export type RecorderAction =
   | SelectRecordingAction
   | UploadRecordingsRequestAction
   | UploadRecordingsSuccessAction
-  | UploadRecordingsFailureAction;
+  | UploadRecordingsFailureAction
+  | ConfirmErrorAction;

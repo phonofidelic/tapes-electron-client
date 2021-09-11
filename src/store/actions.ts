@@ -73,6 +73,8 @@ import {
   UploadRecordingsSuccessAction,
   UPLOAD_RECORDINGS_FAILURE,
   UploadRecordingsFailureAction,
+  CONFIRM_ERROR,
+  ConfirmErrorAction,
 } from './types';
 import { Recording } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -352,5 +354,11 @@ export function uploadRecordingsFailure(
   return {
     type: UPLOAD_RECORDINGS_FAILURE,
     payload: error,
+  };
+}
+
+export function confirmError(): ConfirmErrorAction {
+  return {
+    type: CONFIRM_ERROR,
   };
 }

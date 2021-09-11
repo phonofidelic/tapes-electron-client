@@ -38,6 +38,7 @@ import {
   UPLOAD_RECORDINGS_REQUEST,
   UPLOAD_RECORDINGS_SUCCESS,
   UPLOAD_RECORDINGS_FAILURE,
+  CONFIRM_ERROR,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -319,6 +320,12 @@ export const reducer = (
         ...state,
         loading: false,
         error: action.payload,
+      };
+
+    case CONFIRM_ERROR:
+      return {
+        ...state,
+        error: null,
       };
 
     default:
