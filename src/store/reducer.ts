@@ -38,6 +38,9 @@ import {
   UPLOAD_RECORDINGS_REQUEST,
   UPLOAD_RECORDINGS_SUCCESS,
   UPLOAD_RECORDINGS_FAILURE,
+  SET_INPUT_DEVICE_REQUEST,
+  SET_INPUT_DEVICE_SUCCESS,
+  SET_INPUT_DEVICE_FAILURE,
   CONFIRM_ERROR,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
@@ -56,6 +59,7 @@ export const initialState: RecorderState = {
   recordingSettings: {
     channels: 2,
     format: RecordingFormats.Wav,
+    selectedMediaDeviceId: 'default',
   },
   recordingQueue: [],
   accountToken: localStorage.getItem(IDENTITY_STORE), // <-- ANTI-PATTERN?
@@ -316,6 +320,25 @@ export const reducer = (
       };
 
     case UPLOAD_RECORDINGS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case SET_INPUT_DEVICE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case SET_INPUT_DEVICE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+
+    case SET_INPUT_DEVICE_FAILURE:
       return {
         ...state,
         loading: false,

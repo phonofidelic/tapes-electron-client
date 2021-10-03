@@ -32,6 +32,9 @@ import {
   uploadRecordingsRequest,
   uploadRecordingsFailure,
   uploadRecordingsSuccess,
+  setInputDeviceRequest,
+  setInputDeviceSuccess,
+  setInputDeviceFailure,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
@@ -399,3 +402,25 @@ export const initDatabase = (): Effect => async (dispatch) => {
     dispatch(initDatabaseFailure(err));
   }
 };
+
+export const setInputDevice =
+  (deviceName: string): Effect =>
+  async (dispatch) => {
+    console.log('setInputDevice, deviceName:', deviceName);
+    dispatch(setInputDeviceRequest());
+
+    let ipcResponse: { message: string; error?: Error };
+    try {
+      ipcResponse = await ipc.send('recorder:set-input', { data: deviceName });
+
+      console.log('recorder:set-input, ipcResponse:', ipcResponse);
+
+      if (ipcResponse.error) {
+        throw Response.error;
+      }
+    } catch (err) {
+      dispatch(setInputDeviceFailure(err));
+    }
+
+    dispatch(setInputDeviceSuccess());
+  };

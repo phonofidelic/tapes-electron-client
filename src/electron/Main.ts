@@ -53,7 +53,7 @@ export class Main {
 
     this.mainWindow = new BrowserWindow({
       width: 350,
-      height: 400,
+      height: 458,
       title: 'Tapes',
       frame: false,
       resizable: false,

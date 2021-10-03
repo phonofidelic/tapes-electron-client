@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { connect, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 
 import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
-import { loadAccountToken } from '../effects';
+import { loadAccountToken, setInputDevice } from '../effects';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
@@ -48,6 +48,11 @@ export function Settings({
   recordingSettings,
   setRecordingSettings,
 }: SettingsProps) {
+  const [audioInputDevices, setAudioInputDevices] = useState([]);
+
+  const selectedMediaDeviceId =
+    recordingSettings.selectedMediaDeviceId || 'default';
+
   const dispatch = useDispatch();
   const theme: Theme = useTheme();
 
@@ -83,6 +88,25 @@ export function Settings({
     });
   };
 
+  const handleSelectAudioInput = (
+    event: React.ChangeEvent<{ value: string }>
+  ) => {
+    const deviceId = event.target.value;
+    const deviceInfo = audioInputDevices.find(
+      (device) => device.deviceId === deviceId
+    );
+    console.log('handleSelectAudioInput, deviceInfo:', deviceInfo);
+
+    // setSelectedMediaDeviceId(event.target.value);
+    setRecordingSettings({
+      ...recordingSettings,
+      selectedMediaDeviceId: deviceId,
+    });
+
+    /** TODO: Needs to use device name */
+    dispatch(setInputDevice(deviceInfo.label));
+  };
+
   const downloadToken = () => {
     console.log('Downloading token');
 
@@ -95,6 +119,22 @@ export function Settings({
     a.click();
     document.body.removeChild(a);
   };
+
+  useEffect(() => {
+    const getMediaDevices = async () => {
+      const foundDevices = await navigator.mediaDevices.enumerateDevices();
+      console.log('foundDevices:', foundDevices);
+
+      const audioInputs = foundDevices.filter(
+        (device) => device.kind === 'audioinput'
+      );
+      console.log('audioInputs:', audioInputs);
+
+      setAudioInputDevices(audioInputs);
+    };
+
+    getMediaDevices();
+  }, []);
 
   if (loading) {
     return <Loader />;
@@ -197,6 +237,28 @@ export function Settings({
         <Typography variant="caption" color="textSecondary">
           Set your desired recording format.
         </Typography>
+      </div>
+      <div style={{ padding: 8 }}>
+        <FormControl variant="outlined" fullWidth style={{ textAlign: 'left' }}>
+          <InputLabel id="audio-input-select-label">Input Device</InputLabel>
+          <Select
+            id="audio-input-select"
+            labelId="audio-input-select-label"
+            value={selectedMediaDeviceId}
+            onChange={handleSelectAudioInput}
+            label="Audio Input Device"
+          >
+            {audioInputDevices
+              .filter(
+                (device: MediaDeviceInfo) => !/default/i.test(device.label)
+              )
+              .map((device: MediaDeviceInfo) => (
+                <MenuItem key={device.deviceId} value={device.deviceId}>
+                  {device.label.replace(/ *\([^)]*\) */g, '')}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
       </div>
       <div style={{ padding: 8, textAlign: 'center' }}>
         <FormControl variant="outlined" fullWidth style={{ textAlign: 'left' }}>

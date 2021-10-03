@@ -5,7 +5,7 @@
 import React, { Component, createRef } from 'react';
 
 const CANVAS_WIDTH = 350;
-const CANVAS_HEIGHT = 300;
+const CANVAS_HEIGHT = 375;
 
 class AudioVisualiser extends Component {
   constructor(props) {
@@ -35,7 +35,7 @@ class AudioVisualiser extends Component {
     ctx.lineTo(0, height / 2);
 
     for (const item of audioData) {
-      // Normalize point data to canvas dimentions
+      // Normalize point data to canvas dimensions
       const y = (item / 255.0) * height;
       ctx.lineTo(x, y);
       x += sliceWidth;

@@ -7,22 +7,43 @@ import AudioVisualiser from './AudioVisualiser';
 
 interface AudioAnalyserProps {
   isMonitoring: boolean;
+  selectedMediaDeviceId: string;
 }
 
 class AudioAnalyser extends Component<AudioAnalyserProps> {
   constructor(props: AudioAnalyserProps) {
     super(props);
-    this.state = { audioData: new Uint8Array(0) };
+    this.state = {
+      audioData: new Uint8Array(0),
+      currentSelectedMediaDeviceId: props.selectedMediaDeviceId,
+    };
   }
 
-  async componentDidMount() {
+  async connectAudio() {
     // const { audioStream } = this.props;
-    const audioStream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: false,
-    });
-    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    this.analyser = this.audioCtx.createAnalyser();
+    let audioStream;
+    try {
+      audioStream = await navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: this.props.selectedMediaDeviceId },
+        video: false,
+      });
+    } catch (err) {
+      console.error('*** Could not get media stream:', err);
+      throw new Error('Could not get media stream');
+    }
+
+    try {
+      this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (err) {
+      console.error('*** Could not create audio context:', err);
+      throw new Error('Could not create audio context');
+    }
+
+    try {
+      this.analyser = this.audioCtx.createAnalyser();
+    } catch (err) {
+      console.error('*** Could not create audio analyser:', err);
+    }
     this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
     this.source = this.audioCtx.createMediaStreamSource(audioStream);
     this.source.connect(this.analyser);
@@ -30,17 +51,42 @@ class AudioAnalyser extends Component<AudioAnalyserProps> {
     this.rafId = requestAnimationFrame(this.tick);
   }
 
+  disconnectAudio() {
+    cancelAnimationFrame(this.rafId);
+    this.audioCtx.destination.disconnect();
+    this.analyser.disconnect();
+    this.source.disconnect();
+  }
+
+  async componentDidMount() {
+    await this.connectAudio();
+  }
+
   componentDidUpdate() {
+    // console.log(
+    //   'AudioAnalyser, selectedMediaDeviceId:',
+    //   this.props.selectedMediaDeviceId
+    // );
+    // this.connectAudio();
+    if (
+      this.props.selectedMediaDeviceId !==
+      this.state.currentSelectedMediaDeviceId
+    ) {
+      console.log('Selected device changed:', this.props.selectedMediaDeviceId);
+      this.disconnectAudio();
+      this.connectAudio();
+      this.setState({
+        currentSelectedMediaDeviceId: this.props.selectedMediaDeviceId,
+      });
+    }
+
     this.props.isMonitoring
       ? this.analyser.connect(this.audioCtx.destination)
       : this.analyser.disconnect();
   }
 
   componentWillUnmount() {
-    cancelAnimationFrame(this.rafId);
-    this.audioCtx.destination.disconnect();
-    this.analyser.disconnect();
-    this.source.disconnect();
+    this.disconnectAudio();
   }
 
   tick = () => {

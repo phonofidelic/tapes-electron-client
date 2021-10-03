@@ -73,6 +73,12 @@ import {
   UploadRecordingsSuccessAction,
   UPLOAD_RECORDINGS_FAILURE,
   UploadRecordingsFailureAction,
+  SET_INPUT_DEVICE_REQUEST,
+  SetInputDeviceRequestAction,
+  SET_INPUT_DEVICE_SUCCESS,
+  SetInputDeviceSuccessAction,
+  SET_INPUT_DEVICE_FAILURE,
+  SetInputDeviceFailureAction,
   CONFIRM_ERROR,
   ConfirmErrorAction,
 } from './types';
@@ -360,5 +366,26 @@ export function uploadRecordingsFailure(
 export function confirmError(): ConfirmErrorAction {
   return {
     type: CONFIRM_ERROR,
+  };
+}
+
+export function setInputDeviceRequest(): SetInputDeviceRequestAction {
+  return {
+    type: SET_INPUT_DEVICE_REQUEST,
+  };
+}
+
+export function setInputDeviceSuccess(): SetInputDeviceSuccessAction {
+  return {
+    type: SET_INPUT_DEVICE_SUCCESS,
+  };
+}
+
+export function setInputDeviceFailure(
+  error: Error
+): SetInputDeviceFailureAction {
+  return {
+    type: SET_INPUT_DEVICE_FAILURE,
+    payload: error,
   };
 }

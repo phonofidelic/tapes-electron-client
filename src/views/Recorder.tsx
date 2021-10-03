@@ -3,6 +3,7 @@ import { connect, useDispatch } from 'react-redux';
 import { startRecording, stopRecording } from '../effects';
 import {
   RecorderState,
+  SetRecordingSettingsAction,
   StartMonitorAction,
   StopMonitorAction,
 } from '../store/types';
@@ -21,6 +22,9 @@ interface RecorderProps {
   loading: boolean;
   startMonitor(monitorInstance: MediaStream): StartMonitorAction;
   stopMonitor(): StopMonitorAction;
+  setRecordingSettings(
+    recordingSettings: RecordingSettings
+  ): SetRecordingSettingsAction;
 }
 
 function Recorder({
@@ -31,6 +35,9 @@ function Recorder({
   startMonitor,
   stopMonitor,
 }: RecorderProps) {
+  const selectedMediaDeviceId =
+    recordingSettings.selectedMediaDeviceId || 'default';
+
   const dispatch = useDispatch();
 
   const handleStartMonitor = async () => {
@@ -53,14 +60,17 @@ function Recorder({
     dispatch(stopRecording());
   };
 
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
       {isRecording && <Timer />}
-      <AudioAnalyser isMonitoring={isMonitoring} />
+      <AudioAnalyser
+        isMonitoring={isMonitoring}
+        selectedMediaDeviceId={selectedMediaDeviceId}
+      />
       <RecorderControls
         isMonitoring={isMonitoring}
         isRecording={isRecording}
