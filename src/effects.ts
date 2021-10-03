@@ -32,6 +32,9 @@ import {
   uploadRecordingsRequest,
   uploadRecordingsFailure,
   uploadRecordingsSuccess,
+  setInputDeviceRequest,
+  setInputDeviceSuccess,
+  setInputDeviceFailure,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
@@ -173,9 +176,10 @@ export const uploadAudioFiles =
         data: { files: parsedFiles },
       });
       console.log('uploadAudioFiles, response:', ipcResponse);
+      if (ipcResponse.error) throw ipcResponse.error;
     } catch (err) {
-      console.error('Could not upload audio files:', err);
-      dispatch(uploadRecordingsFailure(err));
+      console.error('Could not upload audio files:', err.message);
+      return dispatch(uploadRecordingsFailure(err));
     }
 
     let createdRecordings = [];
@@ -185,9 +189,10 @@ export const uploadAudioFiles =
         const createdRecording = await addRemoteRecording(recordingData);
         createdRecordings.push(createdRecording);
       }
+      await db.push(RECORDING_COLLECTION);
     } catch (err) {
       console.error('Could not push audio files to remote:', err);
-      dispatch(uploadRecordingsFailure(err));
+      return dispatch(uploadRecordingsFailure(err));
     }
 
     dispatch(uploadRecordingsSuccess(createdRecordings));
@@ -397,3 +402,25 @@ export const initDatabase = (): Effect => async (dispatch) => {
     dispatch(initDatabaseFailure(err));
   }
 };
+
+export const setInputDevice =
+  (deviceName: string): Effect =>
+  async (dispatch) => {
+    console.log('setInputDevice, deviceName:', deviceName);
+    dispatch(setInputDeviceRequest());
+
+    let ipcResponse: { message: string; error?: Error };
+    try {
+      ipcResponse = await ipc.send('recorder:set-input', { data: deviceName });
+
+      console.log('recorder:set-input, ipcResponse:', ipcResponse);
+
+      if (ipcResponse.error) {
+        throw Response.error;
+      }
+    } catch (err) {
+      dispatch(setInputDeviceFailure(err));
+    }
+
+    dispatch(setInputDeviceSuccess());
+  };

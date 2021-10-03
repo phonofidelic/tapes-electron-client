@@ -21,6 +21,12 @@ export class UploadAudioFileChannel implements IpcChannel {
     console.log('*** Audio files:', request.data.files);
     const files = request.data.files;
 
+    if (!files.length) {
+      return event.sender.send(request.responseChannel, {
+        error: new Error('No audio files detected'),
+      });
+    }
+
     let recordings: Recording[] = [];
 
     for await (let file of files) {

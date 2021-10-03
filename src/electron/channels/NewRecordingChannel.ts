@@ -71,6 +71,7 @@ export class NewRecordingChannel implements IpcChannel {
     try {
       const sox = spawn(soxPath, [
         '-d',
+        // `-t coreaudio "${recordingSettings.selectedMediaDeviceId}"`,
         '-q',
         `-c${recordingSettings.channels}`,
         `-t${recordingSettings.format}`,

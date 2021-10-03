@@ -10,12 +10,17 @@ import {
   getBucketToken,
   uploadAudioFiles,
 } from '../effects';
-import { RecorderState, SelectRecordingAction } from '../store/types';
+import {
+  RecorderState,
+  SelectRecordingAction,
+  ConfirmErrorAction,
+} from '../store/types';
 
 import Loader from '../components/Loader';
 import SearchBar from '../components/SearchBar';
 import RecordingsListItem from '../components/RecordingsListItem';
 import FileDrop from '../components/FileDrop';
+import ErrorModal from '../components/ErrorModal';
 
 import { useTheme } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
@@ -25,16 +30,20 @@ interface LibraryProps {
   recordings: Recording[];
   bucketToken: string | null;
   loading: boolean;
+  error: Error;
   selectedRecording: Recording | null;
   selectRecording(recording: Recording): SelectRecordingAction;
+  confirmError(): ConfirmErrorAction;
 }
 
 export function Library({
   recordings,
   bucketToken,
   loading,
+  error,
   selectedRecording,
   selectRecording,
+  confirmError,
 }: LibraryProps) {
   const [filteredRecordings, setFilteredRecordings] =
     useState<Recording[]>(recordings);
@@ -111,7 +120,7 @@ export function Library({
 
   if (recordings.length > 0)
     return (
-      <FileDrop handleFileDrop={handleFileDrop}>
+      <FileDrop accept="audio/*" handleFileDrop={handleFileDrop}>
         <div
           style={{
             position: 'sticky',
@@ -162,6 +171,7 @@ export function Library({
             </div>
           )}
         </div>
+        <ErrorModal error={error} onConfirmError={() => confirmError()} />
       </FileDrop>
     );
 
@@ -172,6 +182,7 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     recordings: state.recordings,
     loading: state.loading,
+    error: state.error,
     bucketToken: state.bucketToken,
     selectedRecording: state.selectedRecording,
   };
