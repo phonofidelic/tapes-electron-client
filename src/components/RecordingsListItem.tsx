@@ -55,6 +55,7 @@ interface RecordingsListItemProps {
   handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
   handleEditRecording(recordingId: string, update: any): void;
+  handleDownloadRecording(recordingId: string): void;
 }
 
 export function RecordingsListItem({
@@ -64,6 +65,7 @@ export function RecordingsListItem({
   handleSelectRecording,
   handleDeleteRecording,
   handleEditRecording,
+  handleDownloadRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -100,6 +102,11 @@ export function RecordingsListItem({
   const handleSelectViewRecording = (recordingId: string) => {
     setAnchorEl(null);
     history.push({ pathname: `/library/${recordingId}`, state: recording });
+  };
+
+  const handleSelectDownloadRecording = (recordingId: string) => {
+    setAnchorEl(null);
+    handleDownloadRecording(recordingId);
   };
 
   const handleSelectDelete = (recordingId: string) => {
@@ -305,6 +312,13 @@ export function RecordingsListItem({
             onClick={() => handleSelectViewRecording(recording._id)}
           >
             View Recording
+          </MenuItem>
+          <MenuItem
+            data-testid="option_download-recording"
+            dense
+            onClick={() => handleSelectDownloadRecording(recording._id)}
+          >
+            Download
           </MenuItem>
           <MenuItem
             style={{ color: 'red' }}

@@ -35,6 +35,9 @@ import {
   setInputDeviceRequest,
   setInputDeviceSuccess,
   setInputDeviceFailure,
+  downloadRecordingSucess,
+  downloadRecordingFailue,
+  downloadRecordingRequest,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
@@ -416,11 +419,49 @@ export const setInputDevice =
       console.log('recorder:set-input, ipcResponse:', ipcResponse);
 
       if (ipcResponse.error) {
-        throw Response.error;
+        throw ipcResponse.error;
       }
     } catch (err) {
       dispatch(setInputDeviceFailure(err));
     }
 
     dispatch(setInputDeviceSuccess());
+  };
+
+export const downloadRecording =
+  (recordingId: string): Effect =>
+  async (dispatch) => {
+    dispatch(downloadRecordingRequest());
+    try {
+      const { token } = await getBucket();
+
+      const recordingData = (await db.findById(
+        RECORDING_COLLECTION,
+        recordingId
+      )) as unknown as Recording;
+      console.log('downloadRecording, recordingData:', recordingData);
+
+      const response = await fetch(
+        recordingData.remoteLocation + `?token=${token}`,
+        { method: 'GET' }
+      );
+
+      const blob = await response.blob();
+
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${recordingData.title}.${recordingData.format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      console.log('downloadRecording, response:', response);
+    } catch (err) {
+      console.error('Could not download recording:', err);
+      dispatch(
+        downloadRecordingFailue(new Error('Could not download recording'))
+      );
+    }
+
+    dispatch(downloadRecordingSucess());
   };

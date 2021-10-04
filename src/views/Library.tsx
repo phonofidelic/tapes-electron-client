@@ -9,6 +9,7 @@ import {
   editRecording,
   getBucketToken,
   uploadAudioFiles,
+  downloadRecording,
 } from '../effects';
 import {
   RecorderState,
@@ -61,6 +62,11 @@ export function Library({
 
   const handleDeleteRecording = (recordingId: string) => {
     dispatch(deleteRecording(recordingId));
+  };
+
+  const handleDownloadRecording = (recordingId: string) => {
+    console.log('*** handleDownloadRecording');
+    dispatch(downloadRecording(recordingId));
   };
 
   const searchLibrary = (searchTerm: string) => {
@@ -144,6 +150,7 @@ export function Library({
                   handleSelectRecording={handleSelectRecording}
                   handleDeleteRecording={handleDeleteRecording}
                   handleEditRecording={handleEditRecording}
+                  handleDownloadRecording={handleDownloadRecording}
                 />
               ))}
             </List>

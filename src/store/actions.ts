@@ -79,6 +79,12 @@ import {
   SetInputDeviceSuccessAction,
   SET_INPUT_DEVICE_FAILURE,
   SetInputDeviceFailureAction,
+  DownloadRecordingRequestAction,
+  DOWNLOAD_RECORDING_REQUEST,
+  DownloadRecordingSuccessAction,
+  DOWNLOAD_RECORDING_SUCCESS,
+  DownloadRecordingFailreAction,
+  DOWNLOAD_RECORDING_FAILURE,
   CONFIRM_ERROR,
   ConfirmErrorAction,
 } from './types';
@@ -386,6 +392,27 @@ export function setInputDeviceFailure(
 ): SetInputDeviceFailureAction {
   return {
     type: SET_INPUT_DEVICE_FAILURE,
+    payload: error,
+  };
+}
+
+export function downloadRecordingRequest(): DownloadRecordingRequestAction {
+  return {
+    type: DOWNLOAD_RECORDING_REQUEST,
+  };
+}
+
+export function downloadRecordingSucess(): DownloadRecordingSuccessAction {
+  return {
+    type: DOWNLOAD_RECORDING_SUCCESS,
+  };
+}
+
+export function downloadRecordingFailue(
+  error: Error
+): DownloadRecordingFailreAction {
+  return {
+    type: DOWNLOAD_RECORDING_FAILURE,
     payload: error,
   };
 }

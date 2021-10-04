@@ -41,6 +41,9 @@ import {
   SET_INPUT_DEVICE_REQUEST,
   SET_INPUT_DEVICE_SUCCESS,
   SET_INPUT_DEVICE_FAILURE,
+  DOWNLOAD_RECORDING_REQUEST,
+  DOWNLOAD_RECORDING_SUCCESS,
+  DOWNLOAD_RECORDING_FAILURE,
   CONFIRM_ERROR,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
@@ -339,6 +342,25 @@ export const reducer = (
       };
 
     case SET_INPUT_DEVICE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case DOWNLOAD_RECORDING_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case DOWNLOAD_RECORDING_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+
+    case DOWNLOAD_RECORDING_FAILURE:
       return {
         ...state,
         loading: false,

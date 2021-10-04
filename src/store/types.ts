@@ -42,6 +42,9 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   SET_INPUT_DEVICE_REQUEST = 'set_input_device_request',
   SET_INPUT_DEVICE_SUCCESS = 'set_input_device_sucess',
   SET_INPUT_DEVICE_FAILURE = 'set_input_device_failure',
+  DOWNLOAD_RECORDING_REQUEST = 'download_recording_request',
+  DOWNLOAD_RECORDING_SUCCESS = 'download_recording_success',
+  DOWNLOAD_RECORDING_FAILURE = 'download_recording_failure',
   CONFIRM_ERROR = 'confirm_error';
 
 export interface RecorderState {
@@ -251,6 +254,19 @@ export interface SetInputDeviceFailureAction extends Action {
   payload: Error;
 }
 
+export interface DownloadRecordingRequestAction extends Action {
+  type: typeof DOWNLOAD_RECORDING_REQUEST;
+}
+
+export interface DownloadRecordingSuccessAction extends Action {
+  type: typeof DOWNLOAD_RECORDING_SUCCESS;
+}
+
+export interface DownloadRecordingFailreAction extends Action {
+  type: typeof DOWNLOAD_RECORDING_FAILURE;
+  payload: Error;
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -292,4 +308,7 @@ export type RecorderAction =
   | SetInputDeviceRequestAction
   | SetInputDeviceSuccessAction
   | SetInputDeviceFailureAction
+  | DownloadRecordingRequestAction
+  | DownloadRecordingSuccessAction
+  | DownloadRecordingFailreAction
   | ConfirmErrorAction;
