@@ -22,6 +22,10 @@ export class SetInputDeviceChannel implements IpcChannel {
 
     console.log('*** Normalized Device Name:', normalizedDeviceName);
 
+    /**
+     * Audiodevice command:
+     * http://whoshacks.blogspot.com/2009/01/change-audio-devices-via-shell-script.html
+     */
     const audiodevicePath =
       process.env.NODE_ENV === 'production'
         ? path.resolve(process.resourcesPath, 'bin', 'audiodevice')
