@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useEffect } from 'react';
+import React, { ReactElement, useState, useEffect, useRef } from 'react';
 // import { connect, useDispatch } from 'react-redux';
 // import * as actions from '../store/actions';
 import { useHistory } from 'react-router-dom';
@@ -74,6 +74,7 @@ export function RecordingsListItem({
   const [hoverRef, hovered] = useHover();
   const [titleHoverRef, titleHovered] = useHover();
   const history = useHistory();
+  const progressRef = useRef(null);
 
   const { curTime, duration, playing, setPlaying, setClickedTime } =
     useAudioPreview(recording._id);
@@ -123,6 +124,20 @@ export function RecordingsListItem({
 
   const handleOpenDetailView = (recordingId: string) => {
     history.push({ pathname: `/library/${recordingId}`, state: recording });
+  };
+
+  const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    console.log('*** click pos:', event.clientX);
+    console.log('*** progressRef:', progressRef.current.offsetWidth);
+    console.log(
+      '*** progress click:',
+      event.clientX / progressRef.current.offsetWidth
+    );
+
+    const clickedProgress = event.clientX / progressRef.current.offsetWidth;
+    console.log('*** clickedProgress:', duration * clickedProgress);
+
+    setClickedTime(duration * clickedProgress);
   };
 
   useEffect(() => {
@@ -336,8 +351,10 @@ export function RecordingsListItem({
       </ListItem>
       {playing && (
         <LinearProgress
+          ref={progressRef}
           variant="determinate"
           value={(curTime / duration) * 100}
+          onClick={handleProgressClick}
         />
       )}
     </>

@@ -35,6 +35,7 @@ function useAudioPlayer(recordingId: string) {
     playing && !audio.ended ? audio.play() : resetAudio();
 
     if (clickedTime && clickedTime !== curTime) {
+      console.log('clickedTime:', clickedTime);
       audio.currentTime = clickedTime;
       setClickedTime(null);
     }
@@ -45,7 +46,7 @@ function useAudioPlayer(recordingId: string) {
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', resetAudio);
     };
-  }, [playing]);
+  }, [playing, clickedTime]);
 
   return {
     curTime,
