@@ -9,6 +9,7 @@ const validChannels = [
   'recorder:set-input',
   'storage:delete_one',
   'storage:upload',
+  'storage:cache_recording',
 ];
 
 const validResponseChannels = [
@@ -17,6 +18,7 @@ const validResponseChannels = [
   'recorder:set-input:.*',
   'storage:delete_one:response:.*',
   'storage:upload:response:.*',
+  'storage:cache_recording:response:.*',
 ];
 
 const api = {

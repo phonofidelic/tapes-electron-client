@@ -345,8 +345,8 @@ export function RecordingsListItem({
           </MenuItem>
         </Menu>
         <audio id={recording._id}>
-          <source src={recording.remoteLocation + `?token=${bucketToken}`} />
           <source src={'tapes://' + recording.location} />
+          <source src={recording.remoteLocation + `?token=${bucketToken}`} />
         </audio>
       </ListItem>
       {playing && (

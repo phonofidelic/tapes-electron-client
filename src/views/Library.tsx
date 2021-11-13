@@ -10,6 +10,7 @@ import {
   getBucketToken,
   uploadAudioFiles,
   downloadRecording,
+  cacheRecording,
 } from '../effects';
 import {
   RecorderState,
@@ -54,6 +55,7 @@ export function Library({
 
   const handleSelectRecording = (recording: Recording) => {
     selectRecording(recording);
+    dispatch(cacheRecording(recording._id));
   };
 
   const handleEditRecording = (recordingId: string, update: any) => {

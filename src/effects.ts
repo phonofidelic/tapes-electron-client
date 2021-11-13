@@ -465,3 +465,26 @@ export const downloadRecording =
 
     dispatch(downloadRecordingSucess());
   };
+
+export const cacheRecording =
+  (recordingId: string): Effect =>
+  async (dispatch) => {
+    console.log('*** cachRecording ***');
+
+    try {
+      const { token } = await getBucket();
+
+      const recordingData = (await db.findById(
+        RECORDING_COLLECTION,
+        recordingId
+      )) as unknown as Recording;
+
+      const ipcResponse = await ipc.send('storage:cache_recording', {
+        data: { recordingData, token },
+      });
+
+      console.log('cacheRecording, ipcResponse:', ipcResponse);
+    } catch (err) {
+      console.error('Could not cache recording:', err);
+    }
+  };
