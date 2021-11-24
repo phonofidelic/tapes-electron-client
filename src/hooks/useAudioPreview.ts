@@ -2,12 +2,24 @@
  * From: https://codesandbox.io/s/5wwj02qy7k?file=/src/useAudioPlayer.js
  */
 import { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { cacheRecording } from '../effects';
 
 function useAudioPlayer(recordingId: string) {
   const [duration, setDuration] = useState(0);
   const [curTime, setCurTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [clickedTime, setClickedTime] = useState(0);
+  const [isCached, setIsCached] = useState(false);
+
+  const dispatch = useDispatch();
+
+  const handlePlay = (audio: HTMLAudioElement) => {
+    console.log('handlePlay dispatches cacheRecording');
+    dispatch(cacheRecording(recordingId, audio));
+
+    setIsCached(true);
+  };
 
   useEffect(() => {
     const audio = <HTMLAudioElement>document.getElementById(recordingId);
@@ -32,7 +44,12 @@ function useAudioPlayer(recordingId: string) {
     audio.addEventListener('ended', resetAudio);
 
     // React state listeners: update DOM on React state changes
-    playing && !audio.ended ? audio.play() : resetAudio();
+    // playing && !audio.ended ? audio.play() : resetAudio();
+    playing && !audio.ended
+      ? isCached
+        ? audio.play()
+        : handlePlay(audio)
+      : resetAudio();
 
     if (clickedTime && clickedTime !== curTime) {
       console.log('clickedTime:', clickedTime);

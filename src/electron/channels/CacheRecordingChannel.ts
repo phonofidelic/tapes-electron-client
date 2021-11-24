@@ -8,7 +8,7 @@ import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { setStorageDir } from '../utils';
 
-const MAX_CACHE_SIZE = 1000;
+// const MAX_CACHE_SIZE = 1000;
 const MAX_CACHE_LENGTH = 5;
 
 const getStorageStats = async (
@@ -91,9 +91,19 @@ export class CacheRecordingChannel implements IpcChannel {
         );
         response.data.on('end', () => {
           console.log('*** recording cached ***');
+          event.sender.send(request.responseChannel, {
+            message: 'Recording cached',
+          });
         });
         response.data.on('error', (err: Error) => {
           console.error('*** Could not download recording:', err);
+          event.sender.send(request.responseChannel, {
+            message: err.message,
+          });
+        });
+      } else {
+        event.sender.send(request.responseChannel, {
+          message: 'Recording cached',
         });
       }
     } catch (err) {

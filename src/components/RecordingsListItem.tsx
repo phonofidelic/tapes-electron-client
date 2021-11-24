@@ -52,6 +52,7 @@ interface RecordingsListItemProps {
   bucketToken: string;
   recording: Recording;
   selectedRecording: Recording;
+  caching: boolean;
   handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
   handleEditRecording(recordingId: string, update: any): void;
@@ -62,6 +63,7 @@ export function RecordingsListItem({
   bucketToken,
   recording,
   selectedRecording,
+  caching,
   handleSelectRecording,
   handleDeleteRecording,
   handleEditRecording,
@@ -70,14 +72,23 @@ export function RecordingsListItem({
   const [anchorEl, setAnchorEl] = useState(null);
   const [editing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState('');
+  const [audioSource, setAudioSource] = useState(recording.remoteLocation);
 
   const [hoverRef, hovered] = useHover();
   const [titleHoverRef, titleHovered] = useHover();
   const history = useHistory();
   const progressRef = useRef(null);
 
-  const { curTime, duration, playing, setPlaying, setClickedTime } =
-    useAudioPreview(recording._id);
+  const {
+    curTime,
+    playing,
+    duration: durationFromAudio,
+    setPlaying,
+    setClickedTime,
+  } = useAudioPreview(recording._id);
+
+  const duration = durationFromAudio || recording.duration;
+
   const theme = useTheme();
 
   const selected = selectedRecording?._id === recording._id;
@@ -127,16 +138,7 @@ export function RecordingsListItem({
   };
 
   const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    console.log('*** click pos:', event.clientX);
-    console.log('*** progressRef:', progressRef.current.offsetWidth);
-    console.log(
-      '*** progress click:',
-      event.clientX / progressRef.current.offsetWidth
-    );
-
     const clickedProgress = event.clientX / progressRef.current.offsetWidth;
-    console.log('*** clickedProgress:', duration * clickedProgress);
-
     setClickedTime(duration * clickedProgress);
   };
 
@@ -345,16 +347,18 @@ export function RecordingsListItem({
           </MenuItem>
         </Menu>
         <audio id={recording._id}>
-          <source src={'tapes://' + recording.location} />
-          <source src={recording.remoteLocation + `?token=${bucketToken}`} />
+          {isPlaying && <source src={'tapes://' + recording.location} />}
+          {/* <source src={recording.remoteLocation + `?token=${bucketToken}`} /> */}
         </audio>
       </ListItem>
       {playing && (
         <LinearProgress
           ref={progressRef}
-          variant="determinate"
+          variant={caching ? 'indeterminate' : 'determinate'}
           value={(curTime / duration) * 100}
-          onClick={handleProgressClick}
+          onClick={
+            !caching ? handleProgressClick : () => console.log('still caching')
+          }
         />
       )}
     </>

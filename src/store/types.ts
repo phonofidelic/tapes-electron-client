@@ -45,6 +45,9 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   DOWNLOAD_RECORDING_REQUEST = 'download_recording_request',
   DOWNLOAD_RECORDING_SUCCESS = 'download_recording_success',
   DOWNLOAD_RECORDING_FAILURE = 'download_recording_failure',
+  CACHE_RECORDING_REQUEST = 'cache_recording_request',
+  CACHE_RECORDING_SUCCESS = 'cache_recording_success',
+  CACHE_RECORDING_FAILURE = 'cache_recording_failure',
   CONFIRM_ERROR = 'confirm_error';
 
 export interface RecorderState {
@@ -61,6 +64,7 @@ export interface RecorderState {
   recordingQueue: string[];
   accountToken: string | null;
   selectedRecording: Recording | null;
+  caching: boolean;
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -267,6 +271,19 @@ export interface DownloadRecordingFailreAction extends Action {
   payload: Error;
 }
 
+export interface CachRecordingRequestAction extends Action {
+  type: typeof CACHE_RECORDING_REQUEST;
+}
+
+export interface CacheRecordingSuccessAction extends Action {
+  type: typeof CACHE_RECORDING_SUCCESS;
+}
+
+export interface CacheRecordingFailureAction extends Action {
+  type: typeof CACHE_RECORDING_FAILURE;
+  payload: Error;
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -308,7 +325,10 @@ export type RecorderAction =
   | SetInputDeviceRequestAction
   | SetInputDeviceSuccessAction
   | SetInputDeviceFailureAction
+  | ConfirmErrorAction
   | DownloadRecordingRequestAction
   | DownloadRecordingSuccessAction
   | DownloadRecordingFailreAction
-  | ConfirmErrorAction;
+  | CachRecordingRequestAction
+  | CacheRecordingSuccessAction
+  | CacheRecordingFailureAction;

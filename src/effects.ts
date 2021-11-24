@@ -38,6 +38,9 @@ import {
   downloadRecordingSucess,
   downloadRecordingFailue,
   downloadRecordingRequest,
+  cacheRecordingRequest,
+  cacheRecordingSuccess,
+  cacheRecordingFailure,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
@@ -467,10 +470,11 @@ export const downloadRecording =
   };
 
 export const cacheRecording =
-  (recordingId: string): Effect =>
+  (recordingId: string, audio: HTMLAudioElement): Effect =>
   async (dispatch) => {
     console.log('*** cachRecording ***');
 
+    dispatch(cacheRecordingRequest());
     try {
       const { token } = await getBucket();
 
@@ -484,7 +488,13 @@ export const cacheRecording =
       });
 
       console.log('cacheRecording, ipcResponse:', ipcResponse);
+      dispatch(cacheRecordingSuccess());
+
+      console.log('cacheRecording calles audio.play');
+      audio.load();
+      audio.play();
     } catch (err) {
       console.error('Could not cache recording:', err);
+      dispatch(cacheRecordingFailure(err));
     }
   };

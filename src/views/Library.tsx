@@ -34,6 +34,7 @@ interface LibraryProps {
   loading: boolean;
   error: Error;
   selectedRecording: Recording | null;
+  caching: boolean;
   selectRecording(recording: Recording): SelectRecordingAction;
   confirmError(): ConfirmErrorAction;
 }
@@ -44,6 +45,7 @@ export function Library({
   loading,
   error,
   selectedRecording,
+  caching,
   selectRecording,
   confirmError,
 }: LibraryProps) {
@@ -55,7 +57,7 @@ export function Library({
 
   const handleSelectRecording = (recording: Recording) => {
     selectRecording(recording);
-    dispatch(cacheRecording(recording._id));
+    // dispatch(cacheRecording(recording._id));
   };
 
   const handleEditRecording = (recordingId: string, update: any) => {
@@ -149,6 +151,7 @@ export function Library({
                   bucketToken={bucketToken}
                   recording={recording}
                   selectedRecording={selectedRecording}
+                  caching={caching}
                   handleSelectRecording={handleSelectRecording}
                   handleDeleteRecording={handleDeleteRecording}
                   handleEditRecording={handleEditRecording}
@@ -194,6 +197,7 @@ const mapStateToProps = (state: RecorderState) => {
     error: state.error,
     bucketToken: state.bucketToken,
     selectedRecording: state.selectedRecording,
+    caching: state.caching,
   };
 };
 

@@ -79,14 +79,20 @@ import {
   SetInputDeviceSuccessAction,
   SET_INPUT_DEVICE_FAILURE,
   SetInputDeviceFailureAction,
-  DownloadRecordingRequestAction,
-  DOWNLOAD_RECORDING_REQUEST,
-  DownloadRecordingSuccessAction,
-  DOWNLOAD_RECORDING_SUCCESS,
-  DownloadRecordingFailreAction,
-  DOWNLOAD_RECORDING_FAILURE,
   CONFIRM_ERROR,
   ConfirmErrorAction,
+  DOWNLOAD_RECORDING_REQUEST,
+  DownloadRecordingRequestAction,
+  DOWNLOAD_RECORDING_SUCCESS,
+  DownloadRecordingSuccessAction,
+  DOWNLOAD_RECORDING_FAILURE,
+  DownloadRecordingFailreAction,
+  CACHE_RECORDING_REQUEST,
+  CachRecordingRequestAction,
+  CACHE_RECORDING_SUCCESS,
+  CacheRecordingSuccessAction,
+  CACHE_RECORDING_FAILURE,
+  CacheRecordingFailureAction,
 } from './types';
 import { Recording } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -413,6 +419,27 @@ export function downloadRecordingFailue(
 ): DownloadRecordingFailreAction {
   return {
     type: DOWNLOAD_RECORDING_FAILURE,
+    payload: error,
+  };
+}
+
+export function cacheRecordingRequest(): CachRecordingRequestAction {
+  return {
+    type: CACHE_RECORDING_REQUEST,
+  };
+}
+
+export function cacheRecordingSuccess(): CacheRecordingSuccessAction {
+  return {
+    type: CACHE_RECORDING_SUCCESS,
+  };
+}
+
+export function cacheRecordingFailure(
+  error: Error
+): CacheRecordingFailureAction {
+  return {
+    type: CACHE_RECORDING_FAILURE,
     payload: error,
   };
 }
