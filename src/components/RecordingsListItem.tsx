@@ -49,7 +49,6 @@ const PlaybackButtonContainer = styled.div`
 `;
 
 interface RecordingsListItemProps {
-  bucketToken: string;
   recording: Recording;
   selectedRecording: Recording;
   caching: boolean;
@@ -60,7 +59,6 @@ interface RecordingsListItemProps {
 }
 
 export function RecordingsListItem({
-  bucketToken,
   recording,
   selectedRecording,
   caching,
@@ -72,7 +70,6 @@ export function RecordingsListItem({
   const [anchorEl, setAnchorEl] = useState(null);
   const [editing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState('');
-  const [audioSource, setAudioSource] = useState(recording.remoteLocation);
 
   const [hoverRef, hovered] = useHover();
   const [titleHoverRef, titleHovered] = useHover();
@@ -93,7 +90,7 @@ export function RecordingsListItem({
 
   const selected = selectedRecording?._id === recording._id;
   const isPlaying = playing;
-  const durationObj = dayjs.duration(duration * 1000);
+  const durationObj = dayjs.duration(duration);
 
   const handlePlay = () => {
     setPlaying(true);
@@ -348,7 +345,6 @@ export function RecordingsListItem({
         </Menu>
         <audio id={recording._id}>
           {isPlaying && <source src={'tapes://' + recording.location} />}
-          {/* <source src={recording.remoteLocation + `?token=${bucketToken}`} /> */}
         </audio>
       </ListItem>
       {playing && (

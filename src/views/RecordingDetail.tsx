@@ -25,16 +25,11 @@ dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
 
 interface Props {
-  bucketToken: string;
   recording: Recording;
   caching: boolean;
 }
 
-export function RecordingDetail({
-  bucketToken,
-  recording,
-  caching,
-}: Props): ReactElement {
+export function RecordingDetail({ recording, caching }: Props): ReactElement {
   const history = useHistory();
   const theme = useTheme();
   const { id } = useParams<{ id: string }>();
@@ -136,11 +131,7 @@ export function RecordingDetail({
           bottom: 0,
         }}
       >
-        <AudioPlayer
-          recording={recording}
-          bucketToken={bucketToken}
-          caching={caching}
-        />
+        <AudioPlayer recording={recording} caching={caching} />
       </div>
     </div>
   );
@@ -148,7 +139,6 @@ export function RecordingDetail({
 
 const mapStateToProps = (state: RecorderState) => {
   return {
-    bucketToken: state.bucketToken,
     recording: state.selectedRecording,
     caching: state.caching,
   };

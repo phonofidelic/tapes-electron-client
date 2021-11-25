@@ -10,7 +10,6 @@ import {
   getBucketToken,
   uploadAudioFiles,
   downloadRecording,
-  cacheRecording,
 } from '../effects';
 import {
   RecorderState,
@@ -95,16 +94,11 @@ export function Library({
   };
 
   useEffect(() => {
-    !bucketToken && dispatch(getBucketToken());
     !recordings.length && dispatch(loadRecordings());
     searchLibrary('');
   }, [recordings]);
 
   if (loading) {
-    return <Loader />;
-  }
-
-  if (!bucketToken) {
     return <Loader />;
   }
 
@@ -148,7 +142,6 @@ export function Library({
               {filteredRecordings.map((recording: Recording) => (
                 <RecordingsListItem
                   key={recording._id}
-                  bucketToken={bucketToken}
                   recording={recording}
                   selectedRecording={selectedRecording}
                   caching={caching}

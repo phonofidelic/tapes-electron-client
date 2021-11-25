@@ -9,13 +9,11 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 
 interface Props {
   recording: Recording;
-  bucketToken: string;
   caching: boolean;
 }
 
 export default function AudioPlayer({
   recording,
-  bucketToken,
   caching,
 }: Props): ReactElement {
   const { curTime, duration, playing, setPlaying, setClickedTime } =
