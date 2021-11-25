@@ -1,9 +1,9 @@
 /**
- * From: https://codesandbox.io/s/5wwj02qy7k?file=/src/useAudioPlayer.js
+ * Adapted from: https://codesandbox.io/s/5wwj02qy7k?file=/src/useAudioPlayer.js
  */
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { cacheRecording } from '../effects';
+import { cacheAndPlayRecording } from '../effects';
 
 function useAudioPlayer(recordingId: string) {
   const [duration, setDuration] = useState(0);
@@ -14,15 +14,17 @@ function useAudioPlayer(recordingId: string) {
 
   const dispatch = useDispatch();
 
-  const handlePlay = (audio: HTMLAudioElement) => {
-    console.log('handlePlay dispatches cacheRecording');
-    dispatch(cacheRecording(recordingId, audio));
-
-    setIsCached(true);
-  };
-
   useEffect(() => {
     const audio = <HTMLAudioElement>document.getElementById(recordingId);
+
+    const handlePlay = () => {
+      const cacheAndPlay = () => {
+        dispatch(cacheAndPlayRecording(recordingId));
+        setIsCached(true);
+      };
+
+      isCached ? audio.play() : cacheAndPlay();
+    };
 
     // state setters wrappers
     const setAudioData = () => {
@@ -45,11 +47,7 @@ function useAudioPlayer(recordingId: string) {
 
     // React state listeners: update DOM on React state changes
     // playing && !audio.ended ? audio.play() : resetAudio();
-    playing && !audio.ended
-      ? isCached
-        ? audio.play()
-        : handlePlay(audio)
-      : resetAudio();
+    playing && !audio.ended ? handlePlay() : resetAudio();
 
     if (clickedTime && clickedTime !== curTime) {
       console.log('clickedTime:', clickedTime);

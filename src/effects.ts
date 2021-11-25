@@ -469,11 +469,9 @@ export const downloadRecording =
     dispatch(downloadRecordingSucess());
   };
 
-export const cacheRecording =
-  (recordingId: string, audio: HTMLAudioElement): Effect =>
+export const cacheAndPlayRecording =
+  (recordingId: string): Effect =>
   async (dispatch) => {
-    console.log('*** cachRecording ***');
-
     dispatch(cacheRecordingRequest());
     try {
       const { token } = await getBucket();
@@ -490,7 +488,7 @@ export const cacheRecording =
       console.log('cacheRecording, ipcResponse:', ipcResponse);
       dispatch(cacheRecordingSuccess());
 
-      console.log('cacheRecording calles audio.play');
+      const audio = <HTMLAudioElement>document.getElementById(recordingId);
       audio.load();
       audio.play();
     } catch (err) {
