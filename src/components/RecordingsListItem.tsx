@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useEffect } from 'react';
+import React, { ReactElement, useState, useEffect, useRef } from 'react';
 // import { connect, useDispatch } from 'react-redux';
 // import * as actions from '../store/actions';
 import { useHistory } from 'react-router-dom';
@@ -49,21 +49,23 @@ const PlaybackButtonContainer = styled.div`
 `;
 
 interface RecordingsListItemProps {
-  bucketToken: string;
   recording: Recording;
   selectedRecording: Recording;
+  caching: boolean;
   handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
   handleEditRecording(recordingId: string, update: any): void;
+  handleDownloadRecording(recordingId: string): void;
 }
 
 export function RecordingsListItem({
-  bucketToken,
   recording,
   selectedRecording,
+  caching,
   handleSelectRecording,
   handleDeleteRecording,
   handleEditRecording,
+  handleDownloadRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -72,14 +74,23 @@ export function RecordingsListItem({
   const [hoverRef, hovered] = useHover();
   const [titleHoverRef, titleHovered] = useHover();
   const history = useHistory();
+  const progressRef = useRef(null);
 
-  const { curTime, duration, playing, setPlaying, setClickedTime } =
-    useAudioPreview(recording._id);
+  const {
+    curTime,
+    playing,
+    duration: durationFromAudio,
+    setPlaying,
+    setClickedTime,
+  } = useAudioPreview(recording._id);
+
+  const duration = durationFromAudio || recording.duration;
+
   const theme = useTheme();
 
   const selected = selectedRecording?._id === recording._id;
   const isPlaying = playing;
-  const durationObj = dayjs.duration(duration * 1000);
+  const durationObj = dayjs.duration(duration);
 
   const handlePlay = () => {
     setPlaying(true);
@@ -102,6 +113,11 @@ export function RecordingsListItem({
     history.push({ pathname: `/library/${recordingId}`, state: recording });
   };
 
+  const handleSelectDownloadRecording = (recordingId: string) => {
+    setAnchorEl(null);
+    handleDownloadRecording(recordingId);
+  };
+
   const handleSelectDelete = (recordingId: string) => {
     setAnchorEl(null);
     handleDeleteRecording(recordingId);
@@ -116,6 +132,11 @@ export function RecordingsListItem({
 
   const handleOpenDetailView = (recordingId: string) => {
     history.push({ pathname: `/library/${recordingId}`, state: recording });
+  };
+
+  const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const clickedProgress = event.clientX / progressRef.current.offsetWidth;
+    setClickedTime(duration * clickedProgress);
   };
 
   useEffect(() => {
@@ -307,6 +328,13 @@ export function RecordingsListItem({
             View Recording
           </MenuItem>
           <MenuItem
+            data-testid="option_download-recording"
+            dense
+            onClick={() => handleSelectDownloadRecording(recording._id)}
+          >
+            Download
+          </MenuItem>
+          <MenuItem
             style={{ color: 'red' }}
             data-testid="option_delete-recording"
             dense
@@ -316,14 +344,17 @@ export function RecordingsListItem({
           </MenuItem>
         </Menu>
         <audio id={recording._id}>
-          <source src={recording.remoteLocation + `?token=${bucketToken}`} />
-          <source src={'tapes://' + recording.location} />
+          {isPlaying && <source src={'tapes://' + recording.location} />}
         </audio>
       </ListItem>
       {playing && (
         <LinearProgress
-          variant="determinate"
+          ref={progressRef}
+          variant={caching ? 'indeterminate' : 'determinate'}
           value={(curTime / duration) * 100}
+          onClick={
+            !caching ? handleProgressClick : () => console.log('still caching')
+          }
         />
       )}
     </>

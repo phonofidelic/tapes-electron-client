@@ -1,16 +1,30 @@
 /**
- * From: https://codesandbox.io/s/5wwj02qy7k?file=/src/useAudioPlayer.js
+ * Adapted from: https://codesandbox.io/s/5wwj02qy7k?file=/src/useAudioPlayer.js
  */
 import { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { cacheAndPlayRecording } from '../effects';
 
 function useAudioPlayer(recordingId: string) {
   const [duration, setDuration] = useState(0);
   const [curTime, setCurTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [clickedTime, setClickedTime] = useState(0);
+  const [isCached, setIsCached] = useState(false);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const audio = <HTMLAudioElement>document.getElementById(recordingId);
+
+    const handlePlay = () => {
+      const cacheAndPlay = () => {
+        dispatch(cacheAndPlayRecording(recordingId));
+        setIsCached(true);
+      };
+
+      isCached ? audio.play() : cacheAndPlay();
+    };
 
     // state setters wrappers
     const setAudioData = () => {
@@ -32,9 +46,11 @@ function useAudioPlayer(recordingId: string) {
     audio.addEventListener('ended', resetAudio);
 
     // React state listeners: update DOM on React state changes
-    playing && !audio.ended ? audio.play() : resetAudio();
+    // playing && !audio.ended ? audio.play() : resetAudio();
+    playing && !audio.ended ? handlePlay() : resetAudio();
 
     if (clickedTime && clickedTime !== curTime) {
+      console.log('clickedTime:', clickedTime);
       audio.currentTime = clickedTime;
       setClickedTime(null);
     }
@@ -45,7 +61,7 @@ function useAudioPlayer(recordingId: string) {
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', resetAudio);
     };
-  }, [playing]);
+  }, [playing, clickedTime]);
 
   return {
     curTime,

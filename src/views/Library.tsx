@@ -9,6 +9,7 @@ import {
   editRecording,
   getBucketToken,
   uploadAudioFiles,
+  downloadRecording,
 } from '../effects';
 import {
   RecorderState,
@@ -32,6 +33,7 @@ interface LibraryProps {
   loading: boolean;
   error: Error;
   selectedRecording: Recording | null;
+  caching: boolean;
   selectRecording(recording: Recording): SelectRecordingAction;
   confirmError(): ConfirmErrorAction;
 }
@@ -42,6 +44,7 @@ export function Library({
   loading,
   error,
   selectedRecording,
+  caching,
   selectRecording,
   confirmError,
 }: LibraryProps) {
@@ -53,6 +56,7 @@ export function Library({
 
   const handleSelectRecording = (recording: Recording) => {
     selectRecording(recording);
+    // dispatch(cacheRecording(recording._id));
   };
 
   const handleEditRecording = (recordingId: string, update: any) => {
@@ -61,6 +65,11 @@ export function Library({
 
   const handleDeleteRecording = (recordingId: string) => {
     dispatch(deleteRecording(recordingId));
+  };
+
+  const handleDownloadRecording = (recordingId: string) => {
+    console.log('*** handleDownloadRecording');
+    dispatch(downloadRecording(recordingId));
   };
 
   const searchLibrary = (searchTerm: string) => {
@@ -85,16 +94,11 @@ export function Library({
   };
 
   useEffect(() => {
-    !bucketToken && dispatch(getBucketToken());
     !recordings.length && dispatch(loadRecordings());
     searchLibrary('');
   }, [recordings]);
 
   if (loading) {
-    return <Loader />;
-  }
-
-  if (!bucketToken) {
     return <Loader />;
   }
 
@@ -138,12 +142,13 @@ export function Library({
               {filteredRecordings.map((recording: Recording) => (
                 <RecordingsListItem
                   key={recording._id}
-                  bucketToken={bucketToken}
                   recording={recording}
                   selectedRecording={selectedRecording}
+                  caching={caching}
                   handleSelectRecording={handleSelectRecording}
                   handleDeleteRecording={handleDeleteRecording}
                   handleEditRecording={handleEditRecording}
+                  handleDownloadRecording={handleDownloadRecording}
                 />
               ))}
             </List>
@@ -185,6 +190,7 @@ const mapStateToProps = (state: RecorderState) => {
     error: state.error,
     bucketToken: state.bucketToken,
     selectedRecording: state.selectedRecording,
+    caching: state.caching,
   };
 };
 

@@ -248,15 +248,11 @@ export function Settings({
             onChange={handleSelectAudioInput}
             label="Audio Input Device"
           >
-            {audioInputDevices
-              .filter(
-                (device: MediaDeviceInfo) => !/default/i.test(device.label)
-              )
-              .map((device: MediaDeviceInfo) => (
-                <MenuItem key={device.deviceId} value={device.deviceId}>
-                  {device.label.replace(/ *\([^)]*\) */g, '')}
-                </MenuItem>
-              ))}
+            {audioInputDevices.map((device: MediaDeviceInfo) => (
+              <MenuItem key={device.deviceId} value={device.deviceId}>
+                {device.label.replace(/ *\([^)]*\) */g, '')}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </div>

@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Recording } from '../common/Recording.interface';
 import { RecorderState } from '../store/types';
@@ -25,20 +25,21 @@ dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
 
 interface Props {
-  bucketToken: string;
   recording: Recording;
+  caching: boolean;
 }
 
-export function RecordingDetail({
-  bucketToken,
-  recording,
-}: Props): ReactElement {
+export function RecordingDetail({ recording, caching }: Props): ReactElement {
   const history = useHistory();
   const theme = useTheme();
   const { id } = useParams<{ id: string }>();
 
-  const { curTime, duration, playing, setPlaying, setClickedTime } =
-    useAudioPreview(recording._id);
+  // const audioRef = useRef(null)
+
+  // const { curTime, duration, playing, setPlaying, setClickedTime } =
+  //   useAudioPreview(recording._id);
+
+  const duration = recording.duration;
 
   const durationObj = dayjs.duration(duration * 1000);
 
@@ -130,7 +131,7 @@ export function RecordingDetail({
           bottom: 0,
         }}
       >
-        <AudioPlayer recording={recording} bucketToken={bucketToken} />
+        <AudioPlayer recording={recording} caching={caching} />
       </div>
     </div>
   );
@@ -138,8 +139,8 @@ export function RecordingDetail({
 
 const mapStateToProps = (state: RecorderState) => {
   return {
-    bucketToken: state.bucketToken,
     recording: state.selectedRecording,
+    caching: state.caching,
   };
 };
 

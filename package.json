@@ -129,6 +129,7 @@
     "@textile/threads-client": "^2.1.2",
     "@textile/threads-id": "^0.5.1",
     "app-root-dir": "^1.0.2",
+    "axios": "^0.24.0",
     "datauri": "^3.0.0",
     "dayjs": "^1.10.4",
     "dexie": "^3.0.3",

@@ -42,6 +42,12 @@ import {
   SET_INPUT_DEVICE_SUCCESS,
   SET_INPUT_DEVICE_FAILURE,
   CONFIRM_ERROR,
+  DOWNLOAD_RECORDING_REQUEST,
+  DOWNLOAD_RECORDING_SUCCESS,
+  DOWNLOAD_RECORDING_FAILURE,
+  CACHE_RECORDING_REQUEST,
+  CACHE_RECORDING_SUCCESS,
+  CACHE_RECORDING_FAILURE,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -64,6 +70,7 @@ export const initialState: RecorderState = {
   recordingQueue: [],
   accountToken: localStorage.getItem(IDENTITY_STORE), // <-- ANTI-PATTERN?
   selectedRecording: null,
+  caching: false,
 };
 
 export const reducer = (
@@ -349,6 +356,44 @@ export const reducer = (
       return {
         ...state,
         error: null,
+      };
+
+    case DOWNLOAD_RECORDING_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case DOWNLOAD_RECORDING_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+
+    case DOWNLOAD_RECORDING_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case CACHE_RECORDING_REQUEST:
+      return {
+        ...state,
+        caching: true,
+      };
+
+    case CACHE_RECORDING_SUCCESS:
+      return {
+        ...state,
+        caching: false,
+      };
+
+    case CACHE_RECORDING_FAILURE:
+      return {
+        ...state,
+        caching: false,
+        error: action.payload,
       };
 
     default:
