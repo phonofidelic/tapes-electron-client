@@ -19,10 +19,51 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
+import { ICommonTagsResult } from 'music-metadata';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
+
+interface CommonTagsResult extends ICommonTagsResult {
+  [key: string]: any;
+}
+
+const renderCommon = (common: CommonTagsResult) => {
+  const keys = Object.keys(common);
+  console.log(keys);
+
+  return (
+    <div style={{ marginTop: 16 }}>
+      <table style={{ width: '100%' }}>
+        {keys.sort().map((key, i) => (
+          <tr key={`common-meta_${i}`}>
+            <td style={{ border: `1px solid #fff` }}>
+              <Typography variant="caption" color="textSecondary">
+                {key.charAt(0).toUpperCase() + key.slice(1)}
+              </Typography>
+            </td>
+            <td style={{ border: `1px solid #fff` }}>
+              <Typography variant="caption" color="textSecondary">
+                {JSON.stringify(common[key])}
+              </Typography>
+            </td>
+          </tr>
+        ))}
+        <tr>
+          <td></td>
+          <td>
+            <Button size="small" style={{ textTransform: 'none' }}>
+              <Typography variant="caption" color="textSecondary">
+                + add more info
+              </Typography>
+            </Button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  );
+};
 
 interface Props {
   recording: Recording;
@@ -43,21 +84,28 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
 
   const durationObj = dayjs.duration(duration * 1000);
 
+  console.log('RecordingDetail, common:', recording.common);
+
   return (
     <div>
       <div
         style={{
           padding: 8,
+          paddingTop: 0,
+          marginBottom: 48,
           display: 'flex',
           flexDirection: 'column',
-          height:
-            theme.dimensions.Tray.height - theme.dimensions.Navigation.height,
+          // height:
+          //   theme.dimensions.Tray.height - theme.dimensions.Navigation.height,
         }}
       >
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
+            position: 'sticky',
+            top: theme.dimensions.Navigation.height,
+            backgroundColor: theme.palette.background.default,
           }}
         >
           <div>
@@ -123,6 +171,7 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
           </div>
         </div>
         {/* <div style={{ flex: 1 }}></div> */}
+        {recording.common && renderCommon(recording.common)}
       </div>
       <div
         style={{

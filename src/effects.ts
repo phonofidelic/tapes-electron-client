@@ -129,7 +129,9 @@ const addRemoteRecording = async (
     recordingData.format,
     recordingData.channels,
     recordingData.duration,
-    remoteLocation
+    remoteLocation,
+    null,
+    recordingData.common
   );
 
   /**
