@@ -29,6 +29,23 @@ interface CommonTagsResult extends ICommonTagsResult {
   [key: string]: any;
 }
 
+const renderCommonValue = (value: any) => {
+  if (typeof value === 'string') return value;
+
+  if (Array.isArray(value)) return value.join(', ');
+
+  if (typeof value === 'object')
+    // return Object.keys(value).map((key) => `${key} ${value[key]} `);
+    return Object.keys(value).map(
+      (key) =>
+        `${key.replace('no', '').replace('of', ' / ')} ${JSON.stringify(
+          value[key]
+        ).replace('null', '0')} `
+    );
+
+  return JSON.stringify(value);
+};
+
 const renderCommon = (common: CommonTagsResult) => {
   const keys = Object.keys(common);
   console.log(keys);
@@ -45,7 +62,7 @@ const renderCommon = (common: CommonTagsResult) => {
             </td>
             <td style={{ border: `1px solid #fff` }}>
               <Typography variant="caption" color="textSecondary">
-                {JSON.stringify(common[key])}
+                {renderCommonValue(common[key])}
               </Typography>
             </td>
           </tr>
