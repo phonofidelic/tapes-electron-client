@@ -52,6 +52,8 @@ import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
 // const THREADS_DB_NAME = 'tapes-thread-db';
 // const RECORDING_COLLECTION = 'Recording';
 
+const REQUEST_TIMEOUT = 60000;
+
 declare const USER_API_KEY: any;
 
 const ipc = new IpcService();
@@ -66,6 +68,8 @@ const IPFS_GATEWAY = 'https://hub.textile.io';
 const keyInfo: KeyInfo = {
   key: USER_API_KEY,
 };
+
+console.log('### USER_API_KEY:', USER_API_KEY);
 
 const getBucket = async () => {
   const storedIdent = localStorage.getItem(IDENTITY_STORE);
@@ -96,18 +100,48 @@ const getBucket = async () => {
 const addRemoteRecording = async (
   recordingData: Recording
 ): Promise<Recording> => {
+  console.log('Adding audio file to remote bucket...');
   const { buckets, bucketKey, threadId } = await getBucket();
+  console.log('threadId:', threadId);
   /**
    * Push audio data to IPFS
    */
-  if (!recordingData.fileData)
+  if (!recordingData.fileData) {
+    console.error('No file data for ' + recordingData.title);
     throw new Error('No file data for ' + recordingData.title);
-  const pushPathResult = await buckets.pushPath(
-    bucketKey,
-    recordingData.filename,
-    await recordingData.fileData
-  );
-  console.log('pushPathResult:', pushPathResult);
+  }
+  console.log('### TEST ###', recordingData.fileData);
+
+  let pushPathResult;
+  try {
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.log('*** ran out of time! ***');
+      abortController.abort();
+
+      throw new Error('Push path request timed out');
+    }, REQUEST_TIMEOUT);
+
+    pushPathResult = await buckets.pushPath(
+      bucketKey,
+      recordingData.filename,
+      {
+        path: '/' + recordingData.filename,
+        content: recordingData.fileData,
+      },
+      {
+        progress: (prog) => {
+          console.log('Push progress:', prog);
+        },
+        signal: abortController.signal,
+      }
+    );
+    clearTimeout(timeoutId);
+    console.log('pushPathResult:', pushPathResult);
+  } catch (err) {
+    console.error('Could not push audio file to remote bucket:', err);
+    throw new Error('Could not push audio file to remote bucket');
+  }
 
   /**
    * Set remote Textile Bucket location
@@ -137,6 +171,7 @@ const addRemoteRecording = async (
   /**
    * Add recording doc to Textile DB
    */
+  console.log('Adding recording doc to Textile DB...');
   const newRecordingId = await db.add(RECORDING_COLLECTION, recordingDoc);
   console.log('recordingDoc:', recordingDoc);
 
@@ -193,10 +228,12 @@ export const uploadAudioFiles =
     let createdRecordings = [];
     try {
       for await (let recordingData of ipcResponse.data) {
+        console.log(`Uploading "${recordingData.title}"`);
         dispatch(setLoadingMessage(`Uploading "${recordingData.title}"`));
         const createdRecording = await addRemoteRecording(recordingData);
         createdRecordings.push(createdRecording);
       }
+      console.log('Updating remote DB...');
       await db.push(RECORDING_COLLECTION);
     } catch (err) {
       console.error('Could not push audio files to remote:', err);
@@ -232,16 +269,20 @@ export const startRecording =
       dispatch(startRecordingFailure(err));
     }
 
+    let createdRecording;
     try {
       dispatch(addRecordingRequest());
+      dispatch(setLoadingMessage('Storing file on IPFS...'));
 
-      const createdRecording = await addRemoteRecording(recordingData);
+      createdRecording = await addRemoteRecording(recordingData);
 
       dispatch(addRecordingSuccess(createdRecording));
+      dispatch(setLoadingMessage(null));
       await db.push(RECORDING_COLLECTION);
     } catch (err) {
-      console.error('startRecordingRequest error:', err);
+      console.error('addRecordingRequest error:', err);
       dispatch(addRecordingFailure(err));
+      dispatch(setLoadingMessage(null));
     }
   };
 
@@ -323,10 +364,16 @@ export const deleteRecording =
        */
       dispatch(setLoadingMessage('Removing remote Recording file...'));
       const { buckets, bucketKey } = await getBucket();
+
+      const requestTimeout = setTimeout(() => {
+        dispatch(deleteRecordingFailure(new Error('Request timed out')));
+      }, REQUEST_TIMEOUT);
+
       const removePathResult = await buckets.removePath(
         bucketKey,
         recording.filename
       );
+      clearTimeout(requestTimeout);
       console.log('removePathResult:', removePathResult);
     } catch (err) {
       console.error('Could not remove file from Textile bucket:', err);

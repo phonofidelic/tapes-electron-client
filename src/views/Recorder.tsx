@@ -6,25 +6,29 @@ import {
   SetRecordingSettingsAction,
   StartMonitorAction,
   StopMonitorAction,
+  ConfirmErrorAction,
 } from '../store/types';
 import * as actions from '../store/actions';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 
-// import Loader from '../components/Loader';
+import Loader from '../components/Loader';
 import AudioAnalyser from '../components/AudioAnalyser';
 import RecorderControls from '../components/RecorderControls';
 import Timer from '../components/Timer';
+import ErrorModal from '../components/ErrorModal';
 
 interface RecorderProps {
   isMonitoring: boolean;
   isRecording: boolean;
   recordingSettings: RecordingSettings;
   loading: boolean;
+  error: Error;
   startMonitor(monitorInstance: MediaStream): StartMonitorAction;
   stopMonitor(): StopMonitorAction;
   setRecordingSettings(
     recordingSettings: RecordingSettings
   ): SetRecordingSettingsAction;
+  confirmError(): ConfirmErrorAction;
 }
 
 function Recorder({
@@ -32,8 +36,10 @@ function Recorder({
   isRecording,
   recordingSettings,
   loading,
+  error,
   startMonitor,
   stopMonitor,
+  confirmError,
 }: RecorderProps) {
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId || 'default';
@@ -61,7 +67,7 @@ function Recorder({
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (
@@ -79,6 +85,7 @@ function Recorder({
         handleStartMonitor={handleStartMonitor}
         handleStopMonitor={handleStopMonitor}
       />
+      <ErrorModal error={error} onConfirmError={() => confirmError()} />
     </div>
   );
 }
@@ -89,6 +96,7 @@ const mapStateToProps = (state: RecorderState) => {
     isRecording: state.isRecording,
     recordingSettings: state.recordingSettings,
     loading: state.loading,
+    error: state.error,
   };
 };
 

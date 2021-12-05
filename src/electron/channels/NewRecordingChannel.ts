@@ -103,6 +103,10 @@ export class NewRecordingChannel implements IpcChannel {
           util.inspect(metadata, { showHidden: false, depth: null })
         );
 
+        /**
+         * TODO: Start Acoustid process here
+         */
+
         const recording: Recording = {
           location: filePath,
           title,
