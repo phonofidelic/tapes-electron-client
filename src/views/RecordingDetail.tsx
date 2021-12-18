@@ -53,30 +53,34 @@ const renderCommon = (common: CommonTagsResult) => {
   return (
     <div style={{ marginTop: 16 }}>
       <table style={{ width: '100%' }}>
-        {keys.sort().map((key, i) => (
-          <tr key={`common-meta_${i}`}>
-            <td style={{ border: `1px solid #fff` }}>
-              <Typography variant="caption" color="textSecondary">
-                {key.charAt(0).toUpperCase() + key.slice(1)}
-              </Typography>
-            </td>
-            <td style={{ border: `1px solid #fff` }}>
-              <Typography variant="caption" color="textSecondary">
-                {renderCommonValue(common[key])}
-              </Typography>
+        <tbody>
+          {keys.sort().map((key, i) => (
+            <tr key={`common-meta_${i}`}>
+              <td style={{ border: `1px solid #fff` }}>
+                <Typography variant="caption" color="textSecondary">
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
+                </Typography>
+              </td>
+              <td style={{ border: `1px solid #fff` }}>
+                <Typography variant="caption" color="textSecondary">
+                  {renderCommonValue(common[key])}
+                </Typography>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td></td>
+            <td>
+              <Button size="small" style={{ textTransform: 'none' }}>
+                <Typography variant="caption" color="textSecondary">
+                  + add more info
+                </Typography>
+              </Button>
             </td>
           </tr>
-        ))}
-        <tr>
-          <td></td>
-          <td>
-            <Button size="small" style={{ textTransform: 'none' }}>
-              <Typography variant="caption" color="textSecondary">
-                + add more info
-              </Typography>
-            </Button>
-          </td>
-        </tr>
+        </tfoot>
       </table>
     </div>
   );
@@ -101,7 +105,7 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
 
   const durationObj = dayjs.duration(duration * 1000);
 
-  console.log('RecordingDetail, common:', recording.common);
+  console.log('RecordingDetail, recording:', recording);
 
   return (
     <div>

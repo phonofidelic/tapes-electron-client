@@ -1,5 +1,6 @@
 import { ICommonTagsResult } from 'music-metadata';
 import { RecordingFormats } from './RecordingFormats.enum';
+import { AcoustidResult } from './AcoustidResult.interface';
 
 export interface Recording {
   _id?: string;
@@ -14,4 +15,6 @@ export interface Recording {
   created?: Date;
   common?: ICommonTagsResult;
   fileData?: any;
+  fingerprint?: string;
+  acoustidResults?: AcoustidResult[];
 }

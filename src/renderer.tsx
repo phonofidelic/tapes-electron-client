@@ -31,6 +31,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import Root from './Root';
+import { providers } from 'ethers';
+
+declare global {
+  interface Window {
+    ethereum: providers.ExternalProvider;
+  }
+}
 
 console.log(
   '👋 This message is being logged by "renderer.js", included via webpack'

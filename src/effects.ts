@@ -110,7 +110,6 @@ const addRemoteRecording = async (
     console.error('No file data for ' + recordingData.title);
     throw new Error('No file data for ' + recordingData.title);
   }
-  console.log('### TEST ###', recordingData.fileData);
 
   let pushPathResult;
   try {
@@ -131,7 +130,7 @@ const addRemoteRecording = async (
       },
       {
         progress: (prog) => {
-          console.log('Push progress:', prog);
+          // console.log('Push progress:', prog);
         },
         signal: abortController.signal,
       }
@@ -165,7 +164,8 @@ const addRemoteRecording = async (
     recordingData.duration,
     remoteLocation,
     null,
-    recordingData.common
+    recordingData.common,
+    recordingData.acoustidResults
   );
 
   /**

@@ -4,6 +4,7 @@ import { RecordingFormats } from './common/RecordingFormats.enum';
 import { THREADS_DB_NAME, IDENTITY_STORE } from './common/constants';
 import { Database } from '@textile/threaddb';
 import { KeyInfo, PrivateKey, ThreadID, Users } from '@textile/hub';
+import { AcoustidResult } from './common/AcoustidResult.interface';
 
 export class RecordingModel implements Recording {
   location: string;
@@ -17,6 +18,7 @@ export class RecordingModel implements Recording {
   format: RecordingFormats;
   channels: number;
   common?: ICommonTagsResult;
+  acoustidResults?: AcoustidResult[];
 
   constructor(
     location: string,
@@ -28,7 +30,8 @@ export class RecordingModel implements Recording {
     duration: number,
     remoteLocation?: string,
     bucketPath?: string,
-    common?: ICommonTagsResult
+    common?: ICommonTagsResult,
+    acoustidResults?: AcoustidResult[]
   ) {
     this.filename = filename;
     this.created = new Date();
@@ -41,6 +44,7 @@ export class RecordingModel implements Recording {
     this.format = format;
     this.channels = channels;
     this.common = common;
+    this.acoustidResults = acoustidResults;
   }
 }
 

@@ -1,4 +1,5 @@
 import path from 'path';
+import util from 'util';
 import { promises as fs } from 'fs';
 import https from 'https';
 import { spawn } from 'child_process';
@@ -107,7 +108,31 @@ export class UploadAudioFileChannel implements IpcChannel {
               }),
             });
 
-            console.log('*** acoustidResponse:', acoustidResponse.data);
+            // console.log(
+            //   '*** acoustidResponse:',
+            //   util.inspect(acoustidResponse.data, true, 8, true)
+            // );
+
+            recordings.push({
+              location: filePath,
+              filename,
+              title:
+                metadata.common.title ||
+                acoustidResponse.data.results[0].recordings[0].title ||
+                'No title',
+              size: file.size,
+              duration: metadata.format.duration,
+              format,
+              channels: metadata.format.numberOfChannels,
+              common: metadata.common,
+              fileData: await fs.readFile(filePath),
+              acoustidResults: await acoustidResponse.data.results,
+            });
+
+            event.sender.send(request.responseChannel, {
+              message: 'Success!',
+              data: recordings,
+            });
           } catch (err) {
             console.error('Could not retreive Acoustid respone:', err);
             return event.sender.send(request.responseChannel, {
@@ -118,6 +143,9 @@ export class UploadAudioFileChannel implements IpcChannel {
 
         fpcalc.stderr.on('data', (data) => {
           console.error(`stderr: ${data}`);
+          return event.sender.send(request.responseChannel, {
+            error: new Error('Could not generate acoustic fingerprint'),
+          });
         });
 
         fpcalc.on('close', (code) => {
@@ -125,23 +153,6 @@ export class UploadAudioFileChannel implements IpcChannel {
           fpcalc.kill();
         });
       }
-
-      recordings.push({
-        location: filePath,
-        filename,
-        title: metadata.common.title || 'No title',
-        size: file.size,
-        duration: metadata.format.duration,
-        format,
-        channels: metadata.format.numberOfChannels,
-        common: metadata.common,
-        fileData: await fs.readFile(filePath),
-      });
     }
-
-    event.sender.send(request.responseChannel, {
-      message: 'Success!',
-      data: recordings,
-    });
   }
 }
