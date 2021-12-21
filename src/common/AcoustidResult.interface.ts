@@ -4,7 +4,7 @@ export interface AcoustidResult {
   score: number;
 }
 
-interface AcoustidRecording {
+export interface AcoustidRecording {
   artists: AcoustidArtist[];
   duration: number;
   id: string;

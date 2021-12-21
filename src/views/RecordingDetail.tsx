@@ -20,6 +20,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import { ICommonTagsResult } from 'music-metadata';
+import { AcoustidResult } from '../common/AcoustidResult.interface';
+import { AcoustidRecordingCard } from '../components/AcoustidRecordingCard';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
@@ -28,6 +30,21 @@ dayjs.extend(dayjsDuration);
 interface CommonTagsResult extends ICommonTagsResult {
   [key: string]: any;
 }
+
+const renderAcoustidResults = (acoustidTopResult: AcoustidResult) => {
+  return (
+    <div>
+      <div style={{ marginBottom: 8 }}>AcoustID results:</div>
+
+      {acoustidTopResult.recordings.map((acoustidRecording) => (
+        <AcoustidRecordingCard
+          key={`acoustid-recording_${acoustidRecording.id}`}
+          acoustidRecording={acoustidRecording}
+        />
+      ))}
+    </div>
+  );
+};
 
 const renderCommonValue = (value: any) => {
   if (typeof value === 'string') return value;
@@ -52,6 +69,7 @@ const renderCommon = (common: CommonTagsResult) => {
 
   return (
     <div style={{ marginTop: 16 }}>
+      <Typography>Metadata:</Typography>
       <table style={{ width: '100%' }}>
         <tbody>
           {keys.sort().map((key, i) => (
@@ -193,6 +211,9 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
         </div>
         {/* <div style={{ flex: 1 }}></div> */}
         {recording.common && renderCommon(recording.common)}
+        {recording.acoustidResults?.length
+          ? renderAcoustidResults(recording.acoustidResults[0])
+          : null}
       </div>
       <div
         style={{

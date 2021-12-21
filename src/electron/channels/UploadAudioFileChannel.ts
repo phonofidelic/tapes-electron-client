@@ -118,7 +118,7 @@ export class UploadAudioFileChannel implements IpcChannel {
               filename,
               title:
                 metadata.common.title ||
-                acoustidResponse.data.results[0].recordings[0].title ||
+                acoustidResponse.data.results[0]?.recordings[0]?.title ||
                 'No title',
               size: file.size,
               duration: metadata.format.duration,
@@ -128,15 +128,10 @@ export class UploadAudioFileChannel implements IpcChannel {
               fileData: await fs.readFile(filePath),
               acoustidResults: await acoustidResponse.data.results,
             });
-
-            event.sender.send(request.responseChannel, {
-              message: 'Success!',
-              data: recordings,
-            });
           } catch (err) {
             console.error('Could not retreive Acoustid respone:', err);
             return event.sender.send(request.responseChannel, {
-              error: err.message,
+              error: new Error('Could not retreive Acoustid respone'),
             });
           }
         });
@@ -152,7 +147,23 @@ export class UploadAudioFileChannel implements IpcChannel {
           console.log(`child process exited with code ${code}`);
           fpcalc.kill();
         });
+      } else {
+        recordings.push({
+          location: filePath,
+          filename,
+          title: metadata.common.title || 'No title',
+          size: file.size,
+          duration: metadata.format.duration,
+          format,
+          channels: metadata.format.numberOfChannels,
+          common: metadata.common,
+          fileData: await fs.readFile(filePath),
+        });
       }
     }
+    event.sender.send(request.responseChannel, {
+      message: 'Success!',
+      data: recordings,
+    });
   }
 }
