@@ -94,10 +94,10 @@ export function Library({
   };
 
   useEffect(() => {
-    // !recordings.length && dispatch(loadRecordings());
-    dispatch(loadRecordings());
+    !recordings.length && dispatch(loadRecordings());
+    // dispatch(loadRecordings());
     searchLibrary('');
-  }, [recordings.length]);
+  }, [recordings]);
 
   if (loading) {
     return <Loader />;

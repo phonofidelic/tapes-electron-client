@@ -267,6 +267,7 @@ export const reducer = (
         ...state,
         loading: false,
         accountToken: action.payload,
+        recordings: [],
       };
 
     case LOAD_ACCOUNT_TOKEN_FAILURE:
