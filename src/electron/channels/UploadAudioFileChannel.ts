@@ -14,6 +14,8 @@ import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingFormats } from '../../common/RecordingFormats.enum';
 import axios from 'axios';
+import { MusicBrainzCoverArt } from '../../common/MusicBrainzCoverArt.interface';
+import { truncate } from 'original-fs';
 
 export class UploadAudioFileChannel implements IpcChannel {
   get name(): string {
@@ -113,6 +115,13 @@ export class UploadAudioFileChannel implements IpcChannel {
             //   util.inspect(acoustidResponse.data, true, 8, true)
             // );
 
+            /**
+             * Get cover art from MusicBrainz
+             */
+            const musicBrainzCoverArt = await getMusicBrainzCoverArt(
+              metadata.common
+            );
+
             recordings.push({
               location: filePath,
               filename,
@@ -127,6 +136,7 @@ export class UploadAudioFileChannel implements IpcChannel {
               common: metadata.common,
               fileData: await fs.readFile(filePath),
               acoustidResults: await acoustidResponse.data.results,
+              musicBrainzCoverArt,
             });
           } catch (err) {
             console.error('Could not retreive Acoustid respone:', err);
@@ -148,6 +158,14 @@ export class UploadAudioFileChannel implements IpcChannel {
           fpcalc.kill();
         });
       } else {
+        /**
+         * Get cover art from MusicBrainz
+         */
+        const musicBrainzCoverArt = await getMusicBrainzCoverArt(
+          metadata.common
+        );
+        console.log('*** musicBrainzCoverArt:', musicBrainzCoverArt);
+
         recordings.push({
           location: filePath,
           filename,
@@ -158,6 +176,7 @@ export class UploadAudioFileChannel implements IpcChannel {
           channels: metadata.format.numberOfChannels,
           common: metadata.common,
           fileData: await fs.readFile(filePath),
+          musicBrainzCoverArt,
         });
       }
     }
@@ -167,3 +186,30 @@ export class UploadAudioFileChannel implements IpcChannel {
     });
   }
 }
+
+const getMusicBrainzCoverArt = async (
+  common: mm.ICommonTagsResult
+): Promise<MusicBrainzCoverArt> => {
+  let musicBrainzCoverArt;
+  try {
+    const mbAlbumQueryResponse = await axios.get(
+      `https://musicbrainz.org/ws/2/release-group?query=${common.album}&fmt=json`
+    );
+
+    const mbReleasseGroupId = mbAlbumQueryResponse.data['release-groups'][0].id;
+    console.log('*** mbReleasseGroupId:', mbReleasseGroupId);
+
+    const mbCoverArtResponse = await axios.get(
+      `https://coverartarchive.org/release-group/${mbReleasseGroupId}`
+    );
+
+    console.log(
+      '*** mbCoverArtResponse:',
+      util.inspect(mbCoverArtResponse.data, true, 8, true)
+    );
+    musicBrainzCoverArt = mbCoverArtResponse.data.images[0];
+  } catch (err) {
+    console.error('Could not get album art:', err);
+  }
+  return musicBrainzCoverArt;
+};

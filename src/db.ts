@@ -5,6 +5,7 @@ import { THREADS_DB_NAME, IDENTITY_STORE } from './common/constants';
 import { Database } from '@textile/threaddb';
 import { KeyInfo, PrivateKey, ThreadID, Users } from '@textile/hub';
 import { AcoustidResult } from './common/AcoustidResult.interface';
+import { MusicBrainzCoverArt } from './common/MusicBrainzCoverArt.interface';
 
 export class RecordingModel implements Recording {
   location: string;
@@ -19,6 +20,7 @@ export class RecordingModel implements Recording {
   channels: number;
   common?: ICommonTagsResult;
   acoustidResults?: AcoustidResult[];
+  musicBrainzCoverArt?: MusicBrainzCoverArt;
 
   constructor(
     location: string,
@@ -31,7 +33,8 @@ export class RecordingModel implements Recording {
     remoteLocation?: string,
     bucketPath?: string,
     common?: ICommonTagsResult,
-    acoustidResults?: AcoustidResult[]
+    acoustidResults?: AcoustidResult[],
+    musicBrainzCoverArt?: MusicBrainzCoverArt
   ) {
     this.filename = filename;
     this.created = new Date();
@@ -45,6 +48,7 @@ export class RecordingModel implements Recording {
     this.channels = channels;
     this.common = common;
     this.acoustidResults = acoustidResults;
+    this.musicBrainzCoverArt = musicBrainzCoverArt;
   }
 }
 

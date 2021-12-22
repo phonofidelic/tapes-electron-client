@@ -165,7 +165,8 @@ const addRemoteRecording = async (
     remoteLocation,
     null,
     recordingData.common,
-    recordingData.acoustidResults
+    recordingData.acoustidResults,
+    recordingData.musicBrainzCoverArt
   );
 
   /**

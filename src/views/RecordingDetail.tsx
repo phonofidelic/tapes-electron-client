@@ -22,6 +22,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { ICommonTagsResult } from 'music-metadata';
 import { AcoustidResult } from '../common/AcoustidResult.interface';
 import { AcoustidRecordingCard } from '../components/AcoustidRecordingCard';
+import { MusicBrainzCoverArt } from '../common/MusicBrainzCoverArt.interface';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
@@ -63,7 +64,10 @@ const renderCommonValue = (value: any) => {
   return JSON.stringify(value);
 };
 
-const renderCommon = (common: CommonTagsResult) => {
+const renderCommon = (
+  common: CommonTagsResult,
+  musicBrainzCoverArt: MusicBrainzCoverArt
+) => {
   const keys = Object.keys(common);
   console.log(keys);
 
@@ -72,6 +76,25 @@ const renderCommon = (common: CommonTagsResult) => {
       <Typography>Metadata:</Typography>
       <table style={{ width: '100%' }}>
         <tbody>
+          {musicBrainzCoverArt && (
+            <tr>
+              <td style={{ border: `1px solid #fff` }}>
+                <Typography variant="caption" color="textSecondary">
+                  Cover Art
+                </Typography>
+              </td>
+              <td style={{ border: `1px solid #fff` }}>
+                <img
+                  height="50"
+                  width="50"
+                  src={
+                    musicBrainzCoverArt?.thumbnails.small ||
+                    musicBrainzCoverArt?.image
+                  }
+                />
+              </td>
+            </tr>
+          )}
           {keys.sort().map((key, i) => (
             <tr key={`common-meta_${i}`}>
               <td style={{ border: `1px solid #fff` }}>
@@ -210,7 +233,8 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
           </div>
         </div>
         {/* <div style={{ flex: 1 }}></div> */}
-        {recording.common && renderCommon(recording.common)}
+        {recording.common &&
+          renderCommon(recording.common, recording.musicBrainzCoverArt)}
         {recording.acoustidResults?.length
           ? renderAcoustidResults(recording.acoustidResults[0])
           : null}
