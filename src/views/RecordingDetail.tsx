@@ -168,6 +168,7 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
             position: 'sticky',
             top: theme.dimensions.Navigation.height,
             backgroundColor: theme.palette.background.default,
+            zIndex: theme.zIndex.appBar,
           }}
         >
           <div>
