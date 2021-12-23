@@ -68,7 +68,7 @@ export class UploadAudioFileChannel implements IpcChannel {
       console.log('*** metadata:', metadata);
 
       /**
-       * TODO: Check for metadata.common.title
+       * Check for metadata.common.title
        * If it is empty, start Acoustid process here
        */
 
@@ -79,84 +79,61 @@ export class UploadAudioFileChannel implements IpcChannel {
         /**
          * Get fingerprint
          */
-        const fpcalcPath =
-          process.env.NODE_ENV === 'production'
-            ? path.resolve(process.resourcesPath, 'bin', 'fpcalc')
-            : path.resolve(appRootDir.get(), 'bin', 'fpcalc');
+        const { duration, fingerprint } = await fpcalcPromise(file);
 
-        const fpcalc = spawn(fpcalcPath, [file.path, '-json']);
+        const acoustidRequestUrl = `https://api.acoustid.org/v2/lookup?client=${
+          process.env.ACOUSTID_API_KEY
+        }&meta=recordings+releasegroups+compress&duration=${Math.round(
+          duration
+        )}&fingerprint=${fingerprint}`;
 
-        fpcalc.stdout.on('data', async (data) => {
-          // console.log(data.toString())
-          const { duration, fingerprint } = JSON.parse(data.toString());
-          const acoustidRequestUrl = `https://api.acoustid.org/v2/lookup?client=${
-            process.env.ACOUSTID_API_KEY
-          }&meta=recordings+releasegroups+compress&duration=${Math.round(
-            duration
-          )}&fingerprint=${fingerprint}`;
-
-          // console.log('### REQUEST URL: \n', acoustidRequestUrl);
-
-          let acoustidResponse;
-          try {
-            acoustidResponse = await axios({
-              method: 'GET',
-              url: acoustidRequestUrl,
-              httpsAgent: new https.Agent({
-                host: 'api.acoustid.org',
-                port: 443,
-                path: '/',
-                rejectUnauthorized: false,
-              }),
-            });
-
-            // console.log(
-            //   '*** acoustidResponse:',
-            //   util.inspect(acoustidResponse.data, true, 8, true)
-            // );
-
-            /**
-             * Get cover art from MusicBrainz
-             */
-            const musicBrainzCoverArt = await getMusicBrainzCoverArt(
-              metadata.common
-            );
-
-            recordings.push({
-              location: filePath,
-              filename,
-              title:
-                metadata.common.title ||
-                acoustidResponse.data.results[0]?.recordings[0]?.title ||
-                'No title',
-              size: file.size,
-              duration: metadata.format.duration,
-              format,
-              channels: metadata.format.numberOfChannels,
-              common: metadata.common,
-              fileData: await fs.readFile(filePath),
-              acoustidResults: await acoustidResponse.data.results,
-              musicBrainzCoverArt,
-            });
-          } catch (err) {
-            console.error('Could not retreive Acoustid respone:', err);
-            return event.sender.send(request.responseChannel, {
-              error: new Error('Could not retreive Acoustid respone'),
-            });
-          }
-        });
-
-        fpcalc.stderr.on('data', (data) => {
-          console.error(`stderr: ${data}`);
-          return event.sender.send(request.responseChannel, {
-            error: new Error('Could not generate acoustic fingerprint'),
+        let acoustidResponse;
+        try {
+          acoustidResponse = await axios({
+            method: 'GET',
+            url: acoustidRequestUrl,
+            httpsAgent: new https.Agent({
+              host: 'api.acoustid.org',
+              port: 443,
+              path: '/',
+              rejectUnauthorized: false,
+            }),
           });
-        });
 
-        fpcalc.on('close', (code) => {
-          console.log(`child process exited with code ${code}`);
-          fpcalc.kill();
-        });
+          console.log(
+            '*** acoustidResponse:',
+            util.inspect(acoustidResponse.data, true, 8, true)
+          );
+
+          /**
+           * Get cover art from MusicBrainz
+           */
+          const musicBrainzCoverArt = acoustidResponse.data.results.length
+            ? await getMusicBrainzCoverArt(metadata.common)
+            : null;
+
+          recordings.push({
+            location: filePath,
+            filename,
+            title:
+              metadata.common.title ||
+              acoustidResponse.data.results[0]?.recordings[0]?.title ||
+              'No title',
+            size: file.size,
+            duration: metadata.format.duration,
+            format,
+            channels: metadata.format.numberOfChannels,
+            common: metadata.common,
+            fileData: await fs.readFile(filePath),
+            acoustidResults: await acoustidResponse.data.results,
+            musicBrainzCoverArt,
+          });
+        } catch (err) {
+          console.error('Could not retreive Acoustid respone:', err);
+          return event.sender.send(request.responseChannel, {
+            error: new Error('Could not retreive Acoustid respone'),
+          });
+        }
       } else {
         /**
          * Get cover art from MusicBrainz
@@ -192,6 +169,7 @@ const getMusicBrainzCoverArt = async (
 ): Promise<MusicBrainzCoverArt> => {
   let musicBrainzCoverArt;
   try {
+    if (!common.album) throw new Error('Missing album info');
     const mbAlbumQueryResponse = await axios.get(
       `https://musicbrainz.org/ws/2/release-group?query=${common.album}&fmt=json`
     );
@@ -213,3 +191,32 @@ const getMusicBrainzCoverArt = async (
   }
   return musicBrainzCoverArt;
 };
+
+const fpcalcPromise = (
+  file: any
+): Promise<{ duration: number; fingerprint: string }> =>
+  new Promise((resolve, reject) => {
+    const fpcalcPath =
+      process.env.NODE_ENV === 'production'
+        ? path.resolve(process.resourcesPath, 'bin', 'fpcalc')
+        : path.resolve(appRootDir.get(), 'bin', 'fpcalc');
+
+    const fpcalc = spawn(fpcalcPath, [file.path, '-json']);
+
+    fpcalc.stdout.on('data', async (data) => {
+      // console.log(data.toString())
+      const { duration, fingerprint } = JSON.parse(data.toString());
+
+      resolve({ duration, fingerprint });
+    });
+
+    fpcalc.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+      reject(new Error('Could not generate acoustic fingerprint'));
+    });
+
+    fpcalc.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+      fpcalc.kill();
+    });
+  });
