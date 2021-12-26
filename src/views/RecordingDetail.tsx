@@ -1,9 +1,10 @@
-import React, { ReactElement, useRef } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Recording } from '../common/Recording.interface';
 import { RecorderState } from '../store/types';
 import * as actions from '../store/actions';
-import { connect } from 'react-redux';
+import { editRecording } from '../effects';
+import { connect, useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
@@ -14,15 +15,16 @@ import useAudioPreview from '../hooks/useAudioPreview';
 import { msToTime } from '../utils';
 import AudioPlayer from '../components/AudioPlayer';
 
-import { useTheme } from '@material-ui/core';
+import { Checkbox, List, useTheme } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import { ICommonTagsResult } from 'music-metadata';
 import { AcoustidResult } from '../common/AcoustidResult.interface';
-import { AcoustidRecordingCard } from '../components/AcoustidRecordingCard';
 import { MusicBrainzCoverArt } from '../common/MusicBrainzCoverArt.interface';
+import AcoustidReleaseGroupCard from '../components/AcoustidReleaseGroupCard';
+import AcoustidRecordingListItem from '../components/AcoustidRecordingListItem';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
@@ -31,21 +33,6 @@ dayjs.extend(dayjsDuration);
 interface CommonTagsResult extends ICommonTagsResult {
   [key: string]: any;
 }
-
-const renderAcoustidResults = (acoustidTopResult: AcoustidResult) => {
-  return (
-    <div>
-      <div style={{ marginBottom: 8 }}>AcoustID results:</div>
-
-      {acoustidTopResult.recordings.map((acoustidRecording) => (
-        <AcoustidRecordingCard
-          key={`acoustid-recording_${acoustidRecording.id}`}
-          acoustidRecording={acoustidRecording}
-        />
-      ))}
-    </div>
-  );
-};
 
 const renderCommonValue = (value: any) => {
   if (typeof value === 'string') return value;
@@ -69,7 +56,8 @@ const renderCommon = (
   musicBrainzCoverArt: MusicBrainzCoverArt
 ) => {
   const keys = Object.keys(common);
-  console.log(keys);
+
+  const IGNORED_COMMON_KEYS = ['musicbrainz_releasegroupid'];
 
   return (
     <div style={{ marginTop: 16 }}>
@@ -95,20 +83,23 @@ const renderCommon = (
               </td>
             </tr>
           )}
-          {keys.sort().map((key, i) => (
-            <tr key={`common-meta_${i}`}>
-              <td style={{ border: `1px solid #fff` }}>
-                <Typography variant="caption" color="textSecondary">
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </Typography>
-              </td>
-              <td style={{ border: `1px solid #fff` }}>
-                <Typography variant="caption" color="textSecondary">
-                  {renderCommonValue(common[key])}
-                </Typography>
-              </td>
-            </tr>
-          ))}
+          {keys
+            .filter((key) => !IGNORED_COMMON_KEYS.includes(key))
+            .sort()
+            .map((key, i) => (
+              <tr key={`common-meta_${i}`}>
+                <td style={{ border: `1px solid #fff` }}>
+                  <Typography variant="caption" color="textSecondary">
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </Typography>
+                </td>
+                <td style={{ border: `1px solid #fff` }}>
+                  <Typography variant="caption" color="textSecondary">
+                    {renderCommonValue(common[key])}
+                  </Typography>
+                </td>
+              </tr>
+            ))}
         </tbody>
         <tfoot>
           <tr>
@@ -133,18 +124,39 @@ interface Props {
 }
 
 export function RecordingDetail({ recording, caching }: Props): ReactElement {
+  const [excludeCompilations, setExcludeCompilations] = useState(false);
+
   const history = useHistory();
   const theme = useTheme();
+  const dispatch = useDispatch();
   const { id } = useParams<{ id: string }>();
 
-  // const audioRef = useRef(null)
-
-  // const { curTime, duration, playing, setPlaying, setClickedTime } =
-  //   useAudioPreview(recording._id);
-
   const duration = recording.duration;
-
   const durationObj = dayjs.duration(duration * 1000);
+
+  /**
+   * https://yagisanatode.com/2021/07/03/get-a-unique-list-of-objects-in-an-array-of-object-in-javascript/
+   */
+  const uniqueAcoustidRecordings = recording.acoustidResults
+    ? [
+        ...new Map(
+          recording.acoustidResults[0].recordings.map((item) => [
+            item['releasegroups'][0]['id'],
+            item,
+          ])
+        ).values(),
+      ]
+    : [];
+
+  // const uniqueAcoustidRecordings = recording.acoustidResults[0].recordings;
+
+  const handleExcludeCompilations = () => {
+    setExcludeCompilations(!excludeCompilations);
+  };
+
+  const handleEditRecording = (recordingId: string, update: any) => {
+    dispatch(editRecording(recordingId, update));
+  };
 
   console.log('RecordingDetail, recording:', recording);
 
@@ -236,9 +248,52 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
         {/* <div style={{ flex: 1 }}></div> */}
         {recording.common &&
           renderCommon(recording.common, recording.musicBrainzCoverArt)}
-        {recording.acoustidResults?.length
-          ? renderAcoustidResults(recording.acoustidResults[0])
-          : null}
+        {recording.acoustidResults?.length && (
+          <div>
+            <div>
+              <div style={{ marginBottom: 0 }}>AcoustID results:</div>
+              <div style={{ marginBottom: 8, display: 'flex' }}>
+                <Typography style={{ lineHeight: '38px' }} variant="caption">
+                  Exclude compilations
+                </Typography>
+                <Checkbox
+                  size="small"
+                  value={excludeCompilations}
+                  onChange={handleExcludeCompilations}
+                />
+              </div>
+            </div>
+
+            <List>
+              {uniqueAcoustidRecordings.map((acoustidRecording) => (
+                <AcoustidRecordingListItem
+                  acoustidRecording={acoustidRecording}
+                  recording={recording}
+                  excludeCompilations={excludeCompilations}
+                  handleEditRecording={handleEditRecording}
+                >
+                  {acoustidRecording.releasegroups
+                    .filter((acoustidReleaseGroup) =>
+                      excludeCompilations
+                        ? !acoustidReleaseGroup.secondarytypes?.includes(
+                            'Compilation'
+                          )
+                        : acoustidReleaseGroup
+                    )
+                    .map((acoustidReleaseGroup) => (
+                      <AcoustidReleaseGroupCard
+                        key={`acoustid-releasegroup_${acoustidReleaseGroup.id}`}
+                        recording={recording}
+                        acoustidRecording={acoustidRecording}
+                        acoustidReleaseGroup={acoustidReleaseGroup}
+                        handleEditRecording={handleEditRecording}
+                      />
+                    ))}
+                </AcoustidRecordingListItem>
+              ))}
+            </List>
+          </div>
+        )}
       </div>
       <div
         style={{

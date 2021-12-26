@@ -17,8 +17,8 @@ interface AcoustidArtist {
   name: string;
 }
 
-interface AcoustidReleaseGroup {
-  artists: AcoustidArtist[];
+export interface AcoustidReleaseGroup {
+  artists?: AcoustidArtist[];
   id: string;
   secondarytypes: string[];
   title: string;

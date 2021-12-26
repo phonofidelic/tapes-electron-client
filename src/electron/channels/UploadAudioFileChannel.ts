@@ -125,7 +125,7 @@ export class UploadAudioFileChannel implements IpcChannel {
             channels: metadata.format.numberOfChannels,
             common: metadata.common,
             fileData: await fs.readFile(filePath),
-            acoustidResults: await acoustidResponse.data.results,
+            acoustidResults: [await acoustidResponse.data.results[0]],
             musicBrainzCoverArt,
           });
         } catch (err) {
@@ -169,7 +169,8 @@ const getMusicBrainzCoverArt = async (
 ): Promise<MusicBrainzCoverArt> => {
   let musicBrainzCoverArt;
   try {
-    if (!common.album) throw new Error('Missing album info');
+    // if (!common.album) throw new Error('Missing album info');
+    if (!common.album) return;
     const mbAlbumQueryResponse = await axios.get(
       `https://musicbrainz.org/ws/2/release-group?query=${common.album}&fmt=json`
     );

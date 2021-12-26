@@ -173,6 +173,7 @@ export const reducer = (
         recordings: state.recordings.map((recording) =>
           recording._id === action.payload._id ? action.payload : recording
         ),
+        selectedRecording: action.payload,
       };
 
     case EDIT_RECORDING_FAILURE:
