@@ -74,12 +74,22 @@ export class UploadAudioFileChannel implements IpcChannel {
 
       if (!metadata.common.title || !metadata.common.artist) {
         console.log('*** Not enough metadata. Starting Acoustid process...');
-        console.log('*** ACOUSTID_API_KEY:', process.env.ACOUSTID_API_KEY);
+        // console.log('*** ACOUSTID_API_KEY:', process.env.ACOUSTID_API_KEY);
 
         /**
          * Get fingerprint
          */
-        const { duration, fingerprint } = await fpcalcPromise(file);
+        let duration, fingerprint;
+        try {
+          const fpcalcResponse = await fpcalcPromise(file);
+          duration = fpcalcResponse.duration;
+          fingerprint = fpcalcResponse.fingerprint;
+        } catch (err) {
+          console.error('Could not generate acoustic fingerprint:', err);
+          return event.sender.send(request.responseChannel, {
+            error: new Error('Could not generate acoustic fingerprint'),
+          });
+        }
 
         const acoustidRequestUrl = `https://api.acoustid.org/v2/lookup?client=${
           process.env.ACOUSTID_API_KEY
