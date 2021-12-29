@@ -10,26 +10,17 @@ import {
 } from '../store/types';
 import * as actions from '../store/actions';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
+import useMonitor from '../hooks/useMonitor';
 
 import Loader from '../components/Loader';
 import AudioAnalyser from '../components/AudioAnalyser';
 import RecorderControls from '../components/RecorderControls';
 import Timer from '../components/Timer';
 import ErrorModal from '../components/ErrorModal';
-
-// import { providers } from 'ethers';
-// import { init } from '@textile/eth-storage';
-
-import {
-  connect as connectNear,
-  WalletConnection,
-  keyStores,
-  KeyPair,
-} from 'near-api-js';
-// import { init, requestSignIn } from '@textile/near-storage';
+import VolumeMeter from '../components/VolumeMeter';
 
 interface RecorderProps {
-  isMonitoring: boolean;
+  // isMonitoring: boolean;
   isRecording: boolean;
   recordingSettings: RecordingSettings;
   loading: boolean;
@@ -43,7 +34,7 @@ interface RecorderProps {
 }
 
 function Recorder({
-  isMonitoring,
+  // isMonitoring,
   isRecording,
   recordingSettings,
   loading,
@@ -56,17 +47,22 @@ function Recorder({
     recordingSettings.selectedMediaDeviceId || 'default';
 
   const dispatch = useDispatch();
+  const { isMonitoring, setIsMonitoring } = useMonitor(selectedMediaDeviceId);
 
   const handleStartMonitor = async () => {
     const monitorInstance = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: false,
     });
-    startMonitor(monitorInstance);
+    // startMonitor(monitorInstance);
+
+    setIsMonitoring(true);
   };
 
   const handleStopMonitor = () => {
-    stopMonitor();
+    // stopMonitor();
+
+    setIsMonitoring(false);
   };
 
   const handleStartRecording = async () => {
@@ -77,53 +73,6 @@ function Recorder({
     dispatch(stopRecording());
   };
 
-  useEffect(() => {
-    const initWallet = async () => {
-      // await (window.ethereum as any).enable();
-      // const provider = new providers.Web3Provider(window.ethereum);
-      // const wallet = provider.getSigner();
-      // const network = await provider.getNetwork();
-      // console.log('*** network:', network);
-      // const storage = await init(wallet);
-      // const blob = new Blob(['Hello, world!'], { type: 'text/plain' });
-      // const file = new File([blob], 'welcome.txt', {
-      //   type: 'text/plain',
-      //   lastModified: new Date().getTime(),
-      // });
-      // await storage.addDeposit();
-      // const { id, cid } = await storage.store(file);
-      // const { request, deals } = await storage.status(id);
-      // console.log(request);
-      // console.log([...deals]);
-      /**
-       * Near
-       */
-      // const keyStore = new keyStores.BrowserLocalStorageKeyStore();
-      // const keyStore = new keyStores.InMemoryKeyStore();
-      // const PRIVATE_KEY =
-      //   'by8kdJoJHu7uUkKfoaLd2J2Dp1q1TigeWMG123pHdu9UREqPcshCM223kWadm';
-      // // creates a public / private key pair using the provided private key
-      // const keyPair = KeyPair.fromString(PRIVATE_KEY);
-      // // adds the keyPair you created to keyStore
-      // await keyStore.setKey('testnet', 'example-account.testnet', keyPair);
-      // const config = {
-      //   networkId: 'testnet',
-      //   keyStore, // optional if not signing transactions
-      //   nodeUrl: 'https://rpc.testnet.near.org',
-      //   walletUrl: 'https://wallet.testnet.near.org',
-      //   helperUrl: 'https://helper.testnet.near.org',
-      //   explorerUrl: 'https://explorer.testnet.near.org',
-      //   headers: {
-      //     // 'Content-Security-Policy': '*',
-      //   },
-      // };
-      // const near = await connectNear(config);
-      // const wallet = new WalletConnection(near, null);
-    };
-
-    initWallet();
-  }, []);
-
   if (loading) {
     return <Loader />;
   }
@@ -131,10 +80,11 @@ function Recorder({
   return (
     <div>
       {isRecording && <Timer />}
-      <AudioAnalyser
+      {/* <AudioAnalyser
         isMonitoring={isMonitoring}
         selectedMediaDeviceId={selectedMediaDeviceId}
-      />
+      /> */}
+      <VolumeMeter selectedMediaDeviceId={selectedMediaDeviceId} />
       <RecorderControls
         isMonitoring={isMonitoring}
         isRecording={isRecording}
@@ -150,7 +100,7 @@ function Recorder({
 
 const mapStateToProps = (state: RecorderState) => {
   return {
-    isMonitoring: state.isMonitoring,
+    // isMonitoring: state.isMonitoring,
     isRecording: state.isRecording,
     recordingSettings: state.recordingSettings,
     loading: state.loading,

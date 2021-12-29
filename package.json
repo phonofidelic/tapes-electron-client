@@ -145,6 +145,7 @@
     "music-metadata": "^7.8.1",
     "near-api-js": "^0.44.1",
     "pretty-bytes": "^5.6.0",
+    "pts": "^0.10.9",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-dropzone": "^11.3.2",

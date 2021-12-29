@@ -10654,6 +10654,11 @@ psl@^1.1.28, psl@^1.1.33:
   resolved "https://registry.yarnpkg.com/psl/-/psl-1.8.0.tgz#9326f8bcfb013adcc005fdff056acce020e51c24"
   integrity sha512-RIdOzyoavK+hA18OGGWDqUTsCLhtA7IcZ/6NCs4fFJaHBDab+pDDmDIByWFRQJq2Cd7r1OoQxBGKOaztq+hjIQ==
 
+pts@^0.10.9:
+  version "0.10.9"
+  resolved "https://registry.yarnpkg.com/pts/-/pts-0.10.9.tgz#e7dede241040564a2f5cb3ad8fddda03c6bece5c"
+  integrity sha512-jHtggvGvABnAlRxhAKrcT3Jbiq8RDvOUW++hm7caukyIuvH6jhPffXJohuIMhrGUUXa0/IB2c7w8Q44uyoJSHQ==
+
 public-encrypt@^4.0.0:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/public-encrypt/-/public-encrypt-4.0.3.tgz#4fcc9d77a07e48ba7527e7cbe0de33d0701331e0"

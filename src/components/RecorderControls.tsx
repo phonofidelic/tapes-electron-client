@@ -4,6 +4,8 @@ import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import MicIcon from '@material-ui/icons/Mic';
 import MicOffIcon from '@material-ui/icons/MicOff';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import { useTheme } from '@material-ui/core/styles';
 
 interface RecorderControlsProps {
   isMonitoring: boolean;
@@ -18,21 +20,27 @@ interface ButtonContainerProps {
   width: number;
 }
 
-const Container = styled.div`
-  display: flex;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-`;
+// const Container = styled.div`
+//   display: flex;
+//   position: fixed;
+//   bottom: 0;
+//   width: 100%;
+//   z-index: ${({theme}) => theme.zIndex.}
+// `;
+
+// const Container = styled('div')(({ theme }: { theme: Theme }) => ({
+//   display: 'flex',
+//   position: 'fixed',
+//   bottom: 0,
+//   width: '100%',
+//   zIndex: theme.zIndex.appBar,
+// }));
 
 interface ButtonContainerProps {
   width: number;
 }
 
-const ButtonContainer =
-  styled.div <
-  ButtonContainerProps >
-  `
+const ButtonContainer = styled.div<ButtonContainerProps>`
   width: ${(props) => props.width}%;
 `;
 
@@ -49,8 +57,18 @@ export default function RecorderControls({
   handleStartMonitor,
   handleStopMonitor,
 }: RecorderControlsProps) {
+  const theme: Theme = useTheme();
+
   return (
-    <Container>
+    <div
+      style={{
+        display: 'flex',
+        position: 'fixed',
+        bottom: 0,
+        width: '100%',
+        zIndex: theme.zIndex.appBar,
+      }}
+    >
       <ButtonContainer width={20}>
         <Tooltip
           enterDelay={500}
@@ -89,6 +107,6 @@ export default function RecorderControls({
           </Button>
         )}
       </ButtonContainer>
-    </Container>
+    </div>
   );
 }
