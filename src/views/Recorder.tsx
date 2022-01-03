@@ -13,11 +13,11 @@ import { RecordingSettings } from '../common/RecordingSettings.interface';
 import useMonitor from '../hooks/useMonitor';
 
 import Loader from '../components/Loader';
-import AudioAnalyser from '../components/AudioAnalyser';
 import RecorderControls from '../components/RecorderControls';
 import Timer from '../components/Timer';
 import ErrorModal from '../components/ErrorModal';
 import VolumeMeter from '../components/VolumeMeter';
+import AudioVisualiser from '../components/AudioVisualiser';
 
 interface RecorderProps {
   // isMonitoring: boolean;
@@ -84,7 +84,19 @@ function Recorder({
         isMonitoring={isMonitoring}
         selectedMediaDeviceId={selectedMediaDeviceId}
       /> */}
-      <VolumeMeter selectedMediaDeviceId={selectedMediaDeviceId} />
+      {/* <VolumeMeter selectedMediaDeviceId={selectedMediaDeviceId} /> */}
+      <div
+        style={{
+          position: 'fixed',
+          width: '100%',
+          bottom: 32,
+        }}
+      >
+        <AudioVisualiser
+          selectedMediaDeviceId={selectedMediaDeviceId}
+          feature="frequency"
+        />
+      </div>
       <RecorderControls
         isMonitoring={isMonitoring}
         isRecording={isRecording}
