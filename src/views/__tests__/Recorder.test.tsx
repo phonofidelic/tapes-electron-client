@@ -3,6 +3,8 @@ import '@testing-library/jest-dom';
 import { render, fireEvent } from '@testing-library/react';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
+import { MuiThemeProvider } from '@material-ui/core/styles';
+import { theme } from '../../theme';
 import { RecorderState } from '../../store/types';
 import { initialState } from '../../store/reducer';
 import { store } from '../../store';
@@ -11,7 +13,9 @@ import Recorder from '../Recorder';
 const renderComponent = () =>
   render(
     <Provider store={store}>
-      <Recorder />
+      <MuiThemeProvider theme={theme}>
+        <Recorder />
+      </MuiThemeProvider>
     </Provider>
   );
 
@@ -20,7 +24,9 @@ const renderMockedComponent = (state: RecorderState) => {
 
   return render(
     <Provider store={mockStore}>
-      <Recorder />
+      <MuiThemeProvider theme={theme}>
+        <Recorder />
+      </MuiThemeProvider>
     </Provider>
   );
 };
