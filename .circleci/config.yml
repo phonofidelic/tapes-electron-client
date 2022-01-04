@@ -26,6 +26,8 @@ jobs:
       - run:
           command: yarn run test:ci
           name: Run YARN tests
+      - store_test_results:
+          path: test-results
 workflows:
   unit-tests:
     jobs:
