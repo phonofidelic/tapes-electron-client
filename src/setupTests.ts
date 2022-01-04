@@ -1,4 +1,5 @@
 import { TextEncoder, TextDecoder } from 'util';
+import 'jest-canvas-mock';
 
 /**
  * Set up global TextEncoder and TextDecoder used by Textile hub

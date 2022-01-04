@@ -95,6 +95,7 @@ export function Library({
 
   useEffect(() => {
     !recordings.length && dispatch(loadRecordings());
+    // dispatch(loadRecordings());
     searchLibrary('');
   }, [recordings]);
 

@@ -5,6 +5,7 @@ import useAudioPreview from '../hooks/useAudioPreview';
 import PlayButton from './PlayButton';
 import StopButton from './StopButton';
 
+import { useTheme } from '@material-ui/core';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
 interface Props {
@@ -21,6 +22,8 @@ export default function AudioPlayer({
 
   const progressRef = useRef(null);
 
+  const theme = useTheme();
+
   const handlePlay = () => {
     setPlaying(true);
   };
@@ -35,7 +38,7 @@ export default function AudioPlayer({
   };
 
   return (
-    <div>
+    <div style={{ backgroundColor: theme.palette.background.default }}>
       <div
         style={{
           textAlign: 'center',

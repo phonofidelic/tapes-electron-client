@@ -4,6 +4,8 @@ import { RecordingFormats } from './common/RecordingFormats.enum';
 import { THREADS_DB_NAME, IDENTITY_STORE } from './common/constants';
 import { Database } from '@textile/threaddb';
 import { KeyInfo, PrivateKey, ThreadID, Users } from '@textile/hub';
+import { AcoustidResult } from './common/AcoustidResult.interface';
+import { MusicBrainzCoverArt } from './common/MusicBrainzCoverArt.interface';
 
 export class RecordingModel implements Recording {
   location: string;
@@ -17,6 +19,8 @@ export class RecordingModel implements Recording {
   format: RecordingFormats;
   channels: number;
   common?: ICommonTagsResult;
+  acoustidResults?: AcoustidResult[];
+  musicBrainzCoverArt?: MusicBrainzCoverArt;
 
   constructor(
     location: string,
@@ -28,7 +32,9 @@ export class RecordingModel implements Recording {
     duration: number,
     remoteLocation?: string,
     bucketPath?: string,
-    common?: ICommonTagsResult
+    common?: ICommonTagsResult,
+    acoustidResults?: AcoustidResult[],
+    musicBrainzCoverArt?: MusicBrainzCoverArt
   ) {
     this.filename = filename;
     this.created = new Date();
@@ -41,6 +47,8 @@ export class RecordingModel implements Recording {
     this.format = format;
     this.channels = channels;
     this.common = common;
+    this.acoustidResults = acoustidResults;
+    this.musicBrainzCoverArt = musicBrainzCoverArt;
   }
 }
 
@@ -72,15 +80,22 @@ const getIdentity = async (): Promise<PrivateKey> => {
 };
 
 const getDbThread = async () => {
-  const storedIdent = localStorage.getItem(IDENTITY_STORE);
-  const identity = PrivateKey.fromString(storedIdent);
+  let dbThread;
+  try {
+    const storedIdent = localStorage.getItem(IDENTITY_STORE);
+    const identity = PrivateKey.fromString(storedIdent);
 
-  const user = await Users.withKeyInfo(keyInfo);
-  await user.getToken(identity);
+    const user = await Users.withKeyInfo(keyInfo);
+    await user.getToken(identity);
 
-  const getThreadResponse = await user.getThread(THREADS_DB_NAME);
-  const dbThread = ThreadID.fromString(getThreadResponse.id);
+    const getThreadResponse = await user.getThread(THREADS_DB_NAME);
+    console.log('getThreadResponse:', getThreadResponse);
 
+    dbThread = ThreadID.fromString(getThreadResponse.id);
+  } catch (err) {
+    console.error('getDbThread error:', err);
+    throw err;
+  }
   return dbThread;
 };
 
@@ -150,13 +165,21 @@ export class AppDatabase {
       await this._db.remote.pull(collectionName);
     } catch (err) {
       console.error('Could not pull changes from remote DB:', err);
+      throw err;
     }
     console.log('Local DB synced');
   };
 
   add = async (collectionName: string, doc: any) => {
     const collection = this._db.collection(collectionName);
-    const result = await collection.insert(doc);
+
+    let result;
+    try {
+      result = await collection.insert(doc);
+    } catch (err) {
+      console.error('Could not insert document in collection:', err);
+    }
+
     const docId = result[0];
     return docId;
   };

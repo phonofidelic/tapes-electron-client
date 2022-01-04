@@ -1,4 +1,10 @@
-import React, { ReactElement, useState, useEffect, useRef } from 'react';
+import React, {
+  ChangeEvent,
+  ReactElement,
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
 // import { connect, useDispatch } from 'react-redux';
 // import * as actions from '../store/actions';
 import { useHistory } from 'react-router-dom';
@@ -84,7 +90,7 @@ export function RecordingsListItem({
     setClickedTime,
   } = useAudioPreview(recording._id);
 
-  const duration = durationFromAudio || recording.duration;
+  const duration = recording.duration;
 
   const theme = useTheme();
 
@@ -123,11 +129,19 @@ export function RecordingsListItem({
     handleDeleteRecording(recordingId);
   };
 
-  const handleTitleChange = () => {
+  const handleTitleChange = (
+    event: ChangeEvent<{ name?: string; value: string }>
+  ) => {
+    setNewTitle(event.target.value);
+  };
+
+  const handleSubimtTitleChange = () => {
     console.log('handleTitleChange, newTitle:', newTitle);
-    newTitle && handleEditRecording(recording._id, { title: newTitle });
+    newTitle &&
+      newTitle !== recording.title &&
+      handleEditRecording(recording._id, { title: newTitle });
     setEditing(false);
-    setNewTitle('');
+    // setNewTitle('');
   };
 
   const handleOpenDetailView = (recordingId: string) => {
@@ -143,7 +157,9 @@ export function RecordingsListItem({
     if (!selected) {
       setPlaying(false);
     }
-  }, [selected]);
+
+    setNewTitle(recording.title);
+  }, [selected, recording.title]);
 
   return (
     <>
@@ -205,10 +221,11 @@ export function RecordingsListItem({
                     <TextField
                       id="edit-title-input"
                       placeholder={recording.title}
+                      value={newTitle}
                       size="small"
                       autoFocus
-                      onBlur={handleTitleChange}
-                      onChange={(e) => setNewTitle(e.target.value)}
+                      onBlur={handleSubimtTitleChange}
+                      onChange={handleTitleChange}
                     />
                   </div>
                   <div style={{ marginLeft: 8 }}>

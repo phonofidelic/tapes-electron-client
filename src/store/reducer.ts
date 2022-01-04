@@ -173,6 +173,7 @@ export const reducer = (
         recordings: state.recordings.map((recording) =>
           recording._id === action.payload._id ? action.payload : recording
         ),
+        selectedRecording: action.payload,
       };
 
     case EDIT_RECORDING_FAILURE:
@@ -267,6 +268,7 @@ export const reducer = (
         ...state,
         loading: false,
         accountToken: action.payload,
+        recordings: [],
       };
 
     case LOAD_ACCOUNT_TOKEN_FAILURE:

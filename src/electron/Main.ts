@@ -2,8 +2,9 @@
  * From: https://blog.logrocket.com/electron-ipc-response-request-architecture-with-typescript/
  */
 import path from 'path';
-import { app, BrowserWindow, ipcMain, protocol } from 'electron';
+import { app, BrowserWindow, ipcMain, protocol, session } from 'electron';
 import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import appRootDir from 'app-root-dir';
 import { IpcChannel } from './IPC/IpcChannel.interface';
 import { RecorderTray } from './RecorderTray';
 
@@ -35,7 +36,7 @@ export class Main {
     }
   }
 
-  private createWindow() {
+  private async createWindow() {
     protocol.registerFileProtocol('tapes', (request, callback) => {
       const url = request.url.replace('tapes://', '');
       const basename = path.basename(url);
@@ -71,11 +72,26 @@ export class Main {
 
     this.mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-    console.log('*** process.env.NODE_ENV:', process.env.NODE_ENV);
     if (process.env.NODE_ENV === 'development') {
       console.log('*** opening devtools ***');
       this.mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
+
+    /**
+     * Install Metamaask extention
+     */
+    // console.log('Loading MetaMask extention...');
+    // const metaMaskPath =
+    //   process.env.NODE_ENV === 'production'
+    //     ? path.resolve(process.resourcesPath, 'bin', 'metamask')
+    //     : path.resolve(appRootDir.get(), 'bin', 'metamask');
+
+    // // const ses = this.mainWindow.webContents.session;
+    // // ses.loadExtension(metaMaskPath, {
+    // //   allowFileAccess: true,
+    // // });
+    // const extension = await session.defaultSession.loadExtension(metaMaskPath);
+    // console.log('MetaMask extentino loaded:', extension);
 
     const iconName = 'icon@16.png';
     const iconPath =

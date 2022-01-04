@@ -1,6 +1,7 @@
 /**
  * https://github.com/electron/electron/issues/9920#issuecomment-575839738
  */
+// require('dotenv').config();
 const { contextBridge, ipcRenderer } = require('electron');
 
 const validChannels = [

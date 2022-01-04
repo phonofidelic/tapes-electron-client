@@ -90,7 +90,8 @@ class AudioAnalyser extends Component<AudioAnalyserProps> {
   }
 
   tick = () => {
-    this.analyser.getByteTimeDomainData(this.dataArray);
+    // this.analyser.getByteTimeDomainData(this.dataArray);
+    this.analyser.getByteFrequencyData(this.dataArray);
     this.setState({ audioData: this.dataArray });
     this.rafId = requestAnimationFrame(this.tick);
   };
