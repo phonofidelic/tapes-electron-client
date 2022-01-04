@@ -43,6 +43,8 @@ beforeEach(() => {
         return {
           connect: jest.fn(),
           disconnect: jest.fn(),
+          getByteFrequencyData: jest.fn(),
+          getByteTimeDomainData: jest.fn(),
         };
       }),
       createMediaStreamSource: jest.fn().mockImplementation(() => {
@@ -51,6 +53,7 @@ beforeEach(() => {
           disconnect: jest.fn(),
         };
       }),
+      close: jest.fn(),
     };
   });
 });
