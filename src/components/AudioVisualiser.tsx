@@ -79,26 +79,30 @@ export default function AudioVisualiser({
     const audioContext = new AudioContext();
     let rafId: number;
 
-    getAudioStream(selectedMediaDeviceId).then((stream) => {
-      const source = audioContext.createMediaStreamSource(stream);
-      const analyser = audioContext.createAnalyser();
-      analyser.fftSize = 128;
-      source.connect(analyser);
+    getAudioStream(selectedMediaDeviceId)
+      .then((stream) => {
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 128;
+        source.connect(analyser);
 
-      let dataArray = new Uint8Array(analyser.frequencyBinCount);
+        let dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-      const tick = () => {
-        feature === 'frequency'
-          ? analyser.getByteFrequencyData(dataArray)
-          : analyser.getByteTimeDomainData(dataArray);
+        const tick = () => {
+          feature === 'frequency'
+            ? analyser.getByteFrequencyData(dataArray)
+            : analyser.getByteTimeDomainData(dataArray);
 
-        draw(dataArray, feature, ctx, canvas.width, canvas.height);
+          draw(dataArray, feature, ctx, canvas.width, canvas.height);
 
-        rafId = requestAnimationFrame(tick);
-      };
+          rafId = requestAnimationFrame(tick);
+        };
 
-      tick();
-    });
+        tick();
+      })
+      .catch((err) => {
+        console.error('Could not process audio stream:', err);
+      });
 
     return () => {
       cancelAnimationFrame(rafId);
