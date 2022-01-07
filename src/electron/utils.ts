@@ -1,6 +1,12 @@
 import path from 'path';
+import util from 'util';
 import { promises as fs, existsSync } from 'fs';
+import { spawn } from 'child_process';
+import axios from 'axios';
+import appRootDir from 'app-root-dir';
+import * as mm from 'music-metadata';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
+import { MusicBrainzCoverArt } from '../common/MusicBrainzCoverArt.interface';
 
 export const setStorageDir = async (folderName: string): Promise<string> => {
   const storagePath =
@@ -34,3 +40,61 @@ export const validRecordingFormat = (format: string): RecordingFormats => {
 
   return format as RecordingFormats;
 };
+
+export const getMusicBrainzCoverArt = async (
+  common: mm.ICommonTagsResult
+): Promise<MusicBrainzCoverArt> => {
+  let musicBrainzCoverArt;
+  try {
+    // if (!common.album) throw new Error('Missing album info');
+    if (!common.album) return;
+    const mbAlbumQueryResponse = await axios.get(
+      `https://musicbrainz.org/ws/2/release-group?query=${common.album}&fmt=json`
+    );
+
+    const mbReleasseGroupId = mbAlbumQueryResponse.data['release-groups'][0].id;
+    console.log('*** mbReleasseGroupId:', mbReleasseGroupId);
+
+    const mbCoverArtResponse = await axios.get(
+      `https://coverartarchive.org/release-group/${mbReleasseGroupId}`
+    );
+
+    console.log(
+      '*** mbCoverArtResponse:',
+      util.inspect(mbCoverArtResponse.data, true, 8, true)
+    );
+    musicBrainzCoverArt = mbCoverArtResponse.data.images[0];
+  } catch (err) {
+    console.error('Could not get album art:', err);
+  }
+  return musicBrainzCoverArt;
+};
+
+export const fpcalcPromise = (
+  file: any
+): Promise<{ duration: number; fingerprint: string }> =>
+  new Promise((resolve, reject) => {
+    const fpcalcPath =
+      process.env.NODE_ENV === 'production'
+        ? path.resolve(process.resourcesPath, 'bin', 'fpcalc')
+        : path.resolve(appRootDir.get(), 'bin', 'fpcalc');
+
+    const fpcalc = spawn(fpcalcPath, [file.path, '-json']);
+
+    fpcalc.stdout.on('data', async (data) => {
+      // console.log(data.toString())
+      const { duration, fingerprint } = JSON.parse(data.toString());
+
+      resolve({ duration, fingerprint });
+    });
+
+    fpcalc.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+      reject(new Error('Could not generate acoustic fingerprint'));
+    });
+
+    fpcalc.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+      fpcalc.kill();
+    });
+  });
