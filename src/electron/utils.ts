@@ -71,7 +71,7 @@ export const getMusicBrainzCoverArt = async (
 };
 
 export const fpcalcPromise = (
-  file: any
+  filePath: string
 ): Promise<{ duration: number; fingerprint: string }> =>
   new Promise((resolve, reject) => {
     const fpcalcPath =
@@ -79,7 +79,7 @@ export const fpcalcPromise = (
         ? path.resolve(process.resourcesPath, 'bin', 'fpcalc')
         : path.resolve(appRootDir.get(), 'bin', 'fpcalc');
 
-    const fpcalc = spawn(fpcalcPath, [file.path, '-json']);
+    const fpcalc = spawn(fpcalcPath, [filePath, '-json']);
 
     fpcalc.stdout.on('data', async (data) => {
       // console.log(data.toString())

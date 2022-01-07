@@ -85,7 +85,7 @@ export class UploadAudioFileChannel implements IpcChannel {
          */
         let duration, fingerprint;
         try {
-          const fpcalcResponse = await fpcalcPromise(file);
+          const fpcalcResponse = await fpcalcPromise(file.path);
           duration = fpcalcResponse.duration;
           fingerprint = fpcalcResponse.fingerprint;
         } catch (err) {
