@@ -89,8 +89,6 @@ export function Library({
   };
 
   const handlePlayRecording = (recording: Recording) => {
-    console.log('handlePlayRecording, playing:', playing);
-    playing && pauseRecording();
     playRecording(recording);
   };
 
