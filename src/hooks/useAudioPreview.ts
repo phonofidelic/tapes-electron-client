@@ -27,6 +27,7 @@ function useAudioPreview(recordingId: string, location?: string) {
         setIsCached(true);
       };
 
+      audio.load();
       if (pausedTime) audio.currentTime = pausedTime;
       isCached ? audio.play() : cacheAndPlay();
       setPausedTime(0);
