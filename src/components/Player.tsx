@@ -90,21 +90,19 @@ export function Player({
         }}
       >
         <div>
-          {playing && (
-            <LinearProgress
-              style={{
-                borderRadius: '4px, 4px, 0, 0',
-              }}
-              ref={progressRef}
-              variant={caching ? 'indeterminate' : 'determinate'}
-              value={(curTime / duration) * 100}
-              onClick={
-                !caching
-                  ? handleProgressClick
-                  : () => console.log('still caching')
-              }
-            />
-          )}
+          <LinearProgress
+            style={{
+              borderRadius: '4px, 4px, 0, 0',
+            }}
+            ref={progressRef}
+            variant={caching ? 'indeterminate' : 'determinate'}
+            value={(curTime / duration) * 100}
+            onClick={
+              !caching
+                ? handleProgressClick
+                : () => console.log('still caching')
+            }
+          />
         </div>
         <div
           style={{
