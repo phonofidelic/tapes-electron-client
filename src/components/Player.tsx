@@ -9,10 +9,10 @@ import {
 import { useLocation } from 'react-router';
 import useAudioPreview from '../hooks/useAudioPreview';
 import { Recording } from '../common/Recording.interface';
+import { msToTime } from '../utils';
 
 import PlayButton from './PlayButton';
 import PauseButton from './PauseButton';
-import AudioPlayer from './AudioPlayer';
 
 import {
   Paper,
@@ -68,8 +68,6 @@ export function Player({
 
   useEffect(() => {
     if (!currentPlaying) return;
-    console.log('currentPlaying:', currentPlaying?.title);
-    // !caching && handlePlay();
     playing ? handlePlay() : handlePause();
   }, [currentPlaying, caching]);
 
@@ -88,8 +86,6 @@ export function Player({
           display: /library/.test(pathname) ? 'flex' : 'none',
           flexDirection: 'column',
           margin: 4,
-          // padding: 4,
-          // paddingTop: 0,
           zIndex: theme.zIndex.appBar,
         }}
       >
@@ -129,10 +125,12 @@ export function Player({
             <div>
               <Typography>{currentPlaying.title}</Typography>
             </div>
+            <div>
+              <Typography variant="caption">
+                {msToTime(curTime * 1000)}
+              </Typography>
+            </div>
           </div>
-          {/* <audio id={currentPlaying._id}>
-          <source src={'tapes://' + currentPlaying.location} />
-        </audio> */}
         </div>
       </Paper>
     </Slide>

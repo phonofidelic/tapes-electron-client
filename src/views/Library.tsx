@@ -72,7 +72,6 @@ export function Library({
 
   const handleSelectRecording = (recording: Recording) => {
     selectRecording(recording);
-    // dispatch(cacheRecording(recording._id));
   };
 
   const handleEditRecording = (recordingId: string, update: any) => {
@@ -84,7 +83,6 @@ export function Library({
   };
 
   const handleDownloadRecording = (recordingId: string) => {
-    console.log('*** handleDownloadRecording');
     dispatch(downloadRecording(recordingId));
   };
 
@@ -113,13 +111,11 @@ export function Library({
   };
 
   const handleFileDrop = (audioFiles: File[]) => {
-    console.log('handleFileDrop, audioFiles:', audioFiles);
     dispatch(uploadAudioFiles(audioFiles));
   };
 
   useEffect(() => {
     !recordings.length && dispatch(loadRecordings());
-    // dispatch(loadRecordings());
     searchLibrary('');
   }, [recordings]);
 

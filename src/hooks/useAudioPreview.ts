@@ -15,20 +15,11 @@ function useAudioPreview(recordingId: string, location?: string) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // const audio = <HTMLAudioElement>document.getElementById(recordingId);
     const audio = <HTMLAudioElement>document.getElementById('audio-player');
-    // <HTMLAudioElement>document.getElementById(recordingId) ||
-    // <HTMLAudioElement>document.createElement('audio');
-    // audio.id = recordingId;
-    // const source = document.createElement('source');
     const source = <HTMLSourceElement>document.getElementById('audio-source');
     source.src = 'tapes://' + location;
-    // console.log('source:', source);
-    // audio.appendChild(source);
-    // document.body.appendChild(audio);
 
     const handlePlay = () => {
-      console.log('*** handlePLay ***');
       const cacheAndPlay = () => {
         dispatch(cacheAndPlayRecording(recordingId, playing));
         setIsCached(true);
@@ -57,7 +48,6 @@ function useAudioPreview(recordingId: string, location?: string) {
     audio.addEventListener('ended', resetAudio);
 
     // React state listeners: update DOM on React state changes
-    // playing && !audio.ended ? audio.play() : resetAudio();
     playing && !audio.ended ? handlePlay() : resetAudio();
 
     if (clickedTime && clickedTime !== curTime) {
