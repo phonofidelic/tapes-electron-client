@@ -295,7 +295,7 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
           </div>
         )}
       </div>
-      <div
+      {/* <div
         style={{
           position: 'fixed',
           width: '100%',
@@ -303,7 +303,7 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
         }}
       >
         <AudioPlayer recording={recording} caching={caching} />
-      </div>
+      </div> */}
     </div>
   );
 }
