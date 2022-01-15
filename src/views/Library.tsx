@@ -18,6 +18,7 @@ import {
   PlayRecordingAction,
   PauseRecordingAction,
 } from '../store/types';
+import useAudioPreview from '../hooks/useAudioPreview';
 
 import Loader from '../components/Loader';
 import SearchBar from '../components/SearchBar';
@@ -37,6 +38,7 @@ interface LibraryProps {
   selectedRecording: Recording | null;
   caching: boolean;
   playing: boolean;
+  currentPlaying: Recording;
   selectRecording(recording: Recording): SelectRecordingAction;
   playRecording(recording: Recording): PlayRecordingAction;
   pauseRecording(): PauseRecordingAction;
@@ -51,6 +53,7 @@ export function Library({
   selectedRecording,
   caching,
   playing,
+  currentPlaying,
   selectRecording,
   playRecording,
   pauseRecording,
@@ -61,6 +64,11 @@ export function Library({
 
   const dispatch = useDispatch();
   const theme = useTheme();
+
+  const { setPlaying } = useAudioPreview(
+    currentPlaying?._id,
+    currentPlaying?.location
+  );
 
   const handleSelectRecording = (recording: Recording) => {
     selectRecording(recording);
@@ -216,6 +224,7 @@ const mapStateToProps = (state: RecorderState) => {
     selectedRecording: state.selectedRecording,
     caching: state.caching,
     playing: state.playing,
+    currentPlaying: state.currentPlaying,
   };
 };
 

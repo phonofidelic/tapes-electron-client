@@ -72,7 +72,7 @@ function useAudioPreview(recordingId: string, location?: string) {
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', resetAudio);
     };
-  }, [playing, clickedTime]);
+  }, [playing, clickedTime, recordingId]);
 
   return {
     curTime,

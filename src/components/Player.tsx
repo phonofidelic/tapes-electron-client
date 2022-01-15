@@ -31,7 +31,7 @@ interface Props {
 }
 
 export function Player({
-  // playing,
+  playing,
   currentPlaying,
   caching,
   playRecording,
@@ -41,8 +41,13 @@ export function Player({
   const { pathname } = useLocation();
   const progressRef = useRef(null);
 
-  const { curTime, playing, duration, setPlaying, setClickedTime } =
-    useAudioPreview(currentPlaying?._id, currentPlaying?.location);
+  const {
+    curTime,
+    // playing,
+    duration,
+    setPlaying,
+    setClickedTime,
+  } = useAudioPreview(currentPlaying?._id, currentPlaying?.location);
 
   // console.log('currentPlaying?.location', currentPlaying?.location);
 
@@ -65,7 +70,7 @@ export function Player({
     if (!currentPlaying) return;
     console.log('currentPlaying:', currentPlaying?.title);
     // !caching && handlePlay();
-    handlePlay();
+    playing ? handlePlay() : handlePause();
   }, [currentPlaying, caching]);
 
   // console.log('Player, curTime:', curTime);
