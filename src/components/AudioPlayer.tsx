@@ -59,10 +59,6 @@ export default function AudioPlayer({
           !caching ? handleProgressClick : () => console.log('still caching')
         }
       />
-      <audio id={recording._id}>
-        {/* <source src={recording.remoteLocation + `?token=${bucketToken}`} /> */}
-        <source src={'tapes://' + recording.location} />
-      </audio>
     </div>
   );
 }

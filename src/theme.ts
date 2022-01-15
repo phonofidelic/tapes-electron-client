@@ -16,6 +16,10 @@ declare module '@material-ui/core/styles/createMuiTheme' {
         width: number;
         height: number;
       };
+      Player: {
+        idth: number;
+        height: number;
+      };
     };
   }
 
@@ -30,6 +34,10 @@ declare module '@material-ui/core/styles/createMuiTheme' {
         height?: number;
       };
       Navigation?: {
+        width?: number;
+        height?: number;
+      };
+      Player?: {
         width?: number;
         height?: number;
       };
@@ -55,6 +63,9 @@ const theme = createMuiTheme({
       height: 400,
     },
     Navigation: {
+      height: 56,
+    },
+    Player: {
       height: 56,
     },
   },

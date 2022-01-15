@@ -62,6 +62,7 @@ interface RecordingsListItemProps {
   handleDeleteRecording(recordingId: string): void;
   handleEditRecording(recordingId: string, update: any): void;
   handleDownloadRecording(recordingId: string): void;
+  handlePlayRecording(recording: Recording): void;
 }
 
 export function RecordingsListItem({
@@ -72,6 +73,7 @@ export function RecordingsListItem({
   handleDeleteRecording,
   handleEditRecording,
   handleDownloadRecording,
+  handlePlayRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -82,28 +84,30 @@ export function RecordingsListItem({
   const history = useHistory();
   const progressRef = useRef(null);
 
-  const {
-    curTime,
-    playing,
-    duration: durationFromAudio,
-    setPlaying,
-    setClickedTime,
-  } = useAudioPreview(recording._id);
+  // const {
+  //   curTime,
+  //   playing,
+  //   duration: durationFromAudio,
+  //   setPlaying,
+  //   setClickedTime,
+  // } = useAudioPreview(recording._id);
 
   const duration = recording.duration;
 
   const theme = useTheme();
 
   const selected = selectedRecording?._id === recording._id;
-  const isPlaying = playing;
+  // const isPlaying = playing;
+  const isPlaying = false;
   const durationObj = dayjs.duration(duration);
 
   const handlePlay = () => {
-    setPlaying(true);
+    // setPlaying(true);
+    handlePlayRecording(recording);
   };
 
   const handleStop = () => {
-    setPlaying(false);
+    // setPlaying(false);
   };
 
   const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -148,15 +152,15 @@ export function RecordingsListItem({
     history.push({ pathname: `/library/${recordingId}`, state: recording });
   };
 
-  const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const clickedProgress = event.clientX / progressRef.current.offsetWidth;
-    setClickedTime(duration * clickedProgress);
-  };
+  // const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  //   const clickedProgress = event.clientX / progressRef.current.offsetWidth;
+  //   setClickedTime(duration * clickedProgress);
+  // };
 
   useEffect(() => {
-    if (!selected) {
-      setPlaying(false);
-    }
+    // if (!selected) {
+    //   setPlaying(false);
+    // }
 
     setNewTitle(recording.title);
   }, [selected, recording.title]);
@@ -360,11 +364,11 @@ export function RecordingsListItem({
             Delete
           </MenuItem>
         </Menu>
-        <audio id={recording._id}>
+        {/* <audio id={recording._id}>
           {isPlaying && <source src={'tapes://' + recording.location} />}
-        </audio>
+        </audio> */}
       </ListItem>
-      {playing && (
+      {/* {playing && (
         <LinearProgress
           ref={progressRef}
           variant={caching ? 'indeterminate' : 'determinate'}
@@ -373,7 +377,7 @@ export function RecordingsListItem({
             !caching ? handleProgressClick : () => console.log('still caching')
           }
         />
-      )}
+      )} */}
     </>
   );
 }

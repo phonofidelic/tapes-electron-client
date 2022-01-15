@@ -520,7 +520,7 @@ export const downloadRecording =
   };
 
 export const cacheAndPlayRecording =
-  (recordingId: string): Effect =>
+  (recordingId: string, playing: boolean): Effect =>
   async (dispatch) => {
     dispatch(cacheRecordingRequest());
     try {
@@ -531,14 +531,23 @@ export const cacheAndPlayRecording =
         recordingId
       )) as unknown as Recording;
 
-      const ipcResponse = await ipc.send('storage:cache_recording', {
-        data: { recordingData, token },
-      });
+      const ipcResponse: { message: string; error?: Error } = await ipc.send(
+        'storage:cache_recording',
+        {
+          data: { recordingData, token },
+        }
+      );
 
       console.log('cacheRecording, ipcResponse:', ipcResponse);
+      if (ipcResponse.error) {
+        // TODO: Check ipcResopnse for errors
+      }
+
       dispatch(cacheRecordingSuccess());
 
-      const audio = <HTMLAudioElement>document.getElementById(recordingId);
+      const audio = <HTMLAudioElement>document.getElementById('audio-player');
+      // console.log('cacheAndPlay, playing:', playing);
+      playing && audio.pause();
       audio.load();
       audio.play();
     } catch (err) {

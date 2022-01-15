@@ -60,7 +60,8 @@ export const initialState: RecorderState = {
   loadingMessage: null,
   error: null,
   recordings: [],
-  playing: null,
+  playing: false,
+  currentPlaying: null,
   bucketToken: null,
   recordingSettings: {
     channels: 2,
@@ -228,13 +229,14 @@ export const reducer = (
     case PLAY_RECORDING:
       return {
         ...state,
-        playing: action.payload,
+        playing: true,
+        currentPlaying: action.payload,
       };
 
     case PAUSE_RECORDING:
       return {
         ...state,
-        playing: null,
+        playing: false,
       };
 
     case GET_BUCKET_TOKEN_REQUEST:

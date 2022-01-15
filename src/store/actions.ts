@@ -248,10 +248,10 @@ export function deleteRecordingFailure(
   };
 }
 
-export function playRecording(recordingId: string): PlayRecordingAction {
+export function playRecording(recording: Recording): PlayRecordingAction {
   return {
     type: PLAY_RECORDING,
-    payload: recordingId,
+    payload: recording,
   };
 }
 

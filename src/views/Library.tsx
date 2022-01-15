@@ -15,6 +15,8 @@ import {
   RecorderState,
   SelectRecordingAction,
   ConfirmErrorAction,
+  PlayRecordingAction,
+  PauseRecordingAction,
 } from '../store/types';
 
 import Loader from '../components/Loader';
@@ -34,7 +36,10 @@ interface LibraryProps {
   error: Error;
   selectedRecording: Recording | null;
   caching: boolean;
+  playing: boolean;
   selectRecording(recording: Recording): SelectRecordingAction;
+  playRecording(recording: Recording): PlayRecordingAction;
+  pauseRecording(): PauseRecordingAction;
   confirmError(): ConfirmErrorAction;
 }
 
@@ -45,7 +50,10 @@ export function Library({
   error,
   selectedRecording,
   caching,
+  playing,
   selectRecording,
+  playRecording,
+  pauseRecording,
   confirmError,
 }: LibraryProps) {
   const [filteredRecordings, setFilteredRecordings] =
@@ -70,6 +78,16 @@ export function Library({
   const handleDownloadRecording = (recordingId: string) => {
     console.log('*** handleDownloadRecording');
     dispatch(downloadRecording(recordingId));
+  };
+
+  const handlePlayRecording = (recording: Recording) => {
+    console.log('handlePlayRecording, playing:', playing);
+    playing && pauseRecording();
+    playRecording(recording);
+  };
+
+  const handlePauseRecording = () => {
+    pauseRecording();
   };
 
   const searchLibrary = (searchTerm: string) => {
@@ -137,7 +155,11 @@ export function Library({
         >
           <SearchBar searchLibrary={searchLibrary} sortLibrary={sortLibrary} />
         </div>
-        <div>
+        <div
+          style={{
+            paddingBottom: theme.dimensions.Player.height,
+          }}
+        >
           {filteredRecordings.length ? (
             <List>
               {filteredRecordings.map((recording: Recording) => (
@@ -150,6 +172,7 @@ export function Library({
                   handleDeleteRecording={handleDeleteRecording}
                   handleEditRecording={handleEditRecording}
                   handleDownloadRecording={handleDownloadRecording}
+                  handlePlayRecording={handlePlayRecording}
                 />
               ))}
             </List>
@@ -192,6 +215,7 @@ const mapStateToProps = (state: RecorderState) => {
     bucketToken: state.bucketToken,
     selectedRecording: state.selectedRecording,
     caching: state.caching,
+    playing: state.playing,
   };
 };
 

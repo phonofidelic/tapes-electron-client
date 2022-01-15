@@ -98,7 +98,7 @@ export class CacheRecordingChannel implements IpcChannel {
         response.data.on('error', (err: Error) => {
           console.error('*** Could not download recording:', err);
           event.sender.send(request.responseChannel, {
-            message: err.message,
+            error: err,
           });
         });
       } else {
@@ -109,7 +109,7 @@ export class CacheRecordingChannel implements IpcChannel {
     } catch (err) {
       // console.log('Cache error:', err);
       event.sender.send(request.responseChannel, {
-        message: err.message,
+        error: err,
       });
     }
   }

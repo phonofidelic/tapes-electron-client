@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { cacheAndPlayRecording } from '../effects';
 
-function useAudioPlayer(recordingId: string) {
+function useAudioPreview(recordingId: string, location?: string) {
   const [duration, setDuration] = useState(0);
   const [curTime, setCurTime] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -15,11 +15,22 @@ function useAudioPlayer(recordingId: string) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const audio = <HTMLAudioElement>document.getElementById(recordingId);
+    // const audio = <HTMLAudioElement>document.getElementById(recordingId);
+    const audio = <HTMLAudioElement>document.getElementById('audio-player');
+    // <HTMLAudioElement>document.getElementById(recordingId) ||
+    // <HTMLAudioElement>document.createElement('audio');
+    // audio.id = recordingId;
+    // const source = document.createElement('source');
+    const source = <HTMLSourceElement>document.getElementById('audio-source');
+    source.src = 'tapes://' + location;
+    // console.log('source:', source);
+    // audio.appendChild(source);
+    // document.body.appendChild(audio);
 
     const handlePlay = () => {
+      console.log('*** handlePLay ***');
       const cacheAndPlay = () => {
-        dispatch(cacheAndPlayRecording(recordingId));
+        dispatch(cacheAndPlayRecording(recordingId, playing));
         setIsCached(true);
       };
 
@@ -72,4 +83,4 @@ function useAudioPlayer(recordingId: string) {
   };
 }
 
-export default useAudioPlayer;
+export default useAudioPreview;

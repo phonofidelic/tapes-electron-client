@@ -58,7 +58,8 @@ export interface RecorderState {
   loadingMessage: string | null;
   error: Error | null;
   recordings: Recording[];
-  playing: string;
+  playing: boolean;
+  currentPlaying: Recording | null;
   bucketToken: string | null;
   recordingSettings: RecordingSettings;
   recordingQueue: string[];
@@ -164,7 +165,7 @@ export interface DeleteRecordingFailureAction extends Action {
 
 export interface PlayRecordingAction extends Action {
   type: typeof PLAY_RECORDING;
-  payload: string;
+  payload: Recording;
 }
 
 export interface PauseRecordingAction extends Action {

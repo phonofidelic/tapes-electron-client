@@ -11,6 +11,7 @@ import RecordingDetail from './views/RecordingDetail';
 import Navigation from './components/Navigation';
 
 import { useTheme } from '@material-ui/core/styles';
+import Player from './components/Player';
 
 function App() {
   const theme = useTheme();
@@ -44,6 +45,10 @@ function App() {
           </Route>
         </Switch>
       </main>
+      <Player />
+      <audio id="audio-player">
+        <source id="audio-source" />
+      </audio>
     </div>
   );
 }
