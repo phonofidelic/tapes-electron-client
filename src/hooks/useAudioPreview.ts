@@ -12,6 +12,8 @@ function useAudioPreview(recordingId: string, location?: string) {
   const [clickedTime, setClickedTime] = useState(0);
   const [isCached, setIsCached] = useState(false);
 
+  const [pausedTime, setPausedTime] = useState(0);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -25,7 +27,14 @@ function useAudioPreview(recordingId: string, location?: string) {
         setIsCached(true);
       };
 
+      if (pausedTime) audio.currentTime = pausedTime;
       isCached ? audio.play() : cacheAndPlay();
+      setPausedTime(0);
+    };
+
+    const handlePause = () => {
+      setPausedTime(curTime);
+      audio.pause();
     };
 
     // state setters wrappers
@@ -48,7 +57,8 @@ function useAudioPreview(recordingId: string, location?: string) {
     audio.addEventListener('ended', resetAudio);
 
     // React state listeners: update DOM on React state changes
-    playing && !audio.ended ? handlePlay() : resetAudio();
+    playing && !audio.ended ? handlePlay() : handlePause();
+    audio.ended && resetAudio();
 
     if (clickedTime && clickedTime !== curTime) {
       console.log('clickedTime:', clickedTime);
