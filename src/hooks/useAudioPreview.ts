@@ -27,8 +27,16 @@ function useAudioPreview(recordingId: string, location?: string) {
         setIsCached(true);
       };
 
-      audio.load();
+      // audio.load();
+      console.log(
+        'handlePlay, pausedTime:',
+        Math.floor(pausedTime),
+        'duration:',
+        Math.floor(audio.duration)
+      );
       if (pausedTime) audio.currentTime = pausedTime;
+      if (Math.floor(pausedTime) === Math.floor(audio.duration))
+        audio.currentTime = 0;
       isCached ? audio.play() : cacheAndPlay();
       setPausedTime(0);
     };
@@ -44,10 +52,16 @@ function useAudioPreview(recordingId: string, location?: string) {
       setCurTime(audio.currentTime);
     };
 
-    const setAudioTime = () => setCurTime(audio.currentTime);
+    const setAudioTime = () => {
+      setCurTime(audio.currentTime);
+      setPausedTime(audio.currentTime);
+    };
 
     const resetAudio = () => {
+      console.log('reset audio');
       setPlaying(false);
+      setPausedTime(0);
+      audio.currentTime = 0;
       audio.pause();
       audio.load();
     };
@@ -58,7 +72,8 @@ function useAudioPreview(recordingId: string, location?: string) {
     audio.addEventListener('ended', resetAudio);
 
     // React state listeners: update DOM on React state changes
-    playing && !audio.ended ? handlePlay() : handlePause();
+    // playing && !audio.ended ? handlePlay() : handlePause();
+    playing ? handlePlay() : handlePause();
     audio.ended && resetAudio();
 
     if (clickedTime && clickedTime !== curTime) {
@@ -72,6 +87,7 @@ function useAudioPreview(recordingId: string, location?: string) {
       audio.removeEventListener('loadedmetadata', setAudioData);
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', resetAudio);
+      // setPausedTime(0);
     };
   }, [playing, clickedTime, recordingId]);
 
