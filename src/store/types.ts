@@ -22,8 +22,11 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   DELETE_RECORDING_REQUEST = 'delete_recording_request',
   DELETE_RECORDING_SUCCESS = 'delete_recording_success',
   DELETE_RECORDING_FAILURE = 'delete_recording_failure',
+  /** Player actions */
   PLAY_RECORDING = 'play_recording',
   PAUSE_RECORDING = 'pause_recording',
+  SET_CURRENT_TIME = 'set_current_time',
+  SET_SEEKED_TIME = 'set_seeked_time',
   GET_BUCKET_TOKEN_REQUEST = 'get_bucket_token_request',
   GET_BUCKET_TOKEN_SUCCESS = 'get_bucket_token_success',
   GET_BUCKET_TOKEN_FAILURE = 'get_bucket_token_failure',
@@ -53,12 +56,14 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
 export interface RecorderState {
   isRecording: boolean;
   isMonitoring: boolean;
-  time: number;
   loading: boolean | { message: string };
   loadingMessage: string | null;
   error: Error | null;
   recordings: Recording[];
   playing: boolean;
+  audioSrc: string;
+  currentTime: number;
+  seekedTime: number;
   currentPlaying: Recording | null;
   bucketToken: string | null;
   recordingSettings: RecordingSettings;
@@ -163,13 +168,25 @@ export interface DeleteRecordingFailureAction extends Action {
   payload: Error;
 }
 
+/**
+ * Player actions
+ */
 export interface PlayRecordingAction extends Action {
   type: typeof PLAY_RECORDING;
-  payload: Recording;
 }
 
 export interface PauseRecordingAction extends Action {
   type: typeof PAUSE_RECORDING;
+}
+
+export interface SetCurrentTimeAction extends Action {
+  type: typeof SET_CURRENT_TIME;
+  payload: number;
+}
+
+export interface SetSeekedTimeAction extends Action {
+  type: typeof SET_SEEKED_TIME;
+  payload: number;
 }
 
 export interface GetBucketTokenRequestAction extends Action {
@@ -278,6 +295,7 @@ export interface CachRecordingRequestAction extends Action {
 
 export interface CacheRecordingSuccessAction extends Action {
   type: typeof CACHE_RECORDING_SUCCESS;
+  payload: Recording;
 }
 
 export interface CacheRecordingFailureAction extends Action {
@@ -308,6 +326,8 @@ export type RecorderAction =
   | DeleteRecordingFailureAction
   | PlayRecordingAction
   | PauseRecordingAction
+  | SetCurrentTimeAction
+  | SetSeekedTimeAction
   | GetBucketTokenRequestAction
   | GetBucketTokenSuccessAction
   | GetBucketTokenFailureAction

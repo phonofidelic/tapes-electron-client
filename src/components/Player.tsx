@@ -5,6 +5,7 @@ import {
   PauseRecordingAction,
   PlayRecordingAction,
   RecorderState,
+  SetSeekedTimeAction,
 } from '../store/types';
 import { useLocation } from 'react-router';
 import useAudioPreview from '../hooks/useAudioPreview';
@@ -25,40 +26,41 @@ import {
 interface Props {
   playing: boolean;
   currentPlaying: Recording;
+  currentTime: number;
   caching: boolean;
-  playRecording(recording: Recording): PlayRecordingAction;
+  playRecording(): PlayRecordingAction;
   pauseRecording(): PauseRecordingAction;
+  setSeekedTime(time: number): SetSeekedTimeAction;
 }
 
 export function Player({
-  // playing,
+  playing,
   currentPlaying,
+  currentTime,
   caching,
   playRecording,
   pauseRecording,
+  setSeekedTime,
 }: Props): ReactElement {
   const theme = useTheme();
   const { pathname } = useLocation();
   const progressRef = useRef(null);
 
-  const { curTime, playing, duration, setPlaying, setClickedTime } =
-    useAudioPreview(currentPlaying?._id, currentPlaying?.location);
-
   // console.log('currentPlaying?.location', currentPlaying?.location);
 
+  const duration = currentPlaying?.duration || 0;
+
   const handlePlay = () => {
-    setPlaying(true);
-    playRecording(currentPlaying);
+    playRecording();
   };
 
   const handlePause = () => {
-    setPlaying(false);
     pauseRecording();
   };
 
   const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
     const clickedProgress = event.clientX / progressRef.current.offsetWidth;
-    setClickedTime(duration * clickedProgress);
+    setSeekedTime(duration * clickedProgress);
   };
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export function Player({
     playing ? handlePlay() : handlePause();
   }, [currentPlaying, caching, playing]);
 
-  // console.log('Player, curTime:', curTime);
+  // console.log('Player, currentPlaying.title:', currentPlaying?.title);
 
   if (!currentPlaying) return null;
 
@@ -92,7 +94,7 @@ export function Player({
             }}
             ref={progressRef}
             variant={caching ? 'indeterminate' : 'determinate'}
-            value={(curTime / duration) * 100}
+            value={(currentTime / duration) * 100}
             onClick={
               !caching
                 ? handleProgressClick
@@ -121,7 +123,7 @@ export function Player({
             </div>
             <div>
               <Typography variant="caption">
-                {msToTime(curTime * 1000)}
+                {msToTime(currentTime * 1000)}
               </Typography>
             </div>
           </div>
@@ -135,6 +137,7 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     playing: state.playing,
     currentPlaying: state.currentPlaying,
+    currentTime: state.currentTime,
     caching: state.caching,
   };
 };

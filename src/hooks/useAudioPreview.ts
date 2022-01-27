@@ -23,20 +23,23 @@ function useAudioPreview(recordingId: string, location?: string) {
 
     const handlePlay = () => {
       const cacheAndPlay = () => {
-        dispatch(cacheAndPlayRecording(recordingId, playing));
+        dispatch(cacheAndPlayRecording(recordingId));
         setIsCached(true);
       };
 
       // audio.load();
-      console.log(
-        'handlePlay, pausedTime:',
-        Math.floor(pausedTime),
-        'duration:',
-        Math.floor(audio.duration)
-      );
+      // console.log(
+      //   'handlePlay, pausedTime:',
+      //   Math.floor(pausedTime),
+      //   'duration:',
+      //   Math.floor(audio.duration)
+      // );
       if (pausedTime) audio.currentTime = pausedTime;
-      if (Math.floor(pausedTime) === Math.floor(audio.duration))
+      if (Math.floor(pausedTime) === Math.floor(audio.duration)) {
         audio.currentTime = 0;
+      }
+
+      console.log('isCached:', isCached);
       isCached ? audio.play() : cacheAndPlay();
       setPausedTime(0);
     };

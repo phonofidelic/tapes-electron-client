@@ -63,6 +63,7 @@ interface RecordingsListItemProps {
   handleEditRecording(recordingId: string, update: any): void;
   handleDownloadRecording(recordingId: string): void;
   handlePlayRecording(recording: Recording): void;
+  handleCacheAndPlayRecording(recording: Recording): void;
 }
 
 export function RecordingsListItem({
@@ -74,6 +75,7 @@ export function RecordingsListItem({
   handleEditRecording,
   handleDownloadRecording,
   handlePlayRecording,
+  handleCacheAndPlayRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -82,15 +84,6 @@ export function RecordingsListItem({
   const [hoverRef, hovered] = useHover();
   const [titleHoverRef, titleHovered] = useHover();
   const history = useHistory();
-  const progressRef = useRef(null);
-
-  // const {
-  //   curTime,
-  //   playing,
-  //   duration: durationFromAudio,
-  //   setPlaying,
-  //   setClickedTime,
-  // } = useAudioPreview(recording._id);
 
   const duration = recording.duration;
 
@@ -100,11 +93,6 @@ export function RecordingsListItem({
   // const isPlaying = playing;
   const isPlaying = false;
   const durationObj = dayjs.duration(duration);
-
-  const handlePlay = () => {
-    // setPlaying(true);
-    handlePlayRecording(recording);
-  };
 
   const handleStop = () => {
     // setPlaying(false);
@@ -151,11 +139,6 @@ export function RecordingsListItem({
   const handleOpenDetailView = (recordingId: string) => {
     history.push({ pathname: `/library/${recordingId}`, state: recording });
   };
-
-  // const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
-  //   const clickedProgress = event.clientX / progressRef.current.offsetWidth;
-  //   setClickedTime(duration * clickedProgress);
-  // };
 
   useEffect(() => {
     // if (!selected) {
@@ -322,7 +305,11 @@ export function RecordingsListItem({
             transition: 'opacity .3s ease-in-out',
           }}
         >
-          {!isPlaying && <PlayButton handlePlay={handlePlay} />}
+          {!isPlaying && (
+            <PlayButton
+              handlePlay={() => handleCacheAndPlayRecording(recording)}
+            />
+          )}
         </div>
         {isPlaying && <StopButton handleStop={handleStop} />}
         <IconButton

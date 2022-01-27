@@ -10,6 +10,7 @@ import {
   getBucketToken,
   uploadAudioFiles,
   downloadRecording,
+  cacheAndPlayRecording,
 } from '../effects';
 import {
   RecorderState,
@@ -65,11 +66,6 @@ export function Library({
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const { setPlaying } = useAudioPreview(
-    currentPlaying?._id,
-    currentPlaying?.location
-  );
-
   const handleSelectRecording = (recording: Recording) => {
     selectRecording(recording);
   };
@@ -92,6 +88,10 @@ export function Library({
 
   const handlePauseRecording = () => {
     pauseRecording();
+  };
+
+  const handleCacheAndPlayRecording = (recording: Recording) => {
+    dispatch(cacheAndPlayRecording(recording));
   };
 
   const searchLibrary = (searchTerm: string) => {
@@ -175,6 +175,7 @@ export function Library({
                   handleEditRecording={handleEditRecording}
                   handleDownloadRecording={handleDownloadRecording}
                   handlePlayRecording={handlePlayRecording}
+                  handleCacheAndPlayRecording={handleCacheAndPlayRecording}
                 />
               ))}
             </List>
