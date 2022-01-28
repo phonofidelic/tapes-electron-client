@@ -60,12 +60,11 @@ const renderMockedComponent = (state: RecorderState) => {
       <RecordingsListItem
         recording={mockRecording}
         selectedRecording={mockStore.getState().selectedRecording}
-        caching={mockStore.getState().caching}
         handleSelectRecording={mockSelect}
         handleDeleteRecording={mockDelete}
         handleEditRecording={mockEdit}
         handleDownloadRecording={mockDownload}
-        handlePlayRecording={mockPlay}
+        handleCacheAndPlayRecording={mockPlay}
       />
     </Provider>
   );

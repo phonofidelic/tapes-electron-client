@@ -1,12 +1,12 @@
 import React, { ReactElement, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import styled from 'styled-components';
-import { useTheme } from '@material-ui/core/styles';
-import BottomNavigation from '@material-ui/core/BottomNavigation';
-import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
-import SettingsIcon from '@material-ui/icons/Settings';
-import MicIcon from '@material-ui/icons/Mic';
-import StorageIcon from '@material-ui/icons/Storage';
+import { useTheme } from '@mui/material/styles';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import SettingsIcon from '@mui/icons-material/Settings';
+import MicIcon from '@mui/icons-material/Mic';
+import StorageIcon from '@mui/icons-material/Storage';
 
 interface Props {}
 

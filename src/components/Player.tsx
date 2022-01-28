@@ -21,7 +21,7 @@ import {
   Typography,
   LinearProgress,
   useTheme,
-} from '@material-ui/core';
+} from '@mui/material';
 
 interface Props {
   playing: boolean;

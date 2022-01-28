@@ -1,5 +1,5 @@
 import React, { ReactElement, useRef, useEffect } from 'react';
-import { useTheme } from '@material-ui/core/styles';
+import { useTheme } from '@mui/material/styles';
 import useAudioAnalyser from '../hooks/useAudioAnalyser';
 import { getAudioStream } from '../utils';
 

@@ -5,8 +5,8 @@ import useAudioPreview from '../hooks/useAudioPreview';
 import PlayButton from './PlayButton';
 import StopButton from './StopButton';
 
-import { useTheme } from '@material-ui/core';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import { useTheme } from '@mui/material';
+import LinearProgress from '@mui/material/LinearProgress';
 
 interface Props {
   recording: Recording;

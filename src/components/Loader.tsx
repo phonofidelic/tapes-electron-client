@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { RecorderState } from '../store/types';
 
-import Fade from '@material-ui/core/Fade';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Fade from '@mui/material/Fade';
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface LoaderProps {
   loading: boolean;

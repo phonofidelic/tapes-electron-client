@@ -9,15 +9,15 @@ import axios from 'axios';
 import { ICommonTagsResult } from 'music-metadata';
 import { Recording } from '../common/Recording.interface';
 
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import { Button, CardHeader, CardMedia, Collapse } from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import { Button, CardHeader, CardMedia, Collapse } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 interface Props {
   recording: Recording;
@@ -121,7 +121,7 @@ export default function AcoustidReleaseGroupCard({
           </Button>
         )}
         <div style={{ flex: 1 }} />
-        <IconButton onClick={handleExpandClick} aria-label="show more">
+        <IconButton onClick={handleExpandClick} aria-label="show more" size="large">
           <ExpandMoreIcon
             style={{
               transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
