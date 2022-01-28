@@ -7,14 +7,16 @@ import {
   loadRecordings,
   deleteRecording,
   editRecording,
-  getBucketToken,
   uploadAudioFiles,
   downloadRecording,
+  cacheAndPlayRecording,
 } from '../effects';
 import {
   RecorderState,
   SelectRecordingAction,
   ConfirmErrorAction,
+  PlayRecordingAction,
+  PauseRecordingAction,
 } from '../store/types';
 
 import Loader from '../components/Loader';
@@ -23,28 +25,24 @@ import RecordingsListItem from '../components/RecordingsListItem';
 import FileDrop from '../components/FileDrop';
 import ErrorModal from '../components/ErrorModal';
 
-import { useTheme } from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
-import List from '@material-ui/core/List';
+import { useTheme } from '@mui/material';
+import Typography from '@mui/material/Typography';
+import List from '@mui/material/List';
 
 interface LibraryProps {
   recordings: Recording[];
-  bucketToken: string | null;
   loading: boolean;
   error: Error;
   selectedRecording: Recording | null;
-  caching: boolean;
   selectRecording(recording: Recording): SelectRecordingAction;
   confirmError(): ConfirmErrorAction;
 }
 
 export function Library({
   recordings,
-  bucketToken,
   loading,
   error,
   selectedRecording,
-  caching,
   selectRecording,
   confirmError,
 }: LibraryProps) {
@@ -56,7 +54,6 @@ export function Library({
 
   const handleSelectRecording = (recording: Recording) => {
     selectRecording(recording);
-    // dispatch(cacheRecording(recording._id));
   };
 
   const handleEditRecording = (recordingId: string, update: any) => {
@@ -68,8 +65,11 @@ export function Library({
   };
 
   const handleDownloadRecording = (recordingId: string) => {
-    console.log('*** handleDownloadRecording');
     dispatch(downloadRecording(recordingId));
+  };
+
+  const handleCacheAndPlayRecording = (recording: Recording) => {
+    dispatch(cacheAndPlayRecording(recording));
   };
 
   const searchLibrary = (searchTerm: string) => {
@@ -89,13 +89,11 @@ export function Library({
   };
 
   const handleFileDrop = (audioFiles: File[]) => {
-    console.log('handleFileDrop, audioFiles:', audioFiles);
     dispatch(uploadAudioFiles(audioFiles));
   };
 
   useEffect(() => {
     !recordings.length && dispatch(loadRecordings());
-    // dispatch(loadRecordings());
     searchLibrary('');
   }, [recordings]);
 
@@ -137,7 +135,11 @@ export function Library({
         >
           <SearchBar searchLibrary={searchLibrary} sortLibrary={sortLibrary} />
         </div>
-        <div>
+        <div
+          style={{
+            paddingBottom: theme.dimensions.Player.height,
+          }}
+        >
           {filteredRecordings.length ? (
             <List>
               {filteredRecordings.map((recording: Recording) => (
@@ -145,11 +147,11 @@ export function Library({
                   key={recording._id}
                   recording={recording}
                   selectedRecording={selectedRecording}
-                  caching={caching}
                   handleSelectRecording={handleSelectRecording}
                   handleDeleteRecording={handleDeleteRecording}
                   handleEditRecording={handleEditRecording}
                   handleDownloadRecording={handleDownloadRecording}
+                  handleCacheAndPlayRecording={handleCacheAndPlayRecording}
                 />
               ))}
             </List>
@@ -189,9 +191,7 @@ const mapStateToProps = (state: RecorderState) => {
     recordings: state.recordings,
     loading: state.loading,
     error: state.error,
-    bucketToken: state.bucketToken,
     selectedRecording: state.selectedRecording,
-    caching: state.caching,
   };
 };
 

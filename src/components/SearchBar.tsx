@@ -5,20 +5,21 @@ import React, {
   createRef,
   RefObject,
 } from 'react';
-import Paper from '@material-ui/core/Paper';
-import InputBase from '@material-ui/core/InputBase';
-import IconButton from '@material-ui/core/IconButton';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import SearchIcon from '@material-ui/icons/Search';
-import SortIcon from '@material-ui/icons/Sort';
-import CloseIcon from '@material-ui/icons/Close';
-import Tooltip from '@material-ui/core/Tooltip';
+import Paper from '@mui/material/Paper';
+import InputBase from '@mui/material/InputBase';
+import IconButton from '@mui/material/IconButton';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import SearchIcon from '@mui/icons-material/Search';
+import SortIcon from '@mui/icons-material/Sort';
+import CloseIcon from '@mui/icons-material/Close';
+import Tooltip from '@mui/material/Tooltip';
+import { SelectChangeEvent } from '@mui/material';
 import { Recording } from '../common/Recording.interface';
 
 interface Props {
   searchLibrary(searchTerm: string): void;
-  sortLibrary(sortBy: keyof Recording): void;
+  sortLibrary(sortBy: string): void;
 }
 
 export default function SearchBar({
@@ -43,10 +44,8 @@ export default function SearchBar({
     searchLibrary('');
   };
 
-  const handleSortSelect = (
-    event: ChangeEvent<{ name?: string; value: keyof Recording }>
-  ) => {
-    setSortBy(event.target.value);
+  const handleSortSelect = (event: SelectChangeEvent<keyof Recording>) => {
+    setSortBy(event.target.value as keyof Recording);
 
     sortLibrary(event.target.value);
 
@@ -80,16 +79,16 @@ export default function SearchBar({
         }
       />
       {!searchTerm ? (
-        <IconButton onClick={() => inputRef.current.focus()}>
+        <IconButton onClick={() => inputRef.current.focus()} size="large">
           <SearchIcon />
         </IconButton>
       ) : (
-        <IconButton onClick={handleClearSearch}>
+        <IconButton onClick={handleClearSearch} size="large">
           <CloseIcon />
         </IconButton>
       )}
       <Tooltip title={`Sort by ${sortBy}`}>
-        <IconButton onClick={toggleSortOpen}>
+        <IconButton onClick={toggleSortOpen} size="large">
           <SortIcon />
         </IconButton>
       </Tooltip>

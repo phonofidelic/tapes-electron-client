@@ -33,11 +33,13 @@ let mockSelect: (recording: Recording) => void;
 let mockDelete: (recordingId: string) => void;
 let mockEdit: (recordingId: string) => void;
 let mockDownload: (recordingId: string) => void;
+let mockPlay: (recording: Recording) => void;
 beforeEach(() => {
   mockSelect = jest.fn();
   mockDelete = jest.fn();
   mockEdit = jest.fn();
   mockDownload = jest.fn();
+  mockPlay = jest.fn();
 
   /**
    * https://github.com/jsdom/jsdom/issues/2155#issuecomment-366703395
@@ -58,11 +60,11 @@ const renderMockedComponent = (state: RecorderState) => {
       <RecordingsListItem
         recording={mockRecording}
         selectedRecording={mockStore.getState().selectedRecording}
-        caching={mockStore.getState().caching}
         handleSelectRecording={mockSelect}
         handleDeleteRecording={mockDelete}
         handleEditRecording={mockEdit}
         handleDownloadRecording={mockDownload}
+        handleCacheAndPlayRecording={mockPlay}
       />
     </Provider>
   );

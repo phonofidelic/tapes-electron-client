@@ -8,14 +8,18 @@ import { randomBytes } from 'crypto';
 import { IpcMainEvent, ipcMain } from 'electron';
 import appRootDir from 'app-root-dir';
 
-import { setStorageDir, validRecordingFormat } from '../utils';
+import {
+  setStorageDir,
+  validRecordingFormat,
+  getMusicBrainzCoverArt,
+  fpcalcPromise,
+} from '../utils';
 import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingFormats } from '../../common/RecordingFormats.enum';
 import axios from 'axios';
 import { MusicBrainzCoverArt } from '../../common/MusicBrainzCoverArt.interface';
-import { truncate } from 'original-fs';
 
 export class UploadAudioFileChannel implements IpcChannel {
   get name(): string {
@@ -77,11 +81,11 @@ export class UploadAudioFileChannel implements IpcChannel {
         // console.log('*** ACOUSTID_API_KEY:', process.env.ACOUSTID_API_KEY);
 
         /**
-         * Get fingerprint
+         * Get acoustic fingerprint
          */
         let duration, fingerprint;
         try {
-          const fpcalcResponse = await fpcalcPromise(file);
+          const fpcalcResponse = await fpcalcPromise(file.path);
           duration = fpcalcResponse.duration;
           fingerprint = fpcalcResponse.fingerprint;
         } catch (err) {
@@ -173,61 +177,3 @@ export class UploadAudioFileChannel implements IpcChannel {
     });
   }
 }
-
-const getMusicBrainzCoverArt = async (
-  common: mm.ICommonTagsResult
-): Promise<MusicBrainzCoverArt> => {
-  let musicBrainzCoverArt;
-  try {
-    // if (!common.album) throw new Error('Missing album info');
-    if (!common.album) return;
-    const mbAlbumQueryResponse = await axios.get(
-      `https://musicbrainz.org/ws/2/release-group?query=${common.album}&fmt=json`
-    );
-
-    const mbReleasseGroupId = mbAlbumQueryResponse.data['release-groups'][0].id;
-    console.log('*** mbReleasseGroupId:', mbReleasseGroupId);
-
-    const mbCoverArtResponse = await axios.get(
-      `https://coverartarchive.org/release-group/${mbReleasseGroupId}`
-    );
-
-    console.log(
-      '*** mbCoverArtResponse:',
-      util.inspect(mbCoverArtResponse.data, true, 8, true)
-    );
-    musicBrainzCoverArt = mbCoverArtResponse.data.images[0];
-  } catch (err) {
-    console.error('Could not get album art:', err);
-  }
-  return musicBrainzCoverArt;
-};
-
-const fpcalcPromise = (
-  file: any
-): Promise<{ duration: number; fingerprint: string }> =>
-  new Promise((resolve, reject) => {
-    const fpcalcPath =
-      process.env.NODE_ENV === 'production'
-        ? path.resolve(process.resourcesPath, 'bin', 'fpcalc')
-        : path.resolve(appRootDir.get(), 'bin', 'fpcalc');
-
-    const fpcalc = spawn(fpcalcPath, [file.path, '-json']);
-
-    fpcalc.stdout.on('data', async (data) => {
-      // console.log(data.toString())
-      const { duration, fingerprint } = JSON.parse(data.toString());
-
-      resolve({ duration, fingerprint });
-    });
-
-    fpcalc.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
-      reject(new Error('Could not generate acoustic fingerprint'));
-    });
-
-    fpcalc.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
-      fpcalc.kill();
-    });
-  });

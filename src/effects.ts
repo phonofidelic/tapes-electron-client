@@ -41,6 +41,8 @@ import {
   cacheRecordingRequest,
   cacheRecordingSuccess,
   cacheRecordingFailure,
+  pauseRecording,
+  playRecording,
 } from './store/actions';
 import { db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
@@ -520,27 +522,28 @@ export const downloadRecording =
   };
 
 export const cacheAndPlayRecording =
-  (recordingId: string): Effect =>
+  (recording: Recording): Effect =>
   async (dispatch) => {
+    dispatch(pauseRecording());
     dispatch(cacheRecordingRequest());
     try {
       const { token } = await getBucket();
 
-      const recordingData = (await db.findById(
-        RECORDING_COLLECTION,
-        recordingId
-      )) as unknown as Recording;
-
-      const ipcResponse = await ipc.send('storage:cache_recording', {
-        data: { recordingData, token },
-      });
+      const ipcResponse: { message: string; error?: Error } = await ipc.send(
+        'storage:cache_recording',
+        {
+          data: { recording, token },
+        }
+      );
 
       console.log('cacheRecording, ipcResponse:', ipcResponse);
-      dispatch(cacheRecordingSuccess());
+      if (ipcResponse.error) {
+        // TODO: Check ipcResopnse for errors
+        dispatch(cacheRecordingFailure(ipcResponse.error));
+      }
 
-      const audio = <HTMLAudioElement>document.getElementById(recordingId);
-      audio.load();
-      audio.play();
+      dispatch(cacheRecordingSuccess(recording));
+      dispatch(playRecording());
     } catch (err) {
       console.error('Could not cache recording:', err);
       dispatch(cacheRecordingFailure(err));

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import { useTheme } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
+import { useTheme } from '@mui/material';
+import Button from '@mui/material/Button';
 
 interface Props {
   error: Error;

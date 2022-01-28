@@ -39,12 +39,9 @@ export class CacheRecordingChannel implements IpcChannel {
   async handle(event: IpcMainEvent, request: IpcRequest) {
     console.log(this.name);
 
-    const {
-      recordingData,
-      token,
-    }: { recordingData: Recording; token: string } = request.data;
+    const { recording, token }: { recording: Recording; token: string } =
+      request.data;
 
-    console.log('*** recording.loacation:', recordingData.location);
     try {
       const storageDir = await setStorageDir('Data');
       console.log('*** storageDir:', storageDir);
@@ -57,7 +54,7 @@ export class CacheRecordingChannel implements IpcChannel {
       const cachedRecordings = await fsp.readdir(storageDir);
       console.log('*** cachedRecordings:', cachedRecordings);
 
-      const isCached = cachedRecordings.includes(recordingData.filename);
+      const isCached = cachedRecordings.includes(recording.filename);
       console.log('*** isCached:', isCached);
 
       if (filesLength >= MAX_CACHE_LENGTH) {
@@ -72,7 +69,7 @@ export class CacheRecordingChannel implements IpcChannel {
         /**
          * Download recording to Data dir
          */
-        const downloadUrl = recordingData.remoteLocation + `?token=${token}`;
+        const downloadUrl = recording.remoteLocation + `?token=${token}`;
         console.log('*** downloading from ', downloadUrl);
         const response = await axios({
           method: 'GET',
@@ -87,7 +84,7 @@ export class CacheRecordingChannel implements IpcChannel {
         });
 
         response.data.pipe(
-          fs.createWriteStream(path.resolve(storageDir, recordingData.filename))
+          fs.createWriteStream(path.resolve(storageDir, recording.filename))
         );
         response.data.on('end', () => {
           console.log('*** recording cached ***');
@@ -98,7 +95,7 @@ export class CacheRecordingChannel implements IpcChannel {
         response.data.on('error', (err: Error) => {
           console.error('*** Could not download recording:', err);
           event.sender.send(request.responseChannel, {
-            message: err.message,
+            error: err,
           });
         });
       } else {
@@ -109,7 +106,7 @@ export class CacheRecordingChannel implements IpcChannel {
     } catch (err) {
       // console.log('Cache error:', err);
       event.sender.send(request.responseChannel, {
-        message: err.message,
+        error: err,
       });
     }
   }

@@ -48,6 +48,8 @@ import {
   CACHE_RECORDING_REQUEST,
   CACHE_RECORDING_SUCCESS,
   CACHE_RECORDING_FAILURE,
+  SET_CURRENT_TIME,
+  SET_SEEKED_TIME,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -55,12 +57,15 @@ import { IDENTITY_STORE } from '../common/constants';
 export const initialState: RecorderState = {
   isRecording: false,
   isMonitoring: false,
-  time: 0,
   loading: false,
   loadingMessage: null,
   error: null,
   recordings: [],
-  playing: null,
+  playing: false,
+  audioSrc: null,
+  currentTime: 0,
+  seekedTime: 0,
+  currentPlaying: null,
   bucketToken: null,
   recordingSettings: {
     channels: 2,
@@ -225,16 +230,31 @@ export const reducer = (
         error: action.payload,
       };
 
+    /**
+     * Player state
+     */
     case PLAY_RECORDING:
       return {
         ...state,
-        playing: action.payload,
+        playing: true,
       };
 
     case PAUSE_RECORDING:
       return {
         ...state,
-        playing: null,
+        playing: false,
+      };
+
+    case SET_CURRENT_TIME:
+      return {
+        ...state,
+        currentTime: action.payload,
+      };
+
+    case SET_SEEKED_TIME:
+      return {
+        ...state,
+        seekedTime: action.payload,
       };
 
     case GET_BUCKET_TOKEN_REQUEST:
@@ -389,6 +409,8 @@ export const reducer = (
       return {
         ...state,
         caching: false,
+        playing: true,
+        currentPlaying: action.payload,
       };
 
     case CACHE_RECORDING_FAILURE:

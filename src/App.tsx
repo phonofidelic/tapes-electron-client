@@ -10,7 +10,9 @@ import Library from './views/Library';
 import RecordingDetail from './views/RecordingDetail';
 import Navigation from './components/Navigation';
 
-import { useTheme } from '@material-ui/core/styles';
+import { useTheme } from '@mui/material/styles';
+import Player from './components/Player';
+import AudioElement from './components/AudioElement';
 
 function App() {
   const theme = useTheme();
@@ -44,6 +46,11 @@ function App() {
           </Route>
         </Switch>
       </main>
+      <Player />
+      <AudioElement />
+      <audio id="audio-player">
+        <source id="audio-source" />
+      </audio>
     </div>
   );
 }

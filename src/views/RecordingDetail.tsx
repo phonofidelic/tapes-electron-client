@@ -15,11 +15,11 @@ import useAudioPreview from '../hooks/useAudioPreview';
 import { msToTime } from '../utils';
 import AudioPlayer from '../components/AudioPlayer';
 
-import { Checkbox, List, useTheme } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import CloseIcon from '@material-ui/icons/Close';
+import { Checkbox, List, useTheme } from '@mui/material';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import CloseIcon from '@mui/icons-material/Close';
 import { ICommonTagsResult } from 'music-metadata';
 import { AcoustidResult } from '../common/AcoustidResult.interface';
 import { MusicBrainzCoverArt } from '../common/MusicBrainzCoverArt.interface';
@@ -295,7 +295,7 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
           </div>
         )}
       </div>
-      <div
+      {/* <div
         style={{
           position: 'fixed',
           width: '100%',
@@ -303,7 +303,7 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
         }}
       >
         <AudioPlayer recording={recording} caching={caching} />
-      </div>
+      </div> */}
     </div>
   );
 }

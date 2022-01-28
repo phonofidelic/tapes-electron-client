@@ -93,6 +93,9 @@ import {
   CacheRecordingSuccessAction,
   CACHE_RECORDING_FAILURE,
   CacheRecordingFailureAction,
+  SetCurrentTimeAction,
+  SET_CURRENT_TIME,
+  SET_SEEKED_TIME,
 } from './types';
 import { Recording } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -248,16 +251,32 @@ export function deleteRecordingFailure(
   };
 }
 
-export function playRecording(recordingId: string): PlayRecordingAction {
+/**
+ * Player actions
+ */
+export function playRecording(): PlayRecordingAction {
   return {
     type: PLAY_RECORDING,
-    payload: recordingId,
   };
 }
 
 export function pauseRecording(): PauseRecordingAction {
   return {
     type: PAUSE_RECORDING,
+  };
+}
+
+export function setCurrentTime(time: number): SetCurrentTimeAction {
+  return {
+    type: SET_CURRENT_TIME,
+    payload: time,
+  };
+}
+
+export function setSeekedTime(time: number) {
+  return {
+    type: SET_SEEKED_TIME,
+    payload: time,
   };
 }
 
@@ -429,9 +448,12 @@ export function cacheRecordingRequest(): CachRecordingRequestAction {
   };
 }
 
-export function cacheRecordingSuccess(): CacheRecordingSuccessAction {
+export function cacheRecordingSuccess(
+  recording: Recording
+): CacheRecordingSuccessAction {
   return {
     type: CACHE_RECORDING_SUCCESS,
+    payload: recording,
   };
 }
 

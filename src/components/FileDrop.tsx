@@ -1,8 +1,8 @@
 import React, { ReactElement, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-import { useTheme } from '@material-ui/core';
-import { fade } from '@material-ui/core/styles/colorManipulator';
+import { useTheme } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 
 interface Props {
   accept: string;
@@ -47,7 +47,7 @@ export default function FileDrop({
             border: `4px dashed ${theme.palette.text.secondary}`,
             borderRadius: 4,
             zIndex: 10000,
-            backgroundColor: fade(theme.palette.background.default, 0.9),
+            backgroundColor: alpha(theme.palette.background.default, 0.9),
             color: theme.palette.text.secondary,
           }}
         >

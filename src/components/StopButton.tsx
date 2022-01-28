@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 
-import IconButton from '@material-ui/core/IconButton';
-import StopIcon from '@material-ui/icons/Stop';
+import IconButton from '@mui/material/IconButton';
+import StopIcon from '@mui/icons-material/Stop';
 
 interface Props {
   handleStop(): void;
@@ -9,7 +9,7 @@ interface Props {
 
 export default function StopButton({ handleStop }: Props): ReactElement {
   return (
-    <IconButton data-testid="button_pause-recording" onClick={handleStop}>
+    <IconButton data-testid="button_pause-recording" onClick={handleStop} size="large">
       <StopIcon />
     </IconButton>
   );

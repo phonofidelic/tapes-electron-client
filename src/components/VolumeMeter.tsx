@@ -1,10 +1,10 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { CanvasSpace, ISoundAnalyzer, Sound, SoundType } from 'pts';
-import { useTheme } from '@material-ui/core/styles';
+import { useTheme } from '@mui/material/styles';
 import Meyda, { MeydaFeaturesObject } from 'meyda';
 
 import { getAudioStream } from '../utils';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import AudioFeatureDebug from './AudioFeatureDebug';
 import useMeydaAnalyzer from '../hooks/useMeydaAnalyzer';
 

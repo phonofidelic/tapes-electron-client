@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { MeydaFeaturesObject } from 'meyda';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 
 const PITCH_CLASS_LABELS = [
   'C',

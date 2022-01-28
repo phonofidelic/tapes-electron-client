@@ -23,20 +23,21 @@ import { msToTime } from '../utils';
 import PlayButton from './PlayButton';
 import StopButton from './StopButton';
 
-import IconButton from '@material-ui/core/IconButton';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
-import Grow from '@material-ui/core/Grow';
-import Fade from '@material-ui/core/Fade';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import EditIcon from '@material-ui/icons/Edit';
-import CloseIcon from '@material-ui/icons/Close';
-import { useTheme } from '@material-ui/core/styles';
+import IconButton from '@mui/material/IconButton';
+import LinearProgress from '@mui/material/LinearProgress';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Grow from '@mui/material/Grow';
+import Fade from '@mui/material/Fade';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import CloseIcon from '@mui/icons-material/Close';
+import { useTheme } from '@mui/material/styles';
+import { visuallyHidden } from '@mui/utils';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
@@ -57,21 +58,21 @@ const PlaybackButtonContainer = styled.div`
 interface RecordingsListItemProps {
   recording: Recording;
   selectedRecording: Recording;
-  caching: boolean;
   handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
   handleEditRecording(recordingId: string, update: any): void;
   handleDownloadRecording(recordingId: string): void;
+  handleCacheAndPlayRecording(recording: Recording): void;
 }
 
 export function RecordingsListItem({
   recording,
   selectedRecording,
-  caching,
   handleSelectRecording,
   handleDeleteRecording,
   handleEditRecording,
   handleDownloadRecording,
+  handleCacheAndPlayRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -80,30 +81,18 @@ export function RecordingsListItem({
   const [hoverRef, hovered] = useHover();
   const [titleHoverRef, titleHovered] = useHover();
   const history = useHistory();
-  const progressRef = useRef(null);
-
-  const {
-    curTime,
-    playing,
-    duration: durationFromAudio,
-    setPlaying,
-    setClickedTime,
-  } = useAudioPreview(recording._id);
 
   const duration = recording.duration;
 
   const theme = useTheme();
 
   const selected = selectedRecording?._id === recording._id;
-  const isPlaying = playing;
+  // const isPlaying = playing;
+  const isPlaying = false;
   const durationObj = dayjs.duration(duration);
 
-  const handlePlay = () => {
-    setPlaying(true);
-  };
-
   const handleStop = () => {
-    setPlaying(false);
+    // setPlaying(false);
   };
 
   const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -148,15 +137,10 @@ export function RecordingsListItem({
     history.push({ pathname: `/library/${recordingId}`, state: recording });
   };
 
-  const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const clickedProgress = event.clientX / progressRef.current.offsetWidth;
-    setClickedTime(duration * clickedProgress);
-  };
-
   useEffect(() => {
-    if (!selected) {
-      setPlaying(false);
-    }
+    // if (!selected) {
+    //   setPlaying(false);
+    // }
 
     setNewTitle(recording.title);
   }, [selected, recording.title]);
@@ -290,7 +274,7 @@ export function RecordingsListItem({
                       Duration:
                       {' ' + msToTime(Math.trunc(duration * 1000))}
                     </Typography>
-                    <Typography variant="srOnly">
+                    <Typography style={visuallyHidden}>
                       {'Duration: ' +
                         (durationObj.hours()
                           ? `${durationObj.hours()} hours, `
@@ -318,7 +302,11 @@ export function RecordingsListItem({
             transition: 'opacity .3s ease-in-out',
           }}
         >
-          {!isPlaying && <PlayButton handlePlay={handlePlay} />}
+          {!isPlaying && (
+            <PlayButton
+              handlePlay={() => handleCacheAndPlayRecording(recording)}
+            />
+          )}
         </div>
         {isPlaying && <StopButton handleStop={handleStop} />}
         <IconButton
@@ -326,6 +314,7 @@ export function RecordingsListItem({
           aria-label="Options"
           aria-haspopup="true"
           onClick={handleClickMenu}
+          size="large"
         >
           <MoreVertIcon />
         </IconButton>
@@ -360,20 +349,20 @@ export function RecordingsListItem({
             Delete
           </MenuItem>
         </Menu>
-        <audio id={recording._id}>
-          {isPlaying && <source src={'tapes://' + recording.location} />}
-        </audio>
+        {/* <audio id={recording._id}>
+        {isPlaying && <source src={'tapes://' + recording.location} />}
+      </audio> */}
       </ListItem>
-      {playing && (
-        <LinearProgress
-          ref={progressRef}
-          variant={caching ? 'indeterminate' : 'determinate'}
-          value={(curTime / duration) * 100}
-          onClick={
-            !caching ? handleProgressClick : () => console.log('still caching')
-          }
-        />
-      )}
+      {/* {playing && (
+      <LinearProgress
+        ref={progressRef}
+        variant={caching ? 'indeterminate' : 'determinate'}
+        value={(curTime / duration) * 100}
+        onClick={
+          !caching ? handleProgressClick : () => console.log('still caching')
+        }
+      />
+    )} */}
     </>
   );
 }

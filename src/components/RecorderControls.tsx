@@ -1,11 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import MicIcon from '@material-ui/icons/Mic';
-import MicOffIcon from '@material-ui/icons/MicOff';
-import { Theme } from '@material-ui/core/styles/createMuiTheme';
-import { useTheme } from '@material-ui/core/styles';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import MicIcon from '@mui/icons-material/Mic';
+import MicOffIcon from '@mui/icons-material/MicOff';
+import { useTheme, Theme } from '@mui/material/styles';
 
 interface RecorderControlsProps {
   isMonitoring: boolean;

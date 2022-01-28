@@ -1,8 +1,8 @@
 import React, { ReactElement, useState } from 'react';
 import { AcoustidRecording } from '../common/AcoustidResult.interface';
 
-import { Collapse, ListItem, Typography } from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Collapse, ListItem, Typography } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Recording } from '../common/Recording.interface';
 
 interface Props {

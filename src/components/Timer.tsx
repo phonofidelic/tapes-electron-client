@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, ReactElement } from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
+import { Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 const Container = styled.div`
   /* background-color: #e63c36; */
