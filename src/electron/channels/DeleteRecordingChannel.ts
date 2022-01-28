@@ -3,7 +3,7 @@ import { IpcMainEvent } from 'electron';
 import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
-import { ErrorRounded } from '@material-ui/icons';
+import { ErrorRounded } from '@mui/icons-material';
 
 export class DeleteRecordingChannel implements IpcChannel {
   get name(): string {

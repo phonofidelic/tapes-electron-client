@@ -5,7 +5,7 @@ import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import reduxThunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
 
 import { RecordingFormats } from '../../common/RecordingFormats.enum';
 import { RecorderState } from '../../store/types';
@@ -33,9 +33,11 @@ const renderMockedComponent = (state: RecorderState) => {
 
   return render(
     <Provider store={mockStore}>
-      <MuiThemeProvider theme={theme}>
-        <Library />
-      </MuiThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <Library />
+        </ThemeProvider>
+      </StyledEngineProvider>
     </Provider>
   );
   // return render(

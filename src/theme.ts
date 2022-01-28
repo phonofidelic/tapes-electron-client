@@ -1,7 +1,11 @@
-import { createMuiTheme, ThemeOptions } from '@material-ui/core/styles';
-import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import {
+  createTheme,
+  DeprecatedThemeOptions,
+  adaptV4Theme,
+  Theme,
+} from '@mui/material/styles';
 
-declare module '@material-ui/core/styles/createMuiTheme' {
+declare module '@mui/material/styles' {
   interface Theme {
     dimensions: {
       AudioPlayer: {
@@ -23,7 +27,7 @@ declare module '@material-ui/core/styles/createMuiTheme' {
     };
   }
 
-  interface ThemeOptions {
+  interface DeprecatedThemeOptions {
     dimensions?: {
       AudioPlayer?: {
         width?: number;
@@ -45,30 +49,32 @@ declare module '@material-ui/core/styles/createMuiTheme' {
   }
 }
 
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: '#323332',
+const theme = createTheme(
+  adaptV4Theme({
+    palette: {
+      primary: {
+        main: '#323332',
+      },
+      background: {
+        default: '#e9eae6',
+      },
     },
-    background: {
-      default: '#e9eae6',
+    dimensions: {
+      AudioPlayer: {
+        height: 48,
+      },
+      Tray: {
+        width: 350,
+        height: 400,
+      },
+      Navigation: {
+        height: 56,
+      },
+      Player: {
+        height: 56,
+      },
     },
-  },
-  dimensions: {
-    AudioPlayer: {
-      height: 48,
-    },
-    Tray: {
-      width: 350,
-      height: 400,
-    },
-    Navigation: {
-      height: 56,
-    },
-    Player: {
-      height: 56,
-    },
-  },
-});
+  })
+);
 
 export { theme };

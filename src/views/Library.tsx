@@ -7,7 +7,6 @@ import {
   loadRecordings,
   deleteRecording,
   editRecording,
-  getBucketToken,
   uploadAudioFiles,
   downloadRecording,
   cacheAndPlayRecording,
@@ -19,7 +18,6 @@ import {
   PlayRecordingAction,
   PauseRecordingAction,
 } from '../store/types';
-import useAudioPreview from '../hooks/useAudioPreview';
 
 import Loader from '../components/Loader';
 import SearchBar from '../components/SearchBar';
@@ -27,37 +25,25 @@ import RecordingsListItem from '../components/RecordingsListItem';
 import FileDrop from '../components/FileDrop';
 import ErrorModal from '../components/ErrorModal';
 
-import { useTheme } from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
-import List from '@material-ui/core/List';
+import { useTheme } from '@mui/material';
+import Typography from '@mui/material/Typography';
+import List from '@mui/material/List';
 
 interface LibraryProps {
   recordings: Recording[];
-  bucketToken: string | null;
   loading: boolean;
   error: Error;
   selectedRecording: Recording | null;
-  caching: boolean;
-  playing: boolean;
-  currentPlaying: Recording;
   selectRecording(recording: Recording): SelectRecordingAction;
-  playRecording(recording: Recording): PlayRecordingAction;
-  pauseRecording(): PauseRecordingAction;
   confirmError(): ConfirmErrorAction;
 }
 
 export function Library({
   recordings,
-  bucketToken,
   loading,
   error,
   selectedRecording,
-  caching,
-  playing,
-  currentPlaying,
   selectRecording,
-  playRecording,
-  pauseRecording,
   confirmError,
 }: LibraryProps) {
   const [filteredRecordings, setFilteredRecordings] =
@@ -80,14 +66,6 @@ export function Library({
 
   const handleDownloadRecording = (recordingId: string) => {
     dispatch(downloadRecording(recordingId));
-  };
-
-  const handlePlayRecording = (recording: Recording) => {
-    playRecording(recording);
-  };
-
-  const handlePauseRecording = () => {
-    pauseRecording();
   };
 
   const handleCacheAndPlayRecording = (recording: Recording) => {
@@ -169,12 +147,10 @@ export function Library({
                   key={recording._id}
                   recording={recording}
                   selectedRecording={selectedRecording}
-                  caching={caching}
                   handleSelectRecording={handleSelectRecording}
                   handleDeleteRecording={handleDeleteRecording}
                   handleEditRecording={handleEditRecording}
                   handleDownloadRecording={handleDownloadRecording}
-                  handlePlayRecording={handlePlayRecording}
                   handleCacheAndPlayRecording={handleCacheAndPlayRecording}
                 />
               ))}
@@ -215,11 +191,7 @@ const mapStateToProps = (state: RecorderState) => {
     recordings: state.recordings,
     loading: state.loading,
     error: state.error,
-    bucketToken: state.bucketToken,
     selectedRecording: state.selectedRecording,
-    caching: state.caching,
-    playing: state.playing,
-    currentPlaying: state.currentPlaying,
   };
 };
 

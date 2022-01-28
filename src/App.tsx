@@ -10,7 +10,7 @@ import Library from './views/Library';
 import RecordingDetail from './views/RecordingDetail';
 import Navigation from './components/Navigation';
 
-import { useTheme } from '@material-ui/core/styles';
+import { useTheme } from '@mui/material/styles';
 import Player from './components/Player';
 import AudioElement from './components/AudioElement';
 
