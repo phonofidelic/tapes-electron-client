@@ -10,21 +10,21 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import dayjsDuration from 'dayjs/plugin/duration';
 import prettyBytes from 'pretty-bytes';
+import { ICommonTagsResult } from 'music-metadata';
 
-import useAudioPreview from '../hooks/useAudioPreview';
 import { msToTime } from '../utils';
-import AudioPlayer from '../components/AudioPlayer';
+
+import { MusicBrainzCoverArt } from '../common/MusicBrainzCoverArt.interface';
+import AcoustidResults from '../components/AcoutidResults';
+import AcoustidReleaseGroupCard from '../components/AcoustidReleaseGroupCard';
+import AcoustidRecordingListItem from '../components/AcoustidRecordingListItem';
 
 import { Checkbox, List, useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import { ICommonTagsResult } from 'music-metadata';
-import { AcoustidResult } from '../common/AcoustidResult.interface';
-import { MusicBrainzCoverArt } from '../common/MusicBrainzCoverArt.interface';
-import AcoustidReleaseGroupCard from '../components/AcoustidReleaseGroupCard';
-import AcoustidRecordingListItem from '../components/AcoustidRecordingListItem';
+import { visuallyHidden } from '@mui/utils';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
@@ -134,25 +134,7 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
   const duration = recording.duration;
   const durationObj = dayjs.duration(duration * 1000);
 
-  /**
-   * https://yagisanatode.com/2021/07/03/get-a-unique-list-of-objects-in-an-array-of-object-in-javascript/
-   */
-  const uniqueAcoustidRecordings = recording.acoustidResults
-    ? [
-        ...new Map(
-          recording.acoustidResults[0].recordings.map((item) => [
-            item['releasegroups'][0]['id'],
-            item,
-          ])
-        ).values(),
-      ]
-    : [];
-
   // const uniqueAcoustidRecordings = recording.acoustidResults[0].recordings;
-
-  const handleExcludeCompilations = () => {
-    setExcludeCompilations(!excludeCompilations);
-  };
 
   const handleEditRecording = (recordingId: string, update: any) => {
     dispatch(editRecording(recordingId, update));
@@ -213,7 +195,7 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
             >
               {msToTime(Math.trunc(duration * 1000))}
             </Typography>
-            <Typography variant="srOnly">
+            <Typography style={visuallyHidden}>
               {'Duration: ' +
                 (durationObj.hours() ? `${durationObj.hours()} hours, ` : '') +
                 (durationObj.minutes()
@@ -249,61 +231,13 @@ export function RecordingDetail({ recording, caching }: Props): ReactElement {
         {recording.common &&
           renderCommon(recording.common, recording.musicBrainzCoverArt)}
         {recording.acoustidResults?.length && (
-          <div>
-            <div>
-              <div style={{ marginBottom: 0 }}>AcoustID results:</div>
-              <div style={{ marginBottom: 8, display: 'flex' }}>
-                <Typography style={{ lineHeight: '38px' }} variant="caption">
-                  Exclude compilations
-                </Typography>
-                <Checkbox
-                  size="small"
-                  value={excludeCompilations}
-                  onChange={handleExcludeCompilations}
-                />
-              </div>
-            </div>
-
-            <List>
-              {uniqueAcoustidRecordings.map((acoustidRecording) => (
-                <AcoustidRecordingListItem
-                  acoustidRecording={acoustidRecording}
-                  recording={recording}
-                  excludeCompilations={excludeCompilations}
-                  handleEditRecording={handleEditRecording}
-                >
-                  {acoustidRecording.releasegroups
-                    .filter((acoustidReleaseGroup) =>
-                      excludeCompilations
-                        ? !acoustidReleaseGroup.secondarytypes?.includes(
-                            'Compilation'
-                          )
-                        : acoustidReleaseGroup
-                    )
-                    .map((acoustidReleaseGroup) => (
-                      <AcoustidReleaseGroupCard
-                        key={`acoustid-releasegroup_${acoustidReleaseGroup.id}`}
-                        recording={recording}
-                        acoustidRecording={acoustidRecording}
-                        acoustidReleaseGroup={acoustidReleaseGroup}
-                        handleEditRecording={handleEditRecording}
-                      />
-                    ))}
-                </AcoustidRecordingListItem>
-              ))}
-            </List>
-          </div>
+          <AcoustidResults
+            acoustidResults={recording.acoustidResults}
+            recording={recording}
+            handleEditRecording={handleEditRecording}
+          />
         )}
       </div>
-      {/* <div
-        style={{
-          position: 'fixed',
-          width: '100%',
-          bottom: 0,
-        }}
-      >
-        <AudioPlayer recording={recording} caching={caching} />
-      </div> */}
     </div>
   );
 }

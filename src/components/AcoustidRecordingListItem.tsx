@@ -1,13 +1,12 @@
 import React, { ReactElement, useState } from 'react';
 import { AcoustidRecording } from '../common/AcoustidResult.interface';
 
-import { Collapse, ListItem, Typography } from '@mui/material';
+import { Collapse, ListItem, Typography, useTheme } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Recording } from '../common/Recording.interface';
 
 interface Props {
   acoustidRecording: AcoustidRecording;
-  recording: Recording;
   excludeCompilations: boolean;
   handleEditRecording(recordingId: string, update: any): void;
   children: ReactElement[];
@@ -15,12 +14,13 @@ interface Props {
 
 export default function AcoustidRecordingListItem({
   acoustidRecording,
-  recording,
   excludeCompilations,
   handleEditRecording,
   children,
 }: Props): ReactElement {
   const [expanded, setExpanded] = React.useState(false);
+
+  const theme = useTheme();
 
   const handleToggleExpand = () => {
     setExpanded(!expanded);
@@ -37,9 +37,21 @@ export default function AcoustidRecordingListItem({
 
   return (
     <>
-      <ListItem button onClick={handleToggleExpand}>
+      <ListItem
+        button
+        style={{
+          position: 'sticky',
+          top: theme.dimensions.Navigation.height + 34,
+          backgroundColor: theme.palette.background.default,
+          zIndex: theme.zIndex.appBar,
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+        onClick={handleToggleExpand}
+      >
         <Typography>
-          {acoustidRecording.title} - {filteredReleaseGroups.length} release
+          {acoustidRecording.title} by {acoustidRecording.artists[0].name} -{' '}
+          {filteredReleaseGroups.length} release
           {filteredReleaseGroups.length > 1 && 's'}
         </Typography>
         <ExpandMoreIcon
