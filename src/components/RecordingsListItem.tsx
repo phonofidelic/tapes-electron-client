@@ -58,6 +58,7 @@ const PlaybackButtonContainer = styled.div`
 interface RecordingsListItemProps {
   recording: Recording;
   selectedRecording: Recording;
+  caching: boolean;
   handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
   handleEditRecording(recordingId: string, update: any): void;
@@ -68,6 +69,7 @@ interface RecordingsListItemProps {
 export function RecordingsListItem({
   recording,
   selectedRecording,
+  caching,
   handleSelectRecording,
   handleDeleteRecording,
   handleEditRecording,
@@ -304,6 +306,7 @@ export function RecordingsListItem({
         >
           {!isPlaying && (
             <PlayButton
+              loading={caching}
               handlePlay={() => handleCacheAndPlayRecording(recording)}
             />
           )}

@@ -32,6 +32,7 @@ import List from '@mui/material/List';
 interface LibraryProps {
   recordings: Recording[];
   loading: boolean;
+  caching: boolean;
   error: Error;
   selectedRecording: Recording | null;
   selectRecording(recording: Recording): SelectRecordingAction;
@@ -41,6 +42,7 @@ interface LibraryProps {
 export function Library({
   recordings,
   loading,
+  caching,
   error,
   selectedRecording,
   selectRecording,
@@ -146,6 +148,7 @@ export function Library({
                 <RecordingsListItem
                   key={recording._id}
                   recording={recording}
+                  caching={caching}
                   selectedRecording={selectedRecording}
                   handleSelectRecording={handleSelectRecording}
                   handleDeleteRecording={handleDeleteRecording}
@@ -190,6 +193,7 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     recordings: state.recordings,
     loading: state.loading,
+    caching: state.caching,
     error: state.error,
     selectedRecording: state.selectedRecording,
   };
