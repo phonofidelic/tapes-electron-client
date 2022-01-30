@@ -5,34 +5,19 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { CircularProgress } from '@mui/material';
 
 interface Props {
-  loading?: boolean;
   handlePlay(): void;
 }
 
-export default function PlayButton({
-  loading,
-  handlePlay,
-}: Props): ReactElement {
+export default function PlayButton({ handlePlay }: Props): ReactElement {
   return (
-    <div style={{ position: 'relative' }}>
-      <IconButton
-        data-testid="button_play-recording"
-        aria-label="Play recording"
-        onClick={handlePlay}
-        size="large"
-      >
-        <PlayArrowIcon />
-      </IconButton>
-      {loading && (
-        <CircularProgress
-          style={{
-            position: 'absolute',
-            top: 4,
-            left: 4,
-          }}
-        />
-      )}
-    </div>
+    <IconButton
+      data-testid="button_play-recording"
+      aria-label="Play recording"
+      onClick={handlePlay}
+      size="large"
+    >
+      <PlayArrowIcon />
+    </IconButton>
   );
 }
 

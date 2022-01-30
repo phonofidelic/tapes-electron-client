@@ -38,6 +38,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
+import { CircularProgress } from '@mui/material';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
@@ -304,14 +305,21 @@ export function RecordingsListItem({
             transition: 'opacity .3s ease-in-out',
           }}
         >
-          {!isPlaying && (
+          <div style={{ position: 'relative' }}>
             <PlayButton
-              loading={caching}
               handlePlay={() => handleCacheAndPlayRecording(recording)}
             />
-          )}
+            {caching && (
+              <CircularProgress
+                style={{
+                  position: 'absolute',
+                  top: 4,
+                  left: 4,
+                }}
+              />
+            )}
+          </div>
         </div>
-        {isPlaying && <StopButton handleStop={handleStop} />}
         <IconButton
           data-testid="button_recording-options"
           aria-label="Options"
