@@ -144,6 +144,7 @@ export class NewRecordingChannel implements IpcChannel {
           format: recordingSettings.format,
           channels: recordingSettings.channels,
           fileData: await fs.readFile(filePath),
+          common: metadata.common,
           title:
             acoustidResponse.data.results[0]?.recordings[0]?.title ||
             defaultTitle,
