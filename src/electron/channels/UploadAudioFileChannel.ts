@@ -106,13 +106,6 @@ export class UploadAudioFileChannel implements IpcChannel {
           });
         }
 
-        /**
-         * Get cover art from MusicBrainz
-         */
-        const musicBrainzCoverArt = acoustidResponse.data.results.length
-          ? await getMusicBrainzCoverArt(metadata.common)
-          : null;
-
         recordings.push({
           location: filePath,
           filename,
@@ -127,17 +120,9 @@ export class UploadAudioFileChannel implements IpcChannel {
           common: metadata.common,
           fileData: await fs.readFile(filePath),
           acoustidResults: [await acoustidResponse.data.results[0]],
-          musicBrainzCoverArt,
+          musicBrainzCoverArt: await getMusicBrainzCoverArt(metadata.common),
         });
       } else {
-        /**
-         * Get cover art from MusicBrainz
-         */
-        const musicBrainzCoverArt = await getMusicBrainzCoverArt(
-          metadata.common
-        );
-        console.log('*** musicBrainzCoverArt:', musicBrainzCoverArt);
-
         recordings.push({
           location: filePath,
           filename,
@@ -148,7 +133,7 @@ export class UploadAudioFileChannel implements IpcChannel {
           channels: metadata.format.numberOfChannels,
           common: metadata.common,
           fileData: await fs.readFile(filePath),
-          musicBrainzCoverArt,
+          musicBrainzCoverArt: await getMusicBrainzCoverArt(metadata.common),
         });
       }
     }
