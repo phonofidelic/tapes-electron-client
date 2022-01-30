@@ -13,6 +13,7 @@ import {
   validRecordingFormat,
   getMusicBrainzCoverArt,
   fpcalcPromise,
+  getAcoustidResults,
 } from '../utils';
 import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
@@ -95,59 +96,39 @@ export class UploadAudioFileChannel implements IpcChannel {
           });
         }
 
-        const acoustidRequestUrl = `https://api.acoustid.org/v2/lookup?client=${
-          process.env.ACOUSTID_API_KEY
-        }&meta=recordings+releasegroups+compress&duration=${Math.round(
-          duration
-        )}&fingerprint=${fingerprint}`;
-
         let acoustidResponse;
         try {
-          acoustidResponse = await axios({
-            method: 'GET',
-            url: acoustidRequestUrl,
-            httpsAgent: new https.Agent({
-              host: 'api.acoustid.org',
-              port: 443,
-              path: '/',
-              rejectUnauthorized: false,
-            }),
-          });
-
-          console.log(
-            '*** acoustidResponse:',
-            util.inspect(acoustidResponse.data, true, 8, true)
-          );
-
-          /**
-           * Get cover art from MusicBrainz
-           */
-          const musicBrainzCoverArt = acoustidResponse.data.results.length
-            ? await getMusicBrainzCoverArt(metadata.common)
-            : null;
-
-          recordings.push({
-            location: filePath,
-            filename,
-            title:
-              metadata.common.title ||
-              acoustidResponse.data.results[0]?.recordings[0]?.title ||
-              'No title',
-            size: file.size,
-            duration: metadata.format.duration,
-            format,
-            channels: metadata.format.numberOfChannels,
-            common: metadata.common,
-            fileData: await fs.readFile(filePath),
-            acoustidResults: [await acoustidResponse.data.results[0]],
-            musicBrainzCoverArt,
-          });
+          acoustidResponse = await getAcoustidResults(duration, fingerprint);
         } catch (err) {
-          console.error('Could not retreive Acoustid respone:', err);
+          console.error('Could not get Acoustid results:', err);
           return event.sender.send(request.responseChannel, {
-            error: new Error('Could not retreive Acoustid respone'),
+            error: new Error('Could not get Acoustid results'),
           });
         }
+
+        /**
+         * Get cover art from MusicBrainz
+         */
+        const musicBrainzCoverArt = acoustidResponse.data.results.length
+          ? await getMusicBrainzCoverArt(metadata.common)
+          : null;
+
+        recordings.push({
+          location: filePath,
+          filename,
+          title:
+            metadata.common.title ||
+            acoustidResponse.data.results[0]?.recordings[0]?.title ||
+            'No title',
+          size: file.size,
+          duration: metadata.format.duration,
+          format,
+          channels: metadata.format.numberOfChannels,
+          common: metadata.common,
+          fileData: await fs.readFile(filePath),
+          acoustidResults: [await acoustidResponse.data.results[0]],
+          musicBrainzCoverArt,
+        });
       } else {
         /**
          * Get cover art from MusicBrainz
