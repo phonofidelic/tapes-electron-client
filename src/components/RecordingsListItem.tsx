@@ -33,33 +33,25 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Grow from '@mui/material/Grow';
 import Fade from '@mui/material/Fade';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 import { CircularProgress } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
 
-const PlaybackButtonContainer = styled.div`
-  &:not(:focus) {
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
-  }
-`;
-
 interface RecordingsListItemProps {
   recording: Recording;
   selectedRecording: Recording;
+  currentPlayingId: string;
   caching: boolean;
+  playing: boolean;
   handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
   handleEditRecording(recordingId: string, update: any): void;
@@ -70,7 +62,9 @@ interface RecordingsListItemProps {
 export function RecordingsListItem({
   recording,
   selectedRecording,
+  currentPlayingId,
   caching,
+  playing,
   handleSelectRecording,
   handleDeleteRecording,
   handleEditRecording,
@@ -141,10 +135,6 @@ export function RecordingsListItem({
   };
 
   useEffect(() => {
-    // if (!selected) {
-    //   setPlaying(false);
-    // }
-
     setNewTitle(recording.title);
   }, [selected, recording.title]);
 
@@ -301,15 +291,21 @@ export function RecordingsListItem({
         />
         <div
           style={{
-            opacity: hovered ? 1 : 0,
+            opacity: hovered || recording._id === currentPlayingId ? 1 : 0,
             transition: 'opacity .3s ease-in-out',
           }}
         >
           <div style={{ position: 'relative' }}>
-            <PlayButton
-              handlePlay={() => handleCacheAndPlayRecording(recording)}
-            />
-            {caching && (
+            {playing && recording._id === currentPlayingId ? (
+              <IconButton size="large" disabled>
+                <VolumeUpIcon />
+              </IconButton>
+            ) : (
+              <PlayButton
+                handlePlay={() => handleCacheAndPlayRecording(recording)}
+              />
+            )}
+            {caching && recording._id === currentPlayingId && (
               <CircularProgress
                 style={{
                   position: 'absolute',
@@ -360,20 +356,7 @@ export function RecordingsListItem({
             Delete
           </MenuItem>
         </Menu>
-        {/* <audio id={recording._id}>
-        {isPlaying && <source src={'tapes://' + recording.location} />}
-      </audio> */}
       </ListItem>
-      {/* {playing && (
-      <LinearProgress
-        ref={progressRef}
-        variant={caching ? 'indeterminate' : 'determinate'}
-        value={(curTime / duration) * 100}
-        onClick={
-          !caching ? handleProgressClick : () => console.log('still caching')
-        }
-      />
-    )} */}
     </>
   );
 }

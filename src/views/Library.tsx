@@ -33,8 +33,10 @@ interface LibraryProps {
   recordings: Recording[];
   loading: boolean;
   caching: boolean;
+  playing: boolean;
   error: Error;
   selectedRecording: Recording | null;
+  currentPlaying: Recording | null;
   selectRecording(recording: Recording): SelectRecordingAction;
   confirmError(): ConfirmErrorAction;
 }
@@ -43,8 +45,10 @@ export function Library({
   recordings,
   loading,
   caching,
+  playing,
   error,
   selectedRecording,
+  currentPlaying,
   selectRecording,
   confirmError,
 }: LibraryProps) {
@@ -149,7 +153,9 @@ export function Library({
                   key={recording._id}
                   recording={recording}
                   caching={caching}
+                  playing={playing}
                   selectedRecording={selectedRecording}
+                  currentPlayingId={currentPlaying?._id}
                   handleSelectRecording={handleSelectRecording}
                   handleDeleteRecording={handleDeleteRecording}
                   handleEditRecording={handleEditRecording}
@@ -194,8 +200,10 @@ const mapStateToProps = (state: RecorderState) => {
     recordings: state.recordings,
     loading: state.loading,
     caching: state.caching,
+    playing: state.playing,
     error: state.error,
     selectedRecording: state.selectedRecording,
+    currentPlaying: state.currentPlaying,
   };
 };
 
