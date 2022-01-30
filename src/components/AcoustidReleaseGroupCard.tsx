@@ -37,7 +37,7 @@ export default function AcoustidReleaseGroupCard({
   const [expanded, setExpanded] = React.useState(false);
 
   const infoAdded =
-    recording.common.musicbrainz_releasegroupid === acoustidReleaseGroup.id;
+    recording.common?.musicbrainz_releasegroupid === acoustidReleaseGroup.id;
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -121,7 +121,11 @@ export default function AcoustidReleaseGroupCard({
           </Button>
         )}
         <div style={{ flex: 1 }} />
-        <IconButton onClick={handleExpandClick} aria-label="show more" size="large">
+        <IconButton
+          onClick={handleExpandClick}
+          aria-label="show more"
+          size="large"
+        >
           <ExpandMoreIcon
             style={{
               transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
