@@ -96,6 +96,9 @@ export class UploadAudioFileChannel implements IpcChannel {
           });
         }
 
+        /**
+         * Get Acoustid results
+         */
         let acoustidResponse;
         try {
           acoustidResponse = await getAcoustidResults(duration, fingerprint);
