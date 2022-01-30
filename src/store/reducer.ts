@@ -403,6 +403,7 @@ export const reducer = (
       return {
         ...state,
         caching: true,
+        currentPlaying: action.payload,
       };
 
     case CACHE_RECORDING_SUCCESS:
@@ -410,7 +411,6 @@ export const reducer = (
         ...state,
         caching: false,
         playing: true,
-        currentPlaying: action.payload,
       };
 
     case CACHE_RECORDING_FAILURE:

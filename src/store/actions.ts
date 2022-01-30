@@ -442,18 +442,18 @@ export function downloadRecordingFailue(
   };
 }
 
-export function cacheRecordingRequest(): CachRecordingRequestAction {
+export function cacheRecordingRequest(
+  recording: Recording
+): CachRecordingRequestAction {
   return {
     type: CACHE_RECORDING_REQUEST,
+    payload: recording,
   };
 }
 
-export function cacheRecordingSuccess(
-  recording: Recording
-): CacheRecordingSuccessAction {
+export function cacheRecordingSuccess(): CacheRecordingSuccessAction {
   return {
     type: CACHE_RECORDING_SUCCESS,
-    payload: recording,
   };
 }
 
