@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import dayjs from 'dayjs';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
@@ -59,7 +59,10 @@ const renderMockedComponent = (state: RecorderState) => {
     <Provider store={mockStore}>
       <RecordingsListItem
         recording={mockRecording}
-        selectedRecording={mockStore.getState().selectedRecording}
+        selectedRecording={state.selectedRecording}
+        currentPlayingId={mockRecording._id}
+        caching={state.caching}
+        playing={state.playing}
         handleSelectRecording={mockSelect}
         handleDeleteRecording={mockDelete}
         handleEditRecording={mockEdit}
@@ -92,3 +95,23 @@ it('displays detail info when selected', () => {
 });
 
 it.todo('Recording list items should have a playback button');
+
+it('shows a play button when hovered', async () => {
+  const { getByTestId, findByTestId } = renderMockedComponent({
+    ...initialState,
+  });
+
+  fireEvent.mouseOver(getByTestId(`recording-list-item_${mockRecording._id}`));
+
+  expect(await findByTestId(`play-button`)).toBeInTheDocument();
+});
+
+it('indicates when it is playing', () => {
+  const { getByTestId } = renderMockedComponent({
+    ...initialState,
+    currentPlaying: mockRecording,
+    playing: true,
+  });
+
+  expect(getByTestId('current-playing-indicator')).toBeInTheDocument();
+});

@@ -11,7 +11,7 @@ interface Props {
 export default function PlayButton({ handlePlay }: Props): ReactElement {
   return (
     <IconButton
-      data-testid="button_play-recording"
+      data-testid="play-button"
       aria-label="Play recording"
       onClick={handlePlay}
       size="large"
