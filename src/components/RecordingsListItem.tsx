@@ -33,31 +33,25 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Grow from '@mui/material/Grow';
 import Fade from '@mui/material/Fade';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
+import { CircularProgress } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
 
-const PlaybackButtonContainer = styled.div`
-  &:not(:focus) {
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
-  }
-`;
-
 interface RecordingsListItemProps {
   recording: Recording;
   selectedRecording: Recording;
+  currentPlayingId: string;
+  caching: boolean;
+  playing: boolean;
   handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
   handleEditRecording(recordingId: string, update: any): void;
@@ -68,6 +62,9 @@ interface RecordingsListItemProps {
 export function RecordingsListItem({
   recording,
   selectedRecording,
+  currentPlayingId,
+  caching,
+  playing,
   handleSelectRecording,
   handleDeleteRecording,
   handleEditRecording,
@@ -138,232 +135,229 @@ export function RecordingsListItem({
   };
 
   useEffect(() => {
-    // if (!selected) {
-    //   setPlaying(false);
-    // }
-
     setNewTitle(recording.title);
   }, [selected, recording.title]);
 
   return (
-    <>
-      <ListItem
-        tabIndex={0}
-        role="listitem"
-        style={{
-          cursor: selected ? 'auto' : 'pointer',
-          userSelect: 'none',
-          outline: 'none',
-        }}
-        ref={hoverRef}
-        key={recording._id}
-        divider
-        // selected={selected}
-        onClick={() => handleSelectRecording(recording)}
-        onFocus={() => handleSelectRecording(recording)}
-        onDoubleClick={() => handleOpenDetailView(recording._id)}
-      >
-        <ListItemText
-          disableTypography={true}
-          primary={
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}
-            >
-              {!editing ? (
-                <div style={{ display: 'flex' }}>
-                  <div
-                    role="button"
-                    aria-label={`Edit ${recording.title}`}
-                    tabIndex={0}
-                    ref={titleHoverRef}
-                    style={{
-                      cursor: 'pointer',
-                      textDecoration:
-                        selected && titleHovered ? 'underline' : 'none',
-                    }}
-                    onClick={() => selected && setEditing(true)}
-                  >
-                    <Typography style={{ maxWidth: '50vw' }} noWrap>
-                      {recording.title}
-                    </Typography>
-                  </div>
+    <ListItem
+      data-testid={`recording-list-item_${recording._id}`}
+      tabIndex={0}
+      role="listitem"
+      style={{
+        cursor: selected ? 'auto' : 'pointer',
+        userSelect: 'none',
+        outline: 'none',
+      }}
+      ref={hoverRef}
+      key={recording._id}
+      divider
+      // selected={selected}
+      onClick={() => handleSelectRecording(recording)}
+      onFocus={() => handleSelectRecording(recording)}
+      onDoubleClick={() => handleOpenDetailView(recording._id)}
+    >
+      <ListItemText
+        disableTypography={true}
+        primary={
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}
+          >
+            {!editing ? (
+              <div style={{ display: 'flex' }}>
+                <div
+                  role="button"
+                  aria-label={`Edit ${recording.title}`}
+                  tabIndex={0}
+                  ref={titleHoverRef}
+                  style={{
+                    cursor: 'pointer',
+                    textDecoration:
+                      selected && titleHovered ? 'underline' : 'none',
+                  }}
+                  onClick={() => selected && setEditing(true)}
+                >
+                  <Typography style={{ maxWidth: '50vw' }} noWrap>
+                    {recording.title}
+                  </Typography>
+                </div>
 
-                  {selected && (
-                    <div style={{ marginLeft: 8 }}>
-                      <Fade in={titleHovered}>
-                        <EditIcon fontSize="small" />
-                      </Fade>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{ display: 'flex' }}>
-                  <div>
-                    <TextField
-                      id="edit-title-input"
-                      placeholder={recording.title}
-                      value={newTitle}
-                      size="small"
-                      autoFocus
-                      onBlur={handleSubimtTitleChange}
-                      onChange={handleTitleChange}
-                    />
-                  </div>
+                {selected && (
                   <div style={{ marginLeft: 8 }}>
-                    <IconButton size="small" onClick={() => setEditing(false)}>
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
+                    <Fade in={titleHovered}>
+                      <EditIcon fontSize="small" />
+                    </Fade>
                   </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ display: 'flex' }}>
+                <div>
+                  <TextField
+                    id="edit-title-input"
+                    placeholder={recording.title}
+                    value={newTitle}
+                    size="small"
+                    autoFocus
+                    onBlur={handleSubimtTitleChange}
+                    onChange={handleTitleChange}
+                  />
                 </div>
-              )}
-              {selected && (
+                <div style={{ marginLeft: 8 }}>
+                  <IconButton size="small" onClick={() => setEditing(false)}>
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </div>
+              </div>
+            )}
+            {selected && (
+              <div
+                style={{
+                  color: theme.palette.text.secondary,
+                  display: 'flex',
+                }}
+              >
                 <div
                   style={{
-                    color: theme.palette.text.secondary,
-                    display: 'flex',
+                    border: `2px solid ${theme.palette.text.secondary}`,
+                    borderRadius: 2,
+                    lineHeight: '16px',
+                    height: 16,
+                    fontSize: '0.8em',
+                    paddingLeft: 2,
+                    paddingRight: 2,
                   }}
                 >
-                  <div
-                    style={{
-                      border: `2px solid ${theme.palette.text.secondary}`,
-                      borderRadius: 2,
-                      lineHeight: '16px',
-                      height: 16,
-                      fontSize: '0.8em',
-                      paddingLeft: 2,
-                      paddingRight: 2,
-                    }}
-                  >
-                    {recording.format}
-                  </div>
-                  <div
-                    style={{
-                      border: `2px solid ${theme.palette.text.secondary}`,
-                      borderRadius: 2,
-                      height: 16,
-                      lineHeight: '16px',
-                      fontSize: '0.8em',
-                      textAlign: 'center',
-                      marginLeft: 4,
-                      paddingLeft: 2,
-                      paddingRight: 2,
-                    }}
-                  >
-                    {recording.channels === 1 ? 'Mono' : 'Stereo'}
-                  </div>
+                  {recording.format}
                 </div>
-              )}
-            </div>
-          }
-          secondary={
-            selected && (
-              <Grow in={true}>
+                <div
+                  style={{
+                    border: `2px solid ${theme.palette.text.secondary}`,
+                    borderRadius: 2,
+                    height: 16,
+                    lineHeight: '16px',
+                    fontSize: '0.8em',
+                    textAlign: 'center',
+                    marginLeft: 4,
+                    paddingLeft: 2,
+                    paddingRight: 2,
+                  }}
+                >
+                  {recording.channels === 1 ? 'Mono' : 'Stereo'}
+                </div>
+              </div>
+            )}
+          </div>
+        }
+        secondary={
+          selected && (
+            <Grow in={true}>
+              <div>
                 <div>
-                  <div>
-                    <Typography variant="caption">
-                      {`Recorded: ${dayjs(recording.created).format(
-                        'MMM Do YYYY, h:mm A'
-                      )}`}
-                    </Typography>
-                  </div>
-                  <div>
-                    <Typography variant="caption" aria-hidden="true">
-                      Duration:
-                      {' ' + msToTime(Math.trunc(duration * 1000))}
-                    </Typography>
-                    <Typography style={visuallyHidden}>
-                      {'Duration: ' +
-                        (durationObj.hours()
-                          ? `${durationObj.hours()} hours, `
-                          : '') +
-                        (durationObj.minutes()
-                          ? `${durationObj.minutes()} minutes, `
-                          : '') +
-                        (durationObj.seconds()
-                          ? `${durationObj.seconds()} seconds `
-                          : '')}
-                    </Typography>
-
-                    <Typography variant="caption">{` - Size: ${prettyBytes(
-                      recording.size
-                    )}`}</Typography>
-                  </div>
+                  <Typography variant="caption">
+                    {`Recorded: ${dayjs(recording.created).format(
+                      'MMM Do YYYY, h:mm A'
+                    )}`}
+                  </Typography>
                 </div>
-              </Grow>
-            )
-          }
-        />
-        <div
-          style={{
-            opacity: hovered ? 1 : 0,
-            transition: 'opacity .3s ease-in-out',
-          }}
-        >
-          {!isPlaying && (
+                <div>
+                  <Typography variant="caption" aria-hidden="true">
+                    Duration:
+                    {' ' + msToTime(Math.trunc(duration * 1000))}
+                  </Typography>
+                  <Typography style={visuallyHidden}>
+                    {'Duration: ' +
+                      (durationObj.hours()
+                        ? `${durationObj.hours()} hours, `
+                        : '') +
+                      (durationObj.minutes()
+                        ? `${durationObj.minutes()} minutes, `
+                        : '') +
+                      (durationObj.seconds()
+                        ? `${durationObj.seconds()} seconds `
+                        : '')}
+                  </Typography>
+
+                  <Typography variant="caption">{` - Size: ${prettyBytes(
+                    recording.size
+                  )}`}</Typography>
+                </div>
+              </div>
+            </Grow>
+          )
+        }
+      />
+      <div
+        style={{
+          opacity: hovered || recording._id === currentPlayingId ? 1 : 0,
+          transition: 'opacity .3s ease-in-out',
+        }}
+      >
+        <div style={{ position: 'relative' }}>
+          {playing && recording._id === currentPlayingId ? (
+            <IconButton size="large" disabled>
+              <VolumeUpIcon data-testid="current-playing-indicator" />
+            </IconButton>
+          ) : (
             <PlayButton
+              // data-testid={`play-button_${recording._id}`}
               handlePlay={() => handleCacheAndPlayRecording(recording)}
             />
           )}
+          {caching && recording._id === currentPlayingId && (
+            <CircularProgress
+              style={{
+                position: 'absolute',
+                top: 4,
+                left: 4,
+              }}
+            />
+          )}
         </div>
-        {isPlaying && <StopButton handleStop={handleStop} />}
-        <IconButton
-          data-testid="button_recording-options"
-          aria-label="Options"
-          aria-haspopup="true"
-          onClick={handleClickMenu}
-          size="large"
-        >
-          <MoreVertIcon />
-        </IconButton>
+      </div>
+      <IconButton
+        data-testid="button_recording-options"
+        aria-label="Options"
+        aria-haspopup="true"
+        onClick={handleClickMenu}
+        size="large"
+      >
+        <MoreVertIcon />
+      </IconButton>
 
-        <Menu
-          id="recording-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleCloseMenu}
+      <Menu
+        id="recording-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleCloseMenu}
+      >
+        <MenuItem
+          data-testid="option_view-recording"
+          dense
+          onClick={() => handleSelectViewRecording(recording._id)}
         >
-          <MenuItem
-            data-testid="option_view-recording"
-            dense
-            onClick={() => handleSelectViewRecording(recording._id)}
-          >
-            View Recording
-          </MenuItem>
-          <MenuItem
-            data-testid="option_download-recording"
-            dense
-            onClick={() => handleSelectDownloadRecording(recording._id)}
-          >
-            Download
-          </MenuItem>
-          <MenuItem
-            style={{ color: 'red' }}
-            data-testid="option_delete-recording"
-            dense
-            onClick={() => handleSelectDelete(recording._id)}
-          >
-            Delete
-          </MenuItem>
-        </Menu>
-        {/* <audio id={recording._id}>
-        {isPlaying && <source src={'tapes://' + recording.location} />}
-      </audio> */}
-      </ListItem>
-      {/* {playing && (
-      <LinearProgress
-        ref={progressRef}
-        variant={caching ? 'indeterminate' : 'determinate'}
-        value={(curTime / duration) * 100}
-        onClick={
-          !caching ? handleProgressClick : () => console.log('still caching')
-        }
-      />
-    )} */}
-    </>
+          View Recording
+        </MenuItem>
+        <MenuItem
+          data-testid="option_download-recording"
+          dense
+          onClick={() => handleSelectDownloadRecording(recording._id)}
+        >
+          Download
+        </MenuItem>
+        <MenuItem
+          style={{ color: 'red' }}
+          data-testid="option_delete-recording"
+          dense
+          onClick={() => handleSelectDelete(recording._id)}
+        >
+          Delete
+        </MenuItem>
+      </Menu>
+    </ListItem>
   );
 }
 

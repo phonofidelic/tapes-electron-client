@@ -25,6 +25,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import HelpIcon from '@mui/icons-material/Help';
+import { SelectChangeEvent } from '@mui/material';
 
 const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
   // backgroundColor: theme.palette.background.default,
@@ -71,12 +72,10 @@ export function Settings({
     onDrop,
   });
 
-  const handleRecordingFormatChange = (
-    event: React.ChangeEvent<{ value: RecordingFormats }>
-  ) => {
+  const handleRecordingFormatChange = (event: SelectChangeEvent) => {
     setRecordingSettings({
       ...recordingSettings,
-      format: event.target.value,
+      format: event.target.value as RecordingFormats,
     });
   };
 
@@ -87,9 +86,7 @@ export function Settings({
     });
   };
 
-  const handleSelectAudioInput = (
-    event: React.ChangeEvent<{ value: string }>
-  ) => {
+  const handleSelectAudioInput = (event: SelectChangeEvent) => {
     const deviceId = event.target.value;
     const deviceInfo = audioInputDevices.find(
       (device) => device.deviceId === deviceId

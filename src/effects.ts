@@ -525,7 +525,7 @@ export const cacheAndPlayRecording =
   (recording: Recording): Effect =>
   async (dispatch) => {
     dispatch(pauseRecording());
-    dispatch(cacheRecordingRequest());
+    dispatch(cacheRecordingRequest(recording));
     try {
       const { token } = await getBucket();
 
@@ -542,7 +542,7 @@ export const cacheAndPlayRecording =
         dispatch(cacheRecordingFailure(ipcResponse.error));
       }
 
-      dispatch(cacheRecordingSuccess(recording));
+      dispatch(cacheRecordingSuccess());
       dispatch(playRecording());
     } catch (err) {
       console.error('Could not cache recording:', err);

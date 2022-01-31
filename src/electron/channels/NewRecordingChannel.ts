@@ -7,6 +7,11 @@ import { randomBytes } from 'crypto';
 import appRootDir from 'app-root-dir';
 import * as mm from 'music-metadata';
 
+import {
+  fpcalcPromise,
+  getAcoustidResults,
+  getMusicBrainzCoverArt,
+} from '../utils';
 import { IpcMainEvent, ipcMain } from 'electron';
 import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
@@ -34,7 +39,7 @@ export class NewRecordingChannel implements IpcChannel {
     console.log(this.name);
 
     const recordingSettings: RecordingSettings = request.data.recordingSettings;
-    const title: string = request.data.title;
+    const defaultTitle: string = request.data.title;
 
     console.log('*** recordingSettings:', request.data);
 
@@ -104,18 +109,46 @@ export class NewRecordingChannel implements IpcChannel {
         );
 
         /**
-         * TODO: Start Acoustid process here
+         * Get acoustic fingerprint
          */
+        let duration, fingerprint;
+        try {
+          const fpcalcResponse = await fpcalcPromise(filePath);
+          duration = fpcalcResponse.duration;
+          fingerprint = fpcalcResponse.fingerprint;
+        } catch (err) {
+          console.error('Could not generate acoustic fingerprint:', err);
+          return event.sender.send(request.responseChannel, {
+            error: new Error('Could not generate acoustic fingerprint'),
+          });
+        }
+
+        /**
+         * Get Acoustid results
+         */
+        let acoustidResponse;
+        try {
+          acoustidResponse = await getAcoustidResults(duration, fingerprint);
+        } catch (err) {
+          console.error('Could not get Acoustid results:', err);
+          return event.sender.send(request.responseChannel, {
+            error: new Error('Could not get Acoustid results'),
+          });
+        }
 
         const recording: Recording = {
           location: filePath,
-          title,
           filename,
           size: fileStats.size,
           duration: metadata.format.duration,
           format: recordingSettings.format,
           channels: recordingSettings.channels,
           fileData: await fs.readFile(filePath),
+          common: metadata.common,
+          title:
+            acoustidResponse.data.results[0]?.recordings[0]?.title ||
+            defaultTitle,
+          acoustidResults: [await acoustidResponse.data.results[0]],
         };
 
         const fileData = await fs.readFile(filePath);

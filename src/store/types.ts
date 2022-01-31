@@ -291,11 +291,11 @@ export interface DownloadRecordingFailreAction extends Action {
 
 export interface CachRecordingRequestAction extends Action {
   type: typeof CACHE_RECORDING_REQUEST;
+  payload: Recording;
 }
 
 export interface CacheRecordingSuccessAction extends Action {
   type: typeof CACHE_RECORDING_SUCCESS;
-  payload: Recording;
 }
 
 export interface CacheRecordingFailureAction extends Action {

@@ -1,5 +1,6 @@
 import path from 'path';
 import util from 'util';
+import https from 'https';
 import { promises as fs, existsSync } from 'fs';
 import { spawn } from 'child_process';
 import axios from 'axios';
@@ -39,6 +40,41 @@ export const validRecordingFormat = (format: string): RecordingFormats => {
   }
 
   return format as RecordingFormats;
+};
+
+export const getAcoustidResults = async (
+  duration: number,
+  fingerprint: string
+) => {
+  const acoustidRequestUrl = `https://api.acoustid.org/v2/lookup?client=${
+    process.env.ACOUSTID_API_KEY
+  }&meta=recordings+releasegroups+compress&duration=${Math.round(
+    duration
+  )}&fingerprint=${fingerprint}`;
+
+  let acoustidResponse;
+  try {
+    acoustidResponse = await axios({
+      method: 'GET',
+      url: acoustidRequestUrl,
+      httpsAgent: new https.Agent({
+        host: 'api.acoustid.org',
+        port: 443,
+        path: '/',
+        rejectUnauthorized: false,
+      }),
+    });
+
+    console.log(
+      '*** acoustidResponse:',
+      util.inspect(acoustidResponse.data, true, 8, true)
+    );
+
+    return acoustidResponse;
+  } catch (err) {
+    console.error('Could not retreive Acoustid respone:', err);
+    throw err;
+  }
 };
 
 export const getMusicBrainzCoverArt = async (

@@ -2,7 +2,15 @@
  * From: https://blog.logrocket.com/electron-ipc-response-request-architecture-with-typescript/
  */
 import path from 'path';
-import { app, BrowserWindow, ipcMain, protocol, session } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  NewWindowEvent,
+  protocol,
+  session,
+  shell,
+} from 'electron';
 import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import appRootDir from 'app-root-dir';
 import { IpcChannel } from './IPC/IpcChannel.interface';
@@ -19,6 +27,8 @@ export class Main {
     app.on('ready', this.createWindow);
     app.on('window-all-closed', this.onWindowAllClosed);
     app.on('activate', this.onActivate);
+    //@ts-ignore
+    app.on('new-window', this.onNewWindow);
 
     this.registerIpcChannels(ipcChannels);
   }
@@ -34,6 +44,11 @@ export class Main {
     if (!this.mainWindow) {
       this.createWindow();
     }
+  }
+
+  private onNewWindow(event: NewWindowEvent, url: string) {
+    event.preventDefault();
+    shell.openExternal(url);
   }
 
   private async createWindow() {
