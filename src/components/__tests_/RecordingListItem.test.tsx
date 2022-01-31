@@ -1,6 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import dayjs from 'dayjs';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';

@@ -12,3 +12,10 @@ if (typeof global.TextDecoder === 'undefined') {
 }
 
 jest.mock('./db');
+jest.mock('react-router', () => ({
+  // @ts-ignore
+  ...jest.requireActual('react-router'),
+  useLocation: () => ({
+    pathname: '/',
+  }),
+}));

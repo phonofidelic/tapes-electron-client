@@ -9,7 +9,7 @@ interface Props {
 
 export default function PlayButton({ handlePause }: Props): ReactElement {
   return (
-    <IconButton data-testid="button_pause-recording" onClick={handlePause} size="large">
+    <IconButton data-testid="pause-button" onClick={handlePause} size="large">
       <PauseIcon />
     </IconButton>
   );
