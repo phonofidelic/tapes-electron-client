@@ -1,10 +1,5 @@
-# version: 2.1
-# orbs:
-#   node: circleci/node@3.0.0
-# workflows:
-#   node-tests:
-#     jobs:
-#       - node/test
+## semantic-release config
+# https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/ci-configurations/circleci-workflows.md
 
 version: '2.1'
 orbs:
@@ -28,7 +23,27 @@ jobs:
           name: Run YARN tests
       - store_test_results:
           path: test-results
+  release:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install
+          lts: true
+      - node/install-packages # Install and automatically cache packages
+      # Run optional required steps before releasing
+      # - run: npm run build-script
+      - run: npx semantic-release
 workflows:
   unit-tests:
     jobs:
       - test
+  test-and-release:
+    jobs: 
+      - node/test:
+          matrix:
+            parameters:
+              version:
+                - 16.13.2
+      - relelaase:
+          requires:
+            - node/test
