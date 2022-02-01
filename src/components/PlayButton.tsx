@@ -24,7 +24,7 @@ export default function PlayButton({ handlePlay }: Props): ReactElement {
 export function A11yPlayButton({ handlePlay }: Props): ReactElement {
   return (
     <IconButton
-      data-testid="a11ly_button_play-recording"
+      data-testid="a11ly_play-button"
       onClick={handlePlay}
       size="large"
       style={{ position: 'relative' }}

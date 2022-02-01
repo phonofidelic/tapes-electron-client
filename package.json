@@ -23,6 +23,14 @@
     "email": "chris.clemons85@gmail.com"
   },
   "license": "MIT",
+  "release": {
+    "branches": ["main", "development"],
+    "plugins": [
+      ["@semantic-release/npm", {
+        "npmPublish": false
+      }]
+    ]
+  },
   "config": {
     "forge": {
       "packagerConfig": {
@@ -116,6 +124,7 @@
     "node-loader": "^1.0.1",
     "react-hot-loader": "^4.13.0",
     "redux-mock-store": "^1.5.4",
+    "semantic-release": "^19.0.2",
     "spectron": "^14.0.0",
     "style-loader": "^1.2.1",
     "ts-jest": "^26.5.3",
