@@ -39,11 +39,7 @@ workflows:
       - test
   test-and-release:
     jobs: 
-      - node/test:
-          matrix:
-            parameters:
-              version:
-                - 16.13.2
+      - test
       - release:
           requires:
-            - node/test
+            - test
