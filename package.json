@@ -24,7 +24,12 @@
   },
   "license": "MIT",
   "release": {
-    "branches": ["main", "development"]
+    "branches": ["main", "development"],
+    "plugins": [
+      ["@semantic-release/npm", {
+        "npmPublish": false
+      }]
+    ]
   },
   "config": {
     "forge": {
