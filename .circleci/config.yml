@@ -44,6 +44,6 @@ workflows:
             parameters:
               version:
                 - 16.13.2
-      - relelaase:
+      - release:
           requires:
             - node/test
