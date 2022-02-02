@@ -47,10 +47,10 @@ jobs:
           name: Install Dependencies
           command: yarn
       - run:
-          name: Install dpkg, fakeroot and rpmbuild
+          name: Install dpkg and fakeroot
           command: |
             sudo apt-get update -y
-            sudo apt-get install -y dpkg fakeroot rpmbuild
+            sudo apt-get install -y dpkg fakeroot
       - run:
           name: Generate Builds
           command: yarn make
