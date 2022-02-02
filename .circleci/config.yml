@@ -36,8 +36,10 @@ jobs:
       # - run: npm run build-script
       - run: npx semantic-release
   build:
-    docker:
-      - image: circleci/python:3-node
+    # docker:
+    #   - image: circleci/python:3-node
+    macos:
+      xcode: "13.0.0"
     executor: node/default
     steps:
       - checkout
