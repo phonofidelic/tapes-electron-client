@@ -68,3 +68,6 @@ workflows:
   build-and-publish:
     jobs:
       - build
+      - publish:
+          requires:
+            - build
