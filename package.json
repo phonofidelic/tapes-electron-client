@@ -1,6 +1,6 @@
 {
-  "name": "tapes-electron-client",
-  "productName": "tapes-electron-client",
+  "name": "@phonofidelic/tapes-desktop-client",
+  "productName": "Tapes",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".webpack/main",
