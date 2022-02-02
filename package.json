@@ -1,7 +1,7 @@
 {
   "name": "@phonofidelic/tapes-desktop-client",
   "productName": "Tapes",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
@@ -24,11 +24,17 @@
   },
   "license": "MIT",
   "release": {
-    "branches": ["main", "development"],
+    "branches": [
+      "main",
+      "development"
+    ],
     "plugins": [
-      ["@semantic-release/npm", {
-        "npmPublish": false
-      }]
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false
+        }
+      ]
     ]
   },
   "config": {
@@ -86,8 +92,8 @@
           "name": "@electron-forge/publisher-github",
           "config": {
             "repository": {
-                  "owner": "phonofidelic",
-                  "name": "tapes-electron-client"
+              "owner": "phonofidelic",
+              "name": "tapes-electron-client"
             },
             "prerelease": true
           }

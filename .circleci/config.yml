@@ -35,6 +35,26 @@ jobs:
       # Run optional required steps before releasing
       # - run: npm run build-script
       - run: npx semantic-release
+  build:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install:
+          node-version: '16.13'
+      - run:
+          name: Generate Builds
+          command: yarn make
+      - store_artifacts:
+          path: ~/repo/out/make
+  publish:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install:
+          node-version: '16.13'
+      - run:
+          name: Publish Builds
+          command: yarn publish
 workflows:
   unit-tests:
     jobs:
@@ -45,3 +65,6 @@ workflows:
       - release:
           requires:
             - test
+  build-and-publish:
+    jobs:
+      - build
