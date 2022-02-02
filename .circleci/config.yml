@@ -36,6 +36,7 @@ jobs:
       # - run: npm run build-script
       - run: npx semantic-release
   build:
+    working_directory: ~/repo
     docker:
       - image: circleci/python:3-node
     executor: node/default
