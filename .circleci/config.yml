@@ -65,7 +65,7 @@ jobs:
           node-version: '16.13'
       - run:
           name: Publish Builds
-          command: yarn publish
+          command: yarn run publish
 workflows:
   unit-tests:
     jobs:
