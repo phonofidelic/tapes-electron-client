@@ -268,8 +268,11 @@ export const startRecording =
       recordingData = ipcResponse.data;
       console.log('recordingData:', recordingData);
       // dispatch(startRecordingSuccess(recordingData));
+      if (ipcResponse.error) {
+        throw ipcResponse.error;
+      }
     } catch (err) {
-      dispatch(startRecordingFailure(err));
+      return dispatch(startRecordingFailure(err));
     }
 
     let createdRecording;
