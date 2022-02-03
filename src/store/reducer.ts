@@ -204,7 +204,7 @@ export const reducer = (
     case LOAD_RECORDINGS_FAILURE:
       return {
         ...state,
-        loading: true,
+        loading: false,
         error: action.payload,
       };
 

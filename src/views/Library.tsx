@@ -124,6 +124,7 @@ export function Library({
         >
           <Typography>Your recordings will live here</Typography>
         </div>
+        <ErrorModal error={error} onConfirmError={() => confirmError()} />
       </div>
     );
 
