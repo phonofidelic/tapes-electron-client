@@ -64,6 +64,9 @@ jobs:
       - node/install:
           node-version: '16.13'
       - run:
+          name: Install Dependencies
+          command: yarn
+      - run:
           name: Publish Builds
           command: yarn run publish
 workflows:
