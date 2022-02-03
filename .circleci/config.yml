@@ -81,9 +81,9 @@ workflows:
       - release:
           requires:
             - test
-  build-and-publish:
-    jobs:
-      - build
-      - publish:
-          requires:
-            - build
+  # build-and-publish:
+  #   jobs:
+  #     - build
+  #     - publish:
+  #         requires:
+  #           - build
