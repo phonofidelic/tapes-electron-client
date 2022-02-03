@@ -58,6 +58,8 @@ jobs:
       - store_artifacts:
           path: ~/repo/out/make
   publish:
+    docker:
+      - image: circleci/python:3-node
     executor: node/default
     steps:
       - checkout
