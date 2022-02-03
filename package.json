@@ -9,6 +9,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
+    "publish-local": "GITHUB_TOKEN=$(grep GITHUB_TOKEN .env | cut -d '=' -f2) electron-forge publish",
     "lint": "eslint --ext .ts .",
     "test": "jest --watch --verbose",
     "test:ci": "jest",
