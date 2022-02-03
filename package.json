@@ -27,7 +27,10 @@
   "release": {
     "branches": [
       "main",
-      "development"
+      {
+        "name": "development",
+        "prerelease": true
+      }
     ],
     "plugins": [
       [
