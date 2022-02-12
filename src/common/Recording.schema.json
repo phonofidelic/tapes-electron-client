@@ -1,0 +1,781 @@
+{
+  "$id": "com.recording.tapes",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/Recording",
+  "definitions": {
+    "Recording": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "size": {
+          "type": "number"
+        },
+        "format": {
+          "$ref": "#/definitions/RecordingFormats"
+        },
+        "channels": {
+          "type": "number"
+        },
+        "remoteLocation": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "duration": {
+          "type": "number"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "common": {
+          "$ref": "#/definitions/ICommonTagsResult"
+        },
+        "fileData": {},
+        "fingerprint": {
+          "type": "string"
+        },
+        "acoustidResults": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcoustidResult"
+          }
+        },
+        "musicBrainzCoverArt": {
+          "$ref": "#/definitions/MusicBrainzCoverArt"
+        }
+      },
+      "required": ["location", "filename", "size", "format", "channels"],
+      "additionalProperties": false
+    },
+    "RecordingFormats": {
+      "type": "string",
+      "enum": ["wav", "flac", "mp3"]
+    },
+    "ICommonTagsResult": {
+      "type": "object",
+      "properties": {
+        "track": {
+          "type": "object",
+          "properties": {
+            "no": {
+              "type": ["number", "null"]
+            },
+            "of": {
+              "type": ["number", "null"]
+            }
+          },
+          "required": ["no", "of"],
+          "additionalProperties": false
+        },
+        "disk": {
+          "type": "object",
+          "properties": {
+            "no": {
+              "type": ["number", "null"]
+            },
+            "of": {
+              "type": ["number", "null"]
+            }
+          },
+          "required": ["no", "of"],
+          "additionalProperties": false
+        },
+        "year": {
+          "type": "number"
+        },
+        "title": {
+          "type": "string"
+        },
+        "artist": {
+          "type": "string"
+        },
+        "artists": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "albumartist": {
+          "type": "string"
+        },
+        "album": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "originaldate": {
+          "type": "string"
+        },
+        "originalyear": {
+          "type": "number"
+        },
+        "comment": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "genre": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "picture": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IPicture"
+          }
+        },
+        "composer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lyrics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "albumsort": {
+          "type": "string"
+        },
+        "titlesort": {
+          "type": "string"
+        },
+        "work": {
+          "type": "string"
+        },
+        "artistsort": {
+          "type": "string"
+        },
+        "albumartistsort": {
+          "type": "string"
+        },
+        "composersort": {
+          "type": "string"
+        },
+        "lyricist": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "writer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conductor": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "remixer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "arranger": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "engineer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "producer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "djmixer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mixer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "technician": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "label": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "grouping": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "longDescription": {
+          "type": "string"
+        },
+        "discsubtitle": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "totaltracks": {
+          "type": "string"
+        },
+        "totaldiscs": {
+          "type": "string"
+        },
+        "movementTotal": {
+          "type": "number"
+        },
+        "compilation": {
+          "type": "boolean"
+        },
+        "rating": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IRating"
+          }
+        },
+        "bpm": {
+          "type": "number"
+        },
+        "mood": {
+          "type": "string"
+        },
+        "media": {
+          "type": "string"
+        },
+        "catalognumber": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tvShow": {
+          "type": "string"
+        },
+        "tvShowSort": {
+          "type": "string"
+        },
+        "tvSeason": {
+          "type": "number"
+        },
+        "tvEpisode": {
+          "type": "number"
+        },
+        "tvEpisodeId": {
+          "type": "string"
+        },
+        "tvNetwork": {
+          "type": "string"
+        },
+        "podcast": {
+          "type": "boolean"
+        },
+        "podcasturl": {
+          "type": "string"
+        },
+        "releasestatus": {
+          "type": "string"
+        },
+        "releasetype": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "releasecountry": {
+          "type": "string"
+        },
+        "script": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "copyright": {
+          "type": "string"
+        },
+        "license": {
+          "type": "string"
+        },
+        "encodedby": {
+          "type": "string"
+        },
+        "encodersettings": {
+          "type": "string"
+        },
+        "gapless": {
+          "type": "boolean"
+        },
+        "barcode": {
+          "type": "string"
+        },
+        "isrc": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "asin": {
+          "type": "string"
+        },
+        "musicbrainz_recordingid": {
+          "type": "string"
+        },
+        "musicbrainz_trackid": {
+          "type": "string"
+        },
+        "musicbrainz_albumid": {
+          "type": "string"
+        },
+        "musicbrainz_artistid": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "musicbrainz_albumartistid": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "musicbrainz_releasegroupid": {
+          "type": "string"
+        },
+        "musicbrainz_workid": {
+          "type": "string"
+        },
+        "musicbrainz_trmid": {
+          "type": "string"
+        },
+        "musicbrainz_discid": {
+          "type": "string"
+        },
+        "acoustid_id": {
+          "type": "string"
+        },
+        "acoustid_fingerprint": {
+          "type": "string"
+        },
+        "musicip_puid": {
+          "type": "string"
+        },
+        "musicip_fingerprint": {
+          "type": "string"
+        },
+        "website": {
+          "type": "string"
+        },
+        "performer:instrument": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "averageLevel": {
+          "type": "number"
+        },
+        "peakLevel": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "originalalbum": {
+          "type": "string"
+        },
+        "originalartist": {
+          "type": "string"
+        },
+        "discogs_artist_id": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "discogs_release_id": {
+          "type": "number"
+        },
+        "discogs_label_id": {
+          "type": "number"
+        },
+        "discogs_master_release_id": {
+          "type": "number"
+        },
+        "discogs_votes": {
+          "type": "number"
+        },
+        "discogs_rating": {
+          "type": "number"
+        },
+        "replaygain_track_gain_ratio": {
+          "type": "number"
+        },
+        "replaygain_track_peak_ratio": {
+          "type": "number"
+        },
+        "replaygain_track_gain": {
+          "$ref": "#/definitions/IRatio"
+        },
+        "replaygain_track_peak": {
+          "$ref": "#/definitions/IRatio"
+        },
+        "replaygain_album_gain": {
+          "$ref": "#/definitions/IRatio"
+        },
+        "replaygain_album_peak": {
+          "$ref": "#/definitions/IRatio"
+        },
+        "replaygain_undo": {
+          "type": "object",
+          "properties": {
+            "leftChannel": {
+              "type": "number"
+            },
+            "rightChannel": {
+              "type": "number"
+            }
+          },
+          "required": ["leftChannel", "rightChannel"],
+          "additionalProperties": false
+        },
+        "replaygain_track_minmax": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "key": {
+          "type": "string"
+        },
+        "category": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hdVideo": {
+          "type": "number"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "movement": {
+          "type": "string"
+        },
+        "movementIndex": {
+          "type": "object",
+          "properties": {
+            "no": {
+              "type": "number"
+            },
+            "of": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "podcastId": {
+          "type": "string"
+        },
+        "showMovement": {
+          "type": "boolean"
+        },
+        "stik": {
+          "type": "number"
+        }
+      },
+      "required": ["track", "disk", "movementIndex"],
+      "additionalProperties": false
+    },
+    "IPicture": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/global.Buffer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["format", "data"],
+      "additionalProperties": false
+    },
+    "global.Buffer": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      },
+      "properties": {
+        "BYTES_PER_ELEMENT": {
+          "type": "number"
+        },
+        "buffer": {
+          "$ref": "#/definitions/ArrayBufferLike"
+        },
+        "byteLength": {
+          "type": "number"
+        },
+        "byteOffset": {
+          "type": "number"
+        },
+        "length": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "BYTES_PER_ELEMENT",
+        "buffer",
+        "byteLength",
+        "byteOffset",
+        "length"
+      ]
+    },
+    "ArrayBufferLike": {
+      "$ref": "#/definitions/ArrayBuffer"
+    },
+    "ArrayBuffer": {
+      "type": "object",
+      "properties": {
+        "byteLength": {
+          "type": "number"
+        }
+      },
+      "required": ["byteLength"],
+      "additionalProperties": false
+    },
+    "IRating": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "rating": {
+          "type": "number"
+        }
+      },
+      "required": ["rating"],
+      "additionalProperties": false
+    },
+    "IRatio": {
+      "type": "object",
+      "properties": {
+        "ratio": {
+          "type": "number"
+        },
+        "dB": {
+          "type": "number"
+        }
+      },
+      "required": ["ratio", "dB"],
+      "additionalProperties": false
+    },
+    "AcoustidResult": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "recordings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcoustidRecording"
+          }
+        },
+        "score": {
+          "type": "number"
+        }
+      },
+      "required": ["id", "recordings", "score"],
+      "additionalProperties": false
+    },
+    "AcoustidRecording": {
+      "type": "object",
+      "properties": {
+        "artists": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcoustidArtist"
+          }
+        },
+        "duration": {
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "releasegroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcoustidReleaseGroup"
+          }
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": ["artists", "duration", "id", "releasegroups", "title"],
+      "additionalProperties": false
+    },
+    "AcoustidArtist": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "name"],
+      "additionalProperties": false
+    },
+    "AcoustidReleaseGroup": {
+      "type": "object",
+      "properties": {
+        "artists": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcoustidArtist"
+          }
+        },
+        "id": {
+          "type": "string"
+        },
+        "secondarytypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "secondarytypes", "title", "type"],
+      "additionalProperties": false
+    },
+    "MusicBrainzCoverArt": {
+      "type": "object",
+      "properties": {
+        "approved": {
+          "type": "boolean"
+        },
+        "back": {
+          "type": "boolean"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "edit": {
+          "type": "number"
+        },
+        "front": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "number"
+        },
+        "image": {
+          "type": "string"
+        },
+        "thumbnails": {
+          "type": "object",
+          "properties": {
+            "250": {
+              "type": "string"
+            },
+            "1200": {
+              "type": "string"
+            },
+            "large": {
+              "type": "string"
+            },
+            "small": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "approved",
+        "back",
+        "comment",
+        "edit",
+        "front",
+        "id",
+        "image",
+        "thumbnails",
+        "types"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

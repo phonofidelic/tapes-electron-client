@@ -79,6 +79,7 @@ export function Library({
   };
 
   const searchLibrary = (searchTerm: string) => {
+    if (!searchTerm) return setFilteredRecordings(recordings);
     const filtered = matchSorter(recordings, searchTerm, {
       keys: ['title', 'format'],
       baseSort: (a, b) => (a.index < b.index ? -1 : 1),
@@ -99,9 +100,10 @@ export function Library({
   };
 
   useEffect(() => {
-    !recordings.length && dispatch(loadRecordings());
+    // !recordings.length && dispatch(loadRecordings());
+    dispatch(loadRecordings());
     searchLibrary('');
-  }, [recordings]);
+  }, []);
 
   if (loading) {
     return <Loader />;

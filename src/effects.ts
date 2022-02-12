@@ -71,8 +71,6 @@ const keyInfo: KeyInfo = {
   key: USER_API_KEY,
 };
 
-console.log('### USER_API_KEY:', USER_API_KEY);
-
 const getBucket = async () => {
   const storedIdent = localStorage.getItem(IDENTITY_STORE);
   const identity = PrivateKey.fromString(storedIdent);
