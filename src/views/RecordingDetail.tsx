@@ -131,7 +131,7 @@ export function RecordingDetail({ recording }: Props): ReactElement {
             musicBrainzCoverArt={recording.musicBrainzCoverArt}
           />
         )}
-        {recording.acoustidResults?.length && (
+        {recording.acoustidResults?.length > 0 && (
           <AcoustidResults
             acoustidResults={recording.acoustidResults}
             recording={recording}

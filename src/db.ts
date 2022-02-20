@@ -8,6 +8,10 @@ import {
 } from './common/constants';
 import { Database, Remote } from '@textile/threaddb';
 import { KeyInfo, PrivateKey, ThreadID, Users, Client } from '@textile/hub';
+import { connect, ConnectionOptions } from '@textile/tableland';
+import WalletConnect from '@walletconnect/client';
+import QRCodeModal from '@walletconnect/qrcode-modal';
+
 import { AcoustidResult } from './common/AcoustidResult.interface';
 import { MusicBrainzCoverArt } from './common/MusicBrainzCoverArt.interface';
 import RecordingSchema from './common/Recording.schema.json';
@@ -151,11 +155,60 @@ export class AppDatabase {
       console.error('Could not open DB:', err);
     }
 
+    console.log('*** DB:', this._db);
+
     await this.initRemote();
-    // const identity = await getIdentity();
-    // await this._db.remote.setKeyInfo(keyInfo);
-    // await this._db.remote.authorize(identity);
-    // await this._db.remote.initialize();
+
+    // const connector = new WalletConnect({
+    //   bridge: 'https://bridge.walletconnect.org', // Required
+    //   qrcodeModal: QRCodeModal,
+    // });
+    // console.log('*** connector:', connector);
+
+    // // Check if connection is already established
+    // if (!connector.connected) {
+    //   // create new session
+    //   connector.createSession();
+    // }
+
+    // // Subscribe to connection events
+    // connector.on('connect', (error, payload) => {
+    //   if (error) {
+    //     throw error;
+    //   }
+
+    //   // Get provided accounts and chainId
+    //   const { accounts, chainId } = payload.params[0];
+    // });
+
+    // connector.on('session_update', (error, payload) => {
+    //   if (error) {
+    //     throw error;
+    //   }
+
+    //   // Get updated accounts and chainId
+    //   const { accounts, chainId } = payload.params[0];
+    // });
+
+    // connector.on('disconnect', (error, payload) => {
+    //   if (error) {
+    //     throw error;
+    //   }
+
+    //   // Delete connector
+    // });
+
+    // console.log('*** Launching Metamask?');
+    // //@ts-ignore
+    // await window.ethereum.enable();
+
+    // console.log('*** Connecting to testnet...');
+    // const opt: ConnectionOptions = {
+    //   network: 'testnet',
+    //   host: 'https://testnet.tableland.network',
+    // };
+    // const tbl = await connect(opt);
+    // console.log('*** tbl:', tbl.list());
   };
 
   initRemote = async () => {

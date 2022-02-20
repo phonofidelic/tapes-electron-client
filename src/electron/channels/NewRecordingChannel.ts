@@ -148,7 +148,7 @@ export class NewRecordingChannel implements IpcChannel {
           title:
             acoustidResponse.data.results[0]?.recordings[0]?.title ||
             defaultTitle,
-          acoustidResults: [await acoustidResponse.data.results[0]],
+          acoustidResults: await acoustidResponse.data.results,
         };
 
         const fileData = await fs.readFile(filePath);

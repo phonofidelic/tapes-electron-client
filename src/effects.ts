@@ -452,6 +452,7 @@ export const loadAccountToken =
 
 export const initDatabase = (): Effect => async (dispatch) => {
   dispatch(initDatabaseRequest());
+  dispatch(setLoadingMessage('Initializing database...'));
   try {
     await db.init();
     console.log('Database initialized');

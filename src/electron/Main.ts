@@ -2,6 +2,7 @@
  * From: https://blog.logrocket.com/electron-ipc-response-request-architecture-with-typescript/
  */
 import path from 'path';
+import fs from 'fs/promises';
 import {
   app,
   BrowserWindow,
@@ -18,10 +19,30 @@ import { RecorderTray } from './RecorderTray';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
+const METAMASK_ID = 'nkbihfbeogaeaoehlefnkodbefgpgknn';
+const METAMASK_KEY =
+  'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlcgI4VVL4JUvo6hlSgeCZp9mGltZrzFvc2Asqzb1dDGO9baoYOe+QRoh27/YyVXugxni480Q/R147INhBOyQZVMhZOD5pFMVutia9MHMaZhgRXzrK3BHtNSkKLL1c5mhutQNwiLqLtFkMSGvka91LoMEC8WTI0wi4tACnJ5FyFZQYzvtqy5sXo3VS3gzfOBluLKi7BxYcaUJjNrhOIxl1xL2qgK5lDrDOLKcbaurDiwqofVtAFOL5sM3uJ6D8nOO9tG+T7hoobRFN+nxk43PHgCv4poicOv+NMZQEk3da1m/xfuzXV88NcE/YRbRLwAS82m3gsJZKc6mLqm4wZHzBwIDAQAB';
+
+const loadMetamaskFromManifest = async (session: any, metamaskPath: string) => {
+  const data = await fs.readFile(`${metamaskPath}/manifest.json`, 'utf8');
+
+  let manifest;
+  manifest = JSON.parse(data);
+  manifest.content_scripts[0].matches = ['chrome://brave/**/*'];
+  manifest.key = METAMASK_KEY;
+  return session.defaultSession.loadExtension(
+    metamaskPath,
+    manifest,
+    'component'
+  );
+};
+
 export class Main {
   private mainWindow: BrowserWindow;
 
   private tray: RecorderTray;
+
+  private metamaskPopup: BrowserWindow;
 
   public init(ipcChannels: IpcChannel[]) {
     app.on('ready', this.createWindow);
@@ -101,12 +122,28 @@ export class Main {
     //     ? path.resolve(process.resourcesPath, 'bin', 'metamask')
     //     : path.resolve(appRootDir.get(), 'bin', 'metamask');
 
-    // // const ses = this.mainWindow.webContents.session;
-    // // ses.loadExtension(metaMaskPath, {
-    // //   allowFileAccess: true,
-    // // });
-    // const extension = await session.defaultSession.loadExtension(metaMaskPath);
-    // console.log('MetaMask extentino loaded:', extension);
+    // // const extension = await session.defaultSession.loadExtension(metaMaskPath);
+    // const extension = await loadMetamaskFromManifest(session, metaMaskPath);
+    // console.log('MetaMask extention loaded:', extension);
+
+    // this.metamaskPopup = new BrowserWindow({
+    //   title: 'MetaMask',
+    //   width: 360,
+    //   height: 520,
+    //   type: 'popup',
+    //   resizable: false,
+    //   webPreferences: {
+    //     // nodeIntegration: true, // makes it possible to use `require` within our index.html
+    //     // enableRemoteModule: true, //<-- https://github.com/electron-userland/spectron/pull/738#issuecomment-754810364
+    //     contextIsolation: true,
+    //     preload:
+    //       process.env.NODE_ENV === 'production'
+    //         ? path.join(process.resourcesPath, 'preload.js')
+    //         : path.join(__dirname, '..', '..', 'preload.js'),
+    // },
+    // });
+    // this.metamaskPopup.loadURL(`chrome-extension://${METAMASK_ID}/popup.html`);
+    // this.metamaskPopup.loadURL(path.resolve(metaMaskPath, 'popup.html'));
 
     const iconName = 'icon@16.png';
     const iconPath =
@@ -124,5 +161,9 @@ export class Main {
         channel.handle(event, request)
       )
     );
+
+    ipcMain.on('open-metamask-popup', (event, args) => {
+      console.log('*** OPEN METAMASK ***');
+    });
   }
 }
