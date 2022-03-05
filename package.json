@@ -5,7 +5,7 @@
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "electron-forge start DEBUG=electron-rebuild",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
@@ -175,12 +175,18 @@
     "electron-squirrel-startup": "^1.0.0",
     "ethers": "^5.5.2",
     "graphql-tag": "^2.12.6",
+    "ipfs": "^0.62.1",
     "isomorphic-ws": "^4.0.1",
+    "libp2p-noise": "^4.0.0",
+    "libp2p-webrtc-direct": "^0.7.1",
+    "libp2p-webrtc-star": "^0.25.0",
+    "libp2p-websockets": "^0.16.2",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",
     "meyda": "^5.3.0",
     "music-metadata": "^7.8.1",
     "near-api-js": "^0.44.1",
+    "orbit-db": "^0.28.3",
     "pretty-bytes": "^5.6.0",
     "pts": "^0.10.9",
     "react": "^17.0.1",
@@ -192,6 +198,7 @@
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.3.0",
-    "styled-components": "^5.2.1"
+    "styled-components": "^5.2.1",
+    "wrtc": "^0.4.7"
   }
 }

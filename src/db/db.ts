@@ -1,65 +1,10 @@
-import { ICommonTagsResult } from 'music-metadata';
-import { Recording } from './common/Recording.interface';
-import { RecordingFormats } from './common/RecordingFormats.enum';
 import {
   THREADS_DB_NAME,
   IDENTITY_STORE,
   RECORDING_COLLECTION,
-} from './common/constants';
+} from '../common/constants';
 import { Database, Remote } from '@textile/threaddb';
 import { KeyInfo, PrivateKey, ThreadID, Users, Client } from '@textile/hub';
-import { connect, ConnectionOptions } from '@textile/tableland';
-import WalletConnect from '@walletconnect/client';
-import QRCodeModal from '@walletconnect/qrcode-modal';
-
-import { AcoustidResult } from './common/AcoustidResult.interface';
-import { MusicBrainzCoverArt } from './common/MusicBrainzCoverArt.interface';
-import RecordingSchema from './common/Recording.schema.json';
-
-export class RecordingModel implements Recording {
-  location: string;
-  remoteLocation?: string;
-  bucketPath?: string;
-  title: string;
-  filename: string;
-  size: number;
-  duration: number;
-  created: Date;
-  format: RecordingFormats;
-  channels: number;
-  common?: ICommonTagsResult;
-  acoustidResults?: AcoustidResult[];
-  musicBrainzCoverArt?: MusicBrainzCoverArt;
-
-  constructor(
-    location: string,
-    filename: string,
-    title: string,
-    size: number,
-    format: RecordingFormats,
-    channels: number,
-    duration: number,
-    remoteLocation?: string,
-    bucketPath?: string,
-    common?: ICommonTagsResult,
-    acoustidResults?: AcoustidResult[],
-    musicBrainzCoverArt?: MusicBrainzCoverArt
-  ) {
-    this.filename = filename;
-    this.created = new Date();
-    this.location = location;
-    this.remoteLocation = remoteLocation || '';
-    this.bucketPath = bucketPath || '';
-    this.title = title;
-    this.size = size;
-    this.duration = duration;
-    this.format = format;
-    this.channels = channels;
-    this.common = common;
-    this.acoustidResults = acoustidResults;
-    this.musicBrainzCoverArt = musicBrainzCoverArt;
-  }
-}
 
 const getIdentity = async (): Promise<PrivateKey> => {
   try {
