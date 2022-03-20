@@ -7,6 +7,7 @@ import {
   app,
   BrowserWindow,
   ipcMain,
+  IpcMainEvent,
   NewWindowEvent,
   protocol,
   session,
@@ -16,6 +17,7 @@ import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import appRootDir from 'app-root-dir';
 import { IpcChannel } from './IPC/IpcChannel.interface';
 import { RecorderTray } from './RecorderTray';
+import { db } from '../db/db-orbit';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
@@ -44,6 +46,8 @@ export class Main {
 
   private metamaskPopup: BrowserWindow;
 
+  private database: any;
+
   public init(ipcChannels: IpcChannel[]) {
     app.on('ready', this.createWindow);
     app.on('window-all-closed', this.onWindowAllClosed);
@@ -52,6 +56,18 @@ export class Main {
     app.on('new-window', this.onNewWindow);
 
     this.registerIpcChannels(ipcChannels);
+
+    ipcMain.on('database:create', this.onCreateDatabase.bind(this))
+  }
+
+  private async onCreateDatabase(event: IpcMainEvent, request: any) {
+    console.log('*** onCreateDatabase ***')
+    try {
+      this.database = await db.init()
+      console.log('*** onCreateDatabase, this.database:', this.database)
+    } catch (err) {
+      console.error('Could not create database:', err)
+    }
   }
 
   private onWindowAllClosed() {
@@ -76,7 +92,7 @@ export class Main {
     protocol.registerFileProtocol('tapes', (request, callback) => {
       const url = request.url.replace('tapes://', '');
       const basename = path.basename(url);
-      // console.log('basename:', basename)
+      console.log('basename:', basename)
       const filePath =
         process.env.NODE_ENV === 'production'
           ? path.join(process.resourcesPath, 'Data', basename)

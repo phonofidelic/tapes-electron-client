@@ -7,4 +7,10 @@ module.exports = [
   new webpack.DefinePlugin({
     USER_API_KEY: JSON.stringify(process.env.USER_API_KEY),
   }),
+  new webpack.ProvidePlugin({
+    process: 'process/browser',
+  }),
+  new webpack.ProvidePlugin({
+    Buffer: ['buffer', 'Buffer'],
+  }),
 ];

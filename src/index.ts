@@ -5,6 +5,7 @@ import { DeleteRecordingChannel } from './electron/channels/DeleteRecordingChann
 import { UploadAudioFileChannel } from './electron/channels/UploadAudioFileChannel';
 import { SetInputDeviceChannel } from './electron/channels/SetInputDevaiceChannel';
 import { CacheRecordingChannel } from './electron/channels/CacheRecordingChannel';
+import { CreateDatabaseChannel } from './electron/channels/CreateDatabaseChannel'
 
 new Main().init([
   new NewRecordingChannel(),
@@ -12,4 +13,5 @@ new Main().init([
   new UploadAudioFileChannel(),
   new SetInputDeviceChannel(),
   new CacheRecordingChannel(),
+  // new CreateDatabaseChannel()
 ]);

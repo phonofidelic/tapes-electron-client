@@ -44,12 +44,17 @@ import {
   pauseRecording,
   playRecording,
 } from './store/actions';
-import { db, RecordingModel } from './db';
+// import { browserDB as db, RecordingModel } from './db';
 import { Recording } from './common/Recording.interface';
 import { RecordingSettings } from './common/RecordingSettings.interface';
 import { RECORDING_COLLECTION, IDENTITY_STORE } from './common/constants';
 import { IpcService } from './IpcService';
 import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
+
+import { RecordingModel } from './db/recording.model';
+// const db = window.db
+const db: any = {}
+
 
 // const THREADS_DB_NAME = 'tapes-thread-db';
 // const RECORDING_COLLECTION = 'Recording';
@@ -197,98 +202,98 @@ type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
 export const uploadAudioFiles =
   (audioFiles: File[]): Effect =>
-  async (dispatch) => {
-    dispatch(uploadRecordingsRequest());
-    dispatch(setLoadingMessage('Processing audio files...'));
-    console.log('uploadAudioFiles, audioFiles:', audioFiles);
+    async (dispatch) => {
+      dispatch(uploadRecordingsRequest());
+      dispatch(setLoadingMessage('Processing audio files...'));
+      console.log('uploadAudioFiles, audioFiles:', audioFiles);
 
-    /**
-     * Parse data needed for Recording object
-     */
-    const parsedFiles = audioFiles.map((file) => ({
-      path: file.path,
-      name: file.name,
-      size: file.size,
-    }));
+      /**
+       * Parse data needed for Recording object
+       */
+      const parsedFiles = audioFiles.map((file) => ({
+        path: file.path,
+        name: file.name,
+        size: file.size,
+      }));
 
-    /**
-     * Get Recordings with metadata from files
-     */
-    let ipcResponse: { message: string; data: Recording[]; error?: Error };
-    try {
-      ipcResponse = await ipc.send('storage:upload', {
-        data: { files: parsedFiles },
-      });
-      console.log('uploadAudioFiles, response:', ipcResponse);
-      if (ipcResponse.error) throw ipcResponse.error;
-    } catch (err) {
-      console.error('Could not upload audio files:', err.message);
-      return dispatch(uploadRecordingsFailure(err));
-    }
-
-    let createdRecordings = [];
-    try {
-      for await (let recordingData of ipcResponse.data) {
-        console.log(`Uploading "${recordingData.title}"`);
-        dispatch(setLoadingMessage(`Uploading "${recordingData.title}"`));
-        const createdRecording = await addRemoteRecording(recordingData);
-        createdRecordings.push(createdRecording);
+      /**
+       * Get Recordings with metadata from files
+       */
+      let ipcResponse: { message: string; data: Recording[]; error?: Error };
+      try {
+        ipcResponse = await ipc.send('storage:upload', {
+          data: { files: parsedFiles },
+        });
+        console.log('uploadAudioFiles, response:', ipcResponse);
+        if (ipcResponse.error) throw ipcResponse.error;
+      } catch (err) {
+        console.error('Could not upload audio files:', err.message);
+        return dispatch(uploadRecordingsFailure(err));
       }
-      console.log('Updating remote DB...');
-      await db.push(RECORDING_COLLECTION);
-    } catch (err) {
-      console.error('Could not push audio files to remote:', err);
-      return dispatch(uploadRecordingsFailure(err));
-    }
 
-    dispatch(uploadRecordingsSuccess(createdRecordings));
-    dispatch(setLoadingMessage(null));
-  };
+      let createdRecordings = [];
+      try {
+        for await (let recordingData of ipcResponse.data) {
+          console.log(`Uploading "${recordingData.title}"`);
+          dispatch(setLoadingMessage(`Uploading "${recordingData.title}"`));
+          const createdRecording = await addRemoteRecording(recordingData);
+          createdRecordings.push(createdRecording);
+        }
+        console.log('Updating remote DB...');
+        await db.push(RECORDING_COLLECTION);
+      } catch (err) {
+        console.error('Could not push audio files to remote:', err);
+        return dispatch(uploadRecordingsFailure(err));
+      }
+
+      dispatch(uploadRecordingsSuccess(createdRecordings));
+      dispatch(setLoadingMessage(null));
+    };
 
 export const startRecording =
   (recordingSettings: RecordingSettings): Effect =>
-  async (dispatch) => {
-    dispatch(startRecordingRequest());
+    async (dispatch) => {
+      dispatch(startRecordingRequest());
 
-    const recordingCount = (await db.find(RECORDING_COLLECTION, {})).length;
-    console.log('recordingCount:', recordingCount);
+      const recordingCount = (await db.find(RECORDING_COLLECTION, {})).length;
+      console.log('recordingCount:', recordingCount);
 
-    const title = `Recording #${recordingCount + 1}`;
+      const title = `Recording #${recordingCount + 1}`;
 
-    let ipcResponse: { data: Recording; file?: any; error?: Error };
-    let recordingData;
-    try {
-      ipcResponse = await ipc.send('recorder:start', {
-        data: { recordingSettings, title },
-      });
-      console.log('recorder:start, ipcResponse:', ipcResponse);
+      let ipcResponse: { data: Recording; file?: any; error?: Error };
+      let recordingData;
+      try {
+        ipcResponse = await ipc.send('recorder:start', {
+          data: { recordingSettings, title },
+        });
+        console.log('recorder:start, ipcResponse:', ipcResponse);
 
-      recordingData = ipcResponse.data;
-      console.log('recordingData:', recordingData);
-      // dispatch(startRecordingSuccess(recordingData));
-      if (ipcResponse.error) {
-        throw ipcResponse.error;
+        recordingData = ipcResponse.data;
+        console.log('recordingData:', recordingData);
+        // dispatch(startRecordingSuccess(recordingData));
+        if (ipcResponse.error) {
+          throw ipcResponse.error;
+        }
+      } catch (err) {
+        return dispatch(startRecordingFailure(err));
       }
-    } catch (err) {
-      return dispatch(startRecordingFailure(err));
-    }
 
-    let createdRecording;
-    try {
-      dispatch(addRecordingRequest());
-      dispatch(setLoadingMessage('Storing file on IPFS...'));
+      let createdRecording;
+      try {
+        dispatch(addRecordingRequest());
+        dispatch(setLoadingMessage('Storing file on IPFS...'));
 
-      createdRecording = await addRemoteRecording(recordingData);
+        createdRecording = await addRemoteRecording(recordingData);
 
-      dispatch(addRecordingSuccess(createdRecording));
-      dispatch(setLoadingMessage(null));
-      await db.push(RECORDING_COLLECTION);
-    } catch (err) {
-      console.error('addRecordingRequest error:', err);
-      dispatch(addRecordingFailure(err));
-      dispatch(setLoadingMessage(null));
-    }
-  };
+        dispatch(addRecordingSuccess(createdRecording));
+        dispatch(setLoadingMessage(null));
+        await db.push(RECORDING_COLLECTION);
+      } catch (err) {
+        console.error('addRecordingRequest error:', err);
+        dispatch(addRecordingFailure(err));
+        dispatch(setLoadingMessage(null));
+      }
+    };
 
 export const stopRecording = (): Effect => async (dispatch) => {
   dispatch(stopRecordingRequest());
@@ -324,97 +329,97 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 
 export const editRecording =
   (recordingId: string, update: any): Effect =>
-  async (dispatch) => {
-    dispatch(editRecordingRequest());
+    async (dispatch) => {
+      dispatch(editRecordingRequest());
 
-    try {
-      await db.update(RECORDING_COLLECTION, recordingId, update);
-      await db.push(RECORDING_COLLECTION);
-      const updatedRecording = (await db.findById(
-        RECORDING_COLLECTION,
-        recordingId
-      )) as unknown as Recording;
-      console.log('updatedRecording:', updatedRecording);
-      dispatch(editRecordingSuccess(updatedRecording));
-    } catch (err) {
-      console.error('Could not update Recording document:', err);
-      dispatch(editRecordingFailure(err));
-    }
-  };
+      try {
+        await db.update(RECORDING_COLLECTION, recordingId, update);
+        await db.push(RECORDING_COLLECTION);
+        const updatedRecording = (await db.findById(
+          RECORDING_COLLECTION,
+          recordingId
+        )) as unknown as Recording;
+        console.log('updatedRecording:', updatedRecording);
+        dispatch(editRecordingSuccess(updatedRecording));
+      } catch (err) {
+        console.error('Could not update Recording document:', err);
+        dispatch(editRecordingFailure(err));
+      }
+    };
 
 export const deleteRecording =
   (recordingId: string): Effect =>
-  async (dispatch) => {
-    dispatch(deleteRecordingRequest(recordingId));
+    async (dispatch) => {
+      dispatch(deleteRecordingRequest(recordingId));
 
-    let recording;
-    try {
-      /**
-       * Get data for Recording to delete
-       */
-      dispatch(setLoadingMessage('Retrieving data to remove...'));
-      recording = (await db.findById(
-        RECORDING_COLLECTION,
-        recordingId
-      )) as unknown as Recording;
-    } catch (err) {
-      console.error('Could not find Recording to be deleted:', err);
-      return dispatch(deleteRecordingFailure(err));
-    }
+      let recording;
+      try {
+        /**
+         * Get data for Recording to delete
+         */
+        dispatch(setLoadingMessage('Retrieving data to remove...'));
+        recording = (await db.findById(
+          RECORDING_COLLECTION,
+          recordingId
+        )) as unknown as Recording;
+      } catch (err) {
+        console.error('Could not find Recording to be deleted:', err);
+        return dispatch(deleteRecordingFailure(err));
+      }
 
-    try {
-      /**
-       * Delete in Textile bucket
-       */
-      dispatch(setLoadingMessage('Removing remote Recording file...'));
-      const { buckets, bucketKey } = await getBucket();
+      try {
+        /**
+         * Delete in Textile bucket
+         */
+        dispatch(setLoadingMessage('Removing remote Recording file...'));
+        const { buckets, bucketKey } = await getBucket();
 
-      const requestTimeout = setTimeout(() => {
-        dispatch(deleteRecordingFailure(new Error('Request timed out')));
-      }, REQUEST_TIMEOUT);
+        const requestTimeout = setTimeout(() => {
+          dispatch(deleteRecordingFailure(new Error('Request timed out')));
+        }, REQUEST_TIMEOUT);
 
-      const removePathResult = await buckets.removePath(
-        bucketKey,
-        recording.filename
-      );
-      clearTimeout(requestTimeout);
-      console.log('removePathResult:', removePathResult);
-    } catch (err) {
-      console.error('Could not remove file from Textile bucket:', err);
-      dispatch(deleteRecordingFailure(err));
-    }
+        const removePathResult = await buckets.removePath(
+          bucketKey,
+          recording.filename
+        );
+        clearTimeout(requestTimeout);
+        console.log('removePathResult:', removePathResult);
+      } catch (err) {
+        console.error('Could not remove file from Textile bucket:', err);
+        dispatch(deleteRecordingFailure(err));
+      }
 
-    try {
-      /**
-       * Remove Recording object in storage
-       */
-      dispatch(setLoadingMessage('Removing local Recording file...'));
-      const ipcResponse = await ipc.send('storage:delete_one', {
-        data: recording,
-      });
-      console.log('deleteRecording, ipcResponse:', ipcResponse);
-    } catch (err) {
-      console.error('Could not remove Recording file locally:', err);
-      dispatch(deleteRecordingFailure(err));
-    }
+      try {
+        /**
+         * Remove Recording object in storage
+         */
+        dispatch(setLoadingMessage('Removing local Recording file...'));
+        const ipcResponse = await ipc.send('storage:delete_one', {
+          data: recording,
+        });
+        console.log('deleteRecording, ipcResponse:', ipcResponse);
+      } catch (err) {
+        console.error('Could not remove Recording file locally:', err);
+        dispatch(deleteRecordingFailure(err));
+      }
 
-    try {
-      /**
-       * Delete record in IDB
-       */
-      dispatch(setLoadingMessage('Updating database...'));
+      try {
+        /**
+         * Delete record in IDB
+         */
+        dispatch(setLoadingMessage('Updating database...'));
 
-      await db.delete(RECORDING_COLLECTION, recordingId);
+        await db.delete(RECORDING_COLLECTION, recordingId);
 
-      dispatch(deleteRecordingSuccess(recordingId));
-      await db.push(RECORDING_COLLECTION);
-    } catch (err) {
-      console.error('Could not remove IPFS path:', err);
+        dispatch(deleteRecordingSuccess(recordingId));
+        await db.push(RECORDING_COLLECTION);
+      } catch (err) {
+        console.error('Could not remove IPFS path:', err);
 
-      dispatch(deleteRecordingFailure(err));
-    }
-    dispatch(setLoadingMessage(null));
-  };
+        dispatch(deleteRecordingFailure(err));
+      }
+      dispatch(setLoadingMessage(null));
+    };
 
 export const getBucketToken = (): Effect => async (dispatch) => {
   dispatch(getBucketTokenRequest());
@@ -430,31 +435,42 @@ export const getBucketToken = (): Effect => async (dispatch) => {
 
 export const loadAccountToken =
   (tokenString: string): Effect =>
-  async (dispatch) => {
-    dispatch(loadAccountTokenRequest());
+    async (dispatch) => {
+      dispatch(loadAccountTokenRequest());
 
-    try {
-      localStorage.setItem(IDENTITY_STORE, tokenString);
+      try {
+        localStorage.setItem(IDENTITY_STORE, tokenString);
 
-      dispatch(setLoadingMessage('Cleaning up local database...'));
-      await db.deleteDB();
+        dispatch(setLoadingMessage('Cleaning up local database...'));
+        await db.deleteDB();
 
-      dispatch(setLoadingMessage('Initializing new database...'));
-      await db.init();
+        dispatch(setLoadingMessage('Initializing new database...'));
+        await db.init();
 
-      dispatch(loadAccountTokenSuccess(tokenString));
-      dispatch(setLoadingMessage(null));
-    } catch (err) {
-      console.error('Could not load account token:', err);
-      dispatch(loadAccountTokenFailure(err));
-    }
-  };
+        dispatch(loadAccountTokenSuccess(tokenString));
+        dispatch(setLoadingMessage(null));
+      } catch (err) {
+        console.error('Could not load account token:', err);
+        dispatch(loadAccountTokenFailure(err));
+      }
+    };
 
 export const initDatabase = (): Effect => async (dispatch) => {
   dispatch(initDatabaseRequest());
   dispatch(setLoadingMessage('Initializing database...'));
+
+  let ipcResponse: { databaseInstance: any };
   try {
-    await db.init();
+    ipcResponse = await ipc.send('database:create')
+    console.log('*** Create DB response:', ipcResponse)
+
+    // window.db = JSON.parse(ipcResponse.databaseInstance)
+  } catch (err) {
+    console.error('Could not create database:', err)
+  }
+
+  try {
+    // await db.init();
     console.log('Database initialized');
     dispatch(initDatabaseSuccess());
   } catch (err) {
@@ -465,89 +481,89 @@ export const initDatabase = (): Effect => async (dispatch) => {
 
 export const setInputDevice =
   (deviceName: string): Effect =>
-  async (dispatch) => {
-    console.log('setInputDevice, deviceName:', deviceName);
-    dispatch(setInputDeviceRequest());
+    async (dispatch) => {
+      console.log('setInputDevice, deviceName:', deviceName);
+      dispatch(setInputDeviceRequest());
 
-    let ipcResponse: { message: string; error?: Error };
-    try {
-      ipcResponse = await ipc.send('recorder:set-input', { data: deviceName });
+      let ipcResponse: { message: string; error?: Error };
+      try {
+        ipcResponse = await ipc.send('recorder:set-input', { data: deviceName });
 
-      console.log('recorder:set-input, ipcResponse:', ipcResponse);
+        console.log('recorder:set-input, ipcResponse:', ipcResponse);
 
-      if (ipcResponse.error) {
-        throw ipcResponse.error;
+        if (ipcResponse.error) {
+          throw ipcResponse.error;
+        }
+      } catch (err) {
+        dispatch(setInputDeviceFailure(err));
       }
-    } catch (err) {
-      dispatch(setInputDeviceFailure(err));
-    }
 
-    dispatch(setInputDeviceSuccess());
-  };
+      dispatch(setInputDeviceSuccess());
+    };
 
 export const downloadRecording =
   (recordingId: string): Effect =>
-  async (dispatch) => {
-    dispatch(downloadRecordingRequest());
-    try {
-      const { token } = await getBucket();
+    async (dispatch) => {
+      dispatch(downloadRecordingRequest());
+      try {
+        const { token } = await getBucket();
 
-      const recordingData = (await db.findById(
-        RECORDING_COLLECTION,
-        recordingId
-      )) as unknown as Recording;
-      console.log('downloadRecording, recordingData:', recordingData);
+        const recordingData = (await db.findById(
+          RECORDING_COLLECTION,
+          recordingId
+        )) as unknown as Recording;
+        console.log('downloadRecording, recordingData:', recordingData);
 
-      const response = await fetch(
-        recordingData.remoteLocation + `?token=${token}`,
-        { method: 'GET' }
-      );
+        const response = await fetch(
+          recordingData.remoteLocation + `?token=${token}`,
+          { method: 'GET' }
+        );
 
-      const blob = await response.blob();
+        const blob = await response.blob();
 
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${recordingData.title}.${recordingData.format}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${recordingData.title}.${recordingData.format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
-      console.log('downloadRecording, response:', response);
-    } catch (err) {
-      console.error('Could not download recording:', err);
-      dispatch(
-        downloadRecordingFailue(new Error('Could not download recording'))
-      );
-    }
+        console.log('downloadRecording, response:', response);
+      } catch (err) {
+        console.error('Could not download recording:', err);
+        dispatch(
+          downloadRecordingFailue(new Error('Could not download recording'))
+        );
+      }
 
-    dispatch(downloadRecordingSucess());
-  };
+      dispatch(downloadRecordingSucess());
+    };
 
 export const cacheAndPlayRecording =
   (recording: Recording): Effect =>
-  async (dispatch) => {
-    dispatch(pauseRecording());
-    dispatch(cacheRecordingRequest(recording));
-    try {
-      const { token } = await getBucket();
+    async (dispatch) => {
+      dispatch(pauseRecording());
+      dispatch(cacheRecordingRequest(recording));
+      try {
+        const { token } = await getBucket();
 
-      const ipcResponse: { message: string; error?: Error } = await ipc.send(
-        'storage:cache_recording',
-        {
-          data: { recording, token },
+        const ipcResponse: { message: string; error?: Error } = await ipc.send(
+          'storage:cache_recording',
+          {
+            data: { recording, token },
+          }
+        );
+
+        console.log('cacheRecording, ipcResponse:', ipcResponse);
+        if (ipcResponse.error) {
+          // TODO: Check ipcResopnse for errors
+          dispatch(cacheRecordingFailure(ipcResponse.error));
         }
-      );
 
-      console.log('cacheRecording, ipcResponse:', ipcResponse);
-      if (ipcResponse.error) {
-        // TODO: Check ipcResopnse for errors
-        dispatch(cacheRecordingFailure(ipcResponse.error));
+        dispatch(cacheRecordingSuccess());
+        dispatch(playRecording());
+      } catch (err) {
+        console.error('Could not cache recording:', err);
+        dispatch(cacheRecordingFailure(err));
       }
-
-      dispatch(cacheRecordingSuccess());
-      dispatch(playRecording());
-    } catch (err) {
-      console.error('Could not cache recording:', err);
-      dispatch(cacheRecordingFailure(err));
-    }
-  };
+    };

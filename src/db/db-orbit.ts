@@ -1,64 +1,44 @@
-import Ipfs from 'ipfs';
 //@ts-ignore
 import OrbitDB from 'orbit-db';
-//@ts-ignore
-import wrtc from 'wrtc';
-//@ts-ignore
-import WebRTCStar from 'libp2p-webrtc-star';
-//@ts-ignore
-import Websockets from 'libp2p-websockets';
-//@ts-ignore
-import WebRTCDirect from 'libp2p-webrtc-direct';
-import { NOISE } from 'libp2p-noise';
+import type { IPFS } from 'ipfs-core-types'
+import { create } from 'ipfs-http-client'
+import { createIpfsNode } from './utils';
+import { ThreeSixty } from '@mui/icons-material';
+
+// const Buffer = require('buffer/').Buffer;
 
 export class AppDatabase {
-  node: any;
+  node: IPFS;
+  OrbitDB: any;
   orbitdb: any;
   defaultOptions: any;
   recordings: any;
   user: any;
   companions: any;
+  test: string
+
+  constructor(OrbitDB: any) {
+    this.OrbitDB = OrbitDB
+    this.test = 'hello!'
+  }
 
   async init() {
-    this.node = await Ipfs.create({
-      libp2p: {
-        modules: {
-          transport: [WebRTCStar, Websockets, WebRTCDirect],
-        },
-        config: {
-          peerDiscovery: {
-            webRTCStar: {
-              enabled: true,
-            },
-          },
-          transport: {
-            WebRTCStar: {
-              wrtc,
-              connEncryption: [NOISE],
-            },
-          },
-        },
-        transportMmanager: { fauleTolerance: 1 },
-      },
-      relay: {
-        eenabled: true,
-        hop: {
-          enabled: true,
-          active: true,
-        },
-      },
-      config: {
-        Addresses: {
-          Swarm: [
-            '/dns4/cryptic-thicket-32566.herokuapp.com/tcp/443/wss/p2p-webrtc-star/',
-          ],
-        },
-      },
-      repo: './ipfs',
-      EXPERIMENTAL: { pubsub: true },
-    });
-
-    this.orbitdb = await OrbitDB.createInstance(this.node);
+    this.node = await createIpfsNode()
+    // this.node = create({
+    //   url: 'http://0.0.0.0:5001',
+    //   host: 'localhost',
+    //   protocol: 'tcp'
+    // })
+    //@ts-ignore
+    console.log('*** db init, this.node:', this.node)
+    console.log('*** db init, OrbitDB:', OrbitDB)
+    try {
+      this.orbitdb = await OrbitDB.createInstance(this.node);
+      // this.orbitdb = await new OrbitDB.default(this.node)
+    } catch (err) {
+      console.error('Could not create OrbitDB instance:', err)
+      throw new Error('Could not create OrbitDB instance')
+    }
 
     this.defaultOptions = {
       acessController: {
@@ -101,6 +81,7 @@ export class AppDatabase {
     /**
      * Listen for incoming connections
      */
+    //@ts-ignore
     this.node.libp2p.connectionManager.on(
       'peer:connect',
       this.handlePeerConnected.bind(this)
@@ -110,6 +91,8 @@ export class AppDatabase {
       peerInfo.id,
       this.handleMessageReceived.bind(this)
     );
+
+    // TOFO: Handle companion connections
   }
 
   openpeerconnect = console.log;
@@ -129,23 +112,23 @@ export class AppDatabase {
   async handleMessageReceived(msg: any) {
     const parsedMsg = JSON.parse(msg.data.toString());
     console.log('*** handleMessageReceived:', parsedMsg);
-    const msgKeys = Object.keys(parsedMsg);
+    // const msgKeys = Object.keys(parsedMsg);
 
-    switch (msgKeys[0]) {
-      case 'userDb':
-        var peerDb = await this.orbitdb.open(parsedMsg.userDb);
-        peerDb.events.on('replicated', async () => {
-          if (peerDb.get('recordings')) {
-            await this.companions.set(peerDb.id, peerDb.all);
-            this.ondbdiscovered && this.ondbdiscovered(peerDb);
-          }
-        });
-        break;
-      default:
-        break;
-    }
+    // switch (msgKeys[0]) {
+    //   case 'userDb':
+    //     var peerDb = await this.orbitdb.open(parsedMsg.userDb);
+    //     peerDb.events.on('replicated', async () => {
+    //       if (peerDb.get('recordings')) {
+    //         await this.companions.set(peerDb.id, peerDb.all);
+    //         this.ondbdiscovered && this.ondbdiscovered(peerDb);
+    //       }
+    //     });
+    //     break;
+    //   default:
+    //     break;
+    // }
 
-    if (this.onmessage) this.onmessage(msg);
+    // if (this.onmessage) this.onmessage(msg);
   }
 
   async sendMessage(topic: string, message: any) {
@@ -154,8 +137,76 @@ export class AppDatabase {
       const messageBuffer = Buffer.from(msgString);
       await this.node.pubsub.publish(topic, messageBuffer);
     } catch (err) {
-      console.error('Couold not sent message:', err);
-      throw new Error('Couold not sent message');
+      console.error('Couold not send message:', err);
+      throw new Error('Couold not send message');
     }
   }
+
+  // TODO: implement old methotds
+  async initRemote(): Promise<any> {
+    return new Promise((resolve, _reject) => {
+      resolve('done')
+    })
+  }
+
+  async push(_collectionName: string): Promise<any> {
+    return new Promise((resolve, _reject) => {
+      resolve('done')
+    })
+  }
+
+  async pull(_collectionName: string): Promise<any> {
+    return new Promise((resolve, _reject) => {
+      resolve('done')
+    })
+  }
+
+  async add(_collectionName: string, _doc: any): Promise<any> {
+    return new Promise((resolve, _reject) => {
+      resolve('done')
+    })
+  }
+
+  async find(_collectionName: string, _query: any = {}): Promise<any> {
+    return new Promise((resolve, _reject) => {
+      resolve('done')
+    })
+  }
+
+  async findById(_collectionName: string, _id: string): Promise<any> {
+    return new Promise((resolve, _reject) => {
+      resolve('done')
+    })
+  }
+
+  async update(_collectionName: string, _docId: string, _update: any): Promise<any> {
+    return new Promise((resolve, _reject) => {
+      resolve('done')
+    })
+  }
+
+  async delete(_collectionName: string, _docId: string): Promise<any> {
+    return new Promise((resolve, _reject) => {
+      resolve('done')
+    })
+  }
+
+  async deleteDB() {
+    return new Promise((resolve, _reject) => {
+      resolve('done')
+    })
+  }
 }
+
+// let OrbitDB: any
+// if (typeof window !== 'undefined') {
+//   console.log('*** Creating OrbitDB instance in browser...')
+//   OrbitDB = window.OrbitDB
+//   console.log('OrbitDB:', OrbitDB)
+// } else {
+//   console.log('*** Creating OrbitDB instance in node...')
+//   OrbitDB = require('orbit-db')
+//   console.log('OrbitDB:', OrbitDB)
+// }
+
+export const db = new AppDatabase(OrbitDB);

@@ -11,6 +11,7 @@ const validChannels = [
   'storage:delete_one',
   'storage:upload',
   'storage:cache_recording',
+  'database:create'
 ];
 
 const validResponseChannels = [
@@ -20,6 +21,7 @@ const validResponseChannels = [
   'storage:delete_one:response:.*',
   'storage:upload:response:.*',
   'storage:cache_recording:response:.*',
+  'database:create:response:.*'
 ];
 
 const api = {
