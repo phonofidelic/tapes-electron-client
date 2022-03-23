@@ -1,8 +1,3 @@
-import fs from 'fs/promises'
-import path from 'path'
-import util from 'util'
-import appRootDir from 'app-root-dir';
-
 // import { create } from 'ipfs'
 import { create } from 'ipfs-core';
 import type { IPFS } from 'ipfs-core-types'
@@ -17,6 +12,8 @@ import Websockets from 'libp2p-websockets';
 //@ts-ignore
 // import WebRTCDirect from 'libp2p-webrtc-direct';
 import { NOISE } from '@chainsafe/libp2p-noise';
+
+console.log('*** ENV:', process.env.NODE_ENV)
 
 export async function createIpfsNode(): Promise<IPFS> {
   const defaultConfig = {
@@ -61,12 +58,13 @@ export async function createIpfsNode(): Promise<IPFS> {
         ]
       }
     },
-    repo: './ipfs',
+    repo: process.env.NODE_ENV === 'test' ? './ipfs-test' : './ipfs',
+    // repo: './ipfs',
     EXPERIMENTAL: { pubsub: true }
   }
 
   //@ts-ignore
-  const node = await create(defaultConfig)
+  const node = await create({ ...defaultConfig, offline: process.env.NODE_ENV === 'test' })
 
   return node
 }

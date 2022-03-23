@@ -57,14 +57,15 @@ export class Main {
 
     this.registerIpcChannels(ipcChannels);
 
-    ipcMain.on('database:create', this.onCreateDatabase.bind(this))
+    // ipcMain.on('database:create', this.onCreateDatabase.bind(this))
+    this.createDatabase()
   }
 
-  private async onCreateDatabase(event: IpcMainEvent, request: any) {
-    console.log('*** onCreateDatabase ***')
+  private async createDatabase() {
+    console.log('Creating database...')
     try {
       this.database = await db.init()
-      console.log('*** onCreateDatabase, this.database:', this.database)
+      console.log('Database initialized')
     } catch (err) {
       console.error('Could not create database:', err)
     }
@@ -174,7 +175,7 @@ export class Main {
   private registerIpcChannels(ipcChannels: IpcChannel[]) {
     ipcChannels.forEach((channel) =>
       ipcMain.on(channel.name, (event, request) =>
-        channel.handle(event, request)
+        channel.handle(event, request, this.database)
       )
     );
 

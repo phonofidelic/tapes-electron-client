@@ -94,4 +94,5 @@ Data/*
 src/keys.json
 arkit.svg
 ipfs
+ipfs-test
 orbitdb

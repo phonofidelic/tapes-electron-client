@@ -1,39 +1,38 @@
 //@ts-ignore
 import OrbitDB from 'orbit-db';
 import type { IPFS } from 'ipfs-core-types'
-import { create } from 'ipfs-http-client'
 import { createIpfsNode } from './utils';
-import { ThreeSixty } from '@mui/icons-material';
+import { AppDatabase } from './AppDatabase'
+import DocumentStore from 'orbit-db-docstore';
 
 // const Buffer = require('buffer/').Buffer;
 
-export class AppDatabase {
-  node: IPFS;
-  OrbitDB: any;
-  orbitdb: any;
-  defaultOptions: any;
-  recordings: any;
-  user: any;
-  companions: any;
-  test: string
+const RECORDINGS_COLLECTION = 'recordings'
 
-  constructor(OrbitDB: any) {
-    this.OrbitDB = OrbitDB
-    this.test = 'hello!'
-  }
+interface Collection {
+  name: string
+}
+
+export class OrbitDatabase implements AppDatabase {
+  private node: IPFS;
+  private orbitdb: OrbitDB;
+  private defaultOptions: any;
+  private recordings: any;
+  private user: any;
+  private companions: any;
+  /** https://stackoverflow.com/a/50428377 */
+  private peerConnectTimeout: ReturnType<typeof setTimeout>
+  private docStores: { [key: string]: DocumentStore<unknown> } = {}
 
   async init() {
     this.node = await createIpfsNode()
-    // this.node = create({
-    //   url: 'http://0.0.0.0:5001',
-    //   host: 'localhost',
-    //   protocol: 'tcp'
-    // })
-    //@ts-ignore
-    console.log('*** db init, this.node:', this.node)
-    console.log('*** db init, OrbitDB:', OrbitDB)
+
     try {
-      this.orbitdb = await OrbitDB.createInstance(this.node);
+      this.orbitdb = await OrbitDB.createInstance(this.node, {
+        //@ts-ignore
+        offline: process.env.NODE_ENV === 'test',
+        id: process.env.NODE_ENV === 'test' ? 'test_' + Date.now() : undefined
+      });
       // this.orbitdb = await new OrbitDB.default(this.node)
     } catch (err) {
       console.error('Could not create OrbitDB instance:', err)
@@ -42,7 +41,7 @@ export class AppDatabase {
 
     this.defaultOptions = {
       acessController: {
-        write: [this.orbitdb.identity.id],
+        write: [this.orbitdb.id],
       },
     };
 
@@ -51,14 +50,23 @@ export class AppDatabase {
      */
     const docStoreOptions = {
       ...this.defaultOptions,
-      indexBy: 'hash',
+      indexBy: '_id',
     };
 
-    this.recordings = await this.orbitdb.docstore('recordings', {
+    const recordings = await this.orbitdb.docstore(RECORDINGS_COLLECTION, {
       ...docStoreOptions,
       // accessController: CustomAccessController,
     });
-    await this.recordings.load();
+    this.docStores[RECORDINGS_COLLECTION] = recordings
+
+    for (const docStore in this.docStores) {
+      await this.docStores[docStore].load()
+    }
+    // await this.recordings.load();
+    // console.log('*** dockStores:', this.docStores)
+    // await this.docStores[RECORDINGS_COLLECTION].put({ _id: '456', title: 'test2' })
+    console.log('*** stored recordings:', this.docStores[RECORDINGS_COLLECTION].get(''))
+    console.log('*** found recording:', await this.find(RECORDINGS_COLLECTION, { title: 'test2' }))
 
     /**
      * Users key-value store
@@ -92,7 +100,9 @@ export class AppDatabase {
       this.handleMessageReceived.bind(this)
     );
 
-    // TOFO: Handle companion connections
+    // TODO: Handle companion connections
+
+    return this;
   }
 
   openpeerconnect = console.log;
@@ -100,10 +110,9 @@ export class AppDatabase {
   onmessage = console.log;
 
   handlePeerConnected(ipfsPeer: any) {
-    console.log('*** handlePeerConnected, ipfsPeer:', ipfsPeer);
-    console.log('*** remote peer id:', ipfsPeer.remotePeer._idB58String);
     const ipfsId = ipfsPeer.remotePeer._idB58String;
-    setTimeout(async () => {
+    // console.log('*** handlePeerConnected, ipfsId:', ipfsId)
+    this.peerConnectTimeout = setTimeout(async () => {
       await this.sendMessage(ipfsId, { userDb: this.user.id });
     }, 2000);
     if (this.openpeerconnect) this.openpeerconnect(ipfsId);
@@ -138,7 +147,7 @@ export class AppDatabase {
       await this.node.pubsub.publish(topic, messageBuffer);
     } catch (err) {
       console.error('Couold not send message:', err);
-      throw new Error('Couold not send message');
+      throw new Error('Could not send message');
     }
   }
 
@@ -161,16 +170,36 @@ export class AppDatabase {
     })
   }
 
-  async add(_collectionName: string, _doc: any): Promise<any> {
-    return new Promise((resolve, _reject) => {
-      resolve('done')
-    })
+  /**
+   * TODO: Implement public methods
+   */
+  async add(collectionName: string, doc: any): Promise<string> {
+    return await this.docStores[collectionName].put(doc)
   }
 
-  async find(_collectionName: string, _query: any = {}): Promise<any> {
-    return new Promise((resolve, _reject) => {
-      resolve('done')
-    })
+  async find(collectionName: string, query: any = {}): Promise<any[]> {
+    let results: any[] = []
+
+    const keys = Object.keys(query);
+
+    /**
+     * If query is empty, return all recordings
+     */
+    if (!keys.length) {
+      return this.docStores[collectionName].get('')
+    }
+
+    /**
+     * Otherwise, collect and return query results
+     */
+    keys.forEach((key) => {
+      results = [
+        ...results,
+        ...this.docStores[collectionName].query((doc: any) => doc[key] === query[key])
+      ]
+    });
+
+    return results
   }
 
   async findById(_collectionName: string, _id: string): Promise<any> {
@@ -196,6 +225,25 @@ export class AppDatabase {
       resolve('done')
     })
   }
+
+
+  /**
+   * Close database connection
+   */
+  async close() {
+    console.log('Closing database connections...')
+    const peerInfo = await this.node.id()
+    try {
+      // console.log('### IPFS stats:', this.node.stats)
+      clearTimeout(this.peerConnectTimeout)
+      await this.node.pubsub.unsubscribe(peerInfo.id, this.handleMessageReceived)
+      await this.node.stop()
+      // await this.orbitdb.disconnect()
+    } catch (err) {
+      console.error('Could not close database connectinos:', err)
+    }
+    console.log('Database connections closed')
+  }
 }
 
 // let OrbitDB: any
@@ -209,4 +257,4 @@ export class AppDatabase {
 //   console.log('OrbitDB:', OrbitDB)
 // }
 
-export const db = new AppDatabase(OrbitDB);
+export const db = new OrbitDatabase();
