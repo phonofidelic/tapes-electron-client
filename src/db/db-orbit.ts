@@ -202,10 +202,8 @@ export class OrbitDatabase implements AppDatabase {
     return results
   }
 
-  async findById(_collectionName: string, _id: string): Promise<any> {
-    return new Promise((resolve, _reject) => {
-      resolve('done')
-    })
+  async findById(collectionName: string, _id: string): Promise<any> {
+    return this.docStores[collectionName].query((doc: any) => doc._id === _id)[0]
   }
 
   async update(_collectionName: string, _docId: string, _update: any): Promise<any> {

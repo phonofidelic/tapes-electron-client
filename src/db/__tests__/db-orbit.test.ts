@@ -60,4 +60,20 @@ describe('Database', () => {
 
     expect(foundRecordings.length).toBe(1)
   })
+
+  it('can find a recording by query', async () => {
+    await testDb.add('recordings', { _id: '456', value: 'test2' })
+
+    const allRecordings = await testDb.find('recordings', {})
+    const foundRecordings = await testDb.find('recordings', { value: 'test2' })
+
+    expect(allRecordings.length).toBe(2)
+    expect(foundRecordings.length).toBe(1)
+  })
+
+  it('can find a recording by id', async () => {
+    const foundRecording = await testDb.findById('recordings', '123')
+
+    expect(foundRecording).toMatchObject({ _id: '123', value: 'test1' })
+  })
 })
