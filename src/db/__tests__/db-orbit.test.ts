@@ -76,4 +76,10 @@ describe('Database', () => {
 
     expect(foundRecording).toMatchObject({ _id: '123', value: 'test1' })
   })
+
+  it('can update a recording', async () => {
+    const updatedRecording = await testDb.update('recordings', '123', { value: 'updated!' })
+
+    expect(updatedRecording).toMatchObject({ _id: '123', value: 'updated!' })
+  })
 })
