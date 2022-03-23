@@ -82,4 +82,11 @@ describe('Database', () => {
 
     expect(updatedRecording).toMatchObject({ _id: '123', value: 'updated!' })
   })
+
+  it('can delete a recording', async () => {
+    const deletedRecordingId = await testDb.delete('recordings', '123')
+    const allRecordings = await testDb.find('recordings', {})
+    expect(allRecordings.length).toBe(1)
+    expect(deletedRecordingId).toEqual('123')
+  })
 })

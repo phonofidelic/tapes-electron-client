@@ -218,10 +218,10 @@ export class OrbitDatabase implements AppDatabase {
     return recording
   }
 
-  async delete(_collectionName: string, _docId: string): Promise<any> {
-    return new Promise((resolve, _reject) => {
-      resolve('done')
-    })
+  async delete(collectionName: string, docId: string): Promise<string> {
+    await this.docStores[collectionName].del(docId)
+
+    return docId
   }
 
   async deleteDB() {
