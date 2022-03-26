@@ -6,7 +6,7 @@
   "main": "./.webpack/main",
   "scripts": {
     "install": "TARGET_ARCH=x64",
-    "start": "electron-forge start DEBUG=electron-rebuild",
+    "start": "DEBUG='electron-forge:*' NODE_ENV=development electron-forge start --inspect-electron",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
@@ -201,6 +201,7 @@
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",
     "meyda": "^5.3.0",
+    "multiformats": "^9.6.4",
     "music-metadata": "^7.8.1",
     "near-api-js": "^0.44.1",
     "orbit-db": "^0.26.0",
