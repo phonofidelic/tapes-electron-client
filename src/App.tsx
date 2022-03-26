@@ -18,9 +18,9 @@ function App() {
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(initDatabase());
-  }, []);
+  // useEffect(() => {
+  //   dispatch(initDatabase());
+  // }, []);
 
   return (
     <div className="main">
@@ -41,7 +41,7 @@ function App() {
           <Route path="/recorder">
             <Recorder />
           </Route>
-          <Route exact path="/main_window">
+          <Route exact path="/">
             <Redirect to="/recorder" />
           </Route>
         </Switch>
@@ -56,3 +56,4 @@ function App() {
 }
 
 export default hot(module)(App);
+// export default App
