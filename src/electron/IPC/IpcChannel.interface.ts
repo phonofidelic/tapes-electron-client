@@ -1,5 +1,5 @@
 import { IpcMainEvent } from "electron";
-import { AppDatabase } from "../../db/AppDatabase";
+import { AppDatabase } from "../../db/AppDatabase.interface";
 import { IpcRequest } from "./IpcRequest.interface";
 
 export interface IpcChannel {

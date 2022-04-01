@@ -255,21 +255,21 @@ export const startRecording =
     async (dispatch) => {
       dispatch(startRecordingRequest());
 
-      const recordingCount = (await db.find(RECORDING_COLLECTION, {})).length;
-      console.log('recordingCount:', recordingCount);
+      // const recordingCount = (await db.find(RECORDING_COLLECTION, {})).length;
+      // const title = `Recording #${recordingCount + 1}`;
+      const defaultTitle = `Recording - ${Date.now().toLocaleString()}`;
 
-      const title = `Recording #${recordingCount + 1}`;
-
-      let ipcResponse: { data: Recording; file?: any; error?: Error };
+      let ipcResponse: { createdRecording: Recording; file?: any; error?: Error };
       let recordingData;
+      let createdRecording
       try {
         ipcResponse = await ipc.send('recorder:start', {
-          data: { recordingSettings, title },
+          data: { recordingSettings, title: defaultTitle },
         });
         console.log('recorder:start, ipcResponse:', ipcResponse);
 
-        recordingData = ipcResponse.data;
-        console.log('recordingData:', recordingData);
+        createdRecording = ipcResponse.createdRecording;
+        console.log('createdRecording:', createdRecording);
         // dispatch(startRecordingSuccess(recordingData));
         if (ipcResponse.error) {
           throw ipcResponse.error;
@@ -278,16 +278,17 @@ export const startRecording =
         return dispatch(startRecordingFailure(err));
       }
 
-      let createdRecording;
       try {
         dispatch(addRecordingRequest());
         dispatch(setLoadingMessage('Storing file on IPFS...'));
 
-        createdRecording = await addRemoteRecording(recordingData);
+        /**
+         * TODO: Re-implement remote storage with Web3.Storage in NewRecordingChannel
+         */
+        // createdRecording = await addRemoteRecording(recordingData);
 
         dispatch(addRecordingSuccess(createdRecording));
         dispatch(setLoadingMessage(null));
-        await db.push(RECORDING_COLLECTION);
       } catch (err) {
         console.error('addRecordingRequest error:', err);
         dispatch(addRecordingFailure(err));
@@ -311,13 +312,8 @@ export const loadRecordings = (): Effect => async (dispatch) => {
   dispatch(loadRecordingsRequest());
 
   try {
-    dispatch(setLoadingMessage('Retrieving remote data...'));
-    await db.pull(RECORDING_COLLECTION);
     dispatch(setLoadingMessage('Loading library...'));
-    const recordings = (await db.find(
-      RECORDING_COLLECTION,
-      {}
-    )) as unknown as Recording[];
+    const { recordings } = await ipc.send('recordings:get_all') as { recordings: Recording[] };
 
     dispatch(loadRecordingsSuccess(recordings));
     dispatch(setLoadingMessage(null));
@@ -333,12 +329,7 @@ export const editRecording =
       dispatch(editRecordingRequest());
 
       try {
-        await db.update(RECORDING_COLLECTION, recordingId, update);
-        await db.push(RECORDING_COLLECTION);
-        const updatedRecording = (await db.findById(
-          RECORDING_COLLECTION,
-          recordingId
-        )) as unknown as Recording;
+        const { updatedRecording } = await ipc.send('recordings:update', { data: { recordingId, update } }) as { updatedRecording: Recording };
         console.log('updatedRecording:', updatedRecording);
         dispatch(editRecordingSuccess(updatedRecording));
       } catch (err) {
@@ -352,69 +343,15 @@ export const deleteRecording =
     async (dispatch) => {
       dispatch(deleteRecordingRequest(recordingId));
 
-      let recording;
       try {
-        /**
-         * Get data for Recording to delete
-         */
-        dispatch(setLoadingMessage('Retrieving data to remove...'));
-        recording = (await db.findById(
-          RECORDING_COLLECTION,
-          recordingId
-        )) as unknown as Recording;
-      } catch (err) {
-        console.error('Could not find Recording to be deleted:', err);
-        return dispatch(deleteRecordingFailure(err));
-      }
-
-      try {
-        /**
-         * Delete in Textile bucket
-         */
-        dispatch(setLoadingMessage('Removing remote Recording file...'));
-        const { buckets, bucketKey } = await getBucket();
-
-        const requestTimeout = setTimeout(() => {
-          dispatch(deleteRecordingFailure(new Error('Request timed out')));
-        }, REQUEST_TIMEOUT);
-
-        const removePathResult = await buckets.removePath(
-          bucketKey,
-          recording.filename
-        );
-        clearTimeout(requestTimeout);
-        console.log('removePathResult:', removePathResult);
-      } catch (err) {
-        console.error('Could not remove file from Textile bucket:', err);
-        dispatch(deleteRecordingFailure(err));
-      }
-
-      try {
-        /**
-         * Remove Recording object in storage
-         */
-        dispatch(setLoadingMessage('Removing local Recording file...'));
-        const ipcResponse = await ipc.send('storage:delete_one', {
-          data: recording,
-        });
-        console.log('deleteRecording, ipcResponse:', ipcResponse);
-      } catch (err) {
-        console.error('Could not remove Recording file locally:', err);
-        dispatch(deleteRecordingFailure(err));
-      }
-
-      try {
-        /**
-         * Delete record in IDB
-         */
         dispatch(setLoadingMessage('Updating database...'));
 
-        await db.delete(RECORDING_COLLECTION, recordingId);
+        const deleteRecordingResponse = await ipc.send('recordings:delete_one', { data: { recordingId } })
+        console.log('deleteRecordingResponse:', deleteRecordingResponse)
 
         dispatch(deleteRecordingSuccess(recordingId));
-        await db.push(RECORDING_COLLECTION);
       } catch (err) {
-        console.error('Could not remove IPFS path:', err);
+        console.error('Could not delete recording:', err);
 
         dispatch(deleteRecordingFailure(err));
       }

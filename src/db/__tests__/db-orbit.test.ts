@@ -1,7 +1,7 @@
 import { rm, readdir } from 'fs/promises'
 import path from 'path'
 import { db } from '../db-orbit'
-import { AppDatabase } from '../AppDatabase'
+import { AppDatabase } from '../AppDatabase.interface'
 
 async function rmOrbitDirs() {
   const orbitDirs = await readdir('orbitdb')
@@ -15,6 +15,7 @@ async function rmOrbitDirs() {
 
 describe('Database', () => {
   let testDb: AppDatabase;
+  let test1Id: string;
 
   beforeAll(async () => {
     try {
@@ -55,38 +56,37 @@ describe('Database', () => {
   })
 
   it('can add a recording', async () => {
-    await testDb.add('recordings', { _id: '123', value: 'test1' })
+    test1Id = await testDb.add('recordings', { value: 'test1' })
     const foundRecordings = await testDb.find('recordings', {})
 
     expect(foundRecordings.length).toBe(1)
   })
 
   it('can find a recording by query', async () => {
-    await testDb.add('recordings', { _id: '456', value: 'test2' })
+    await testDb.add('recordings', { value: 'test2' })
 
     const allRecordings = await testDb.find('recordings', {})
     const foundRecordings = await testDb.find('recordings', { value: 'test2' })
-
     expect(allRecordings.length).toBe(2)
     expect(foundRecordings.length).toBe(1)
   })
 
   it('can find a recording by id', async () => {
-    const foundRecording = await testDb.findById('recordings', '123')
+    const foundRecording = await testDb.findById('recordings', test1Id)
 
-    expect(foundRecording).toMatchObject({ _id: '123', value: 'test1' })
+    expect(foundRecording).toMatchObject({ value: 'test1' })
   })
 
   it('can update a recording', async () => {
-    const updatedRecording = await testDb.update('recordings', '123', { value: 'updated!' })
+    const updatedRecording = await testDb.update('recordings', test1Id, { value: 'updated!' })
 
-    expect(updatedRecording).toMatchObject({ _id: '123', value: 'updated!' })
+    expect(updatedRecording).toMatchObject({ value: 'updated!' })
   })
 
   it('can delete a recording', async () => {
-    const deletedRecordingId = await testDb.delete('recordings', '123')
+    const deletedRecordingId = await testDb.delete('recordings', test1Id)
     const allRecordings = await testDb.find('recordings', {})
     expect(allRecordings.length).toBe(1)
-    expect(deletedRecordingId).toEqual('123')
+    expect(deletedRecordingId).toEqual(test1Id)
   })
 })

@@ -17,6 +17,7 @@ import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingSettings } from '../../common/RecordingSettings.interface';
+import { AppDatabase } from '../../db/AppDatabase.interface';
 
 const setStorageDir = async (folderName: string): Promise<string> => {
   const storagePath =
@@ -35,7 +36,7 @@ export class NewRecordingChannel implements IpcChannel {
     return 'recorder:start';
   }
 
-  async handle(event: IpcMainEvent, request: IpcRequest) {
+  async handle(event: IpcMainEvent, request: IpcRequest, db: AppDatabase) {
     console.log(this.name);
 
     const recordingSettings: RecordingSettings = request.data.recordingSettings;
@@ -43,9 +44,8 @@ export class NewRecordingChannel implements IpcChannel {
 
     console.log('*** recordingSettings:', request.data);
 
-    const filename = `${randomBytes(16).toString('hex')}.${
-      recordingSettings.format
-    }`;
+    const filename = `${randomBytes(16).toString('hex')}.${recordingSettings.format
+      }`;
 
     const filePath = path.resolve(await setStorageDir('Data'), filename);
 
@@ -57,10 +57,10 @@ export class NewRecordingChannel implements IpcChannel {
           process.env.NODE_ENV === 'production'
             ? path.resolve(process.resourcesPath, 'bin', 'sox-14.4.2-macOS')
             : (soxPath = path.resolve(
-                appRootDir.get(),
-                'bin',
-                'sox-14.4.2-macOS'
-              ));
+              appRootDir.get(),
+              'bin',
+              'sox-14.4.2-macOS'
+            ));
         break;
 
       case 'win32':
@@ -136,14 +136,14 @@ export class NewRecordingChannel implements IpcChannel {
           });
         }
 
-        const recording: Recording = {
+        const recordingData: Recording = {
           location: filePath,
           filename,
           size: fileStats.size,
           duration: metadata.format.duration,
           format: recordingSettings.format,
           channels: recordingSettings.channels,
-          fileData: await fs.readFile(filePath),
+          // fileData: await fs.readFile(filePath),
           common: metadata.common,
           title:
             acoustidResponse.data.results[0]?.recordings[0]?.title ||
@@ -151,16 +151,17 @@ export class NewRecordingChannel implements IpcChannel {
           acoustidResults: await acoustidResponse.data.results,
         };
 
-        const fileData = await fs.readFile(filePath);
+        // const fileData = await fs.readFile(filePath);
 
+        const cid = await db.add('recordings', recordingData)
+        console.log('*** cid:', cid)
+
+        const createdRecording = await db.findById('recordings', cid)
         /**
          * Send response to render process
          */
-        console.log('recording:', recording);
-        event.sender.send(request.responseChannel, {
-          data: recording,
-          file: fileData,
-        });
+        console.log('createdRecording:', createdRecording);
+        event.sender.send(request.responseChannel, { createdRecording });
       });
     } catch (err) {
       console.error('*** Could not spaw SoX:', err);

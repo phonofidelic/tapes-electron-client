@@ -136,7 +136,7 @@ export function RecordingsListItem({
 
   useEffect(() => {
     setNewTitle(recording.title);
-  }, [selected, recording.title]);
+  }, [selected, recording]);
 
   return (
     <ListItem

@@ -18,6 +18,7 @@ import appRootDir from 'app-root-dir';
 import { IpcChannel } from './IPC/IpcChannel.interface';
 import { RecorderTray } from './RecorderTray';
 import { db } from '../db/db-orbit';
+import { AppDatabase } from '../db/AppDatabase.interface';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
@@ -46,7 +47,7 @@ export class Main {
 
   private metamaskPopup: BrowserWindow;
 
-  private database: any;
+  private database: AppDatabase;
 
   public init(ipcChannels: IpcChannel[]) {
     app.on('ready', this.createWindow);
@@ -66,6 +67,7 @@ export class Main {
     try {
       this.database = await db.init()
       console.log('Database initialized')
+      // app.on('before-quit', this.database.close)
     } catch (err) {
       console.error('Could not create database:', err)
     }

@@ -1,8 +1,12 @@
 //@ts-ignore
 import OrbitDB from 'orbit-db';
 import type { IPFS } from 'ipfs-core-types'
+import { CID } from 'multiformats/cid'
+import * as jsonEncoder from 'multiformats/codecs/json'
+import { sha256 } from 'multiformats/hashes/sha2'
+import { base64 } from "multiformats/bases/base64"
 import { createIpfsNode } from './utils';
-import { AppDatabase } from './AppDatabase'
+import { AppDatabase } from './AppDatabase.interface'
 import DocumentStore from 'orbit-db-docstore';
 
 // const Buffer = require('buffer/').Buffer;
@@ -174,7 +178,14 @@ export class OrbitDatabase implements AppDatabase {
    * TODO: Implement public methods
    */
   async add(collectionName: string, doc: any): Promise<string> {
-    return await this.docStores[collectionName].put(doc)
+    const bytes = jsonEncoder.encode(doc)
+    const hash = await sha256.digest(bytes)
+    const cid = CID.create(1, jsonEncoder.code, hash)
+    const docId = cid.toString(base64.encoder)
+    // const docId = 'bajs'
+
+    await this.docStores[collectionName].put({ ...doc, _id: docId })
+    return docId
   }
 
   async find(collectionName: string, query: any = {}): Promise<any[]> {
@@ -207,15 +218,15 @@ export class OrbitDatabase implements AppDatabase {
   }
 
   async update(collectionName: string, docId: string, update: any): Promise<any> {
-    let recording = await this.findById(collectionName, docId)
+    let document = await this.findById(collectionName, docId)
 
-    recording = {
-      ...recording,
+    document = {
+      ...document,
       ...update
     }
 
-    await this.docStores[collectionName].put(recording)
-    return recording
+    await this.docStores[collectionName].put(document)
+    return document
   }
 
   async delete(collectionName: string, docId: string): Promise<string> {
@@ -244,7 +255,7 @@ export class OrbitDatabase implements AppDatabase {
       await this.node.stop()
       // await this.orbitdb.disconnect()
     } catch (err) {
-      console.error('Could not close database connectinos:', err)
+      console.error('Could not close database connections:', err)
     }
     console.log('Database connections closed')
   }
