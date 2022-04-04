@@ -46,11 +46,10 @@ export const getAcoustidResults = async (
   duration: number,
   fingerprint: string
 ) => {
-  const acoustidRequestUrl = `https://api.acoustid.org/v2/lookup?client=${
-    process.env.ACOUSTID_API_KEY
-  }&meta=recordings+releasegroups+compress&duration=${Math.round(
-    duration
-  )}&fingerprint=${fingerprint}`;
+  const acoustidRequestUrl = `https://api.acoustid.org/v2/lookup?client=${process.env.ACOUSTID_API_KEY
+    }&meta=recordings+releasegroups+compress&duration=${Math.round(
+      duration
+    )}&fingerprint=${fingerprint}`;
 
   let acoustidResponse;
   try {

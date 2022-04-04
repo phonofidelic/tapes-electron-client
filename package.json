@@ -220,7 +220,8 @@
     "stream": "^0.0.2",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.2.1",
-    "ursa-optional": "^0.10.2"
+    "ursa-optional": "^0.10.2",
+    "web3.storage": "^4.0.0"
   },
   "browser": {
     "crypto": false

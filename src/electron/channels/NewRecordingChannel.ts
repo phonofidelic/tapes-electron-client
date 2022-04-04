@@ -6,6 +6,7 @@ import { spawn } from 'child_process';
 import { randomBytes } from 'crypto';
 import appRootDir from 'app-root-dir';
 import * as mm from 'music-metadata';
+import { getFilesFromPath } from 'web3.storage'
 
 import {
   fpcalcPromise,
@@ -18,6 +19,7 @@ import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingSettings } from '../../common/RecordingSettings.interface';
 import { AppDatabase } from '../../db/AppDatabase.interface';
+import { storageService } from '../../storage';
 
 const setStorageDir = async (folderName: string): Promise<string> => {
   const storagePath =
@@ -40,13 +42,7 @@ export class NewRecordingChannel implements IpcChannel {
     console.log(this.name);
 
     const recordingSettings: RecordingSettings = request.data.recordingSettings;
-    const defaultTitle: string = request.data.title;
-
-    console.log('*** recordingSettings:', request.data);
-
-    const filename = `${randomBytes(16).toString('hex')}.${recordingSettings.format
-      }`;
-
+    const filename = `${randomBytes(16).toString('hex')}.${recordingSettings.format}`;
     const filePath = path.resolve(await setStorageDir('Data'), filename);
 
     let soxPath;
@@ -136,6 +132,18 @@ export class NewRecordingChannel implements IpcChannel {
           });
         }
 
+        /**
+         * Upload file to IPFS
+         */
+        const files = await getFilesFromPath(filePath)
+        const cid = await storageService.put(files as unknown as File[])
+
+        /**
+         * Create default title based on Recording count
+         */
+        const recordings = await db.find('recordings', {})
+        const defaultTitle = `Recording #${recordings.length + 1}`;
+
         const recordingData: Recording = {
           location: filePath,
           filename,
@@ -143,20 +151,19 @@ export class NewRecordingChannel implements IpcChannel {
           duration: metadata.format.duration,
           format: recordingSettings.format,
           channels: recordingSettings.channels,
-          // fileData: await fs.readFile(filePath),
           common: metadata.common,
           title:
             acoustidResponse.data.results[0]?.recordings[0]?.title ||
             defaultTitle,
           acoustidResults: await acoustidResponse.data.results,
+          cid
         };
 
-        // const fileData = await fs.readFile(filePath);
 
-        const cid = await db.add('recordings', recordingData)
-        console.log('*** cid:', cid)
+        const docId = await db.add('recordings', recordingData)
+        console.log('*** docId:', docId)
 
-        const createdRecording = await db.findById('recordings', cid)
+        const createdRecording = await db.findById('recordings', docId)
         /**
          * Send response to render process
          */

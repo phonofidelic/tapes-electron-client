@@ -1,12 +1,9 @@
 import path from 'path';
-import util from 'util';
 import { promises as fs } from 'fs';
-import https from 'https';
-import { spawn } from 'child_process';
 import * as mm from 'music-metadata';
 import { randomBytes } from 'crypto';
-import { IpcMainEvent, ipcMain } from 'electron';
-import appRootDir from 'app-root-dir';
+import { IpcMainEvent } from 'electron';
+import { getFilesFromPath } from 'web3.storage'
 
 import {
   setStorageDir,
@@ -19,8 +16,7 @@ import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingFormats } from '../../common/RecordingFormats.enum';
-import axios from 'axios';
-import { MusicBrainzCoverArt } from '../../common/MusicBrainzCoverArt.interface';
+import { storageService } from '../../storage';
 
 export class UploadAudioFileChannel implements IpcChannel {
   get name(): string {
@@ -67,9 +63,15 @@ export class UploadAudioFileChannel implements IpcChannel {
       }
 
       /**
+       * Upload file to IPFS
+      */
+      const files = await getFilesFromPath(filePath)
+      const cid = await storageService.put(files as unknown as File[])
+
+      /**
        * Get audio metadata
        */
-      const metadata = await mm.parseFile(file.path);
+      const metadata = await mm.parseFile(filePath);
       console.log('*** metadata:', metadata);
 
       /**
@@ -121,7 +123,7 @@ export class UploadAudioFileChannel implements IpcChannel {
           format,
           channels: metadata.format.numberOfChannels,
           common: metadata.common,
-          fileData: await fs.readFile(filePath),
+          cid,
           acoustidResults: [await acoustidResponse.data.results[0]],
           musicBrainzCoverArt: await getMusicBrainzCoverArt(metadata.common),
         });
@@ -135,7 +137,7 @@ export class UploadAudioFileChannel implements IpcChannel {
           format,
           channels: metadata.format.numberOfChannels,
           common: metadata.common,
-          fileData: await fs.readFile(filePath),
+          cid,
           musicBrainzCoverArt: await getMusicBrainzCoverArt(metadata.common),
         });
       }

@@ -15,8 +15,8 @@ export interface Recording {
   duration?: number;
   created?: Date;
   common?: ICommonTagsResult;
-  fileData?: any;
   fingerprint?: string;
   acoustidResults?: AcoustidResult[];
   musicBrainzCoverArt?: MusicBrainzCoverArt;
+  cid?: string;
 }

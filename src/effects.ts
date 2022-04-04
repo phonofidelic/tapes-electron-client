@@ -102,100 +102,100 @@ const getBucket = async () => {
   };
 };
 
-const addRemoteRecording = async (
-  recordingData: Recording
-): Promise<Recording> => {
-  console.log('Adding audio file to remote bucket...');
-  const { buckets, bucketKey, threadId } = await getBucket();
-  console.log('threadId:', threadId);
-  /**
-   * Push audio data to IPFS
-   */
-  if (!recordingData.fileData) {
-    console.error('No file data for ' + recordingData.title);
-    throw new Error('No file data for ' + recordingData.title);
-  }
+// const addRemoteRecording = async (
+//   recordingData: Recording
+// ): Promise<Recording> => {
+//   console.log('Adding audio file to remote bucket...');
+//   const { buckets, bucketKey, threadId } = await getBucket();
+//   console.log('threadId:', threadId);
+//   /**
+//    * Push audio data to IPFS
+//    */
+//   if (!recordingData.fileData) {
+//     console.error('No file data for ' + recordingData.title);
+//     throw new Error('No file data for ' + recordingData.title);
+//   }
 
-  let pushPathResult;
-  try {
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(() => {
-      console.log('*** ran out of time! ***');
-      abortController.abort();
+//   let pushPathResult;
+//   try {
+//     const abortController = new AbortController();
+//     const timeoutId = setTimeout(() => {
+//       console.log('*** ran out of time! ***');
+//       abortController.abort();
 
-      throw new Error('Push path request timed out');
-    }, REQUEST_TIMEOUT);
+//       throw new Error('Push path request timed out');
+//     }, REQUEST_TIMEOUT);
 
-    pushPathResult = await buckets.pushPath(
-      bucketKey,
-      recordingData.filename,
-      {
-        path: '/' + recordingData.filename,
-        content: recordingData.fileData,
-      },
-      {
-        progress: (prog) => {
-          // console.log('Push progress:', prog);
-        },
-        signal: abortController.signal,
-      }
-    );
-    clearTimeout(timeoutId);
-    console.log('pushPathResult:', pushPathResult);
-  } catch (err) {
-    console.error('Could not push audio file to remote bucket:', err);
-    throw new Error('Could not push audio file to remote bucket');
-  }
+//     pushPathResult = await buckets.pushPath(
+//       bucketKey,
+//       recordingData.filename,
+//       {
+//         path: '/' + recordingData.filename,
+//         content: recordingData.fileData,
+//       },
+//       {
+//         progress: (prog) => {
+//           // console.log('Push progress:', prog);
+//         },
+//         signal: abortController.signal,
+//       }
+//     );
+//     clearTimeout(timeoutId);
+//     console.log('pushPathResult:', pushPathResult);
+//   } catch (err) {
+//     console.error('Could not push audio file to remote bucket:', err);
+//     throw new Error('Could not push audio file to remote bucket');
+//   }
 
-  /**
-   * Set remote Textile Bucket location
-   */
-  const remoteLocation =
-    IPFS_GATEWAY +
-    '/thread/' +
-    threadId +
-    '/buckets/' +
-    bucketKey +
-    '/' +
-    recordingData.filename;
+//   /**
+//    * Set remote Textile Bucket location
+//    */
+//   const remoteLocation =
+//     IPFS_GATEWAY +
+//     '/thread/' +
+//     threadId +
+//     '/buckets/' +
+//     bucketKey +
+//     '/' +
+//     recordingData.filename;
 
-  const recordingDoc = new RecordingModel(
-    recordingData.location,
-    recordingData.filename,
-    recordingData.title,
-    recordingData.size,
-    recordingData.format,
-    recordingData.channels,
-    recordingData.duration,
-    remoteLocation,
-    null,
-    recordingData.common,
-    recordingData.acoustidResults,
-    recordingData.musicBrainzCoverArt
-  );
+//   const recordingDoc = new RecordingModel(
+//     recordingData.location,
+//     recordingData.filename,
+//     recordingData.title,
+//     recordingData.size,
+//     recordingData.format,
+//     recordingData.channels,
+//     recordingData.duration,
+//     remoteLocation,
+//     null,
+//     recordingData.common,
+//     recordingData.acoustidResults,
+//     recordingData.musicBrainzCoverArt
+//   );
 
-  /**
-   * Add recording doc to Textile DB
-   */
-  console.log('Adding recording doc to Textile DB...');
-  const newRecordingId = await db.add(RECORDING_COLLECTION, recordingDoc);
-  console.log('recordingDoc:', recordingDoc);
+//   /**
+//    * Add recording doc to Textile DB
+//    */
+//   console.log('Adding recording doc to Textile DB...');
+//   const newRecordingId = await db.add(RECORDING_COLLECTION, recordingDoc);
+//   console.log('recordingDoc:', recordingDoc);
 
-  /**
-   * Update recording doc with remoteLocation
-   */
-  await db.update(RECORDING_COLLECTION, newRecordingId, {
-    remoteLocation,
-    bucketPath: pushPathResult.path.path,
-  });
+//   /**
+//    * Update recording doc with remoteLocation
+//    */
+//   await db.update(RECORDING_COLLECTION, newRecordingId, {
+//     remoteLocation,
+//     bucketPath: pushPathResult.path.path,
+//   });
 
-  const createdRecording = (await db.findById(
-    RECORDING_COLLECTION,
-    newRecordingId
-  )) as unknown as Recording;
+//   const createdRecording = (await db.findById(
+//     RECORDING_COLLECTION,
+//     newRecordingId
+//   )) as unknown as Recording;
 
-  return createdRecording;
-};
+//   return createdRecording;
+// };
 /** End Textile utils */
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
@@ -231,20 +231,20 @@ export const uploadAudioFiles =
         return dispatch(uploadRecordingsFailure(err));
       }
 
-      let createdRecordings = [];
-      try {
-        for await (let recordingData of ipcResponse.data) {
-          console.log(`Uploading "${recordingData.title}"`);
-          dispatch(setLoadingMessage(`Uploading "${recordingData.title}"`));
-          const createdRecording = await addRemoteRecording(recordingData);
-          createdRecordings.push(createdRecording);
-        }
-        console.log('Updating remote DB...');
-        await db.push(RECORDING_COLLECTION);
-      } catch (err) {
-        console.error('Could not push audio files to remote:', err);
-        return dispatch(uploadRecordingsFailure(err));
-      }
+      const createdRecordings = ipcResponse.data;
+      // try {
+      //   for await (let recordingData of ipcResponse.data) {
+      //     console.log(`Uploading "${recordingData.title}"`);
+      //     dispatch(setLoadingMessage(`Uploading "${recordingData.title}"`));
+      //     const createdRecording = await addRemoteRecording(recordingData);
+      //     createdRecordings.push(createdRecording);
+      //   }
+      //   console.log('Updating remote DB...');
+      //   await db.push(RECORDING_COLLECTION);
+      // } catch (err) {
+      //   console.error('Could not push audio files to remote:', err);
+      //   return dispatch(uploadRecordingsFailure(err));
+      // }
 
       dispatch(uploadRecordingsSuccess(createdRecordings));
       dispatch(setLoadingMessage(null));
@@ -255,40 +255,37 @@ export const startRecording =
     async (dispatch) => {
       dispatch(startRecordingRequest());
 
-      // const recordingCount = (await db.find(RECORDING_COLLECTION, {})).length;
-      // const title = `Recording #${recordingCount + 1}`;
-      const defaultTitle = `Recording - ${Date.now().toLocaleString()}`;
-
       let ipcResponse: { createdRecording: Recording; file?: any; error?: Error };
-      let recordingData;
       let createdRecording
       try {
         ipcResponse = await ipc.send('recorder:start', {
-          data: { recordingSettings, title: defaultTitle },
+          data: { recordingSettings },
         });
         console.log('recorder:start, ipcResponse:', ipcResponse);
 
         createdRecording = ipcResponse.createdRecording;
         console.log('createdRecording:', createdRecording);
-        // dispatch(startRecordingSuccess(recordingData));
+        dispatch(startRecordingSuccess(createdRecording));
         if (ipcResponse.error) {
           throw ipcResponse.error;
         }
+        dispatch(addRecordingSuccess(createdRecording));
+        dispatch(setLoadingMessage(null));
       } catch (err) {
         return dispatch(startRecordingFailure(err));
       }
 
       try {
-        dispatch(addRecordingRequest());
-        dispatch(setLoadingMessage('Storing file on IPFS...'));
+        // dispatch(addRecordingRequest());
+        // dispatch(setLoadingMessage('Storing file on IPFS...'));
 
         /**
          * TODO: Re-implement remote storage with Web3.Storage in NewRecordingChannel
          */
         // createdRecording = await addRemoteRecording(recordingData);
 
-        dispatch(addRecordingSuccess(createdRecording));
-        dispatch(setLoadingMessage(null));
+        // dispatch(addRecordingSuccess(createdRecording));
+        // dispatch(setLoadingMessage(null));
       } catch (err) {
         console.error('addRecordingRequest error:', err);
         dispatch(addRecordingFailure(err));
@@ -303,6 +300,8 @@ export const stopRecording = (): Effect => async (dispatch) => {
     ipc.send('recorder:stop');
     console.log('recorder:stop');
     // dispatch(stopRecordingSuccess());
+    dispatch(addRecordingRequest());
+    dispatch(setLoadingMessage('Storing file on IPFS...'));
   } catch (err) {
     dispatch(stopRecordingFailure(err));
   }
@@ -482,18 +481,15 @@ export const cacheAndPlayRecording =
       dispatch(pauseRecording());
       dispatch(cacheRecordingRequest(recording));
       try {
-        const { token } = await getBucket();
-
         const ipcResponse: { message: string; error?: Error } = await ipc.send(
           'storage:cache_recording',
           {
-            data: { recording, token },
+            data: { recording },
           }
         );
 
         console.log('cacheRecording, ipcResponse:', ipcResponse);
         if (ipcResponse.error) {
-          // TODO: Check ipcResopnse for errors
           dispatch(cacheRecordingFailure(ipcResponse.error));
         }
 
