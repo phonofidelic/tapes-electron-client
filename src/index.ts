@@ -7,6 +7,7 @@ import { SetInputDeviceChannel } from './electron/channels/SetInputDevaiceChanne
 import { CacheRecordingChannel } from './electron/channels/CacheRecordingChannel';
 import { LoadRecordingsChannel } from './electron/channels/LoadRecordingsChannel';
 import { UpdateRecordingChannel } from './electron/channels/UpdateRecordingChannel'
+import { GetRecordingStorageStatusChannel } from './electron/channels/GetRecordingStorageStatusChannel';
 
 new Main().init([
   new NewRecordingChannel(),
@@ -15,5 +16,6 @@ new Main().init([
   new SetInputDeviceChannel(),
   new CacheRecordingChannel(),
   new LoadRecordingsChannel(),
-  new UpdateRecordingChannel()
+  new UpdateRecordingChannel(),
+  new GetRecordingStorageStatusChannel()
 ]);

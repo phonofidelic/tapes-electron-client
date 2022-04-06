@@ -43,9 +43,12 @@ import {
   cacheRecordingFailure,
   pauseRecording,
   playRecording,
+  getRecordingStorageStatusRequest,
+  getRecordingStorageStatusFailure,
+  getRecordingStorageStatusSuccess,
 } from './store/actions';
 // import { browserDB as db, RecordingModel } from './db';
-import { Recording } from './common/Recording.interface';
+import { Recording, RecordingStorageStatus } from './common/Recording.interface';
 import { RecordingSettings } from './common/RecordingSettings.interface';
 import { RECORDING_COLLECTION, IDENTITY_STORE } from './common/constants';
 import { IpcService } from './IpcService';
@@ -500,3 +503,14 @@ export const cacheAndPlayRecording =
         dispatch(cacheRecordingFailure(err));
       }
     };
+
+export const getRecordingStorageStatus = (recordingCid: string): Effect => async (dispatch) => {
+  dispatch(getRecordingStorageStatusRequest())
+  try {
+    const { recordingStorageStatus }: { recordingStorageStatus: RecordingStorageStatus } = await ipc.send('storage:get_recording_stats', { data: recordingCid })
+    console.log('recordingStorageStatus:', recordingStorageStatus)
+    dispatch(getRecordingStorageStatusSuccess(recordingStorageStatus))
+  } catch (err) {
+    dispatch(getRecordingStorageStatusFailure(err))
+  }
+}

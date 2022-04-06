@@ -1,12 +1,14 @@
 
 import fs from 'fs'
 import path from 'path'
-import { Web3Storage } from 'web3.storage'
+import { Web3Storage, Status } from 'web3.storage'
 
 interface AppStorage {
   put(files: File[]): Promise<string>
 
   cache(cid: string, dest: string): void
+
+  status(cid: string): Promise<Status | undefined>
 }
 
 export class Web3StorageService implements AppStorage {
@@ -38,6 +40,11 @@ export class Web3StorageService implements AppStorage {
 
       file.close()
     }
+  }
+
+  async status(cid: string) {
+    console.log('*** status, cid:', cid)
+    return await this.client.status(cid)
   }
 }
 
