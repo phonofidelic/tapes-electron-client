@@ -17,13 +17,14 @@ import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingFormats } from '../../common/RecordingFormats.enum';
 import { storageService } from '../../storage';
+import { AppDatabase } from '../../db/AppDatabase.interface';
 
 export class UploadAudioFileChannel implements IpcChannel {
   get name(): string {
     return 'storage:upload';
   }
 
-  async handle(event: IpcMainEvent, request: IpcRequest) {
+  async handle(event: IpcMainEvent, request: IpcRequest, db: AppDatabase) {
     console.log(this.name);
 
     console.log('*** Audio files:', request.data.files);
@@ -78,7 +79,7 @@ export class UploadAudioFileChannel implements IpcChannel {
        * Check for metadata.common.title
        * If it is empty, start Acoustid process here
        */
-
+      let recordingData: Recording;
       if (!metadata.common.title || !metadata.common.artist) {
         console.log('*** Not enough metadata. Starting Acoustid process...');
         // console.log('*** ACOUSTID_API_KEY:', process.env.ACOUSTID_API_KEY);
@@ -111,7 +112,7 @@ export class UploadAudioFileChannel implements IpcChannel {
           });
         }
 
-        recordings.push({
+        recordingData = {
           location: filePath,
           filename,
           title:
@@ -126,12 +127,12 @@ export class UploadAudioFileChannel implements IpcChannel {
           cid,
           acoustidResults: [await acoustidResponse.data.results[0]],
           musicBrainzCoverArt: await getMusicBrainzCoverArt(metadata.common),
-        });
+        };
       } else {
-        recordings.push({
+        recordingData = {
           location: filePath,
           filename,
-          title: metadata.common.title || 'No title',
+          title: metadata.common.title,
           size: file.size,
           duration: metadata.format.duration,
           format,
@@ -139,8 +140,13 @@ export class UploadAudioFileChannel implements IpcChannel {
           common: metadata.common,
           cid,
           musicBrainzCoverArt: await getMusicBrainzCoverArt(metadata.common),
-        });
+        };
       }
+
+      const docId = await db.add('recordings', recordingData)
+      const createdRecording = await db.findById('recordings', docId) as unknown as Recording
+
+      recordings.push(createdRecording)
     }
     event.sender.send(request.responseChannel, {
       message: 'Success!',
