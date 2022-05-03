@@ -14,11 +14,11 @@ export class DeleteRecordingChannel implements IpcChannel {
   async handle(event: IpcMainEvent, request: IpcRequest, db: AppDatabase) {
     console.log(this.name, request);
 
-    const { recordingId } = request.data
-    const recording = await db.findById('recordings', recordingId) as unknown as Recording;
+    const { recording } = request.data
+    // const recording = await db.findById('recordings', recordingId) as unknown as Recording;
 
     try {
-      await db.delete('recordings', recording._id)
+      // await db.delete('recordings', recording._id)
       await fs.unlink(recording.location);
       event.sender.send(request.responseChannel, {
         message: 'Successful file deletion',

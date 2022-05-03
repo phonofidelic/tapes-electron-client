@@ -19,6 +19,7 @@ import { IpcChannel } from './IPC/IpcChannel.interface';
 import { RecorderTray } from './RecorderTray';
 import { db } from '../db/db-orbit';
 import { AppDatabase } from '../db/AppDatabase.interface';
+import { identityService, TapesIdentity } from '../identity'
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
@@ -48,6 +49,7 @@ export class Main {
   private metamaskPopup: BrowserWindow;
 
   private database: AppDatabase;
+  private identity: TapesIdentity
 
   public init(ipcChannels: IpcChannel[]) {
     app.on('ready', this.createWindow);
@@ -58,8 +60,14 @@ export class Main {
 
     this.registerIpcChannels(ipcChannels);
 
-    // ipcMain.on('database:create', this.onCreateDatabase.bind(this))
-    this.createDatabase()
+    // this.createIdentity()
+    // this.createDatabase()
+  }
+
+  private async createIdentity() {
+    console.log('Creating identity...')
+    this.identity = await identityService.create()
+    console.log('Created identity:', this.identity)
   }
 
   private async createDatabase() {

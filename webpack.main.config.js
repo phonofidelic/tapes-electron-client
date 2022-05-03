@@ -14,9 +14,10 @@ module.exports = {
   externals: [
     'datastore-level',
     'level',
-    '@koush/wrtc',
+    // '@koush/wrtc',
+    'wrtc',
     'dlv',
-    'ipfs-repo'
+    'ipfs-repo',
   ],
   // target: 'electron-main',
   // node: {
@@ -24,4 +25,5 @@ module.exports = {
   //   __dirname: true,
   //   __filename: true
   // }
+  devtool: 'eval-cheap-source-map'
 };

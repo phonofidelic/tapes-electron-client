@@ -5,7 +5,7 @@ import { useDropzone } from 'react-dropzone';
 
 import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
-import { loadAccountToken, setInputDevice } from '../effects';
+import { loadAccountToken, setInputDevice, exportIdentity } from '../effects';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
@@ -106,14 +106,15 @@ export function Settings({
   const downloadToken = () => {
     console.log('Downloading token');
 
-    const identity = localStorage.getItem('identity');
+    // const identity = localStorage.getItem('identity');
 
-    const a = document.createElement('a');
-    a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(identity);
-    a.download = 'tapes_account.token';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // const a = document.createElement('a');
+    // a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(identity);
+    // a.download = 'tapes_account.token';
+    // document.body.appendChild(a);
+    // a.click();
+    // document.body.removeChild(a);
+    dispatch(exportIdentity())
   };
 
   useEffect(() => {

@@ -14,6 +14,7 @@ const validChannels = [
   'recordings:get_all',
   'recordings:update',
   'recordings:delete_one',
+  'identity:export'
 ];
 
 const validResponseChannels = validChannels.map(channel => `${channel}:response:.*`)

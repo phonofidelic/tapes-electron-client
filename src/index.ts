@@ -8,6 +8,7 @@ import { CacheRecordingChannel } from './electron/channels/CacheRecordingChannel
 import { LoadRecordingsChannel } from './electron/channels/LoadRecordingsChannel';
 import { UpdateRecordingChannel } from './electron/channels/UpdateRecordingChannel'
 import { GetRecordingStorageStatusChannel } from './electron/channels/GetRecordingStorageStatusChannel';
+import { ExportIdentityChannel } from './electron/channels/ExportIdentityChannel'
 
 new Main().init([
   new NewRecordingChannel(),
@@ -17,5 +18,6 @@ new Main().init([
   new CacheRecordingChannel(),
   new LoadRecordingsChannel(),
   new UpdateRecordingChannel(),
-  new GetRecordingStorageStatusChannel()
+  new GetRecordingStorageStatusChannel(),
+  new ExportIdentityChannel()
 ]);

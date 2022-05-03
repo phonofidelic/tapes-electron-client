@@ -1,3 +1,4 @@
+// import os from 'os'
 //@ts-ignore
 import OrbitDB from 'orbit-db';
 import type { IPFS } from 'ipfs-core-types'
@@ -21,7 +22,6 @@ export class OrbitDatabase implements AppDatabase {
   private node: IPFS;
   private orbitdb: OrbitDB;
   private defaultOptions: any;
-  private recordings: any;
   private user: any;
   private companions: any;
   /** https://stackoverflow.com/a/50428377 */
@@ -42,6 +42,8 @@ export class OrbitDatabase implements AppDatabase {
       console.error('Could not create OrbitDB instance:', err)
       throw new Error('Could not create OrbitDB instance')
     }
+
+    const peerInfo = await this.node.id();
 
     this.defaultOptions = {
       acessController: {
@@ -66,17 +68,21 @@ export class OrbitDatabase implements AppDatabase {
     for (const docStore in this.docStores) {
       await this.docStores[docStore].load()
     }
-    // await this.recordings.load();
-    // console.log('*** dockStores:', this.docStores)
-    // await this.docStores[RECORDINGS_COLLECTION].put({ _id: '456', title: 'test2' })
-    console.log('*** stored recordings:', this.docStores[RECORDINGS_COLLECTION].get(''))
-    console.log('*** found recording:', await this.find(RECORDINGS_COLLECTION, { title: 'test2' }))
 
     /**
      * Users key-value store
      */
     this.user = await this.orbitdb.keyvalue('user', this.defaultOptions);
     await this.user.load();
+
+    await this.loadFixtureData({
+      // deviceInfo: {
+      //   hostname: os.hostname(),
+      //   platform: os.platform()
+      // },
+      docStores: this.getDocStoreIds(),
+      nodeId: peerInfo.id
+    })
 
     /**
      * Peers key-value store
@@ -87,9 +93,18 @@ export class OrbitDatabase implements AppDatabase {
     );
     await this.companions.load();
 
-    const peerInfo = await this.node.id();
+    /**
+     * DEBUG INFO
+     */
     console.log('*** peerInfo:', peerInfo);
 
+    //@ts-ignore
+    const identity = this.orbitdb.identity
+    console.log('*** identity:', identity.toJSON())
+
+    console.log('*** recordings address:', this.docStores['recordings'].address.toString())
+
+    console.log('*** user:', this.user.all)
     /**
      * Listen for incoming connections
      */
@@ -105,24 +120,69 @@ export class OrbitDatabase implements AppDatabase {
     );
 
     // TODO: Handle companion connections
+    // setTimeout(this.testConnect.bind(this), 2000)
+    // const config = await this.node.config.getAll()
+    // console.log('*** config:', config)
+
+    this.testConnect()
 
     return this;
   }
 
-  openpeerconnect = console.log;
-  ondbdiscovered = console.log;
-  onmessage = console.log;
+  async testConnect() {
+    const MOBILE_PEER = 'QmdBriFpsjqbgwHzPq3rY3n9zfer6rT8Z2s1qHobjtk4i7'
+    const BROWSER_PEER = 'QmVV4j6te7hWGYPD85xeKVWzSWwxhA1c2zVauVeivE8DEs'
+    const SIG_SERVER = '/dns4/cryptic-thicket-32566.herokuapp.com/tcp/443/wss/p2p-webrtc-star/p2p/'
+    // const SIG_SERVER = '/ip4/127.0.0.1/tcp/0/ipfs/'
+    try {
+      console.log('*** Connecting to peer ', SIG_SERVER + MOBILE_PEER)
+      await this.node.swarm.connect(SIG_SERVER + MOBILE_PEER)
+      console.log('*** Connected to peer!')
+    } catch (err) {
+      console.error('*** Could not connect to peer:', err)
+    }
+  }
 
-  handlePeerConnected(ipfsPeer: any) {
+  /**
+   * Event handlers
+   */
+
+  openpeerconnect = async (data: string) => { if ((await this.node.swarm.peers()).length <= 5) console.log('*** peer connected:', data) };
+  ondbdiscovered = (data: any) => console.log('*** db discovered:', data);
+  onmessage = (data: any) => console.log('*** message recieved:', data);
+
+  private getDocStoreIds() {
+    let docStoreIds = {}
+
+    for (const docStore in this.docStores) {
+      //@ts-ignore
+      docStoreIds[docStore] = this.docStores[docStore].address
+    }
+
+    return docStoreIds
+  }
+
+  private async loadFixtureData(fixtureData: any) {
+    const fixtureKeys = Object.keys(fixtureData)
+    for (const i in fixtureKeys) {
+      const key = fixtureKeys[i]
+      // if (!this.user.get(key)) await this.user.set(key, fixtureData[key])
+      await this.user.set(key, fixtureData[key])
+    }
+  }
+
+  private handlePeerConnected(ipfsPeer: any) {
+    // console.log('*** handlePeerConnected, ipfsPeer:', ipfsPeer)
+
     const ipfsId = ipfsPeer.remotePeer._idB58String;
-    // console.log('*** handlePeerConnected, ipfsId:', ipfsId)
+
     this.peerConnectTimeout = setTimeout(async () => {
       await this.sendMessage(ipfsId, { userDb: this.user.id });
     }, 2000);
     if (this.openpeerconnect) this.openpeerconnect(ipfsId);
   }
 
-  async handleMessageReceived(msg: any) {
+  private async handleMessageReceived(msg: any) {
     const parsedMsg = JSON.parse(msg.data.toString());
     console.log('*** handleMessageReceived:', parsedMsg);
     // const msgKeys = Object.keys(parsedMsg);
@@ -144,7 +204,7 @@ export class OrbitDatabase implements AppDatabase {
     // if (this.onmessage) this.onmessage(msg);
   }
 
-  async sendMessage(topic: string, message: any) {
+  private async sendMessage(topic: string, message: any) {
     try {
       const msgString = JSON.stringify(message);
       const messageBuffer = Buffer.from(msgString);
@@ -155,27 +215,9 @@ export class OrbitDatabase implements AppDatabase {
     }
   }
 
-  // TODO: implement old methotds
-  async initRemote(): Promise<any> {
-    return new Promise((resolve, _reject) => {
-      resolve('done')
-    })
-  }
-
-  async push(_collectionName: string): Promise<any> {
-    return new Promise((resolve, _reject) => {
-      resolve('done')
-    })
-  }
-
-  async pull(_collectionName: string): Promise<any> {
-    return new Promise((resolve, _reject) => {
-      resolve('done')
-    })
-  }
 
   /**
-   * TODO: Implement public methods
+   * Public DB methods
    */
   async add(collectionName: string, doc: any): Promise<string> {
     const bytes = jsonEncoder.encode(doc)

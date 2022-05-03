@@ -135,14 +135,15 @@ export class NewRecordingChannel implements IpcChannel {
         /**
          * Upload file to IPFS
          */
+        console.log('*** Storing file on IPFS...')
         const files = await getFilesFromPath(filePath)
         const cid = await storageService.put(files as unknown as File[])
-
+        console.log('*** File stored!')
         /**
          * Create default title based on Recording count
          */
-        const recordings = await db.find('recordings', {})
-        const defaultTitle = `Recording #${recordings.length + 1}`;
+        // const recordings = await db.find('recordings', {})
+        const defaultTitle = `New Recording: ${(new Date()).toLocaleString()}`;
 
         const recordingData: Recording = {
           location: filePath,
@@ -160,15 +161,14 @@ export class NewRecordingChannel implements IpcChannel {
         };
 
 
-        const docId = await db.add('recordings', recordingData)
-        console.log('*** docId:', docId)
-
-        const createdRecording = await db.findById('recordings', docId)
+        // const docId = await db.add('recordings', recordingData)
+        // console.log('*** docId:', docId)
+        // const createdRecording = await db.findById('recordings', docId)
         /**
          * Send response to render process
          */
-        console.log('createdRecording:', createdRecording);
-        event.sender.send(request.responseChannel, { createdRecording });
+        // console.log('createdRecording:', createdRecording);
+        event.sender.send(request.responseChannel, { recordingData });
       });
     } catch (err) {
       console.error('*** Could not spaw SoX:', err);

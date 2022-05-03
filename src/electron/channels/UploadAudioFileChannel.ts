@@ -143,10 +143,10 @@ export class UploadAudioFileChannel implements IpcChannel {
         };
       }
 
-      const docId = await db.add('recordings', recordingData)
-      const createdRecording = await db.findById('recordings', docId) as unknown as Recording
+      // const docId = await db.add('recordings', recordingData)
+      // const createdRecording = await db.findById('recordings', docId) as unknown as Recording
 
-      recordings.push(createdRecording)
+      recordings.push(recordingData)
     }
     event.sender.send(request.responseChannel, {
       message: 'Success!',

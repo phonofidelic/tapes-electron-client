@@ -18,9 +18,9 @@ function App() {
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   dispatch(initDatabase());
-  // }, []);
+  useEffect(() => {
+    dispatch(initDatabase());
+  }, []);
 
   return (
     <div className="main">

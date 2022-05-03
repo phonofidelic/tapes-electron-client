@@ -53,10 +53,10 @@ import { RecordingSettings } from './common/RecordingSettings.interface';
 import { RECORDING_COLLECTION, IDENTITY_STORE } from './common/constants';
 import { IpcService } from './IpcService';
 import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
-
+import { db } from './db/db-orbit'
 import { RecordingModel } from './db/recording.model';
 // const db = window.db
-const db: any = {}
+// const db: any = {}
 
 
 // const THREADS_DB_NAME = 'tapes-thread-db';
@@ -234,7 +234,20 @@ export const uploadAudioFiles =
         return dispatch(uploadRecordingsFailure(err));
       }
 
-      const createdRecordings = ipcResponse.data;
+      let createdRecordings: Recording[] = [];
+      // const createdRecordings = ipcResponse.data;
+      for await (let recordingData of ipcResponse.data) {
+        console.log(`Creating database entry for ${recordingData.title}`)
+        try {
+          const docId = await db.add('recordings', recordingData)
+          const createdRecording = await db.findById('recordings', docId)
+          createdRecordings.push(createdRecording)
+        } catch (err) {
+          console.error(`Could not create database entry for ${recordingData.title}:`, err)
+          dispatch(uploadRecordingsFailure(new Error(`Could not create database entry for ${recordingData.title}`)))
+        }
+      }
+
       // try {
       //   for await (let recordingData of ipcResponse.data) {
       //     console.log(`Uploading "${recordingData.title}"`);
@@ -258,15 +271,20 @@ export const startRecording =
     async (dispatch) => {
       dispatch(startRecordingRequest());
 
-      let ipcResponse: { createdRecording: Recording; file?: any; error?: Error };
-      let createdRecording
+      let ipcResponse: { recordingData: Recording; file?: any; error?: Error };
+      let recordingData;
+      let createdRecording;
       try {
         ipcResponse = await ipc.send('recorder:start', {
           data: { recordingSettings },
         });
         console.log('recorder:start, ipcResponse:', ipcResponse);
 
-        createdRecording = ipcResponse.createdRecording;
+        recordingData = ipcResponse.recordingData;
+        const docId = await db.add('recordings', recordingData)
+        console.log('docId:', docId)
+        createdRecording = await db.findById('recordings', docId)
+
         console.log('createdRecording:', createdRecording);
         dispatch(startRecordingSuccess(createdRecording));
         if (ipcResponse.error) {
@@ -315,7 +333,8 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 
   try {
     dispatch(setLoadingMessage('Loading library...'));
-    const { recordings } = await ipc.send('recordings:get_all') as { recordings: Recording[] };
+    // const { recordings } = await ipc.send('recordings:get_all') as { recordings: Recording[] };
+    const recordings = await db.find('recordings', {})
 
     dispatch(loadRecordingsSuccess(recordings));
     dispatch(setLoadingMessage(null));
@@ -331,7 +350,8 @@ export const editRecording =
       dispatch(editRecordingRequest());
 
       try {
-        const { updatedRecording } = await ipc.send('recordings:update', { data: { recordingId, update } }) as { updatedRecording: Recording };
+        const updatedRecording = await db.update('recordings', recordingId, update)
+        // const { updatedRecording } = await ipc.send('recordings:update', { data: { recordingId, update } }) as { updatedRecording: Recording };
         console.log('updatedRecording:', updatedRecording);
         dispatch(editRecordingSuccess(updatedRecording));
       } catch (err) {
@@ -348,8 +368,12 @@ export const deleteRecording =
       try {
         dispatch(setLoadingMessage('Updating database...'));
 
-        const deleteRecordingResponse = await ipc.send('recordings:delete_one', { data: { recordingId } })
+        const recording = await db.findById('recordings', recordingId) as unknown as Recording;
+
+        const deleteRecordingResponse = await ipc.send('recordings:delete_one', { data: { recording } })
         console.log('deleteRecordingResponse:', deleteRecordingResponse)
+
+        await db.delete('recordings', recordingId)
 
         dispatch(deleteRecordingSuccess(recordingId));
       } catch (err) {
@@ -400,10 +424,10 @@ export const initDatabase = (): Effect => async (dispatch) => {
 
   let ipcResponse: { databaseInstance: any };
   try {
-    ipcResponse = await ipc.send('database:create')
-    console.log('*** Create DB response:', ipcResponse)
+    // ipcResponse = await ipc.send('database:create')
+    // console.log('*** Create DB response:', ipcResponse)
 
-    // window.db = JSON.parse(ipcResponse.databaseInstance)
+    window.db = await db.init()
   } catch (err) {
     console.error('Could not create database:', err)
   }
@@ -513,4 +537,9 @@ export const getRecordingStorageStatus = (recordingCid: string): Effect => async
   } catch (err) {
     dispatch(getRecordingStorageStatusFailure(err))
   }
+}
+
+export const exportIdentity = (): Effect => async (dispatch) => {
+  console.log('exporting identity...')
+  await ipc.send('identity:export')
 }
