@@ -9,6 +9,8 @@ import { base64 } from "multiformats/bases/base64"
 import { createIpfsNode } from './utils';
 import { AppDatabase } from './AppDatabase.interface'
 import DocumentStore from 'orbit-db-docstore';
+//@ts-ignore
+import { PeerId, PeerInfo } from 'ipfs';
 
 // const Buffer = require('buffer/').Buffer;
 
@@ -26,7 +28,9 @@ export class OrbitDatabase implements AppDatabase {
   private companions: any;
   /** https://stackoverflow.com/a/50428377 */
   private peerConnectTimeout: ReturnType<typeof setTimeout>
+  private companionConnectionInterval: ReturnType<typeof setInterval>
   private docStores: { [key: string]: DocumentStore<unknown> } = {}
+  public peerInfo: PeerInfo
 
   async init() {
     this.node = await createIpfsNode()
@@ -44,7 +48,13 @@ export class OrbitDatabase implements AppDatabase {
     }
 
     const peerInfo = await this.node.id();
+    this.peerInfo = peerInfo;
 
+    /**
+     * TODO: provide accesscontroller that gives access to remote
+     * peer avter database initialization:
+     * https://github.com/orbitdb/orbit-db/blob/main/GUIDE.md#granting-access-after-database-creation
+     */
     this.defaultOptions = {
       acessController: {
         write: [this.orbitdb.id],
@@ -123,8 +133,9 @@ export class OrbitDatabase implements AppDatabase {
     // setTimeout(this.testConnect.bind(this), 2000)
     // const config = await this.node.config.getAll()
     // console.log('*** config:', config)
-
-    this.testConnect()
+    // this.testConnect()
+    this.companionConnectionInterval = setInterval(this.connectToCompanions.bind(this), 10000)
+    this.connectToCompanions()
 
     return this;
   }
@@ -143,6 +154,19 @@ export class OrbitDatabase implements AppDatabase {
     }
   }
 
+  async connectToPeer(peerId: string) {
+    const SIG_SERVER = '/dns4/cryptic-thicket-32566.herokuapp.com/tcp/443/wss/p2p-webrtc-star/p2p/'
+
+    try {
+      console.log('*** Connecting to peer ', SIG_SERVER + peerId)
+      await this.node.swarm.connect(SIG_SERVER + peerId)
+      console.log('*** Connected to peer!')
+    } catch (err) {
+      if (err.message === 'peer is not available') return console.warn(`Peer not available: ${peerId}`)
+      console.error('Could not connect to peer:', err)
+    }
+  }
+
   /**
    * Event handlers
    */
@@ -150,6 +174,8 @@ export class OrbitDatabase implements AppDatabase {
   openpeerconnect = async (data: string) => { if ((await this.node.swarm.peers()).length <= 5) console.log('*** peer connected:', data) };
   ondbdiscovered = (data: any) => console.log('*** db discovered:', data);
   onmessage = (data: any) => console.log('*** message recieved:', data);
+  oncompaniononline = (data: any) => console.log('*** oncompaniononline:', data)
+  oncompanionnotfound = console.error
 
   private getDocStoreIds() {
     let docStoreIds = {}
@@ -177,7 +203,10 @@ export class OrbitDatabase implements AppDatabase {
     const ipfsId = ipfsPeer.remotePeer._idB58String;
 
     this.peerConnectTimeout = setTimeout(async () => {
-      await this.sendMessage(ipfsId, { userDb: this.user.id });
+      await this.sendMessage(ipfsId, {
+        userDb: this.user.id,
+        recordingsDb: this.docStores[RECORDINGS_COLLECTION].identity.id
+      });
     }, 2000);
     if (this.openpeerconnect) this.openpeerconnect(ipfsId);
   }
@@ -185,23 +214,27 @@ export class OrbitDatabase implements AppDatabase {
   private async handleMessageReceived(msg: any) {
     const parsedMsg = JSON.parse(msg.data.toString());
     console.log('*** handleMessageReceived:', parsedMsg);
-    // const msgKeys = Object.keys(parsedMsg);
+    const msgKeys = Object.keys(parsedMsg);
 
-    // switch (msgKeys[0]) {
-    //   case 'userDb':
-    //     var peerDb = await this.orbitdb.open(parsedMsg.userDb);
-    //     peerDb.events.on('replicated', async () => {
-    //       if (peerDb.get('recordings')) {
-    //         await this.companions.set(peerDb.id, peerDb.all);
-    //         this.ondbdiscovered && this.ondbdiscovered(peerDb);
-    //       }
-    //     });
-    //     break;
-    //   default:
-    //     break;
-    // }
+    switch (msgKeys[0]) {
+      case 'userDb':
+        const peerDb = await this.orbitdb.open(parsedMsg.userDb);
+        peerDb.events.on('replicated', async () => {
+          //@ts-ignore
+          console.log('*** peer db replicated ***', peerDb.get('docStores'))
+          //@ts-ignore
+          if (peerDb.get('docStores')) {
+            //@ts-ignore
+            await this.companions.set(peerDb.id, peerDb.all);
+            this.ondbdiscovered && this.ondbdiscovered(peerDb);
+          }
+        });
+        break;
+      default:
+        break;
+    }
 
-    // if (this.onmessage) this.onmessage(msg);
+    if (this.onmessage) this.onmessage(msg);
   }
 
   private async sendMessage(topic: string, message: any) {
@@ -215,6 +248,33 @@ export class OrbitDatabase implements AppDatabase {
     }
   }
 
+  private async connectToCompanions() {
+    //@ts-ignore
+    const companionIds: string[] = Object.values(this.companions.all).map(companion => companion.nodeId)
+    console.log('connectToCompanions, companionIds:', companionIds)
+    const connectedPeerIds = await this.getIpfsPeerIds()
+
+    await Promise.all(companionIds.map(async (companionId) => {
+      if (connectedPeerIds.indexOf(companionId) !== -1) return
+      try {
+        this.connectToPeer(companionId)
+        this.oncompaniononline && this.oncompaniononline(`Connected to ${companionId}`)
+      } catch (err) {
+        // console.error('Companion not found:', err)
+        this.oncompanionnotfound && this.oncompanionnotfound()
+      }
+    }))
+  }
+
+  async getIpfsPeerIds() {
+    const peerIds = (await this.node.swarm.peers()).map(peer => peer.peer)
+    console.log('Connected IPFS peers:', peerIds)
+    return peerIds
+  }
+
+  getCompanions() {
+    return this.companions.all
+  }
 
   /**
    * Public DB methods
@@ -224,7 +284,6 @@ export class OrbitDatabase implements AppDatabase {
     const hash = await sha256.digest(bytes)
     const cid = CID.create(1, jsonEncoder.code, hash)
     const docId = cid.toString(base64.encoder)
-    // const docId = 'bajs'
 
     await this.docStores[collectionName].put({ ...doc, _id: docId })
     return docId
@@ -293,6 +352,7 @@ export class OrbitDatabase implements AppDatabase {
     try {
       // console.log('### IPFS stats:', this.node.stats)
       clearTimeout(this.peerConnectTimeout)
+      clearInterval(this.companionConnectionInterval)
       await this.node.pubsub.unsubscribe(peerInfo.id, this.handleMessageReceived)
       await this.node.stop()
       // await this.orbitdb.disconnect()

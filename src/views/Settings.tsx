@@ -26,6 +26,9 @@ import FormLabel from '@mui/material/FormLabel';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import HelpIcon from '@mui/icons-material/Help';
 import { SelectChangeEvent } from '@mui/material';
+import QRCodeModal from '../components/QRCodeModal';
+//@ts-ignore
+import { PeerInfo } from 'ipfs';
 
 const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
   // backgroundColor: theme.palette.background.default,
@@ -49,6 +52,8 @@ export function Settings({
   setRecordingSettings,
 }: SettingsProps) {
   const [audioInputDevices, setAudioInputDevices] = useState([]);
+  const [QROpen, setQROpen] = useState(false)
+  const [peerInfo, setPeerInfo] = useState<PeerInfo | null>(null)
 
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId || 'default';
@@ -105,6 +110,9 @@ export function Settings({
 
   const downloadToken = () => {
     console.log('Downloading token');
+    console.log('peerInfo:', window.db.peerInfo)
+    setPeerInfo(window.db.peerInfo)
+    setQROpen(true)
 
     // const identity = localStorage.getItem('identity');
 
@@ -114,8 +122,12 @@ export function Settings({
     // document.body.appendChild(a);
     // a.click();
     // document.body.removeChild(a);
-    dispatch(exportIdentity())
+    // dispatch(exportIdentity())
   };
+
+  const handleCloseQR = () => {
+    setQROpen(false)
+  }
 
   useEffect(() => {
     const getMediaDevices = async () => {
@@ -139,6 +151,7 @@ export function Settings({
 
   return (
     <div>
+      <QRCodeModal open={QROpen} value={`https://192.168.1.12:3001?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} />
       <div
         {...getRootProps({
           onClick: (e) => e.stopPropagation(),
