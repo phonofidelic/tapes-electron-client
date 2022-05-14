@@ -62,9 +62,9 @@ import { RecordingModel } from './db/recording.model';
 // const THREADS_DB_NAME = 'tapes-thread-db';
 // const RECORDING_COLLECTION = 'Recording';
 
-const REQUEST_TIMEOUT = 60000;
+// const REQUEST_TIMEOUT = 60000;
 
-declare const USER_API_KEY: any;
+// declare const USER_API_KEY: any;
 
 const ipc = new IpcService();
 
@@ -74,36 +74,36 @@ const ipc = new IpcService();
  * getBucket:
  * https://github.com/textileio/js-examples/blob/a8a5a9fe8cf8331f0bc4f811791e15dbc0597469/bucket-photo-gallery/src/App.tsx#L99
  */
-const IPFS_GATEWAY = 'https://hub.textile.io';
-const keyInfo: KeyInfo = {
-  key: USER_API_KEY,
-};
+// const IPFS_GATEWAY = 'https://hub.textile.io';
+// const keyInfo: KeyInfo = {
+//   key: USER_API_KEY,
+// };
 
-const getBucket = async () => {
-  const storedIdent = localStorage.getItem(IDENTITY_STORE);
-  const identity = PrivateKey.fromString(storedIdent);
+// const getBucket = async () => {
+//   const storedIdent = localStorage.getItem(IDENTITY_STORE);
+//   const identity = PrivateKey.fromString(storedIdent);
 
-  if (!identity) {
-    throw new Error('Identity not set');
-  }
-  const buckets = await Buckets.withKeyInfo(keyInfo, { debug: true });
-  // Authorize the user and your insecure keys with getToken
-  const token = await buckets.getToken(identity);
+//   if (!identity) {
+//     throw new Error('Identity not set');
+//   }
+//   const buckets = await Buckets.withKeyInfo(keyInfo, { debug: true });
+//   // Authorize the user and your insecure keys with getToken
+//   const token = await buckets.getToken(identity);
 
-  const buck = await buckets.getOrCreate('com.phonofidelic.tapes', {
-    encrypted: true,
-  });
-  if (!buck.root) {
-    throw new Error('Failed to open bucket');
-  }
+//   const buck = await buckets.getOrCreate('com.phonofidelic.tapes', {
+//     encrypted: true,
+//   });
+//   if (!buck.root) {
+//     throw new Error('Failed to open bucket');
+//   }
 
-  return {
-    token,
-    buckets: buckets,
-    bucketKey: buck.root.key,
-    threadId: buck.threadID,
-  };
-};
+//   return {
+//     token,
+//     buckets: buckets,
+//     bucketKey: buck.root.key,
+//     threadId: buck.threadID,
+//   };
+// };
 
 // const addRemoteRecording = async (
 //   recordingData: Recording
@@ -384,17 +384,17 @@ export const deleteRecording =
       dispatch(setLoadingMessage(null));
     };
 
-export const getBucketToken = (): Effect => async (dispatch) => {
-  dispatch(getBucketTokenRequest());
-  dispatch(setLoadingMessage('Loading token...'));
+// export const getBucketToken = (): Effect => async (dispatch) => {
+//   dispatch(getBucketTokenRequest());
+//   dispatch(setLoadingMessage('Loading token...'));
 
-  try {
-    const { token } = await getBucket();
-    dispatch(getBucketTokenSuccess(token));
-  } catch (err) {
-    dispatch(getBucketTokenFailure(err));
-  }
-};
+//   try {
+//     const { token } = await getBucket();
+//     dispatch(getBucketTokenSuccess(token));
+//   } catch (err) {
+//     dispatch(getBucketTokenFailure(err));
+//   }
+// };
 
 export const loadAccountToken =
   (tokenString: string): Effect =>
@@ -464,42 +464,44 @@ export const setInputDevice =
       dispatch(setInputDeviceSuccess());
     };
 
+// TODO: re-implement
 export const downloadRecording =
   (recordingId: string): Effect =>
     async (dispatch) => {
       dispatch(downloadRecordingRequest());
-      try {
-        const { token } = await getBucket();
+      // try {
+      //   const { token } = await getBucket();
 
-        const recordingData = (await db.findById(
-          RECORDING_COLLECTION,
-          recordingId
-        )) as unknown as Recording;
-        console.log('downloadRecording, recordingData:', recordingData);
+      //   const recordingData = (await db.findById(
+      //     RECORDING_COLLECTION,
+      //     recordingId
+      //   )) as unknown as Recording;
+      //   console.log('downloadRecording, recordingData:', recordingData);
 
-        const response = await fetch(
-          recordingData.remoteLocation + `?token=${token}`,
-          { method: 'GET' }
-        );
+      //   const response = await fetch(
+      //     recordingData.remoteLocation + `?token=${token}`,
+      //     { method: 'GET' }
+      //   );
 
-        const blob = await response.blob();
+      //   const blob = await response.blob();
 
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `${recordingData.title}.${recordingData.format}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+      //   const a = document.createElement('a');
+      //   a.href = URL.createObjectURL(blob);
+      //   a.download = `${recordingData.title}.${recordingData.format}`;
+      //   document.body.appendChild(a);
+      //   a.click();
+      //   document.body.removeChild(a);
 
-        console.log('downloadRecording, response:', response);
-      } catch (err) {
-        console.error('Could not download recording:', err);
-        dispatch(
-          downloadRecordingFailue(new Error('Could not download recording'))
-        );
-      }
+      //   console.log('downloadRecording, response:', response);
+      // } catch (err) {
+      //   console.error('Could not download recording:', err);
+      //   dispatch(
+      //     downloadRecordingFailue(new Error('Could not download recording'))
+      //   );
+      // }
 
       dispatch(downloadRecordingSucess());
+      console.log('TODO: Re-implement downloadRecording')
     };
 
 export const cacheAndPlayRecording =
