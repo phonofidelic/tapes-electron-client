@@ -1,13 +1,23 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 require('dotenv').config()
 
 module.exports = {
-  entry: path.resolve(__dirname, 'src', 'index.web-client.tsx'),
+  entry: {
+    index: path.resolve(__dirname, 'src', 'index.web-client.tsx'),
+    // db: path.resolve(__dirname, 'src', 'db', 'index.ts'),
+    // effects: path.resolve(__dirname, 'src', 'effects', 'index.ts'),
+    // recorder: path.resolve(__dirname, 'src', 'views', 'Recorder.tsx'),
+    // library: path.resolve(__dirname, 'src', 'views', 'Library.tsx'),
+    // recordingDetail: path.resolve(__dirname, 'src', 'views', 'RecordingDetail.tsx'),
+    // settings: path.resolve(__dirname, 'src', 'views', 'Settings.tsx')
+  },
   output: {
-    filename: 'main.js',
+    filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
+    publicPath: '.'
   },
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
@@ -37,25 +47,27 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
+      // inject: true,
       template: path.join(__dirname, 'src', 'index.html'),
+      // inlineSource: '.(ts|tsx|js|css)$',
+      // scriptLoading: 'blocking'
     }),
+    // new HtmlWebpackInlineSourcePlugin(HtmlWebpackPlugin),
     new webpack.ProvidePlugin({
       process: 'process/browser'
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
     }),
-    // new webpack.EnvironmentPlugin([
-    //   'USER_API_KEY_SECURE',
-    //   'USER_API_KEY',
-    //   'USER_API_SECRET',
-    //   'ACOUSTID_API_KEY',
-    //   'GITHUB_TOKEN',
-    //   'WEB3STORAGE_TOKEN'
-    // ]),
     new webpack.DefinePlugin({
       'process.env.USER_API_KEY': JSON.stringify(process.env.USER_API_KEY || '')
-    })
+    }),
+    new webpack.DefinePlugin({
+      WEB_CLIENT_URL: JSON.stringify(process.env.WEB_CLIENT_URL),
+    }),
+    new webpack.DefinePlugin({
+      LIBP2P_SIG_SERVER: JSON.stringify(process.env.LIBP2P_SIG_SERVER)
+    }),
   ],
   devtool: 'eval-cheap-source-map'
 };

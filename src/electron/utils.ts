@@ -8,6 +8,7 @@ import appRootDir from 'app-root-dir';
 import * as mm from 'music-metadata';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { MusicBrainzCoverArt } from '../common/MusicBrainzCoverArt.interface';
+import { stdout } from 'process';
 
 export const setStorageDir = async (folderName: string): Promise<string> => {
   const storagePath =
@@ -133,3 +134,33 @@ export const fpcalcPromise = (
       fpcalc.kill();
     });
   });
+
+/**
+ * https://stackoverflow.com/a/58571306
+ */
+export const spawnAsync = async (command: string, args: string[]) => {
+  console.log(`Starting child process ${command} with args:`, args)
+  const child = spawn(command, args)
+
+  let data = '';
+  for await (const chunk of child.stdout) {
+    console.log(`${command} stdout:`, +chunk.toString())
+    data += chunk
+  }
+
+  let error = ''
+  for await (const chunk of child.stderr) {
+    console.log(`${command} stderr:`, +chunk.toString())
+    error += chunk
+  }
+
+  const exitCode = await new Promise((resolve, _reject) => {
+    child.on('close', resolve)
+  })
+
+  if (exitCode) {
+    throw new Error(`${command} error exit ${exitCode}, ${error}`)
+  }
+
+  return data
+}

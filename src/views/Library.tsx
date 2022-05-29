@@ -3,14 +3,7 @@ import { connect, useDispatch } from 'react-redux';
 import { matchSorter } from 'match-sorter';
 import { Recording } from '../common/Recording.interface';
 import * as actions from '../store/actions';
-import {
-  loadRecordings,
-  deleteRecording,
-  editRecording,
-  uploadAudioFiles,
-  downloadRecording,
-  cacheAndPlayRecording,
-} from '../effects';
+import effects from '../effects';
 import {
   RecorderState,
   SelectRecordingAction,
@@ -28,6 +21,15 @@ import ErrorModal from '../components/ErrorModal';
 import { useTheme } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
+
+const {
+  loadRecordings,
+  deleteRecording,
+  editRecording,
+  uploadAudioFiles,
+  downloadRecording,
+  cacheAndPlayRecording,
+} = effects
 
 interface LibraryProps {
   recordings: Recording[];

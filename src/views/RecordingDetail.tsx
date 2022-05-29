@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecorderState } from '../store/types';
 import * as actions from '../store/actions';
-import { editRecording, getRecordingStorageStatus } from '../effects';
+import effecte from '../effects';
 import { connect, useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -25,6 +25,8 @@ import StorageStatusDisplay from '../components/StorageStatusDisplay';
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
+
+const { editRecording, getRecordingStorageStatus } = effecte
 
 interface Props {
   recording: Recording;

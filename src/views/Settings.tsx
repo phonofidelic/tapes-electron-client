@@ -5,7 +5,7 @@ import { useDropzone } from 'react-dropzone';
 
 import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
-import { loadAccountToken, setInputDevice, exportIdentity } from '../effects';
+import effects from '../effects';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
@@ -29,6 +29,10 @@ import { SelectChangeEvent } from '@mui/material';
 import QRCodeModal from '../components/QRCodeModal';
 //@ts-ignore
 import { PeerInfo } from 'ipfs';
+
+const { loadAccountToken, setInputDevice, exportIdentity } = effects
+
+declare const WEB_CLIENT_URL: string
 
 const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
   // backgroundColor: theme.palette.background.default,
@@ -151,7 +155,9 @@ export function Settings({
 
   return (
     <div>
-      <QRCodeModal open={QROpen} value={`https://192.168.1.12:3001?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} />
+      {/* <QRCodeModal open={QROpen} value={`${localStorage.getItem('web-client-url')}?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} /> */}
+      {/* <QRCodeModal open={QROpen} value={`http://192.168.1.12:3001/?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} /> */}
+      <QRCodeModal open={QROpen} value={`${WEB_CLIENT_URL}/?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} />
       <div
         {...getRootProps({
           onClick: (e) => e.stopPropagation(),

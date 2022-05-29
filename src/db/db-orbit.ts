@@ -33,7 +33,24 @@ export class OrbitDatabase implements AppDatabase {
   public peerInfo: PeerInfo
 
   async init() {
-    this.node = await createIpfsNode()
+    try {
+      this.node = await createIpfsNode()
+    } catch (err) {
+      console.error('Could not create IPFS node:', err)
+      throw new Error('Could not create IPFS node')
+    }
+
+    /**
+     * Push static web-client to IPFS
+     */
+    // let webClientCID
+    // try {
+
+    //   webClientCID = await this.node.add({ path: 'dist' })
+    //   console.log('*** webClientCID:', webClientCID)
+    // } catch (err) {
+    //   console.error('Could not push static web clinet to IPFS:', err)
+    // }
 
     try {
       this.orbitdb = await OrbitDB.createInstance(this.node, {
@@ -47,8 +64,12 @@ export class OrbitDatabase implements AppDatabase {
       throw new Error('Could not create OrbitDB instance')
     }
 
-    const peerInfo = await this.node.id();
-    this.peerInfo = peerInfo;
+    try {
+      this.peerInfo = await this.node.id();
+    } catch (err) {
+      console.error('Coud not set peerInfo:', err)
+      throw new Error('Coud not set peerInfo')
+    }
 
     /**
      * TODO: provide accesscontroller that gives access to remote
@@ -91,7 +112,7 @@ export class OrbitDatabase implements AppDatabase {
       //   platform: os.platform()
       // },
       docStores: this.getDocStoreIds(),
-      nodeId: peerInfo.id
+      nodeId: this.peerInfo.id
     })
 
     /**
@@ -106,7 +127,7 @@ export class OrbitDatabase implements AppDatabase {
     /**
      * DEBUG INFO
      */
-    console.log('*** peerInfo:', peerInfo);
+    console.log('*** peerInfo:', this.peerInfo);
 
     //@ts-ignore
     const identity = this.orbitdb.identity
@@ -125,7 +146,7 @@ export class OrbitDatabase implements AppDatabase {
     );
 
     await this.node.pubsub.subscribe(
-      peerInfo.id,
+      this.peerInfo.id,
       this.handleMessageReceived.bind(this)
     );
 
@@ -348,12 +369,11 @@ export class OrbitDatabase implements AppDatabase {
    */
   async close() {
     console.log('Closing database connections...')
-    const peerInfo = await this.node.id()
     try {
       // console.log('### IPFS stats:', this.node.stats)
       clearTimeout(this.peerConnectTimeout)
       clearInterval(this.companionConnectionInterval)
-      await this.node.pubsub.unsubscribe(peerInfo.id, this.handleMessageReceived)
+      await this.node.pubsub.unsubscribe(this.peerInfo.id, this.handleMessageReceived)
       await this.node.stop()
       // await this.orbitdb.disconnect()
     } catch (err) {

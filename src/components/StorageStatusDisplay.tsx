@@ -2,7 +2,9 @@ import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux';
 import { RecorderState } from '../store/types'
 import { RecordingStorageStatus } from '../common/Recording.interface'
-import { getRecordingStorageStatus } from '../effects'
+import effects from '../effects'
+
+const { getRecordingStorageStatus } = effects
 
 type Props = {
   recordingCid: string;

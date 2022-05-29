@@ -96,3 +96,6 @@ arkit.svg
 ipfs
 ipfs-test
 orbitdb
+cert/*.pem
+cert/*.config
+dist

@@ -14,7 +14,8 @@ const validChannels = [
   'recordings:get_all',
   'recordings:update',
   'recordings:delete_one',
-  'identity:export'
+  'identity:export',
+  'web-clinet:deploy'
 ];
 
 const validResponseChannels = validChannels.map(channel => `${channel}:response:.*`)
