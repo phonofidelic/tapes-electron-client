@@ -17,15 +17,25 @@ module.exports = {
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '.'
+    publicPath: '/'
+  },
+  devServer: {
+    hot: true,
+    port: 3001,
+    // contentBase: path.resolve(__dirname, 'src'),
+    historyApiFallback: true
   },
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
     fallback: {
       path: require.resolve('path-browserify'),
       buffer: require.resolve("buffer"),
+      stream: require.resolve("stream-browserify"),
       process: false
-    }
+    },
+    alias: {
+      stream: path.resolve(__dirname, 'node_modules/stream-browserfy')
+    },
   },
   module: {
     rules: [

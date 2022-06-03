@@ -53,7 +53,7 @@ import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RECORDING_COLLECTION, IDENTITY_STORE } from '../common/constants';
 import { IpcService } from '../IpcService';
 import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
-import { db } from '../db/db-orbit'
+import { OrbitDatabase } from '../db/db-orbit'
 import { RecordingModel } from '../db/recording.model';
 // const db = window.db
 // const db: any = {}
@@ -239,8 +239,8 @@ export const uploadAudioFiles =
       for await (let recordingData of ipcResponse.data) {
         console.log(`Creating database entry for ${recordingData.title}`)
         try {
-          const docId = await db.add('recordings', recordingData)
-          const createdRecording = await db.findById('recordings', docId)
+          const docId = await window.db.add('recordings', recordingData)
+          const createdRecording = await window.db.findById('recordings', docId)
           createdRecordings.push(createdRecording)
         } catch (err) {
           console.error(`Could not create database entry for ${recordingData.title}:`, err)
@@ -281,9 +281,9 @@ export const startRecording =
         console.log('recorder:start, ipcResponse:', ipcResponse);
 
         recordingData = ipcResponse.recordingData;
-        const docId = await db.add('recordings', recordingData)
+        const docId = await window.db.add('recordings', recordingData)
         console.log('docId:', docId)
-        createdRecording = await db.findById('recordings', docId)
+        createdRecording = await window.db.findById('recordings', docId)
 
         console.log('createdRecording:', createdRecording);
         dispatch(startRecordingSuccess(createdRecording));
@@ -333,8 +333,7 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 
   try {
     dispatch(setLoadingMessage('Loading library...'));
-    // const { recordings } = await ipc.send('recordings:get_all') as { recordings: Recording[] };
-    const recordings = await db.find('recordings', {})
+    const recordings = await window.db.find('recordings', {})
 
     dispatch(loadRecordingsSuccess(recordings));
     dispatch(setLoadingMessage(null));
@@ -350,7 +349,7 @@ export const editRecording =
       dispatch(editRecordingRequest());
 
       try {
-        const updatedRecording = await db.update('recordings', recordingId, update)
+        const updatedRecording = await window.db.update('recordings', recordingId, update)
         // const { updatedRecording } = await ipc.send('recordings:update', { data: { recordingId, update } }) as { updatedRecording: Recording };
         console.log('updatedRecording:', updatedRecording);
         dispatch(editRecordingSuccess(updatedRecording));
@@ -368,12 +367,12 @@ export const deleteRecording =
       try {
         dispatch(setLoadingMessage('Updating database...'));
 
-        const recording = await db.findById('recordings', recordingId) as unknown as Recording;
+        const recording = await window.db.findById('recordings', recordingId) as unknown as Recording;
 
         const deleteRecordingResponse = await ipc.send('recordings:delete_one', { data: { recording } })
         console.log('deleteRecordingResponse:', deleteRecordingResponse)
 
-        await db.delete('recordings', recordingId)
+        await window.db.delete('recordings', recordingId)
 
         dispatch(deleteRecordingSuccess(recordingId));
       } catch (err) {
@@ -405,10 +404,10 @@ export const loadAccountToken =
         localStorage.setItem(IDENTITY_STORE, tokenString);
 
         dispatch(setLoadingMessage('Cleaning up local database...'));
-        await db.deleteDB();
+        await window.db.deleteDB();
 
         dispatch(setLoadingMessage('Initializing new database...'));
-        await db.init();
+        await window.db.init();
 
         dispatch(loadAccountTokenSuccess(tokenString));
         dispatch(setLoadingMessage(null));
@@ -422,23 +421,13 @@ export const initDatabase = (): Effect => async (dispatch) => {
   dispatch(initDatabaseRequest());
   dispatch(setLoadingMessage('Initializing database...'));
 
-  // let ipcResponse: { url: string, localUrl: string };
   try {
-    // ipcResponse = await ipc.send('web-clinet:deploy')
-    // console.log('*** Deploy web-client response:', ipcResponse)
-    // localStorage.setItem('web-client-url', ipcResponse.localUrl)
-
-    window.db = await db.init()
-  } catch (err) {
-    console.error('Could not create database:', err)
-  }
-
-  try {
-    // await db.init();
+    window.db = new OrbitDatabase({ onPeerDbDiscovered: console.log })
+    await window.db.init()
     console.log('Database initialized');
     dispatch(initDatabaseSuccess());
   } catch (err) {
-    console.error('Could not initialize database:', err);
+    console.error('Could not initialize database:', err)
     dispatch(initDatabaseFailure(err));
   }
 };

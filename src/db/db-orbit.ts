@@ -11,6 +11,7 @@ import { AppDatabase } from './AppDatabase.interface'
 import DocumentStore from 'orbit-db-docstore';
 //@ts-ignore
 import { PeerId, PeerInfo } from 'ipfs';
+import Store from 'orbit-db-store';
 
 // const Buffer = require('buffer/').Buffer;
 
@@ -18,6 +19,11 @@ const RECORDINGS_COLLECTION = 'recordings'
 
 interface Collection {
   name: string
+}
+
+interface AppDatabaseOptions {
+  onPeerConnected?(message: string): void
+  onPeerDbDiscovered?(peerDb: any): void
 }
 
 export class OrbitDatabase implements AppDatabase {
@@ -32,7 +38,18 @@ export class OrbitDatabase implements AppDatabase {
   private docStores: { [key: string]: DocumentStore<unknown> } = {}
   public peerInfo: PeerInfo
 
-  async init() {
+  private onPeerConnected(_message: string): void { console.log('onPeerConnected not implemented') }
+  private onPeerDbDiscovered(_peerDb: Store): void { console.log('onPeerDbDiscovered not implemented') }
+
+  constructor({
+    onPeerConnected,
+    onPeerDbDiscovered
+  }: AppDatabaseOptions) {
+    this.onPeerConnected = onPeerConnected
+    this.onPeerDbDiscovered = onPeerDbDiscovered
+  }
+
+  async init(desktopPeerId?: string) {
     try {
       this.node = await createIpfsNode()
     } catch (err) {
@@ -73,11 +90,12 @@ export class OrbitDatabase implements AppDatabase {
 
     /**
      * TODO: provide accesscontroller that gives access to remote
-     * peer avter database initialization:
+     * peer after database initialization:
      * https://github.com/orbitdb/orbit-db/blob/main/GUIDE.md#granting-access-after-database-creation
      */
     this.defaultOptions = {
       acessController: {
+        type: 'orbitdb',
         write: [this.orbitdb.id],
       },
     };
@@ -90,11 +108,9 @@ export class OrbitDatabase implements AppDatabase {
       indexBy: '_id',
     };
 
-    const recordings = await this.orbitdb.docstore(RECORDINGS_COLLECTION, {
+    this.docStores[RECORDINGS_COLLECTION] = await this.orbitdb.docstore(RECORDINGS_COLLECTION, {
       ...docStoreOptions,
-      // accessController: CustomAccessController,
     });
-    this.docStores[RECORDINGS_COLLECTION] = recordings
 
     for (const docStore in this.docStores) {
       await this.docStores[docStore].load()
@@ -116,7 +132,7 @@ export class OrbitDatabase implements AppDatabase {
     })
 
     /**
-     * Peers key-value store
+     * Companions key-value store
      */
     this.companions = await this.orbitdb.keyvalue(
       'companions',
@@ -158,6 +174,19 @@ export class OrbitDatabase implements AppDatabase {
     this.companionConnectionInterval = setInterval(this.connectToCompanions.bind(this), 10000)
     this.connectToCompanions()
 
+
+    /**
+     * Connect to desktop peer if one is provided
+     */
+    if (desktopPeerId) {
+      try {
+        await this.connectToPeer(desktopPeerId)
+      } catch (err) {
+        console.error('Could not connect to desktop peer:', err)
+        throw new Error('Could not connect to desktop peer')
+      }
+    }
+
     return this;
   }
 
@@ -189,9 +218,8 @@ export class OrbitDatabase implements AppDatabase {
   }
 
   /**
-   * Event handlers
+   * Debug event handlers
    */
-
   openpeerconnect = async (data: string) => { if ((await this.node.swarm.peers()).length <= 5) console.log('*** peer connected:', data) };
   ondbdiscovered = (data: any) => console.log('*** db discovered:', data);
   onmessage = (data: any) => console.log('*** message recieved:', data);
@@ -247,7 +275,8 @@ export class OrbitDatabase implements AppDatabase {
           if (peerDb.get('docStores')) {
             //@ts-ignore
             await this.companions.set(peerDb.id, peerDb.all);
-            this.ondbdiscovered && this.ondbdiscovered(peerDb);
+            // this.ondbdiscovered && this.ondbdiscovered(peerDb);
+            this.onPeerDbDiscovered && this.onPeerDbDiscovered(peerDb)
           }
         });
         break;
@@ -300,6 +329,35 @@ export class OrbitDatabase implements AppDatabase {
   /**
    * Public DB methods
    */
+  async queryNetwork(collectionName: string, queryFn: (doc: any) => boolean): Promise<any> {
+    const companions: { docStores: { [key: string]: { path: string, root: string } }, nodeId: string }[] = Object.values(this.companions.all)
+    const dbAddrs: { path: string, root: string }[] = companions.map(companion => companion.docStores[collectionName])
+    console.log('*** queryNetwork, dbAddrs:', dbAddrs)
+
+    try {
+      const remoteDocs = await Promise.all(dbAddrs.map(async (addr) => {
+        const db = await this.orbitdb.open(`${addr.root}/${addr.path}`)
+        try {
+          await db.load()
+        } catch (err) {
+          console.error('Could not load remote DB:', err)
+          throw err
+        }
+        //@ts-ignore
+        return db.query(queryFn)
+      }))
+      console.log('*** queryNetwork, remoteDocs:', remoteDocs)
+
+      const allDocs = remoteDocs.reduce((flatDocs, docs) => flatDocs.concat(docs), this.docStores[collectionName].query(queryFn))
+      console.log('*** queryNetwork, allDocs:', allDocs)
+
+      return allDocs
+    } catch (err) {
+      console.error('Could not query ntwork:', err)
+      throw new Error('Could not query ntwork')
+    }
+  }
+
   async add(collectionName: string, doc: any): Promise<string> {
     const bytes = jsonEncoder.encode(doc)
     const hash = await sha256.digest(bytes)
@@ -357,6 +415,17 @@ export class OrbitDatabase implements AppDatabase {
     return docId
   }
 
+  async removeAllCompanions() {
+    const companions = Object.keys(this.companions.all)
+    console.log('*** removeAllCompanions, companions before:', companions)
+
+    for await (const companion of companions) {
+      await this.companions.del(companion)
+    }
+    console.log('*** removeAllCompanions, companions after:', companions)
+  }
+
+  // TODO: implement this or delete if unused
   async deleteDB() {
     return new Promise((resolve, _reject) => {
       resolve('done')
@@ -382,16 +451,3 @@ export class OrbitDatabase implements AppDatabase {
     console.log('Database connections closed')
   }
 }
-
-// let OrbitDB: any
-// if (typeof window !== 'undefined') {
-//   console.log('*** Creating OrbitDB instance in browser...')
-//   OrbitDB = window.OrbitDB
-//   console.log('OrbitDB:', OrbitDB)
-// } else {
-//   console.log('*** Creating OrbitDB instance in node...')
-//   OrbitDB = require('orbit-db')
-//   console.log('OrbitDB:', OrbitDB)
-// }
-
-export const db = new OrbitDatabase();

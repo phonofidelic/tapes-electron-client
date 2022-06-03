@@ -26,8 +26,11 @@ function App() {
   const theme = useTheme();
   const dispatch = useDispatch();
 
+  const searchParams = new URLSearchParams(window.location.search);
+  const desktopPeerId = searchParams.get('peerid')
+
   useEffect(() => {
-    dispatch(initDatabase());
+    dispatch(initDatabase(desktopPeerId));
   }, []);
 
   return (
