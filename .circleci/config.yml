@@ -35,6 +35,42 @@ jobs:
       # Run optional required steps before releasing
       # - run: npm run build-script
       - run: npx semantic-release
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/python:3-node
+    executor: node/default
+    steps:
+      - checkout
+      - node/install:
+          node-version: '16.13'
+      - run:
+          name: Install Dependencies
+          command: yarn
+      - run:
+          name: Install dpkg and fakeroot
+          command: |
+            sudo apt-get update -y
+            sudo apt-get install -y dpkg fakeroot
+      - run:
+          name: Generate Builds
+          command: yarn make
+      - store_artifacts:
+          path: ~/repo/out/make
+  publish:
+    docker:
+      - image: circleci/python:3-node
+    executor: node/default
+    steps:
+      - checkout
+      - node/install:
+          node-version: '16.13'
+      - run:
+          name: Install Dependencies
+          command: yarn
+      - run:
+          name: Publish Builds
+          command: yarn run publish
 workflows:
   unit-tests:
     jobs:
@@ -45,3 +81,9 @@ workflows:
       - release:
           requires:
             - test
+  # build-and-publish:
+  #   jobs:
+  #     - build
+  #     - publish:
+  #         requires:
+  #           - build

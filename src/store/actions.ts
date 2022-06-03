@@ -96,8 +96,14 @@ import {
   SetCurrentTimeAction,
   SET_CURRENT_TIME,
   SET_SEEKED_TIME,
+  GetRecordingStorageStatusRequestAction,
+  GET_RECORDING_STORAGE_STATUS_REQUEST,
+  GetRecordingStorageStatusSuccessAction,
+  GET_RECORDING_STORAGE_STATUS_SUCCESS,
+  GetRecordingStorageStatusFailureAction,
+  GET_RECORDING_STORAGE_STATUS_FAILURE,
 } from './types';
-import { Recording } from '../common/Recording.interface';
+import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { ThreadDBDoc } from '../common/TreadDBDoc.interface';
 
@@ -464,4 +470,24 @@ export function cacheRecordingFailure(
     type: CACHE_RECORDING_FAILURE,
     payload: error,
   };
+}
+
+export function getRecordingStorageStatusRequest(): GetRecordingStorageStatusRequestAction {
+  return {
+    type: GET_RECORDING_STORAGE_STATUS_REQUEST
+  }
+}
+
+export function getRecordingStorageStatusSuccess(recordingStorageStatus: RecordingStorageStatus): GetRecordingStorageStatusSuccessAction {
+  return {
+    type: GET_RECORDING_STORAGE_STATUS_SUCCESS,
+    payload: recordingStorageStatus
+  }
+}
+
+export function getRecordingStorageStatusFailure(error: Error): GetRecordingStorageStatusFailureAction {
+  return {
+    type: GET_RECORDING_STORAGE_STATUS_FAILURE,
+    payload: error
+  }
 }

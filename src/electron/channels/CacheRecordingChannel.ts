@@ -7,6 +7,7 @@ import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { setStorageDir } from '../utils';
+import { storageService } from '../../storage';
 
 // const MAX_CACHE_SIZE = 1000;
 const MAX_CACHE_LENGTH = 5;
@@ -39,7 +40,7 @@ export class CacheRecordingChannel implements IpcChannel {
   async handle(event: IpcMainEvent, request: IpcRequest) {
     console.log(this.name);
 
-    const { recording, token }: { recording: Recording; token: string } =
+    const { recording }: { recording: Recording; } =
       request.data;
 
     try {
@@ -69,35 +70,40 @@ export class CacheRecordingChannel implements IpcChannel {
         /**
          * Download recording to Data dir
          */
-        const downloadUrl = recording.remoteLocation + `?token=${token}`;
-        console.log('*** downloading from ', downloadUrl);
-        const response = await axios({
-          method: 'GET',
-          url: downloadUrl,
-          responseType: 'stream',
-          httpsAgent: new https.Agent({
-            host: 'hub.textile.io',
-            port: 443,
-            path: '/',
-            rejectUnauthorized: false,
-          }),
-        });
+        if (!recording.cid) throw new Error('Recording has no CID')
+        await storageService.cache(recording.cid, storageDir)
 
-        response.data.pipe(
-          fs.createWriteStream(path.resolve(storageDir, recording.filename))
-        );
-        response.data.on('end', () => {
-          console.log('*** recording cached ***');
-          event.sender.send(request.responseChannel, {
-            message: 'Recording cached',
-          });
-        });
-        response.data.on('error', (err: Error) => {
-          console.error('*** Could not download recording:', err);
-          event.sender.send(request.responseChannel, {
-            error: err,
-          });
-        });
+        event.sender.send(request.responseChannel, { message: 'Recording cached' })
+
+        // const downloadUrl = recording.remoteLocation + `?token=${token}`;
+        // console.log('*** downloading from ', downloadUrl);
+        // const response = await axios({
+        //   method: 'GET',
+        //   url: downloadUrl,
+        //   responseType: 'stream',
+        //   httpsAgent: new https.Agent({
+        //     host: 'hub.textile.io',
+        //     port: 443,
+        //     path: '/',
+        //     rejectUnauthorized: false,
+        //   }),
+        // });
+
+        // response.data.pipe(
+        //   fs.createWriteStream(path.resolve(storageDir, recording.filename))
+        // );
+        // response.data.on('end', () => {
+        //   console.log('*** recording cached ***');
+        //   event.sender.send(request.responseChannel, {
+        //     message: 'Recording cached',
+        //   });
+        // });
+        // response.data.on('error', (err: Error) => {
+        //   console.error('*** Could not download recording:', err);
+        //   event.sender.send(request.responseChannel, {
+        //     error: err,
+        //   });
+        // });
       } else {
         event.sender.send(request.responseChannel, {
           message: 'Recording cached',

@@ -5,6 +5,11 @@ import { DeleteRecordingChannel } from './electron/channels/DeleteRecordingChann
 import { UploadAudioFileChannel } from './electron/channels/UploadAudioFileChannel';
 import { SetInputDeviceChannel } from './electron/channels/SetInputDevaiceChannel';
 import { CacheRecordingChannel } from './electron/channels/CacheRecordingChannel';
+import { LoadRecordingsChannel } from './electron/channels/LoadRecordingsChannel';
+import { UpdateRecordingChannel } from './electron/channels/UpdateRecordingChannel'
+import { GetRecordingStorageStatusChannel } from './electron/channels/GetRecordingStorageStatusChannel';
+import { ExportIdentityChannel } from './electron/channels/ExportIdentityChannel'
+import { DeployWebClientChannel } from './electron/channels/DeployWebClinetChannel'
 
 new Main().init([
   new NewRecordingChannel(),
@@ -12,4 +17,9 @@ new Main().init([
   new UploadAudioFileChannel(),
   new SetInputDeviceChannel(),
   new CacheRecordingChannel(),
+  new LoadRecordingsChannel(),
+  new UpdateRecordingChannel(),
+  new GetRecordingStorageStatusChannel(),
+  new ExportIdentityChannel(),
+  new DeployWebClientChannel(),
 ]);

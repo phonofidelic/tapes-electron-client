@@ -1,9 +1,9 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Recording } from '../common/Recording.interface';
+import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecorderState } from '../store/types';
 import * as actions from '../store/actions';
-import { editRecording } from '../effects';
+import effecte from '../effects';
 import { connect, useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -20,27 +20,34 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import { visuallyHidden } from '@mui/utils';
+import StorageStatusDisplay from '../components/StorageStatusDisplay';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
 
+const { editRecording, getRecordingStorageStatus } = effecte
+
 interface Props {
   recording: Recording;
   caching: boolean;
+  storageStatus: RecordingStorageStatus
 }
 
-export function RecordingDetail({ recording }: Props): ReactElement {
+export function RecordingDetail({ recording, storageStatus }: Props): ReactElement {
   const history = useHistory();
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  const duration = recording.duration;
+  const duration = recording?.duration || 0;
   const durationObj = dayjs.duration(duration * 1000);
 
   const handleEditRecording = (recordingId: string, update: any) => {
     dispatch(editRecording(recordingId, update));
   };
+
+
+  if (!recording) return <div>No recording selected</div>
 
   return (
     <div>
@@ -131,13 +138,14 @@ export function RecordingDetail({ recording }: Props): ReactElement {
             musicBrainzCoverArt={recording.musicBrainzCoverArt}
           />
         )}
-        {recording.acoustidResults?.length && (
+        {recording.acoustidResults?.length > 0 && (
           <AcoustidResults
             acoustidResults={recording.acoustidResults}
             recording={recording}
             handleEditRecording={handleEditRecording}
           />
         )}
+        <StorageStatusDisplay />
       </div>
     </div>
   );
@@ -147,6 +155,7 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     recording: state.selectedRecording,
     caching: state.caching,
+    storageStatus: state.selectedRecordingStorageStatus
   };
 };
 

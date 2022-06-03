@@ -24,7 +24,7 @@ export class IpcService {
 
   private initializeIpcRenderer() {
     if (!window || !window.api) {
-      console.log('IpcService, window:', window);
+      // console.log('IpcService, window:', window);
       throw new Error(`Unable to require renderer process`);
     }
     this.ipcRenderer = window.api;

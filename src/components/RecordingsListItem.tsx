@@ -38,7 +38,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Tooltip } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
@@ -136,7 +136,7 @@ export function RecordingsListItem({
 
   useEffect(() => {
     setNewTitle(recording.title);
-  }, [selected, recording.title]);
+  }, [selected, recording]);
 
   return (
     <ListItem
@@ -179,9 +179,11 @@ export function RecordingsListItem({
                   }}
                   onClick={() => selected && setEditing(true)}
                 >
-                  <Typography style={{ maxWidth: '50vw' }} noWrap>
-                    {recording.title}
-                  </Typography>
+                  <Tooltip title={recording.title} enterDelay={400}>
+                    <Typography style={{ maxWidth: '50vw' }} noWrap>
+                      {recording.title}
+                    </Typography>
+                  </Tooltip>
                 </div>
 
                 {selected && (

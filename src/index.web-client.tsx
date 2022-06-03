@@ -31,20 +31,20 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import Root from './Root';
-import { providers } from 'ethers';
+// import { providers } from 'ethers';
 
-declare global {
-  interface Window {
-    ethereum: providers.ExternalProvider;
-    db: any
-    OrbitDB: any
-  }
-}
+// declare global {
+//   interface Window {
+//     ethereum: providers.ExternalProvider;
+//     db: any
+//     OrbitDB: any
+//   }
+// }
 
-global = globalThis;
+// global = globalThis;
 
 console.log(
-  '👋 This message is being logged by "renderer.js", included via webpack'
+  '👋 This message is being logged by "index.web-client.tsx", included via webpack'
 );
 
 ReactDOM.render(
@@ -53,3 +53,8 @@ ReactDOM.render(
   </Root>,
   document.getElementById('root')
 );
+
+// ReactDOM.render(
+//   <div>Hello!</div>,
+//   document.getElementById('root')
+// );

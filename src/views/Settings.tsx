@@ -5,7 +5,7 @@ import { useDropzone } from 'react-dropzone';
 
 import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
-import { loadAccountToken, setInputDevice } from '../effects';
+import effects from '../effects';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
@@ -26,6 +26,13 @@ import FormLabel from '@mui/material/FormLabel';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import HelpIcon from '@mui/icons-material/Help';
 import { SelectChangeEvent } from '@mui/material';
+import QRCodeModal from '../components/QRCodeModal';
+//@ts-ignore
+import { PeerInfo } from 'ipfs';
+
+const { loadAccountToken, setInputDevice, exportIdentity } = effects
+
+declare const WEB_CLIENT_URL: string
 
 const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
   // backgroundColor: theme.palette.background.default,
@@ -49,6 +56,8 @@ export function Settings({
   setRecordingSettings,
 }: SettingsProps) {
   const [audioInputDevices, setAudioInputDevices] = useState([]);
+  const [QROpen, setQROpen] = useState(false)
+  const [peerInfo, setPeerInfo] = useState<PeerInfo | null>(null)
 
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId || 'default';
@@ -105,16 +114,24 @@ export function Settings({
 
   const downloadToken = () => {
     console.log('Downloading token');
+    console.log('peerInfo:', window.db.peerInfo)
+    setPeerInfo(window.db.peerInfo)
+    setQROpen(true)
 
-    const identity = localStorage.getItem('identity');
+    // const identity = localStorage.getItem('identity');
 
-    const a = document.createElement('a');
-    a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(identity);
-    a.download = 'tapes_account.token';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // const a = document.createElement('a');
+    // a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(identity);
+    // a.download = 'tapes_account.token';
+    // document.body.appendChild(a);
+    // a.click();
+    // document.body.removeChild(a);
+    // dispatch(exportIdentity())
   };
+
+  const handleCloseQR = () => {
+    setQROpen(false)
+  }
 
   useEffect(() => {
     const getMediaDevices = async () => {
@@ -138,6 +155,9 @@ export function Settings({
 
   return (
     <div>
+      {/* <QRCodeModal open={QROpen} value={`${localStorage.getItem('web-client-url')}?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} /> */}
+      {/* <QRCodeModal open={QROpen} value={`http://192.168.1.12:3001/?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} /> */}
+      <QRCodeModal open={QROpen} value={`${WEB_CLIENT_URL}/?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} />
       <div
         {...getRootProps({
           onClick: (e) => e.stopPropagation(),

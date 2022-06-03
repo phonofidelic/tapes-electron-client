@@ -8,19 +8,17 @@ const validChannels = [
   'recorder:start',
   'recorder:stop',
   'recorder:set-input',
-  'storage:delete_one',
   'storage:upload',
   'storage:cache_recording',
+  'storage:get_recording_stats',
+  'recordings:get_all',
+  'recordings:update',
+  'recordings:delete_one',
+  'identity:export',
+  'web-clinet:deploy'
 ];
 
-const validResponseChannels = [
-  'recorder:start:response:.*',
-  'recorder:stop:response:.*',
-  'recorder:set-input:.*',
-  'storage:delete_one:response:.*',
-  'storage:upload:response:.*',
-  'storage:cache_recording:response:.*',
-];
+const validResponseChannels = validChannels.map(channel => `${channel}:response:.*`)
 
 const api = {
   send: (channel, data) => {
