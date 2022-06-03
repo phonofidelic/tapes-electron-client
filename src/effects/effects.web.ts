@@ -92,28 +92,3 @@ export const getRecordingStorageStatus = (recordingCid: string): Effect => async
 export const exportIdentity = (): Effect => async (dispatch) => {
   console.log('TODO: implement exportIdentity for web')
 }
-
-const replicateDb = async (peerDb: any) => {
-  console.log('*** handlePeerDbDiscovered, peerDb:', peerDb)
-  const docStores = peerDb.get('docStores')
-  console.log('*** docStores:', docStores)
-
-  const dbAddrs: { path: string, root: string }[] = Object.values(docStores)
-  console.log('*** dbAddrs:', dbAddrs)
-
-  const allRecordings = await Promise.all(dbAddrs.map(async (addr) => {
-    const db = await window.db.orbitdb.open(`${addr.root}/${addr.path}`)
-    await db.load()
-    return await db.get('')
-  }))
-  console.log('*** allRecordings:', allRecordings[0])
-  // setRecordings(allRecordings[0])
-
-  // for await(const record of allRecordings[0]) {
-  //   try {
-  //     await window.db.add('recordings', record)
-  //   } catch (err) {
-  //     console.error('Could not replicate record:', record)
-  //   }
-  // }
-}
