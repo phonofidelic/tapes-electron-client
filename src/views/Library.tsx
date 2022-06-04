@@ -8,8 +8,6 @@ import {
   RecorderState,
   SelectRecordingAction,
   ConfirmErrorAction,
-  PlayRecordingAction,
-  PauseRecordingAction,
 } from '../store/types';
 
 import Loader from '../components/Loader';
@@ -114,10 +112,7 @@ export function Library({
   };
 
   useEffect(() => {
-    // !recordings.length && dispatch(loadRecordings());
     dispatch(loadRecordings());
-    // searchLibrary('');
-    // setFilteredRecordings(recordings)
   }, [recordings.length]);
 
   console.log('*** searchTerm:', searchTerm)

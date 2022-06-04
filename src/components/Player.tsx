@@ -8,7 +8,6 @@ import {
   SetSeekedTimeAction,
 } from '../store/types';
 import { useLocation } from 'react-router';
-import useAudioPreview from '../hooks/useAudioPreview';
 import { Recording } from '../common/Recording.interface';
 import { msToTime } from '../utils';
 
@@ -119,7 +118,7 @@ export function Player({
             }}
           >
             <div>
-              <Typography>{currentPlaying.title}</Typography>
+              <Typography noWrap>{currentPlaying.title}</Typography>
             </div>
             <div>
               <Typography variant="caption">

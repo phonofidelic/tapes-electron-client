@@ -4,10 +4,6 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import effects from './effects';
-// import Recorder from './views/Recorder';
-// import Settings from './views/Settings';
-// import Library from './views/Library';
-// import RecordingDetail from './views/RecordingDetail';
 import Navigation from './components/Navigation';
 
 import { useTheme } from '@mui/material/styles';
@@ -61,12 +57,8 @@ function App() {
       </main>
       <Player />
       <AudioElement />
-      <audio id="audio-player">
-        <source id="audio-source" />
-      </audio>
     </div>
   );
 }
 
 export default hot(module)(App);
-// export default App
