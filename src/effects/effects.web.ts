@@ -6,7 +6,11 @@ import {
   initDatabaseFailure,
   loadRecordingsRequest,
   loadRecordingsSuccess,
-  loadRecordingsFailure
+  loadRecordingsFailure,
+  pauseRecording,
+  cacheRecordingRequest,
+  playRecording,
+  cacheRecordingSuccess
 } from '../store/actions';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { Recording } from '../common/Recording.interface';
@@ -82,7 +86,10 @@ export const downloadRecording = (recordingId: string): Effect => async (dispatc
 }
 
 export const cacheAndPlayRecording = (recording: Recording): Effect => async (dispatch) => {
-  console.log('TODO: implement cacheAndPlayRecording for web')
+  dispatch(pauseRecording())
+  dispatch(cacheRecordingRequest(recording))
+  dispatch(cacheRecordingSuccess())
+  dispatch(playRecording())
 }
 
 export const getRecordingStorageStatus = (recordingCid: string): Effect => async (dispatch) => {

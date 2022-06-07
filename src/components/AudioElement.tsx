@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import isElectron from 'is-electron';
 import { connect } from 'react-redux';
 import * as actions from '../store/actions';
 import {
@@ -60,10 +61,13 @@ export function AudioElement({
   if (!currentPlaying) return null;
   if (caching) return null;
 
+  const audioSrc = isElectron() ? 'tapes://' + currentPlaying.filename : `https://${currentPlaying.cid}.ipfs.dweb.link/${currentPlaying.filename}`
+
   return (
     <ReactAudioPlayer
       ref={audioRef}
-      src={'tapes://' + currentPlaying.filename}
+      // src={'tapes://' + currentPlaying.filename}
+      src={audioSrc}
       listenInterval={500}
       onListen={onListen}
       onEnded={onEnded}
