@@ -16,6 +16,7 @@ import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { Recording } from '../common/Recording.interface';
 import { RecorderState, RecorderAction } from '../store/types';
 import { OrbitDatabase } from '../db/db-orbit'
+import { asyncCallWithTimeout } from '../utils';
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
@@ -37,13 +38,20 @@ export const loadRecordings = (): Effect => async (dispatch) => {
   try {
     dispatch(setLoadingMessage('Loading library...'));
     // const recordings = await window.db.find('recordings', {})
-    const recordings = await window.db.queryNetwork('recordings', (doc: any) => doc)
+    // const recordings = await window.db.queryNetwork('recordings', (doc: any) => doc)
+    const recordings = await asyncCallWithTimeout(window.db.queryNetwork('recordings', (doc: any) => doc), 15000) as Recording[]
 
-    dispatch(loadRecordingsSuccess(recordings));
+    dispatch(loadRecordingsSuccess(await recordings));
     dispatch(setLoadingMessage(null));
   } catch (err) {
-    console.error(err);
-    dispatch(loadRecordingsFailure(err));
+    if (err.message === 'Async call timeout limit reached') {
+      console.log('Timeout limit reached. Clearing companion list...')
+      await window.db.removeAllCompanions()
+      loadRecordings()
+    } else {
+      console.error(err);
+      dispatch(loadRecordingsFailure(err));
+    }
   }
 }
 
