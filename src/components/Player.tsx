@@ -84,12 +84,13 @@ export function Player({
           flexDirection: 'column',
           margin: 4,
           zIndex: theme.zIndex.appBar,
+          borderRadius: '8px'
         }}
       >
         <div>
           <LinearProgress
             style={{
-              borderRadius: '4px, 4px, 0, 0',
+              borderRadius: '8px, 8px, 0, 0',
             }}
             ref={progressRef}
             variant={caching ? 'indeterminate' : 'determinate'}

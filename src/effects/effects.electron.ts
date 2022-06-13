@@ -407,7 +407,7 @@ export const loadAccountToken =
         await window.db.deleteDB();
 
         dispatch(setLoadingMessage('Initializing new database...'));
-        await window.db.init();
+        !window.db.initialized && await window.db.init();
 
         dispatch(loadAccountTokenSuccess(tokenString));
         dispatch(setLoadingMessage(null));
@@ -422,8 +422,8 @@ export const initDatabase = (): Effect => async (dispatch) => {
   dispatch(setLoadingMessage('Initializing database...'));
 
   try {
-    window.db = new OrbitDatabase({ onPeerDbDiscovered: console.log })
-    await window.db.init()
+    if (!window.db) window.db = new OrbitDatabase({ onPeerDbDiscovered: console.log })
+    !window.db.initialized && await window.db.init()
     console.log('Database initialized');
     dispatch(initDatabaseSuccess());
   } catch (err) {

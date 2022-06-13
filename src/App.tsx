@@ -10,8 +10,11 @@ import { useTheme } from '@mui/material/styles';
 import Player from './components/Player';
 import AudioElement from './components/AudioElement';
 
+import Settings from './views/Settings';
+import StatusMessage from './components/StatusMessage';
+
 const Recorder = React.lazy(() => import(/* webpackChunkName: "recorder" */ './views/Recorder'))
-const Settings = React.lazy(() => import(/* webpackChunkName: "settings" */ './views/Settings'))
+// const Settings = React.lazy(() => import(/* webpackChunkName: "settings" */ './views/Settings'))
 const Library = React.lazy(() => import(/* webpackChunkName: "library" */ './views/Library'))
 const RecordingDetail = React.lazy(() => import(/* webpackChunkName: "recordingDetail" */ './views/RecordingDetail'))
 
@@ -57,6 +60,7 @@ function App() {
       </main>
       <Player />
       <AudioElement />
+      <StatusMessage />
     </div>
   );
 }

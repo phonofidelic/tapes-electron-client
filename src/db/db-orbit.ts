@@ -36,7 +36,9 @@ export class OrbitDatabase implements AppDatabase {
   private peerConnectTimeout: ReturnType<typeof setTimeout>
   private companionConnectionInterval: ReturnType<typeof setInterval>
   private docStores: { [key: string]: DocumentStore<unknown> } = {}
+
   public peerInfo: PeerInfo
+  public initialized: boolean = false
 
   private onPeerConnected(_message: string): void { console.log('onPeerConnected not implemented') }
   private onPeerDbDiscovered(_peerDb: Store): void { console.log('onPeerDbDiscovered not implemented') }
@@ -187,6 +189,7 @@ export class OrbitDatabase implements AppDatabase {
       }
     }
 
+    this.initialized = true
     return this;
   }
 
