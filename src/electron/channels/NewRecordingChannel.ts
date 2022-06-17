@@ -18,7 +18,6 @@ import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingSettings } from '../../common/RecordingSettings.interface';
-import { AppDatabase } from '../../db/AppDatabase.interface';
 import { storageService } from '../../storage';
 
 const setStorageDir = async (folderName: string): Promise<string> => {
@@ -38,7 +37,7 @@ export class NewRecordingChannel implements IpcChannel {
     return 'recorder:start';
   }
 
-  async handle(event: IpcMainEvent, request: IpcRequest, db: AppDatabase) {
+  async handle(event: IpcMainEvent, request: IpcRequest) {
     console.log(this.name);
 
     const recordingSettings: RecordingSettings = request.data.recordingSettings;

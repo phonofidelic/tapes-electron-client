@@ -288,7 +288,8 @@ export const startRecording =
         console.log('createdRecording:', createdRecording);
         dispatch(startRecordingSuccess(createdRecording));
         if (ipcResponse.error) {
-          throw ipcResponse.error;
+          console.error(ipcResponse.error)
+          throw new Error('Could not create new recording');
         }
         dispatch(addRecordingSuccess(createdRecording));
         dispatch(setLoadingMessage(null));

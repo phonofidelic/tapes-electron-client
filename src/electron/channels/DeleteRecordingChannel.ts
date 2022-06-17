@@ -3,15 +3,13 @@ import { IpcMainEvent } from 'electron';
 import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
-import { ErrorRounded } from '@mui/icons-material';
-import { AppDatabase } from '../../db/AppDatabase.interface';
 
 export class DeleteRecordingChannel implements IpcChannel {
   get name(): string {
     return 'recordings:delete_one';
   }
 
-  async handle(event: IpcMainEvent, request: IpcRequest, db: AppDatabase) {
+  async handle(event: IpcMainEvent, request: IpcRequest) {
     console.log(this.name, request);
 
     const { recording } = request.data
