@@ -280,6 +280,11 @@ export const startRecording =
         });
         console.log('recorder:start, ipcResponse:', ipcResponse);
 
+        if (ipcResponse.error) {
+          console.error(ipcResponse.error)
+          throw ipcResponse.error;
+        }
+
         recordingData = ipcResponse.recordingData;
         const docId = await window.db.add('recordings', recordingData)
         console.log('docId:', docId)
@@ -287,10 +292,7 @@ export const startRecording =
 
         console.log('createdRecording:', createdRecording);
         dispatch(startRecordingSuccess(createdRecording));
-        if (ipcResponse.error) {
-          console.error(ipcResponse.error)
-          throw new Error('Could not create new recording');
-        }
+
         dispatch(addRecordingSuccess(createdRecording));
         dispatch(setLoadingMessage(null));
       } catch (err) {

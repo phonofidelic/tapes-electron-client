@@ -1,4 +1,5 @@
 (global as any).WebSocket = require('isomorphic-ws');
+require('dotenv').config()
 import { Main } from './electron/Main';
 import { NewRecordingChannel } from './electron/channels/NewRecordingChannel';
 import { DeleteRecordingChannel } from './electron/channels/DeleteRecordingChannel';
