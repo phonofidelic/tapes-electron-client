@@ -1,6 +1,5 @@
 import { IpcMainEvent } from "electron";
 import { storageService } from "../../storage";
-import { AppDatabase } from "../../db/AppDatabase.interface";
 import { IpcChannel } from "../IPC/IpcChannel.interface";
 import { IpcRequest } from "../IPC/IpcRequest.interface";
 
@@ -9,7 +8,7 @@ export class GetRecordingStorageStatusChannel implements IpcChannel {
     return 'storage:get_recording_stats'
   }
 
-  async handle(event: IpcMainEvent, request: IpcRequest, db: AppDatabase) {
+  async handle(event: IpcMainEvent, request: IpcRequest) {
     const recordingCid = request.data;
     if (!recordingCid) {
       event.sender.send(request.responseChannel, { error: new Error('Recording CID is required for this request') })

@@ -8,8 +8,6 @@ import {
   RecorderState,
   SelectRecordingAction,
   ConfirmErrorAction,
-  PlayRecordingAction,
-  PauseRecordingAction,
 } from '../store/types';
 
 import Loader from '../components/Loader';
@@ -114,10 +112,7 @@ export function Library({
   };
 
   useEffect(() => {
-    // !recordings.length && dispatch(loadRecordings());
     dispatch(loadRecordings());
-    // searchLibrary('');
-    // setFilteredRecordings(recordings)
   }, [recordings.length]);
 
   console.log('*** searchTerm:', searchTerm)
@@ -176,28 +171,30 @@ export function Library({
 
   if (!recordings.length)
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          height:
-            theme.dimensions.Tray.height - theme.dimensions.Navigation.height,
-          justifyContent: 'center',
-        }}
-      >
+      <FileDrop accept="audio/*" onFileDrop={handleFileDrop}>
         <div
-          style={{ display: 'flex', width: '100%', justifyContent: 'center' }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            height:
+              theme.dimensions.Tray.height - theme.dimensions.Navigation.height,
+            justifyContent: 'center',
+          }}
         >
-          <Typography>Your recordings will live here</Typography>
+          <div
+            style={{ display: 'flex', width: '100%', justifyContent: 'center' }}
+          >
+            <Typography>Your recordings will live here</Typography>
+          </div>
+          <ErrorModal error={error} onConfirmError={() => confirmError()} />
         </div>
-        <ErrorModal error={error} onConfirmError={() => confirmError()} />
-      </div>
+      </FileDrop>
     );
 
   if (recordings.length > 0)
     return (
-      <FileDrop accept="audio/*" handleFileDrop={handleFileDrop}>
+      <FileDrop accept="audio/*" onFileDrop={handleFileDrop}>
         <div
           style={{
             position: 'sticky',

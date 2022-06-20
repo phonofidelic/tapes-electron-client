@@ -16,8 +16,8 @@ module.exports = {
     'level',
     // '@koush/wrtc',
     'wrtc',
-    'dlv',
-    'ipfs-repo',
+    // 'dlv',
+    // 'ipfs-repo',
   ],
   // target: 'electron-main',
   // node: {

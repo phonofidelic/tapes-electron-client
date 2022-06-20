@@ -3,7 +3,6 @@ import React, {
   ReactElement,
   useState,
   useEffect,
-  useRef,
 } from 'react';
 // import { connect, useDispatch } from 'react-redux';
 // import * as actions from '../store/actions';
@@ -16,15 +15,11 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 import dayjsDuration from 'dayjs/plugin/duration';
 import { Recording } from '../common/Recording.interface';
 import useHover from '../hooks/useHover';
-import { RecorderState, SelectRecordingAction } from '../store/types';
-import useAudioPreview from '../hooks/useAudioPreview';
 import { msToTime } from '../utils';
 
 import PlayButton from './PlayButton';
-import StopButton from './StopButton';
 
 import IconButton from '@mui/material/IconButton';
-import LinearProgress from '@mui/material/LinearProgress';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';

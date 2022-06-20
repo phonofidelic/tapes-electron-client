@@ -1,3 +1,6 @@
+/**
+ * TODO: Remove if unused
+ */
 import React, { ReactElement, useRef } from 'react';
 import { Recording } from '../common/Recording.interface';
 import useAudioPreview from '../hooks/useAudioPreview';
@@ -18,7 +21,7 @@ export default function AudioPlayer({
   caching,
 }: Props): ReactElement {
   const { curTime, duration, playing, setPlaying, setClickedTime } =
-    useAudioPreview(recording._id);
+    useAudioPreview(recording);
 
   const progressRef = useRef(null);
 

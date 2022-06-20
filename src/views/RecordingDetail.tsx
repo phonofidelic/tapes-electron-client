@@ -1,9 +1,9 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
+import { Recording } from '../common/Recording.interface';
 import { RecorderState } from '../store/types';
 import * as actions from '../store/actions';
-import effecte from '../effects';
+import effects from '../effects';
 import { connect, useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -15,7 +15,7 @@ import { msToTime } from '../utils';
 import AcoustidResults from '../components/AcoutidResults';
 import CommonMetadata from '../components/CommonMetadata';
 
-import { useTheme } from '@mui/material';
+import { Tooltip, useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
@@ -26,15 +26,14 @@ dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
 
-const { editRecording, getRecordingStorageStatus } = effecte
+const { editRecording } = effects
 
 interface Props {
   recording: Recording;
   caching: boolean;
-  storageStatus: RecordingStorageStatus
 }
 
-export function RecordingDetail({ recording, storageStatus }: Props): ReactElement {
+export function RecordingDetail({ recording }: Props): ReactElement {
   const history = useHistory();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -71,9 +70,17 @@ export function RecordingDetail({ recording, storageStatus }: Props): ReactEleme
           }}
         >
           <div>
-            <Typography style={{ lineHeight: '30px' }}>
-              {recording.title}
-            </Typography>
+            <Tooltip title={recording.title}>
+              <Typography
+                style={{
+                  lineHeight: '30px',
+                  maxWidth: theme.dimensions.Tray.width - 58
+                }}
+                noWrap
+              >
+                {recording.title}
+              </Typography>
+            </Tooltip>
           </div>
           <div>
             <IconButton size="small" onClick={() => history.goBack()}>
@@ -155,7 +162,6 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     recording: state.selectedRecording,
     caching: state.caching,
-    storageStatus: state.selectedRecordingStorageStatus
   };
 };
 

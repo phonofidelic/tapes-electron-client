@@ -17,14 +17,13 @@ import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingFormats } from '../../common/RecordingFormats.enum';
 import { storageService } from '../../storage';
-import { AppDatabase } from '../../db/AppDatabase.interface';
 
 export class UploadAudioFileChannel implements IpcChannel {
   get name(): string {
     return 'storage:upload';
   }
 
-  async handle(event: IpcMainEvent, request: IpcRequest, db: AppDatabase) {
+  async handle(event: IpcMainEvent, request: IpcRequest) {
     console.log(this.name);
 
     console.log('*** Audio files:', request.data.files);

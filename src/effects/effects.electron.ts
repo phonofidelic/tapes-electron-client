@@ -280,6 +280,11 @@ export const startRecording =
         });
         console.log('recorder:start, ipcResponse:', ipcResponse);
 
+        if (ipcResponse.error) {
+          console.error(ipcResponse.error)
+          throw ipcResponse.error;
+        }
+
         recordingData = ipcResponse.recordingData;
         const docId = await window.db.add('recordings', recordingData)
         console.log('docId:', docId)
@@ -287,9 +292,7 @@ export const startRecording =
 
         console.log('createdRecording:', createdRecording);
         dispatch(startRecordingSuccess(createdRecording));
-        if (ipcResponse.error) {
-          throw ipcResponse.error;
-        }
+
         dispatch(addRecordingSuccess(createdRecording));
         dispatch(setLoadingMessage(null));
       } catch (err) {
@@ -407,7 +410,7 @@ export const loadAccountToken =
         await window.db.deleteDB();
 
         dispatch(setLoadingMessage('Initializing new database...'));
-        await window.db.init();
+        !window.db.initialized && await window.db.init();
 
         dispatch(loadAccountTokenSuccess(tokenString));
         dispatch(setLoadingMessage(null));
@@ -422,8 +425,8 @@ export const initDatabase = (): Effect => async (dispatch) => {
   dispatch(setLoadingMessage('Initializing database...'));
 
   try {
-    window.db = new OrbitDatabase({ onPeerDbDiscovered: console.log })
-    await window.db.init()
+    if (!window.db) window.db = new OrbitDatabase({ onPeerDbDiscovered: console.log })
+    !window.db.initialized && await window.db.init()
     console.log('Database initialized');
     dispatch(initDatabaseSuccess());
   } catch (err) {

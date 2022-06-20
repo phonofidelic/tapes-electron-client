@@ -24,3 +24,22 @@ export const getAudioStream = async (selectedMediaDeviceId: string) => {
   }
   return audioStream;
 };
+
+/**
+ * https://javascript.plainenglish.io/how-to-add-a-timeout-limit-to-asynchronous-javascript-functions-3676d89c186d
+ */
+export const asyncCallWithTimeout = async (asyncPromise: Promise<any>, timeLimit: number) => {
+  let timeoutHandle: ReturnType<typeof setTimeout>;
+
+  const timeoutPromise = new Promise((_resolve, reject) => {
+    timeoutHandle = setTimeout(
+      () => reject(new Error('Async call timeout limit reached')),
+      timeLimit
+    );
+  });
+
+  return Promise.race([asyncPromise, timeoutPromise]).then(result => {
+    clearTimeout(timeoutHandle);
+    return result;
+  })
+}

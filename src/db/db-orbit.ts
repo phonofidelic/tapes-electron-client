@@ -36,7 +36,9 @@ export class OrbitDatabase implements AppDatabase {
   private peerConnectTimeout: ReturnType<typeof setTimeout>
   private companionConnectionInterval: ReturnType<typeof setInterval>
   private docStores: { [key: string]: DocumentStore<unknown> } = {}
+
   public peerInfo: PeerInfo
+  public initialized: boolean = false
 
   private onPeerConnected(_message: string): void { console.log('onPeerConnected not implemented') }
   private onPeerDbDiscovered(_peerDb: Store): void { console.log('onPeerDbDiscovered not implemented') }
@@ -70,6 +72,7 @@ export class OrbitDatabase implements AppDatabase {
     // }
 
     try {
+      console.log('*** createing orbit instance')
       this.orbitdb = await OrbitDB.createInstance(this.node, {
         //@ts-ignore
         offline: process.env.NODE_ENV === 'test',
@@ -187,6 +190,7 @@ export class OrbitDatabase implements AppDatabase {
       }
     }
 
+    this.initialized = true
     return this;
   }
 
@@ -212,8 +216,8 @@ export class OrbitDatabase implements AppDatabase {
       await this.node.swarm.connect(SIG_SERVER + peerId)
       console.log('*** Connected to peer!')
     } catch (err) {
-      if (err.message === 'peer is not available') return console.warn(`Peer not available: ${peerId}`)
-      console.error('Could not connect to peer:', err)
+      // if (new RegExp(err).test('peer is not available')) return console.warn(`Peer not available: ${peerId}`)
+      // console.error('Could not connect to peer:', err)
     }
   }
 
@@ -301,7 +305,7 @@ export class OrbitDatabase implements AppDatabase {
   private async connectToCompanions() {
     //@ts-ignore
     const companionIds: string[] = Object.values(this.companions.all).map(companion => companion.nodeId)
-    console.log('connectToCompanions, companionIds:', companionIds)
+    // console.log('connectToCompanions, companionIds:', companionIds)
     const connectedPeerIds = await this.getIpfsPeerIds()
 
     await Promise.all(companionIds.map(async (companionId) => {
@@ -318,7 +322,7 @@ export class OrbitDatabase implements AppDatabase {
 
   async getIpfsPeerIds() {
     const peerIds = (await this.node.swarm.peers()).map(peer => peer.peer)
-    console.log('Connected IPFS peers:', peerIds)
+    // console.log('Connected IPFS peers:', peerIds)
     return peerIds
   }
 
@@ -442,7 +446,7 @@ export class OrbitDatabase implements AppDatabase {
       // console.log('### IPFS stats:', this.node.stats)
       clearTimeout(this.peerConnectTimeout)
       clearInterval(this.companionConnectionInterval)
-      await this.node.pubsub.unsubscribe(this.peerInfo.id, this.handleMessageReceived)
+      process.env.NODE_ENV !== 'test' && await this.node.pubsub.unsubscribe(this.peerInfo.id, this.handleMessageReceived)
       await this.node.stop()
       // await this.orbitdb.disconnect()
     } catch (err) {

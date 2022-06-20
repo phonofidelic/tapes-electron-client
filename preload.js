@@ -11,10 +11,10 @@ const validChannels = [
   'storage:upload',
   'storage:cache_recording',
   'storage:get_recording_stats',
-  'recordings:get_all',
-  'recordings:update',
+  // 'recordings:get_all',
+  // 'recordings:update',
   'recordings:delete_one',
-  'identity:export',
+  // 'identity:export',
   'web-clinet:deploy'
 ];
 

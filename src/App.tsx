@@ -4,18 +4,17 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import effects from './effects';
-// import Recorder from './views/Recorder';
-// import Settings from './views/Settings';
-// import Library from './views/Library';
-// import RecordingDetail from './views/RecordingDetail';
 import Navigation from './components/Navigation';
 
 import { useTheme } from '@mui/material/styles';
 import Player from './components/Player';
 import AudioElement from './components/AudioElement';
 
+import Settings from './views/Settings';
+import StatusMessage from './components/StatusMessage';
+
 const Recorder = React.lazy(() => import(/* webpackChunkName: "recorder" */ './views/Recorder'))
-const Settings = React.lazy(() => import(/* webpackChunkName: "settings" */ './views/Settings'))
+// const Settings = React.lazy(() => import(/* webpackChunkName: "settings" */ './views/Settings'))
 const Library = React.lazy(() => import(/* webpackChunkName: "library" */ './views/Library'))
 const RecordingDetail = React.lazy(() => import(/* webpackChunkName: "recordingDetail" */ './views/RecordingDetail'))
 
@@ -61,12 +60,9 @@ function App() {
       </main>
       <Player />
       <AudioElement />
-      <audio id="audio-player">
-        <source id="audio-source" />
-      </audio>
+      <StatusMessage />
     </div>
   );
 }
 
 export default hot(module)(App);
-// export default App

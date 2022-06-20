@@ -31,7 +31,9 @@ module.exports = {
       path: require.resolve('path-browserify'),
       buffer: require.resolve("buffer"),
       stream: require.resolve("stream-browserify"),
-      process: false
+      process: false,
+      crypto: false,
+      zlib: false
     },
     alias: {
       stream: path.resolve(__dirname, 'node_modules/stream-browserfy')

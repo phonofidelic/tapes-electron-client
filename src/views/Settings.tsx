@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
+import { hot } from 'react-hot-loader';
 import styled from 'styled-components';
 import { connect, useDispatch } from 'react-redux';
-import { useDropzone } from 'react-dropzone';
 
 import { RecorderState, SetRecordingSettingsAction } from '../store/types';
 import * as actions from '../store/actions';
@@ -10,6 +10,8 @@ import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
 import Loader from '../components/Loader';
+import QRCodeModal from '../components/QRCodeModal';
+import StatusMessage from '../components/StatusMessage'
 
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
@@ -23,10 +25,11 @@ import RadioGroup from '@mui/material/RadioGroup';
 import Radio from '@mui/material/Radio';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-import GetAppIcon from '@mui/icons-material/GetApp';
-import HelpIcon from '@mui/icons-material/Help';
+import Fade from '@mui/material/Fade';
+import QrCodeIcon from '@mui/icons-material/QrCode2';
 import { SelectChangeEvent } from '@mui/material';
-import QRCodeModal from '../components/QRCodeModal';
+
+
 //@ts-ignore
 import { PeerInfo } from 'ipfs';
 
@@ -44,6 +47,7 @@ const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
 
 interface SettingsProps {
   loading: boolean;
+  loadingMessage: string | null;
   recordingSettings: RecordingSettings;
   setRecordingSettings(
     recordingSettings: RecordingSettings
@@ -52,6 +56,7 @@ interface SettingsProps {
 
 export function Settings({
   loading,
+  loadingMessage,
   recordingSettings,
   setRecordingSettings,
 }: SettingsProps) {
@@ -76,10 +81,6 @@ export function Settings({
       dispatch(loadAccountToken(tokenString.trim()));
     };
   }, []);
-
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
-    onDrop,
-  });
 
   const handleRecordingFormatChange = (event: SelectChangeEvent) => {
     setRecordingSettings({
@@ -149,102 +150,43 @@ export function Settings({
     getMediaDevices();
   }, []);
 
-  if (loading) {
-    return <Loader />;
-  }
+  // if (loading) {
+  //   return <Loader />;
+  // }
 
   return (
     <div>
-      {/* <QRCodeModal open={QROpen} value={`${localStorage.getItem('web-client-url')}?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} /> */}
-      {/* <QRCodeModal open={QROpen} value={`http://192.168.1.12:3001/?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} /> */}
+      <StatusMessage />
       <QRCodeModal open={QROpen} value={`${WEB_CLIENT_URL}/?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} />
+
+      <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
+        <Typography variant="caption">Account Link</Typography>
+      </SectionHeader>
+
+      <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
+        <Typography variant="caption" color="textSecondary">
+          Use this link to access your data on multiple devices.
+        </Typography>
+      </div>
+
       <div
-        {...getRootProps({
-          onClick: (e) => e.stopPropagation(),
-        })}
+        style={{
+          display: 'flex',
+        }}
       >
-        <input {...getInputProps()} type="file" name="identity" />
-        <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
-          <Typography variant="caption">Account Token</Typography>
-        </SectionHeader>
-        {isDragActive ? (
-          <div
-            style={{
-              // width: '100%',
-              height: 72,
-              border: `4px dashed #ccc`,
-              borderRadius: 4,
-              textAlign: 'center',
-              padding: 8,
-              margin: 8,
-            }}
-          >
-            <Typography variant="caption" color="textSecondary">
-              Drop your <b>.token</b> file here ...
-            </Typography>
-          </div>
-        ) : (
-          <>
-            <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
-              <Typography variant="caption" color="textSecondary">
-                Use this token to sync your data on multiple devices. Store this
-                securly and do not share it with anyone.
-              </Typography>
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-              }}
-            >
-              <Button
-                style={{
-                  margin: 8,
-                  flex: 1,
-                }}
-                variant="outlined"
-                size="small"
-                endIcon={<GetAppIcon />}
-                onClick={downloadToken}
-              >
-                <Typography noWrap variant="caption" color="textSecondary">
-                  Save token file
-                </Typography>
-              </Button>
-
-              <div
-                style={{
-                  border: `4px dashed #ccc`,
-                  borderRadius: 4,
-                  margin: 8,
-                  padding: 8,
-                  marginLeft: 0,
-                  flex: 1,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}
-                onClick={open}
-              >
-                <Typography
-                  variant="caption"
-                  color="textSecondary"
-                  style={{
-                    lineHeight: '20px',
-                  }}
-                >
-                  Drop a <b>.token</b> file{' '}
-                </Typography>
-                <Tooltip
-                  arrow
-                  title="Click or drag a .token file here to load an existing account"
-                >
-                  <HelpIcon fontSize="small" color="disabled" />
-                </Tooltip>
-              </div>
-            </div>
-          </>
-        )}
+        <Button
+          style={{
+            margin: 8,
+            flex: 1,
+          }}
+          variant="outlined"
+          endIcon={<QrCodeIcon />}
+          onClick={downloadToken}
+        >
+          <Typography noWrap variant="caption" color="textSecondary">
+            Share account
+          </Typography>
+        </Button>
       </div>
       <SectionHeader theme={theme}>
         <Typography variant="caption">Recording</Typography>
@@ -324,7 +266,8 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     recordingSettings: state.recordingSettings,
     loading: state.loading,
+    loadingMessage: state.loadingMessage,
   };
 };
 
-export default connect(mapStateToProps, actions)(Settings);
+export default hot(module)(connect(mapStateToProps, actions)(Settings));

@@ -1,6 +1,6 @@
 import { rm, readdir } from 'fs/promises'
 import path from 'path'
-import { db } from '../db-orbit'
+import { OrbitDatabase } from '../db-orbit'
 import { AppDatabase } from '../AppDatabase.interface'
 
 async function rmOrbitDirs() {
@@ -19,7 +19,8 @@ describe('Database', () => {
 
   beforeAll(async () => {
     try {
-      testDb = await db.init()
+      window.db = new OrbitDatabase({})
+      await window.db.init()
     } catch (err) {
       console.error('Could not initiate test DB:', err)
 
@@ -37,7 +38,7 @@ describe('Database', () => {
   })
 
   afterAll(async () => {
-    await testDb.close()
+    await window.db.close()
 
     try {
       await rm('ipfs-test', { recursive: true, force: true })
@@ -50,42 +51,44 @@ describe('Database', () => {
   })
 
   it('starts with an empty recordings collection', async () => {
-    const foundRecordings = await testDb.find('recordings', {})
+    // console.log('*** db:', window.db)
+    const foundRecordings = await window.db.find('recordings', {})
+    console.log('*** foundRecordings:', foundRecordings)
 
     expect(foundRecordings.length).toBe(0)
   })
 
   it('can add a recording', async () => {
-    test1Id = await testDb.add('recordings', { value: 'test1' })
-    const foundRecordings = await testDb.find('recordings', {})
+    test1Id = await window.db.add('recordings', { value: 'test1' })
+    const foundRecordings = await window.db.find('recordings', {})
 
     expect(foundRecordings.length).toBe(1)
   })
 
   it('can find a recording by query', async () => {
-    await testDb.add('recordings', { value: 'test2' })
+    await window.db.add('recordings', { value: 'test2' })
 
-    const allRecordings = await testDb.find('recordings', {})
-    const foundRecordings = await testDb.find('recordings', { value: 'test2' })
+    const allRecordings = await window.db.find('recordings', {})
+    const foundRecordings = await window.db.find('recordings', { value: 'test2' })
     expect(allRecordings.length).toBe(2)
     expect(foundRecordings.length).toBe(1)
   })
 
   it('can find a recording by id', async () => {
-    const foundRecording = await testDb.findById('recordings', test1Id)
+    const foundRecording = await window.db.findById('recordings', test1Id)
 
     expect(foundRecording).toMatchObject({ value: 'test1' })
   })
 
   it('can update a recording', async () => {
-    const updatedRecording = await testDb.update('recordings', test1Id, { value: 'updated!' })
+    const updatedRecording = await window.db.update('recordings', test1Id, { value: 'updated!' })
 
     expect(updatedRecording).toMatchObject({ value: 'updated!' })
   })
 
   it('can delete a recording', async () => {
-    const deletedRecordingId = await testDb.delete('recordings', test1Id)
-    const allRecordings = await testDb.find('recordings', {})
+    const deletedRecordingId = await window.db.delete('recordings', test1Id)
+    const allRecordings = await window.db.find('recordings', {})
     expect(allRecordings.length).toBe(1)
     expect(deletedRecordingId).toEqual(test1Id)
   })

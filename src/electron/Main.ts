@@ -17,9 +17,8 @@ import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import appRootDir from 'app-root-dir';
 import { IpcChannel } from './IPC/IpcChannel.interface';
 import { RecorderTray } from './RecorderTray';
-import { db } from '../db/db-orbit';
-import { AppDatabase } from '../db/AppDatabase.interface';
-import { identityService, TapesIdentity } from '../identity'
+// import { AppDatabase } from '../db/AppDatabase.interface';
+// import { identityService, TapesIdentity } from '../identity'
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
@@ -46,10 +45,10 @@ export class Main {
 
   private tray: RecorderTray;
 
-  private metamaskPopup: BrowserWindow;
+  // private metamaskPopup: BrowserWindow;
 
-  private database: AppDatabase;
-  private identity: TapesIdentity
+  // private database: AppDatabase;
+  // private identity: TapesIdentity
 
   public init(ipcChannels: IpcChannel[]) {
     app.on('ready', this.createWindow);
@@ -59,26 +58,6 @@ export class Main {
     app.on('new-window', this.onNewWindow);
 
     this.registerIpcChannels(ipcChannels);
-
-    // this.createIdentity()
-    // this.createDatabase()
-  }
-
-  private async createIdentity() {
-    console.log('Creating identity...')
-    this.identity = await identityService.create()
-    console.log('Created identity:', this.identity)
-  }
-
-  private async createDatabase() {
-    console.log('Creating database...')
-    try {
-      this.database = await db.init()
-      console.log('Database initialized')
-      // app.on('before-quit', this.database.close)
-    } catch (err) {
-      console.error('Could not create database:', err)
-    }
   }
 
   private onWindowAllClosed() {
@@ -185,7 +164,7 @@ export class Main {
   private registerIpcChannels(ipcChannels: IpcChannel[]) {
     ipcChannels.forEach((channel) =>
       ipcMain.on(channel.name, (event, request) =>
-        channel.handle(event, request, this.database)
+        channel.handle(event, request)
       )
     );
 
