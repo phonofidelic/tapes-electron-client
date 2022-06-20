@@ -72,6 +72,7 @@ export class OrbitDatabase implements AppDatabase {
     // }
 
     try {
+      console.log('*** createing orbit instance')
       this.orbitdb = await OrbitDB.createInstance(this.node, {
         //@ts-ignore
         offline: process.env.NODE_ENV === 'test',
@@ -445,7 +446,7 @@ export class OrbitDatabase implements AppDatabase {
       // console.log('### IPFS stats:', this.node.stats)
       clearTimeout(this.peerConnectTimeout)
       clearInterval(this.companionConnectionInterval)
-      await this.node.pubsub.unsubscribe(this.peerInfo.id, this.handleMessageReceived)
+      process.env.NODE_ENV !== 'test' && await this.node.pubsub.unsubscribe(this.peerInfo.id, this.handleMessageReceived)
       await this.node.stop()
       // await this.orbitdb.disconnect()
     } catch (err) {
