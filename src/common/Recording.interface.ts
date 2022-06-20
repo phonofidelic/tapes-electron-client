@@ -2,6 +2,7 @@ import { ICommonTagsResult } from 'music-metadata';
 import { RecordingFormats } from './RecordingFormats.enum';
 import { AcoustidResult } from './AcoustidResult.interface';
 import { MusicBrainzCoverArt } from './MusicBrainzCoverArt.interface';
+import { Status } from 'web3.storage'
 
 export interface Recording {
   _id?: string;
@@ -15,8 +16,10 @@ export interface Recording {
   duration?: number;
   created?: Date;
   common?: ICommonTagsResult;
-  fileData?: any;
   fingerprint?: string;
   acoustidResults?: AcoustidResult[];
   musicBrainzCoverArt?: MusicBrainzCoverArt;
+  cid?: string;
 }
+
+export interface RecordingStorageStatus extends Status { }

@@ -3,20 +3,11 @@ import { connect, useDispatch } from 'react-redux';
 import { matchSorter } from 'match-sorter';
 import { Recording } from '../common/Recording.interface';
 import * as actions from '../store/actions';
-import {
-  loadRecordings,
-  deleteRecording,
-  editRecording,
-  uploadAudioFiles,
-  downloadRecording,
-  cacheAndPlayRecording,
-} from '../effects';
+import effects from '../effects';
 import {
   RecorderState,
   SelectRecordingAction,
   ConfirmErrorAction,
-  PlayRecordingAction,
-  PauseRecordingAction,
 } from '../store/types';
 
 import Loader from '../components/Loader';
@@ -28,6 +19,15 @@ import ErrorModal from '../components/ErrorModal';
 import { useTheme } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
+
+const {
+  loadRecordings,
+  deleteRecording,
+  editRecording,
+  uploadAudioFiles,
+  downloadRecording,
+  cacheAndPlayRecording,
+} = effects
 
 interface LibraryProps {
   recordings: Recording[];
@@ -54,6 +54,8 @@ export function Library({
 }: LibraryProps) {
   const [filteredRecordings, setFilteredRecordings] =
     useState<Recording[]>(recordings);
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState<keyof Recording | null>(null)
 
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -63,6 +65,7 @@ export function Library({
   };
 
   const handleEditRecording = (recordingId: string, update: any) => {
+    console.log('*** handleEditRecording')
     dispatch(editRecording(recordingId, update));
   };
 
@@ -78,20 +81,29 @@ export function Library({
     dispatch(cacheAndPlayRecording(recording));
   };
 
-  const searchLibrary = (searchTerm: string) => {
-    if (!searchTerm) return setFilteredRecordings(recordings);
+  const searchLibrary = (searchValue: string) => {
+    setSearchTerm(searchValue)
+    if (!searchTerm) {
+      console.log('*** NO SEARCH TERM ***')
+      return setFilteredRecordings(recordings);
+    }
+
     const filtered = matchSorter(recordings, searchTerm, {
       keys: ['title', 'format'],
-      baseSort: (a, b) => (a.index < b.index ? -1 : 1),
+      baseSort: (a, b) => (a.index > b.index ? 1 : -1),
     });
     setFilteredRecordings(filtered);
   };
 
-  const sortLibrary = (sortBy: keyof Recording) => {
-    const sorted = [...filteredRecordings].sort((a, b) =>
-      a[sortBy] < b[sortBy] ? -1 : 1
-    );
+  const sortLibrary = (sortByValue: keyof Recording) => {
+    setSortBy(sortByValue)
+    if (!sortByValue) return;
 
+    const list = filteredRecordings.length ? filteredRecordings : recordings
+    const sorted = list.sort((a, b) =>
+      a[sortByValue] > b[sortByValue] ? 1 : -1
+    );
+    console.log('*** sorted:', sorted)
     setFilteredRecordings(sorted);
   };
 
@@ -100,10 +112,58 @@ export function Library({
   };
 
   useEffect(() => {
-    !recordings.length && dispatch(loadRecordings());
-    // dispatch(loadRecordings());
-    searchLibrary('');
+    dispatch(loadRecordings());
   }, [recordings.length]);
+
+  console.log('*** searchTerm:', searchTerm)
+  console.log('*** recordings:', recordings)
+  console.log('*** filteredRecordings:', filteredRecordings)
+
+  const renderFilteredRecordings = (filteredRecordings: Recording[]) => {
+    if (!filteredRecordings.length) return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          height:
+            theme.dimensions.Tray.height -
+            theme.dimensions.Navigation.height,
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            width: '100%',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography>No results found</Typography>
+        </div>
+      </div>
+    )
+
+    return (
+      <List>
+        {filteredRecordings.map((recording: Recording) => (
+          <RecordingsListItem
+            key={recording._id}
+            recording={recording}
+            caching={caching}
+            playing={playing}
+            selectedRecording={selectedRecording}
+            currentPlayingId={currentPlaying?._id}
+            handleSelectRecording={handleSelectRecording}
+            handleDeleteRecording={handleDeleteRecording}
+            handleEditRecording={handleEditRecording}
+            handleDownloadRecording={handleDownloadRecording}
+            handleCacheAndPlayRecording={handleCacheAndPlayRecording}
+          />
+        ))}
+      </List>
+    )
+  }
 
   if (loading) {
     return <Loader />;
@@ -111,28 +171,30 @@ export function Library({
 
   if (!recordings.length)
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          height:
-            theme.dimensions.Tray.height - theme.dimensions.Navigation.height,
-          justifyContent: 'center',
-        }}
-      >
+      <FileDrop accept="audio/*" onFileDrop={handleFileDrop}>
         <div
-          style={{ display: 'flex', width: '100%', justifyContent: 'center' }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            height:
+              theme.dimensions.Tray.height - theme.dimensions.Navigation.height,
+            justifyContent: 'center',
+          }}
         >
-          <Typography>Your recordings will live here</Typography>
+          <div
+            style={{ display: 'flex', width: '100%', justifyContent: 'center' }}
+          >
+            <Typography>Your recordings will live here</Typography>
+          </div>
+          <ErrorModal error={error} onConfirmError={() => confirmError()} />
         </div>
-        <ErrorModal error={error} onConfirmError={() => confirmError()} />
-      </div>
+      </FileDrop>
     );
 
   if (recordings.length > 0)
     return (
-      <FileDrop accept="audio/*" handleFileDrop={handleFileDrop}>
+      <FileDrop accept="audio/*" onFileDrop={handleFileDrop}>
         <div
           style={{
             position: 'sticky',
@@ -149,46 +211,22 @@ export function Library({
             paddingBottom: theme.dimensions.Player.height,
           }}
         >
-          {filteredRecordings.length ? (
-            <List>
-              {filteredRecordings.map((recording: Recording) => (
-                <RecordingsListItem
-                  key={recording._id}
-                  recording={recording}
-                  caching={caching}
-                  playing={playing}
-                  selectedRecording={selectedRecording}
-                  currentPlayingId={currentPlaying?._id}
-                  handleSelectRecording={handleSelectRecording}
-                  handleDeleteRecording={handleDeleteRecording}
-                  handleEditRecording={handleEditRecording}
-                  handleDownloadRecording={handleDownloadRecording}
-                  handleCacheAndPlayRecording={handleCacheAndPlayRecording}
-                />
-              ))}
-            </List>
-          ) : (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height:
-                  theme.dimensions.Tray.height -
-                  theme.dimensions.Navigation.height,
-                justifyContent: 'center',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  width: '100%',
-                  justifyContent: 'center',
-                }}
-              >
-                <Typography>No results found</Typography>
-              </div>
-            </div>
+          {searchTerm || sortBy ? renderFilteredRecordings(filteredRecordings) : (
+            recordings.map((recording: Recording) => (
+              <RecordingsListItem
+                key={recording._id}
+                recording={recording}
+                caching={caching}
+                playing={playing}
+                selectedRecording={selectedRecording}
+                currentPlayingId={currentPlaying?._id}
+                handleSelectRecording={handleSelectRecording}
+                handleDeleteRecording={handleDeleteRecording}
+                handleEditRecording={handleEditRecording}
+                handleDownloadRecording={handleDownloadRecording}
+                handleCacheAndPlayRecording={handleCacheAndPlayRecording}
+              />
+            ))
           )}
         </div>
         <ErrorModal error={error} onConfirmError={() => confirmError()} />

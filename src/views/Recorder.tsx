@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { startRecording, stopRecording } from '../effects';
+import effects from '../effects';
 import {
   RecorderState,
   SetRecordingSettingsAction,
@@ -18,6 +18,8 @@ import Timer from '../components/Timer';
 import ErrorModal from '../components/ErrorModal';
 import VolumeMeter from '../components/VolumeMeter';
 import AudioVisualiser from '../components/AudioVisualiser';
+
+const { startRecording, stopRecording } = effects
 
 interface RecorderProps {
   // isMonitoring: boolean;

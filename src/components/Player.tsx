@@ -8,7 +8,6 @@ import {
   SetSeekedTimeAction,
 } from '../store/types';
 import { useLocation } from 'react-router';
-import useAudioPreview from '../hooks/useAudioPreview';
 import { Recording } from '../common/Recording.interface';
 import { msToTime } from '../utils';
 
@@ -85,12 +84,13 @@ export function Player({
           flexDirection: 'column',
           margin: 4,
           zIndex: theme.zIndex.appBar,
+          borderRadius: '8px'
         }}
       >
         <div>
           <LinearProgress
             style={{
-              borderRadius: '4px, 4px, 0, 0',
+              borderRadius: '8px, 8px, 0, 0',
             }}
             ref={progressRef}
             variant={caching ? 'indeterminate' : 'determinate'}
@@ -119,7 +119,7 @@ export function Player({
             }}
           >
             <div>
-              <Typography>{currentPlaying.title}</Typography>
+              <Typography noWrap>{currentPlaying.title}</Typography>
             </div>
             <div>
               <Typography variant="caption">

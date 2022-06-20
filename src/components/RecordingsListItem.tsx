@@ -3,7 +3,6 @@ import React, {
   ReactElement,
   useState,
   useEffect,
-  useRef,
 } from 'react';
 // import { connect, useDispatch } from 'react-redux';
 // import * as actions from '../store/actions';
@@ -16,15 +15,11 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 import dayjsDuration from 'dayjs/plugin/duration';
 import { Recording } from '../common/Recording.interface';
 import useHover from '../hooks/useHover';
-import { RecorderState, SelectRecordingAction } from '../store/types';
-import useAudioPreview from '../hooks/useAudioPreview';
 import { msToTime } from '../utils';
 
 import PlayButton from './PlayButton';
-import StopButton from './StopButton';
 
 import IconButton from '@mui/material/IconButton';
-import LinearProgress from '@mui/material/LinearProgress';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
@@ -38,7 +33,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Tooltip } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
@@ -136,7 +131,7 @@ export function RecordingsListItem({
 
   useEffect(() => {
     setNewTitle(recording.title);
-  }, [selected, recording.title]);
+  }, [selected, recording]);
 
   return (
     <ListItem
@@ -179,9 +174,11 @@ export function RecordingsListItem({
                   }}
                   onClick={() => selected && setEditing(true)}
                 >
-                  <Typography style={{ maxWidth: '50vw' }} noWrap>
-                    {recording.title}
-                  </Typography>
+                  <Tooltip title={recording.title} enterDelay={400}>
+                    <Typography style={{ maxWidth: '50vw' }} noWrap>
+                      {recording.title}
+                    </Typography>
+                  </Tooltip>
                 </div>
 
                 {selected && (

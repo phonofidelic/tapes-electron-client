@@ -7,6 +7,7 @@ import {
   app,
   BrowserWindow,
   ipcMain,
+  IpcMainEvent,
   NewWindowEvent,
   protocol,
   session,
@@ -16,6 +17,8 @@ import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import appRootDir from 'app-root-dir';
 import { IpcChannel } from './IPC/IpcChannel.interface';
 import { RecorderTray } from './RecorderTray';
+// import { AppDatabase } from '../db/AppDatabase.interface';
+// import { identityService, TapesIdentity } from '../identity'
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
@@ -42,7 +45,10 @@ export class Main {
 
   private tray: RecorderTray;
 
-  private metamaskPopup: BrowserWindow;
+  // private metamaskPopup: BrowserWindow;
+
+  // private database: AppDatabase;
+  // private identity: TapesIdentity
 
   public init(ipcChannels: IpcChannel[]) {
     app.on('ready', this.createWindow);
@@ -76,7 +82,7 @@ export class Main {
     protocol.registerFileProtocol('tapes', (request, callback) => {
       const url = request.url.replace('tapes://', '');
       const basename = path.basename(url);
-      // console.log('basename:', basename)
+      console.log('basename:', basename)
       const filePath =
         process.env.NODE_ENV === 'production'
           ? path.join(process.resourcesPath, 'Data', basename)

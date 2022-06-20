@@ -6,6 +6,7 @@ import { spawn } from 'child_process';
 import { randomBytes } from 'crypto';
 import appRootDir from 'app-root-dir';
 import * as mm from 'music-metadata';
+import { getFilesFromPath } from 'web3.storage'
 
 import {
   fpcalcPromise,
@@ -17,6 +18,7 @@ import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 import { Recording } from '../../common/Recording.interface';
 import { RecordingSettings } from '../../common/RecordingSettings.interface';
+import { storageService } from '../../storage';
 
 const setStorageDir = async (folderName: string): Promise<string> => {
   const storagePath =
@@ -39,14 +41,7 @@ export class NewRecordingChannel implements IpcChannel {
     console.log(this.name);
 
     const recordingSettings: RecordingSettings = request.data.recordingSettings;
-    const defaultTitle: string = request.data.title;
-
-    console.log('*** recordingSettings:', request.data);
-
-    const filename = `${randomBytes(16).toString('hex')}.${
-      recordingSettings.format
-    }`;
-
+    const filename = `${randomBytes(16).toString('hex')}.${recordingSettings.format}`;
     const filePath = path.resolve(await setStorageDir('Data'), filename);
 
     let soxPath;
@@ -57,10 +52,10 @@ export class NewRecordingChannel implements IpcChannel {
           process.env.NODE_ENV === 'production'
             ? path.resolve(process.resourcesPath, 'bin', 'sox-14.4.2-macOS')
             : (soxPath = path.resolve(
-                appRootDir.get(),
-                'bin',
-                'sox-14.4.2-macOS'
-              ));
+              appRootDir.get(),
+              'bin',
+              'sox-14.4.2-macOS'
+            ));
         break;
 
       case 'win32':
@@ -136,31 +131,43 @@ export class NewRecordingChannel implements IpcChannel {
           });
         }
 
-        const recording: Recording = {
+        /**
+         * Upload file to IPFS
+         */
+        console.log('*** Storing file on IPFS...')
+        const files = await getFilesFromPath(filePath)
+        const cid = await storageService.put(files as unknown as File[])
+        console.log('*** File stored!')
+        /**
+         * Create default title based on Recording count
+         */
+        // const recordings = await db.find('recordings', {})
+        const defaultTitle = `New Recording: ${(new Date()).toLocaleString()}`;
+
+        const recordingData: Recording = {
           location: filePath,
           filename,
           size: fileStats.size,
           duration: metadata.format.duration,
           format: recordingSettings.format,
           channels: recordingSettings.channels,
-          fileData: await fs.readFile(filePath),
           common: metadata.common,
           title:
             acoustidResponse.data.results[0]?.recordings[0]?.title ||
             defaultTitle,
           acoustidResults: await acoustidResponse.data.results,
+          cid
         };
 
-        const fileData = await fs.readFile(filePath);
 
+        // const docId = await db.add('recordings', recordingData)
+        // console.log('*** docId:', docId)
+        // const createdRecording = await db.findById('recordings', docId)
         /**
          * Send response to render process
          */
-        console.log('recording:', recording);
-        event.sender.send(request.responseChannel, {
-          data: recording,
-          file: fileData,
-        });
+        // console.log('createdRecording:', createdRecording);
+        event.sender.send(request.responseChannel, { recordingData });
       });
     } catch (err) {
       console.error('*** Could not spaw SoX:', err);

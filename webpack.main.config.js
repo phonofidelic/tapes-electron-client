@@ -11,4 +11,19 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
   },
+  externals: [
+    'datastore-level',
+    'level',
+    // '@koush/wrtc',
+    'wrtc',
+    // 'dlv',
+    // 'ipfs-repo',
+  ],
+  // target: 'electron-main',
+  // node: {
+  //   global: true,
+  //   __dirname: true,
+  //   __filename: true
+  // }
+  devtool: 'eval-cheap-source-map'
 };

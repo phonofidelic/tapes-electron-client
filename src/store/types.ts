@@ -1,5 +1,5 @@
 import { Action } from 'redux';
-import { Recording } from '../common/Recording.interface';
+import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 
 export const START_RECORDING_REQUEST = 'start_recording_request',
@@ -51,6 +51,9 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   CACHE_RECORDING_REQUEST = 'cache_recording_request',
   CACHE_RECORDING_SUCCESS = 'cache_recording_success',
   CACHE_RECORDING_FAILURE = 'cache_recording_failure',
+  GET_RECORDING_STORAGE_STATUS_REQUEST = 'get_recording_storage_status_request',
+  GET_RECORDING_STORAGE_STATUS_SUCCESS = 'get_recording_storage_status_success',
+  GET_RECORDING_STORAGE_STATUS_FAILURE = 'get_recording_storage_status_failure',
   CONFIRM_ERROR = 'confirm_error';
 
 export interface RecorderState {
@@ -71,6 +74,7 @@ export interface RecorderState {
   accountToken: string | null;
   selectedRecording: Recording | null;
   caching: boolean;
+  selectedRecordingStorageStatus: RecordingStorageStatus | null
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -303,6 +307,20 @@ export interface CacheRecordingFailureAction extends Action {
   payload: Error;
 }
 
+export interface GetRecordingStorageStatusRequestAction extends Action {
+  type: typeof GET_RECORDING_STORAGE_STATUS_REQUEST;
+}
+
+export interface GetRecordingStorageStatusSuccessAction extends Action {
+  type: typeof GET_RECORDING_STORAGE_STATUS_SUCCESS;
+  payload: RecordingStorageStatus
+}
+
+export interface GetRecordingStorageStatusFailureAction extends Action {
+  type: typeof GET_RECORDING_STORAGE_STATUS_FAILURE;
+  payload: Error
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -352,4 +370,7 @@ export type RecorderAction =
   | DownloadRecordingFailreAction
   | CachRecordingRequestAction
   | CacheRecordingSuccessAction
-  | CacheRecordingFailureAction;
+  | CacheRecordingFailureAction
+  | GetRecordingStorageStatusRequestAction
+  | GetRecordingStorageStatusSuccessAction
+  | GetRecordingStorageStatusFailureAction;

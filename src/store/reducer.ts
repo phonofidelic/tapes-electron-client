@@ -50,6 +50,9 @@ import {
   CACHE_RECORDING_FAILURE,
   SET_CURRENT_TIME,
   SET_SEEKED_TIME,
+  GET_RECORDING_STORAGE_STATUS_REQUEST,
+  GET_RECORDING_STORAGE_STATUS_SUCCESS,
+  GET_RECORDING_STORAGE_STATUS_FAILURE,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -76,6 +79,7 @@ export const initialState: RecorderState = {
   accountToken: localStorage.getItem(IDENTITY_STORE), // <-- ANTI-PATTERN?
   selectedRecording: null,
   caching: false,
+  selectedRecordingStorageStatus: null
 };
 
 export const reducer = (
@@ -419,6 +423,26 @@ export const reducer = (
         caching: false,
         error: action.payload,
       };
+
+    case GET_RECORDING_STORAGE_STATUS_REQUEST:
+      return {
+        ...state,
+        loading: true
+      }
+
+    case GET_RECORDING_STORAGE_STATUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        selectedRecordingStorageStatus: action.payload
+      }
+
+    case GET_RECORDING_STORAGE_STATUS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload
+      }
 
     default:
       return state;

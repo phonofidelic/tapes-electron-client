@@ -1,11 +1,16 @@
 /**
+ * TODO: Remove if unused
+ * 
  * Adapted from: https://codesandbox.io/s/5wwj02qy7k?file=/src/useAudioPlayer.js
  */
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { cacheAndPlayRecording } from '../effects';
+import { Recording } from '../common/Recording.interface';
+import effects from '../effects'
 
-function useAudioPreview(recordingId: string, location?: string) {
+const { cacheAndPlayRecording } = effects
+
+function useAudioPreview(recordingId: Recording, location?: string) {
   const [duration, setDuration] = useState(0);
   const [curTime, setCurTime] = useState(0);
   const [playing, setPlaying] = useState(false);

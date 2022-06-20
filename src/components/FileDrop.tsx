@@ -6,20 +6,20 @@ import { alpha } from '@mui/material/styles';
 
 interface Props {
   accept: string;
-  children?: ReactElement[];
-  handleFileDrop(files: File[]): void;
+  children?: ReactElement | ReactElement[];
+  onFileDrop(files: File[]): void;
 }
 
 export default function FileDrop({
   accept,
-  handleFileDrop,
+  onFileDrop,
   children,
 }: Props): ReactElement {
   const theme = useTheme();
 
   const onDrop = useCallback(async (acceptedFiles) => {
     // console.log('Droped files:', acceptedFiles);
-    if (acceptedFiles.length) handleFileDrop(acceptedFiles);
+    if (acceptedFiles.length) onFileDrop(acceptedFiles);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -55,7 +55,7 @@ export default function FileDrop({
         </div>
       )}
       <input {...getInputProps()} type="file" name="identity" />
-      {...children}
+      {children}
     </div>
   );
 }

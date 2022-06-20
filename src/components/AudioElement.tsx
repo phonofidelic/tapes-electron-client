@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import isElectron from 'is-electron';
+import { connect } from 'react-redux';
 import * as actions from '../store/actions';
 import {
   PauseRecordingAction,
@@ -15,6 +16,7 @@ type AudioElementProps = {
   currentTime: number;
   seekedTime: number;
   currentPlaying: Recording;
+  caching: boolean;
   setSeekedTime(time: number): SetSeekedTimeAction;
   setCurrentTime(time: number): SetCurrentTimeAction;
   pauseRecording(): PauseRecordingAction;
@@ -25,6 +27,7 @@ export function AudioElement({
   currentTime,
   seekedTime,
   currentPlaying,
+  caching,
   setSeekedTime,
   setCurrentTime,
   pauseRecording,
@@ -53,14 +56,18 @@ export function AudioElement({
       audioRef.current.audioEl.current.currentTime = seekedTime;
       setSeekedTime(0);
     }
-  }, [playing, seekedTime]);
+  }, [playing, seekedTime, caching]);
 
   if (!currentPlaying) return null;
+  if (caching) return null;
+
+  const audioSrc = isElectron() ? 'tapes://' + currentPlaying.filename : `https://${currentPlaying.cid}.ipfs.dweb.link/${currentPlaying.filename}`
 
   return (
     <ReactAudioPlayer
       ref={audioRef}
-      src={'tapes://' + currentPlaying.filename}
+      // src={'tapes://' + currentPlaying.filename}
+      src={audioSrc}
       listenInterval={500}
       onListen={onListen}
       onEnded={onEnded}
@@ -74,6 +81,7 @@ const mapStateToProps = (state: RecorderState) => {
     currentTime: state.currentTime,
     seekedTime: state.seekedTime,
     currentPlaying: state.currentPlaying,
+    caching: state.caching
   };
 };
 

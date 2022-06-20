@@ -22,3 +22,9 @@ See [Textile Hub: Authentication & authorization](https://textileio.github.io/js
 
 ### Run e2e test:
 `yarn test:e2e`
+
+### Debug packaged app:
+`lldb out/Tapes-darwin-arm64/Tapes.app`
+Then in repl:
+`run --remote-debugging-port=8315`
+Source: https://stackoverflow.com/a/56634497
