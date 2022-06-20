@@ -3,7 +3,7 @@ import type { IPFS } from 'ipfs-core-types'
 //@ts-ignore
 import WebRTCStar from 'libp2p-webrtc-star';
 import { NOISE } from '@chainsafe/libp2p-noise';
-import * as MockIPFS from 'mockipfs'
+// import * as MockIPFS from 'mockipfs'
 
 declare const LIBP2P_SIG_SERVER: string
 
@@ -51,7 +51,8 @@ export async function createIpfsNode(): Promise<IPFS> {
   }
 
   //@ts-ignore
-  const node = process.env.NODE_ENV === 'test' ? MockIPFS.getLocal() : await create(config)
+  // const node = process.env.NODE_ENV === 'test' ? MockIPFS.getLocal() : await create(config)
+  const node = await create(config)
 
   //@ts-ignore
   return node
