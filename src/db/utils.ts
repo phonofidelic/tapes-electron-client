@@ -42,14 +42,14 @@ export async function createIpfsNode(): Promise<IPFS> {
       Addresses: {
         //@ts-ignore
         Swarm: [
-          process.env.LIBP2P_SIG_SERVER
+          LIBP2P_SIG_SERVER
         ],
       }
     },
     repo: process.env.NODE_ENV === 'test' ? './ipfs-test' : './ipfs',
     EXPERIMENTAL: { pubsub: true }
   }
-
+  console.log('*** sig server:', LIBP2P_SIG_SERVER)
   //@ts-ignore
   // const node = process.env.NODE_ENV === 'test' ? MockIPFS.getLocal() : await create(config)
   const node = await create(config)

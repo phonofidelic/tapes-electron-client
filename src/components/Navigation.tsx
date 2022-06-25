@@ -7,8 +7,9 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MicIcon from '@mui/icons-material/Mic';
 import StorageIcon from '@mui/icons-material/Storage';
+import DebugIcon from '@mui/icons-material/Info';
 
-interface Props {}
+interface Props { }
 
 const StyledNavLink = styled(NavLink)`
   color: ${({ theme }) => theme.palette.text.primary};
@@ -17,7 +18,7 @@ const StyledNavLink = styled(NavLink)`
   text-align: center;
 `;
 
-export default function Navigation({}: Props): ReactElement {
+export default function Navigation({ }: Props): ReactElement {
   const [activeTab, setActiveTab] = useState(0);
 
   const theme = useTheme();
@@ -56,6 +57,15 @@ export default function Navigation({}: Props): ReactElement {
         component={Link}
         to="/settings"
       />
+      {process.env.NODE_ENV === 'development' &&
+        <BottomNavigationAction
+          data-testid="nav-link_debug"
+          label="Debug"
+          icon={<DebugIcon />}
+          component={Link}
+          to="/debug"
+        />
+      }
     </BottomNavigation>
   );
 }
