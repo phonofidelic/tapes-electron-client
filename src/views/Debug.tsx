@@ -31,7 +31,7 @@ export default function Debug({ }: Props) {
       <div>Companions:</div>
       <ul>
         {Object.keys(companions).map((companion: string) => (
-          <li key="companion">
+          <li key={companion}>
             <Typography
               style={{ maxWidth: theme.dimensions.Tray.width }}
               noWrap
