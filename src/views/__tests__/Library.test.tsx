@@ -78,7 +78,7 @@ it('shows a recording item', async () => {
     bucketPath:
       '/ipfs/bafybeia6sisiwx32kiun5hnxifoi4dxrdxpfgbseb5tt6o42grlnt3keua',
     channels: 2,
-    created: new Date(),
+    created: new Date().toISOString(),
     filename: 'c676d7f077fe24769e027d7692502133.mp3',
     format: RecordingFormats.Wav,
     location:

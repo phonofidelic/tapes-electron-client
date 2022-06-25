@@ -17,7 +17,7 @@ dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
 
-const mockDate = new Date();
+const mockDate = new Date().toISOString();
 const mockRecording: Recording = {
   _id: '123',
   location: 'fdefafafaf',
