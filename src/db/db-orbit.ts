@@ -59,20 +59,8 @@ export class OrbitDatabase implements AppDatabase {
       throw new Error('Could not create IPFS node')
     }
 
-    /**
-     * Push static web-client to IPFS
-     */
-    // let webClientCID
-    // try {
-
-    //   webClientCID = await this.node.add({ path: 'dist' })
-    //   console.log('*** webClientCID:', webClientCID)
-    // } catch (err) {
-    //   console.error('Could not push static web clinet to IPFS:', err)
-    // }
-
     try {
-      console.log('*** createing orbit instance')
+      console.log('*** creating orbit instance')
       this.orbitdb = await OrbitDB.createInstance(this.node, {
         //@ts-ignore
         offline: process.env.NODE_ENV === 'test',
@@ -116,7 +104,12 @@ export class OrbitDatabase implements AppDatabase {
     });
 
     for (const docStore in this.docStores) {
-      await this.docStores[docStore].load()
+      try {
+        await this.docStores[docStore].load()
+      } catch (err) {
+        console.error(`Could not load docstore ${docStore}:`, err)
+        throw new Error(`Could not load docstore "${docStore}"`)
+      }
     }
 
     /**
@@ -169,14 +162,11 @@ export class OrbitDatabase implements AppDatabase {
       this.handleMessageReceived.bind(this)
     );
 
-    // TODO: Handle companion connections
-    // setTimeout(this.testConnect.bind(this), 2000)
-    // const config = await this.node.config.getAll()
-    // console.log('*** config:', config)
-    // this.testConnect()
+    /**
+     * Handle companion connections
+     */
     this.companionConnectionInterval = setInterval(this.connectToCompanions.bind(this), 10000)
     this.connectToCompanions()
-
 
     /**
      * Connect to desktop peer if one is provided
@@ -419,6 +409,12 @@ export class OrbitDatabase implements AppDatabase {
     return docId
   }
 
+  listCompanions() {
+    const companions = this.companions.all
+    console.log('*** listCompanions, companions:', companions)
+    return companions
+  }
+
   async removeAllCompanions() {
     const companions = Object.keys(this.companions.all)
     console.log('*** removeAllCompanions, companions before:', companions)
@@ -426,7 +422,7 @@ export class OrbitDatabase implements AppDatabase {
     for await (const companion of companions) {
       await this.companions.del(companion)
     }
-    console.log('*** removeAllCompanions, companions after:', companions)
+    console.log('*** removeAllCompanions, companions after:', Object.keys(this.companions.all))
   }
 
   // TODO: implement this or delete if unused

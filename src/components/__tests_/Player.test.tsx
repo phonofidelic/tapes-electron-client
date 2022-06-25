@@ -18,7 +18,7 @@ const mockRecording: Recording = {
   location: 'fdefafafaf',
   title: 'Mock recording',
   size: 1234,
-  created: mockDate,
+  created: mockDate.toISOString(),
   filename: '8g7i8fi7f7fi7ftituf76',
   format: 'mp3' as RecordingFormats,
   channels: 2,

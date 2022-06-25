@@ -12,6 +12,7 @@ import AudioElement from './components/AudioElement';
 
 import Settings from './views/Settings';
 import StatusMessage from './components/StatusMessage';
+import Debug from './views/Debug';
 
 const Recorder = React.lazy(() => import(/* webpackChunkName: "recorder" */ './views/Recorder'))
 // const Settings = React.lazy(() => import(/* webpackChunkName: "settings" */ './views/Settings'))
@@ -52,6 +53,11 @@ function App() {
             <Route path="/recorder">
               <Recorder />
             </Route>
+            {process.env.NODE_ENV === 'development' &&
+              <Route path="/debug">
+                <Debug />
+              </Route>
+            }
             <Route exact path="/">
               <Redirect to="/recorder" />
             </Route>

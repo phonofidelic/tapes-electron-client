@@ -9,7 +9,7 @@
     "start": "DEBUG='electron-forge:*' NODE_ENV=development electron-forge start --inspect-electron",
     "start:web": "npx webpack serve --mode development --config webpack.web-client.config.js",
     "build:web": "npx webpack --config webpack.web-client.config.js",
-    "package": "ACOUSTID_API_KEY=$(grep ACOUSTID_API_KEY .env | cut -d '=' -f2) electron-forge package",
+    "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "publish-local": "GITHUB_TOKEN=$(grep GITHUB_TOKEN .env | cut -d '=' -f2) electron-forge publish",

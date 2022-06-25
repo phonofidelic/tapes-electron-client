@@ -14,7 +14,7 @@ export interface Recording {
   remoteLocation?: string;
   title?: string;
   duration?: number;
-  created?: Date;
+  created?: string;
   common?: ICommonTagsResult;
   fingerprint?: string;
   acoustidResults?: AcoustidResult[];
