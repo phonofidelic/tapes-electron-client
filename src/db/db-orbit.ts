@@ -125,7 +125,8 @@ export class OrbitDatabase implements AppDatabase {
       // },
       docStores: this.getDocStoreIds(),
       nodeId: this.peerInfo.id,
-      dbAddress: await this.orbitdb.determineAddress('user', 'keyvalue')
+      dbAddress: await this.orbitdb.determineAddress('user', 'keyvalue'),
+      deviceName: await this.getDeviceName() || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
     })
 
     /**
@@ -361,6 +362,14 @@ export class OrbitDatabase implements AppDatabase {
     const userData = this.user.all
     console.log('*** userData:', userData)
     return userData
+  }
+
+  async setDeviceName(name: string) {
+    await this.user.set('deviceName', name)
+  }
+
+  getDeviceName() {
+    return this.user.get('deviceName')
   }
 
   /**
