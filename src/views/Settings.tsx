@@ -3,7 +3,7 @@ import { hot } from 'react-hot-loader';
 import styled from 'styled-components';
 import { connect, useDispatch } from 'react-redux';
 
-import { RecorderState, SetRecordingSettingsAction } from '../store/types';
+import { RecorderState, SetRecordingSettingsAction, ToggleDebugAction } from '../store/types';
 import * as actions from '../store/actions';
 import effects from '../effects';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -27,7 +27,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import Fade from '@mui/material/Fade';
 import QrCodeIcon from '@mui/icons-material/QrCode2';
-import { SelectChangeEvent } from '@mui/material';
+import { Checkbox, FormGroup, SelectChangeEvent } from '@mui/material';
 
 
 //@ts-ignore
@@ -49,20 +49,25 @@ interface SettingsProps {
   loading: boolean;
   loadingMessage: string | null;
   recordingSettings: RecordingSettings;
+  debugEnabled: boolean;
   setRecordingSettings(
     recordingSettings: RecordingSettings
   ): SetRecordingSettingsAction;
+  toggleDebug(currentDebugState: boolean): ToggleDebugAction;
 }
 
 export function Settings({
   loading,
   loadingMessage,
   recordingSettings,
+  debugEnabled,
   setRecordingSettings,
+  toggleDebug,
 }: SettingsProps) {
   const [audioInputDevices, setAudioInputDevices] = useState([]);
   const [QROpen, setQROpen] = useState(false)
   const [peerInfo, setPeerInfo] = useState<PeerInfo | null>(null)
+  const [showDebug, setShowDebug] = useState(0)
 
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId || 'default';
@@ -132,6 +137,14 @@ export function Settings({
 
   const handleCloseQR = () => {
     setQROpen(false)
+  }
+
+  const handleDebugClick = () => {
+    setShowDebug(showDebug + 1)
+  }
+
+  const handleToggleDebug = () => {
+    toggleDebug(debugEnabled)
   }
 
   useEffect(() => {
@@ -258,6 +271,21 @@ export function Settings({
           </RadioGroup>
         </FormControl>
       </div>
+      {showDebug >= 3 ? (
+        <div style={{ padding: 8 }}>
+          <FormGroup>
+            <FormControlLabel
+              control={<Checkbox checked={debugEnabled} onChange={handleToggleDebug} />}
+              label="Debug enabled"
+            />
+          </FormGroup>
+        </div>
+      ) : (
+        <div
+          style={{ height: 50, width: '100%' }}
+          onClick={handleDebugClick}
+        />
+      )}
     </div>
   );
 }
@@ -267,6 +295,7 @@ const mapStateToProps = (state: RecorderState) => {
     recordingSettings: state.recordingSettings,
     loading: state.loading,
     loadingMessage: state.loadingMessage,
+    debugEnabled: state.debugEnabled
   };
 };
 

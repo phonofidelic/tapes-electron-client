@@ -96,12 +96,18 @@ import {
   SetCurrentTimeAction,
   SET_CURRENT_TIME,
   SET_SEEKED_TIME,
-  GetRecordingStorageStatusRequestAction,
   GET_RECORDING_STORAGE_STATUS_REQUEST,
-  GetRecordingStorageStatusSuccessAction,
+  GetRecordingStorageStatusRequestAction,
   GET_RECORDING_STORAGE_STATUS_SUCCESS,
-  GetRecordingStorageStatusFailureAction,
+  GetRecordingStorageStatusSuccessAction,
   GET_RECORDING_STORAGE_STATUS_FAILURE,
+  GetRecordingStorageStatusFailureAction,
+  ENABLE_DEBUG,
+  EnableDebugAction,
+  DISABLE_DEBUG,
+  DisableDebugAction,
+  TOGGLE_DEBUG,
+  ToggleDebugAction
 } from './types';
 import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -489,5 +495,24 @@ export function getRecordingStorageStatusFailure(error: Error): GetRecordingStor
   return {
     type: GET_RECORDING_STORAGE_STATUS_FAILURE,
     payload: error
+  }
+}
+
+export function enableDebug() {
+  return {
+    type: ENABLE_DEBUG
+  }
+}
+
+export function disableDebut() {
+  return {
+    type: DISABLE_DEBUG
+  }
+}
+
+export function toggleDebug(currentDebugState: boolean): ToggleDebugAction {
+  return {
+    type: TOGGLE_DEBUG,
+    payload: currentDebugState
   }
 }

@@ -53,11 +53,9 @@ function App() {
             <Route path="/recorder">
               <Recorder />
             </Route>
-            {process.env.NODE_ENV === 'development' &&
-              <Route path="/debug">
-                <Debug />
-              </Route>
-            }
+            <Route path="/debug">
+              <Debug />
+            </Route>
             <Route exact path="/">
               <Redirect to="/recorder" />
             </Route>

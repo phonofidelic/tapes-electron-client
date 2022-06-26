@@ -54,7 +54,10 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   GET_RECORDING_STORAGE_STATUS_REQUEST = 'get_recording_storage_status_request',
   GET_RECORDING_STORAGE_STATUS_SUCCESS = 'get_recording_storage_status_success',
   GET_RECORDING_STORAGE_STATUS_FAILURE = 'get_recording_storage_status_failure',
-  CONFIRM_ERROR = 'confirm_error';
+  CONFIRM_ERROR = 'confirm_error',
+  ENABLE_DEBUG = 'enable_debug',
+  DISABLE_DEBUG = 'disable_debug',
+  TOGGLE_DEBUG = 'toggle_debug';
 
 export interface RecorderState {
   isRecording: boolean;
@@ -75,6 +78,7 @@ export interface RecorderState {
   selectedRecording: Recording | null;
   caching: boolean;
   selectedRecordingStorageStatus: RecordingStorageStatus | null
+  debugEnabled: boolean;
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -321,6 +325,19 @@ export interface GetRecordingStorageStatusFailureAction extends Action {
   payload: Error
 }
 
+export interface EnableDebugAction extends Action {
+  type: typeof ENABLE_DEBUG
+}
+
+export interface DisableDebugAction extends Action {
+  type: typeof DISABLE_DEBUG
+}
+
+export interface ToggleDebugAction extends Action {
+  type: typeof TOGGLE_DEBUG,
+  payload: boolean
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -373,4 +390,7 @@ export type RecorderAction =
   | CacheRecordingFailureAction
   | GetRecordingStorageStatusRequestAction
   | GetRecordingStorageStatusSuccessAction
-  | GetRecordingStorageStatusFailureAction;
+  | GetRecordingStorageStatusFailureAction
+  | EnableDebugAction
+  | DisableDebugAction
+  | ToggleDebugAction;
