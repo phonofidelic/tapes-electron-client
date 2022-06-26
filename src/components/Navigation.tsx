@@ -1,6 +1,9 @@
 import React, { ReactElement, useState } from 'react';
+import { connect } from 'react-redux';
 import { Link, NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import { RecorderState } from '../store/types';
+
 import { useTheme } from '@mui/material/styles';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
@@ -9,7 +12,10 @@ import MicIcon from '@mui/icons-material/Mic';
 import StorageIcon from '@mui/icons-material/Storage';
 import DebugIcon from '@mui/icons-material/Info';
 
-interface Props { }
+
+interface Props {
+  debugEnabled: boolean;
+}
 
 const StyledNavLink = styled(NavLink)`
   color: ${({ theme }) => theme.palette.text.primary};
@@ -18,7 +24,7 @@ const StyledNavLink = styled(NavLink)`
   text-align: center;
 `;
 
-export default function Navigation({ }: Props): ReactElement {
+export function Navigation({ debugEnabled }: Props): ReactElement {
   const [activeTab, setActiveTab] = useState(0);
 
   const theme = useTheme();
@@ -57,7 +63,7 @@ export default function Navigation({ }: Props): ReactElement {
         component={Link}
         to="/settings"
       />
-      {process.env.NODE_ENV === 'development' &&
+      {debugEnabled &&
         <BottomNavigationAction
           data-testid="nav-link_debug"
           label="Debug"
@@ -69,3 +75,11 @@ export default function Navigation({ }: Props): ReactElement {
     </BottomNavigation>
   );
 }
+
+const mapStateToProps = (state: RecorderState) => {
+  return {
+    debugEnabled: state.debugEnabled
+  }
+}
+
+export default connect(mapStateToProps, null)(Navigation)

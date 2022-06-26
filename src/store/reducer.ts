@@ -53,6 +53,9 @@ import {
   GET_RECORDING_STORAGE_STATUS_REQUEST,
   GET_RECORDING_STORAGE_STATUS_SUCCESS,
   GET_RECORDING_STORAGE_STATUS_FAILURE,
+  ENABLE_DEBUG,
+  DISABLE_DEBUG,
+  TOGGLE_DEBUG
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -79,7 +82,8 @@ export const initialState: RecorderState = {
   accountToken: localStorage.getItem(IDENTITY_STORE), // <-- ANTI-PATTERN?
   selectedRecording: null,
   caching: false,
-  selectedRecordingStorageStatus: null
+  selectedRecordingStorageStatus: null,
+  debugEnabled: process.env.NODE_ENV === 'development'
 };
 
 export const reducer = (
@@ -442,6 +446,24 @@ export const reducer = (
         ...state,
         loading: false,
         error: action.payload
+      }
+
+    case ENABLE_DEBUG:
+      return {
+        ...state,
+        debugEnabled: true
+      }
+
+    case DISABLE_DEBUG:
+      return {
+        ...state,
+        debugEnabled: false
+      }
+
+    case TOGGLE_DEBUG:
+      return {
+        ...state,
+        debugEnabled: !action.payload
       }
 
     default:
