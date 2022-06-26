@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
+import styled from 'styled-components';
 import { Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles';
-import styled from 'styled-components';
+import { TreeView, TreeItem } from '@mui/lab';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 declare const LIBP2P_SIG_SERVER: string
 
@@ -32,6 +35,30 @@ export default function Debug({ }: Props) {
       <Section>
         <div>Peer ID:</div>
         <div><Typography variant="caption">{peerInfo?.id}</Typography></div>
+      </Section>
+      <Section>
+        <div>
+          <TreeView
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
+          >
+            <TreeItem nodeId="peerInfo" label="PeerInfo:">
+              {peerInfo && Object.keys(peerInfo).map((key, i) => (
+                <TreeItem nodeId={key} label={key}>
+                  {typeof peerInfo[key] === 'string' ? (
+                    peerInfo[key]
+                  ) : (
+                    peerInfo[key]
+                      .filter((field: string) => key !== 'addresses')
+                      .map((value: string) => (
+                        <TreeItem nodeId={value} label={value} />
+                      )))
+                  }
+                </TreeItem>
+              ))}
+            </TreeItem>
+          </TreeView>
+        </div>
       </Section>
       <Section>
         <div>Signaling server:</div>
