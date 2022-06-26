@@ -118,13 +118,15 @@ export class OrbitDatabase implements AppDatabase {
     this.user = await this.orbitdb.keyvalue('user', this.defaultOptions);
     await this.user.load();
 
-    await this.loadFixtureData({
+    await this.setUserData({
       // deviceInfo: {
       //   hostname: os.hostname(),
       //   platform: os.platform()
       // },
       docStores: this.getDocStoreIds(),
-      nodeId: this.peerInfo.id
+      nodeId: this.peerInfo.id,
+      dbAddress: await this.orbitdb.determineAddress('user', 'keyvalue'),
+      deviceName: await this.getDeviceName() || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
     })
 
     /**
@@ -148,6 +150,10 @@ export class OrbitDatabase implements AppDatabase {
     console.log('*** recordings address:', this.docStores['recordings'].address.toString())
 
     console.log('*** user:', this.user.all)
+
+    const address = await this.orbitdb.determineAddress('user', 'keyvalue')
+    console.log('*** determineAddress:', address)
+
     /**
      * Listen for incoming connections
      */
@@ -231,7 +237,7 @@ export class OrbitDatabase implements AppDatabase {
     return docStoreIds
   }
 
-  private async loadFixtureData(fixtureData: any) {
+  private async setUserData(fixtureData: any) {
     const fixtureKeys = Object.keys(fixtureData)
     for (const i in fixtureKeys) {
       const key = fixtureKeys[i]
@@ -316,12 +322,8 @@ export class OrbitDatabase implements AppDatabase {
     return peerIds
   }
 
-  getCompanions() {
-    return this.companions.all
-  }
-
   /**
-   * Public DB methods
+   * Public DB methods (OrbitDB-specific)
    */
   async queryNetwork(collectionName: string, queryFn: (doc: any) => boolean): Promise<any> {
     const companions: { docStores: { [key: string]: { path: string, root: string } }, nodeId: string }[] = Object.values(this.companions.all)
@@ -352,6 +354,27 @@ export class OrbitDatabase implements AppDatabase {
     }
   }
 
+  getCompanions() {
+    return this.companions.all
+  }
+
+  getUserData() {
+    const userData = this.user.all
+    console.log('*** userData:', userData)
+    return userData
+  }
+
+  async setDeviceName(name: string) {
+    await this.user.set('deviceName', name)
+  }
+
+  getDeviceName() {
+    return this.user.get('deviceName')
+  }
+
+  /**
+   * Public DB methods (general)
+   */
   async add(collectionName: string, doc: any): Promise<string> {
     const bytes = jsonEncoder.encode(doc)
     const hash = await sha256.digest(bytes)

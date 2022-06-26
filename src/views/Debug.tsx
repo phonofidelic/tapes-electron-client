@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 import styled from 'styled-components';
 import { Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles';
@@ -11,12 +11,13 @@ declare const LIBP2P_SIG_SERVER: string
 type Props = {}
 
 const Section = styled.div`
-  margin: 8px
+  margin: 0px
 `
 
 export default function Debug({ }: Props) {
   const [companions, setCompanions] = useState([])
   const [peerInfo, setPeerInfo] = useState(null)
+  const [userData, setUserData] = useState(null)
   const theme = useTheme()
 
   useEffect(() => {
@@ -25,59 +26,75 @@ export default function Debug({ }: Props) {
 
     setPeerInfo(window.db.peerInfo)
     setCompanions(window.db.listCompanions())
+    setUserData(window.db.getUserData())
   }, [window.db])
 
-  console.log('*** Debug, peerInfo:', peerInfo)
+  const renderTree = (data: any, key?: string): any => {
+    switch (typeof data) {
+      case 'undefined':
+        console.log('is undefined:', data)
+        return null;
+
+      case 'string':
+        console.log('is string:', data)
+        return <TreeItem key={data} nodeId={data} label={data} />;
+
+      case 'object':
+        console.log('is object or array:', data)
+        return Array.isArray(data)
+          ? data.map((node: any) => <TreeItem key={node} nodeId={String(node)} label={String(node)} />)
+          : Object.keys(data).map((objKey) => (
+            <TreeItem key={objKey} nodeId={'obj_' + objKey} label={objKey}>{data[objKey] ? renderTree(data[objKey], objKey) : null}</TreeItem>
+          ))
+
+      default:
+        console.log('is something else:', data)
+        return null
+    }
+  }
 
   return (
-    <div style={{ margin: 8 }}>
+    <div style={{ margin: 0 }}>
       <h1>Debug</h1>
       <Section>
-        <div>Peer ID:</div>
-        <div><Typography variant="caption">{peerInfo?.id}</Typography></div>
+        <TreeView
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+        >
+          <TreeItem nodeId="sigServer" label="signaling server">
+            <Typography noWrap variant="caption">{LIBP2P_SIG_SERVER && renderTree(LIBP2P_SIG_SERVER)}</Typography>
+          </TreeItem>
+        </TreeView>
       </Section>
       <Section>
-        <div>
-          <TreeView
-            defaultCollapseIcon={<ExpandMoreIcon />}
-            defaultExpandIcon={<ChevronRightIcon />}
-          >
-            <TreeItem nodeId="peerInfo" label="PeerInfo:">
-              {peerInfo && Object.keys(peerInfo).map((key, i) => (
-                <TreeItem nodeId={key} label={key}>
-                  {typeof peerInfo[key] === 'string' ? (
-                    peerInfo[key]
-                  ) : (
-                    peerInfo[key]
-                      .filter((field: string) => key !== 'addresses')
-                      .map((value: string) => (
-                        <TreeItem nodeId={value} label={value} />
-                      )))
-                  }
-                </TreeItem>
-              ))}
-            </TreeItem>
-          </TreeView>
-        </div>
+        <TreeView
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+        >
+          <TreeItem nodeId="peerInfo" label="peerInfo">
+            {peerInfo && renderTree(peerInfo)}
+          </TreeItem>
+        </TreeView>
       </Section>
       <Section>
-        <div>Signaling server:</div>
-        <div><Typography noWrap variant="caption">{LIBP2P_SIG_SERVER}</Typography></div>
+        <TreeView
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+        >
+          <TreeItem nodeId="userData" label="userData">
+            {userData && renderTree(userData)}
+          </TreeItem>
+        </TreeView>
       </Section>
       <Section>
-        <div>Companions:</div>
-        <ul>
-          {Object.keys(companions).map((companion: string) => (
-            <li key={companion}>
-              <Typography
-                style={{ maxWidth: theme.dimensions.Tray.width }}
-                noWrap
-                variant="caption">
-                {companion}
-              </Typography>
-            </li>
-          ))}
-        </ul>
+        <TreeView
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+        >
+          <TreeItem nodeId="companions" label="companions">
+            {companions && renderTree(companions)}
+          </TreeItem>
+        </TreeView>
       </Section>
     </div>
   )
