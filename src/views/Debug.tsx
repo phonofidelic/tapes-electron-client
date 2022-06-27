@@ -1,10 +1,11 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 import styled from 'styled-components';
-import { Typography } from '@mui/material'
+import { Button, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles';
 import { TreeView, TreeItem } from '@mui/lab';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CircleIcon from '@mui/icons-material/Circle';
 
 declare const LIBP2P_SIG_SERVER: string
 
@@ -20,35 +21,50 @@ export default function Debug({ }: Props) {
   const [userData, setUserData] = useState(null)
   const theme = useTheme()
 
+  const handleClearCompanions = async () => {
+    const confirmed = window.confirm('Are you sure you want to remove all companions?')
+    if (!confirmed) return;
+
+    try {
+      await window.db.removeAllCompanions()
+      console.log('Companions removed')
+    } catch (err) {
+      console.error('Could not remove companions')
+    }
+  }
+
   useEffect(() => {
     if (!window.db || !window.db.initialized) return console.log('No DB or not initialized in Debug')
     console.log('DB initialized in Debug')
 
     setPeerInfo(window.db.peerInfo)
-    setCompanions(window.db.listCompanions())
+    setCompanions(window.db.getAllCompanions())
     setUserData(window.db.getUserData())
   }, [window.db])
 
-  const renderTree = (data: any, key?: string): any => {
+  const renderTree = (data: any, _key?: string): any => {
     switch (typeof data) {
       case 'undefined':
-        console.log('is undefined:', data)
         return null;
 
       case 'string':
-        console.log('is string:', data)
         return <TreeItem key={data} nodeId={data} label={data} />;
 
       case 'object':
-        console.log('is object or array:', data)
         return Array.isArray(data)
           ? data.map((node: any) => <TreeItem key={node} nodeId={String(node)} label={String(node)} />)
           : Object.keys(data).map((objKey) => (
-            <TreeItem key={objKey} nodeId={'obj_' + objKey} label={objKey}>{data[objKey] ? renderTree(data[objKey], objKey) : null}</TreeItem>
+            /orbitdb/.test(objKey)
+              ? <TreeItem
+                key={objKey}
+                nodeId={'obj_' + objKey}
+                label={objKey}
+                icon={<CircleIcon color={data[objKey].status === 'online' ? 'success' : 'action'} />}
+              >{data[objKey] ? renderTree(data[objKey], objKey) : null}</TreeItem>
+              : <TreeItem key={objKey} nodeId={'obj_' + objKey} label={objKey}>{data[objKey] ? renderTree(data[objKey], objKey) : null}</TreeItem>
           ))
 
       default:
-        console.log('is something else:', data)
         return null
     }
   }
@@ -95,6 +111,9 @@ export default function Debug({ }: Props) {
             {companions && renderTree(companions)}
           </TreeItem>
         </TreeView>
+      </Section>
+      <Section>
+        <div><Button onClick={handleClearCompanions}>Clear companions</Button></div>
       </Section>
     </div>
   )
