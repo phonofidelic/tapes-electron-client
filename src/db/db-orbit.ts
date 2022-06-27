@@ -12,6 +12,7 @@ import DocumentStore from 'orbit-db-docstore';
 //@ts-ignore
 import { PeerId, PeerInfo } from 'ipfs';
 import Store from 'orbit-db-store';
+import { Companion, CompanionStatus } from '../common/Companion.interface';
 
 // const Buffer = require('buffer/').Buffer;
 
@@ -214,6 +215,7 @@ export class OrbitDatabase implements AppDatabase {
     } catch (err) {
       // if (new RegExp(err).test('peer is not available')) return console.warn(`Peer not available: ${peerId}`)
       // console.error('Could not connect to peer:', err)
+      throw err
     }
   }
 
@@ -274,7 +276,7 @@ export class OrbitDatabase implements AppDatabase {
           //@ts-ignore
           if (peerDb.get('docStores')) {
             //@ts-ignore
-            await this.companions.set(peerDb.id, peerDb.all);
+            await this.companions.set(peerDb.id, { ...peerDb.all, status: this.companions[peerDb.id]?.status || CompanionStatus.Unknown });
             // this.ondbdiscovered && this.ondbdiscovered(peerDb);
             this.onPeerDbDiscovered && this.onPeerDbDiscovered(peerDb)
           }
@@ -307,13 +309,44 @@ export class OrbitDatabase implements AppDatabase {
     await Promise.all(companionIds.map(async (companionId) => {
       if (connectedPeerIds.indexOf(companionId) !== -1) return
       try {
-        this.connectToPeer(companionId)
+        await this.connectToPeer(companionId)
+
+        /**
+         * Set Companion status as 'online'
+         */
+        const companionAddress = this.getCompanionAddress(companionId)
+        const companionAddressString = `/orbitdb/${companionAddress.root}/${companionAddress.path}`
+        this.companions.set(companionAddressString, {
+          ...this.companions.get(companionAddressString),
+          status: CompanionStatus.Online
+        })
+
         this.oncompaniononline && this.oncompaniononline(`Connected to ${companionId}`)
       } catch (err) {
-        // console.error('Companion not found:', err)
+        console.error('Companion not found:', err)
+
+        /**
+         * Set Companion status as 'offline'
+         */
+        const companionAddress = this.getCompanionAddress(companionId)
+        const companionAddressString = `/orbitdb/${companionAddress.root}/${companionAddress.path}`
+        this.companions.set(companionAddressString, {
+          ...this.companions.get(companionAddressString),
+          status: CompanionStatus.Offline
+        })
+
         this.oncompanionnotfound && this.oncompanionnotfound()
       }
     }))
+  }
+
+
+
+  private getCompanionAddress(companionNodeId: string): { path: string; root: string } {
+    const companions = this.getAllCompanions()
+    const matchedCompanion: Companion | undefined = Object.values(companions).find((companion: Companion) => companion.nodeId === companionNodeId) as Companion
+    if (matchedCompanion === undefined) throw new Error(`Attempted to find address for non-existing companion with nodeId ${companionNodeId}`)
+    return matchedCompanion.dbAddress
   }
 
   async getIpfsPeerIds() {
@@ -354,8 +387,31 @@ export class OrbitDatabase implements AppDatabase {
     }
   }
 
-  getCompanions() {
-    return this.companions.all
+  // getCompanions() {
+  //   return this.companions.all
+  // }
+
+  getAllCompanions() {
+    const companions = this.companions.all
+    console.log('*** getAllCompanions, companions:', companions)
+    return companions
+  }
+
+  async removeAllCompanions() {
+    const companions = Object.keys(this.companions.all)
+    console.log('*** removeAllCompanions, companions before:', companions)
+
+    for await (const companion of companions) {
+      await this.companions.del(companion)
+    }
+    console.log('*** removeAllCompanions, companions after:', Object.keys(this.companions.all))
+  }
+
+  // TODO: implement this or delete if unused
+  async deleteDB() {
+    return new Promise((resolve, _reject) => {
+      resolve('done')
+    })
   }
 
   getUserData() {
@@ -431,30 +487,6 @@ export class OrbitDatabase implements AppDatabase {
 
     return docId
   }
-
-  listCompanions() {
-    const companions = this.companions.all
-    console.log('*** listCompanions, companions:', companions)
-    return companions
-  }
-
-  async removeAllCompanions() {
-    const companions = Object.keys(this.companions.all)
-    console.log('*** removeAllCompanions, companions before:', companions)
-
-    for await (const companion of companions) {
-      await this.companions.del(companion)
-    }
-    console.log('*** removeAllCompanions, companions after:', Object.keys(this.companions.all))
-  }
-
-  // TODO: implement this or delete if unused
-  async deleteDB() {
-    return new Promise((resolve, _reject) => {
-      resolve('done')
-    })
-  }
-
 
   /**
    * Close database connection
