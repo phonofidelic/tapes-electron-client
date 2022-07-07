@@ -226,7 +226,7 @@ export class OrbitDatabase implements AppDatabase {
   ondbdiscovered = (data: any) => console.log('*** db discovered:', data);
   onmessage = (data: any) => console.log('*** message recieved:', data);
   oncompaniononline = (data: any) => console.log('*** oncompaniononline:', data)
-  oncompanionnotfound = console.error
+  // oncompanionnotfound = console.error
 
   private getDocStoreIds() {
     let docStoreIds = {}
@@ -323,7 +323,7 @@ export class OrbitDatabase implements AppDatabase {
 
         this.oncompaniononline && this.oncompaniononline(`Connected to ${companionId}`)
       } catch (err) {
-        console.error('Companion not found:', err)
+        // console.error('Companion not found:', err)
 
         /**
          * Set Companion status as 'offline'
@@ -335,7 +335,7 @@ export class OrbitDatabase implements AppDatabase {
           status: CompanionStatus.Offline
         })
 
-        this.oncompanionnotfound && this.oncompanionnotfound()
+        // this.oncompanionnotfound && this.oncompanionnotfound()
       }
     }))
   }
@@ -393,7 +393,7 @@ export class OrbitDatabase implements AppDatabase {
 
   getAllCompanions() {
     const companions = this.companions.all
-    console.log('*** getAllCompanions, companions:', companions)
+    // console.log('*** getAllCompanions, companions:', companions)
     return companions
   }
 

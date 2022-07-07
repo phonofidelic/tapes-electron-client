@@ -32,6 +32,7 @@ const {
 interface LibraryProps {
   recordings: Recording[];
   loading: boolean;
+  databaseInitializing: boolean;
   caching: boolean;
   playing: boolean;
   error: Error;
@@ -44,6 +45,7 @@ interface LibraryProps {
 export function Library({
   recordings,
   loading,
+  databaseInitializing,
   caching,
   playing,
   error,
@@ -112,8 +114,8 @@ export function Library({
   };
 
   useEffect(() => {
-    dispatch(loadRecordings());
-  }, [recordings.length]);
+    (!databaseInitializing) && dispatch(loadRecordings());
+  }, [recordings.length, databaseInitializing]);
 
   console.log('*** searchTerm:', searchTerm)
   console.log('*** recordings:', recordings)
@@ -240,6 +242,7 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     recordings: state.recordings,
     loading: state.loading,
+    databaseInitializing: state.databaseInitilizing,
     caching: state.caching,
     playing: state.playing,
     error: state.error,
