@@ -12,7 +12,7 @@ declare const LIBP2P_SIG_SERVER: string
 type Props = {}
 
 const Section = styled.div`
-  margin: 0px
+  margin: 0px;
 `
 
 export default function Debug({ }: Props) {
