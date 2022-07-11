@@ -84,7 +84,7 @@ export const initialState: RecorderState = {
   caching: false,
   selectedRecordingStorageStatus: null,
   debugEnabled: process.env.NODE_ENV === 'development',
-  databaseInitilizing: true
+  databaseInitilizing: false
 };
 
 export const reducer = (

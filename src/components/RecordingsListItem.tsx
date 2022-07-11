@@ -146,7 +146,7 @@ export function RecordingsListItem({
       ref={hoverRef}
       key={recording._id}
       divider
-      // selected={selected}
+      selected={selected}
       onClick={() => handleSelectRecording(recording)}
       onFocus={() => handleSelectRecording(recording)}
       onDoubleClick={() => handleOpenDetailView(recording._id)}

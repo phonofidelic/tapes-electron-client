@@ -54,6 +54,7 @@ export function RecordingDetail({ recording }: Props): ReactElement {
         style={{
           padding: 8,
           paddingTop: 0,
+          paddingBottom: theme.dimensions.Player.height,
           marginBottom: 48,
           display: 'flex',
           flexDirection: 'column',

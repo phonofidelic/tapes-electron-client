@@ -114,7 +114,7 @@ export function Library({
   };
 
   useEffect(() => {
-    (!databaseInitializing) && dispatch(loadRecordings());
+    (!loading && !databaseInitializing) && dispatch(loadRecordings());
   }, [recordings.length, databaseInitializing]);
 
   console.log('*** searchTerm:', searchTerm)

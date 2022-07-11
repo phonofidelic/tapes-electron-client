@@ -28,9 +28,10 @@ function App() {
 
   const searchParams = new URLSearchParams(window.location.search);
   const desktopPeerId = searchParams.get('peerid')
+  const recordingsAddrRoot = searchParams.get('address')
 
   useEffect(() => {
-    dispatch(initDatabase(desktopPeerId));
+    dispatch(initDatabase(desktopPeerId, recordingsAddrRoot));
   }, []);
 
   return (

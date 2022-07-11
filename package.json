@@ -80,6 +80,9 @@
         [
           "@electron-forge/plugin-webpack",
           {
+            "devServer": {
+              "hot": true
+            },
             "mainConfig": "./webpack.main.config.js",
             "devContentSecurityPolicy": "connect-src 'self' * 'unsafe-eval'",
             "renderer": {
