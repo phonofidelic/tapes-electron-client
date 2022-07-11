@@ -18,7 +18,7 @@ interface EffectsExport {
   editRecording(recordingId: string, update: any): Effect;
   deleteRecording(recordingId: string): Effect;
   loadAccountToken(tokenString: string): Effect;
-  initDatabase(desktopPeerId?: string): Effect;
+  initDatabase(desktopPeerId?: string, recordingsAddrRoot?: string): Effect;
   setInputDevice(deviceName: string): Effect;
   downloadRecording(recordingId: string): Effect;
   cacheAndPlayRecording(recording: Recording): Effect;

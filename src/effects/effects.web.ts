@@ -37,9 +37,8 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 
   try {
     dispatch(setLoadingMessage('Loading library...'));
-    // const recordings = await window.db.find('recordings', {})
-    // const recordings = await window.db.queryNetwork('recordings', (doc: any) => doc)
-    const recordings = await asyncCallWithTimeout(window.db.queryNetwork('recordings', (doc: any) => doc), 15000) as Recording[]
+    const recordings = await window.db.find('recordings', {})
+    // const recordings = await asyncCallWithTimeout(window.db.queryNetwork('recordings', (doc: any) => doc), 15000) as Recording[]
 
     dispatch(loadRecordingsSuccess(await recordings));
     dispatch(setLoadingMessage(null));
@@ -67,13 +66,13 @@ export const loadAccountToken = (tokenString: string): Effect => async (dispatch
   console.log('TODO: implement loadAccountToken for web')
 }
 
-export const initDatabase = (desktopPeerId: string): Effect => async (dispatch) => {
+export const initDatabase = (desktopPeerId: string, recordingsAddrRoot: string): Effect => async (dispatch) => {
   dispatch(initDatabaseRequest());
   dispatch(setLoadingMessage('Initializing database...'));
 
   try {
     window.db = new OrbitDatabase({})
-    await window.db.init(desktopPeerId)
+    await window.db.init(desktopPeerId, recordingsAddrRoot)
     console.log('Database initialized');
 
     // await window.db.removeAllCompanions()

@@ -68,6 +68,7 @@ export function Settings({
   const [QROpen, setQROpen] = useState(false)
   const [peerInfo, setPeerInfo] = useState<PeerInfo | null>(null)
   const [showDebug, setShowDebug] = useState(0)
+  const [localWebClient, setLocalWebClient] = useState(false)
 
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId || 'default';
@@ -147,6 +148,10 @@ export function Settings({
     toggleDebug(debugEnabled)
   }
 
+  const handleToggleLocalWebClient = () => {
+    setLocalWebClient(!localWebClient)
+  }
+
   useEffect(() => {
     const getMediaDevices = async () => {
       const foundDevices = await navigator.mediaDevices.enumerateDevices();
@@ -170,8 +175,11 @@ export function Settings({
   return (
     <div>
       <StatusMessage />
-      <QRCodeModal open={QROpen} value={`${WEB_CLIENT_URL}/?peerid=` + peerInfo?.id || ''} onClose={handleCloseQR} />
-
+      <QRCodeModal 
+        open={QROpen} 
+        value={`${localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL}/?peerid=${peerInfo?.id || ''}&address=${window.db?.initialized ? window.db?.getUserData().docStores.recordings.root : ''}`} onClose={handleCloseQR} 
+      />
+      
       <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
         <Typography variant="caption">Account Link</Typography>
       </SectionHeader>
@@ -277,6 +285,12 @@ export function Settings({
             <FormControlLabel
               control={<Checkbox checked={debugEnabled} onChange={handleToggleDebug} />}
               label="Debug enabled"
+            />
+          </FormGroup>
+          <FormGroup>
+            <FormControlLabel
+              control={<Checkbox checked={localWebClient} onChange={handleToggleLocalWebClient} />}
+              label="Local web client"
             />
           </FormGroup>
         </div>

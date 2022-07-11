@@ -52,7 +52,7 @@ export class OrbitDatabase implements AppDatabase {
     this.onPeerDbDiscovered = onPeerDbDiscovered
   }
 
-  async init(desktopPeerId?: string) {
+  async init(desktopPeerId?: string, recordingsAddrRoot?: string) {
     try {
       this.node = await createIpfsNode()
     } catch (err) {
@@ -65,7 +65,7 @@ export class OrbitDatabase implements AppDatabase {
       this.orbitdb = await OrbitDB.createInstance(this.node, {
         //@ts-ignore
         offline: process.env.NODE_ENV === 'test',
-        id: process.env.NODE_ENV === 'test' ? 'test_' + Date.now() : undefined
+        // id: process.env.NODE_ENV === 'test' ? 'test_' + Date.now() : undefined
       });
       // this.orbitdb = await new OrbitDB.default(this.node)
     } catch (err) {
@@ -100,16 +100,21 @@ export class OrbitDatabase implements AppDatabase {
       indexBy: '_id',
     };
 
-    this.docStores[RECORDINGS_COLLECTION] = await this.orbitdb.docstore(RECORDINGS_COLLECTION, {
+    const recordingsAddress = recordingsAddrRoot 
+      ? `/orbitdb/${recordingsAddrRoot}/${RECORDINGS_COLLECTION}` 
+      : RECORDINGS_COLLECTION
+
+    this.docStores[RECORDINGS_COLLECTION] = await this.orbitdb.docstore(recordingsAddress, {
       ...docStoreOptions,
     });
 
     for (const docStore in this.docStores) {
       try {
+        console.log('*** docstore:', this.docStores[docStore])
         await this.docStores[docStore].load()
       } catch (err) {
         console.error(`Could not load docstore ${docStore}:`, err)
-        throw new Error(`Could not load docstore "${docStore}"`)
+        // throw new Error(`Could not load docstore "${docStore}"`)
       }
     }
 
@@ -127,7 +132,9 @@ export class OrbitDatabase implements AppDatabase {
       docStores: this.getDocStoreIds(),
       nodeId: this.peerInfo.id,
       dbAddress: await this.orbitdb.determineAddress('user', 'keyvalue'),
-      deviceName: await this.getDeviceName() || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+      deviceName: await this.getDeviceName() || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+      //@ts-ignore
+      identity: await this.orbitdb.identity.toJSON()
     })
 
     /**
@@ -214,8 +221,8 @@ export class OrbitDatabase implements AppDatabase {
       console.log('*** Connected to peer!')
     } catch (err) {
       // if (new RegExp(err).test('peer is not available')) return console.warn(`Peer not available: ${peerId}`)
-      // console.error('Could not connect to peer:', err)
-      throw err
+      // console.error(`Could not connect to peer ${peerId}:`, err)
+      // throw err
     }
   }
 
@@ -226,7 +233,7 @@ export class OrbitDatabase implements AppDatabase {
   ondbdiscovered = (data: any) => console.log('*** db discovered:', data);
   onmessage = (data: any) => console.log('*** message recieved:', data);
   oncompaniononline = (data: any) => console.log('*** oncompaniononline:', data)
-  oncompanionnotfound = console.error
+  // oncompanionnotfound = console.error
 
   private getDocStoreIds() {
     let docStoreIds = {}
@@ -323,7 +330,7 @@ export class OrbitDatabase implements AppDatabase {
 
         this.oncompaniononline && this.oncompaniononline(`Connected to ${companionId}`)
       } catch (err) {
-        console.error('Companion not found:', err)
+        // console.error('Companion not found:', err)
 
         /**
          * Set Companion status as 'offline'
@@ -335,7 +342,7 @@ export class OrbitDatabase implements AppDatabase {
           status: CompanionStatus.Offline
         })
 
-        this.oncompanionnotfound && this.oncompanionnotfound()
+        // this.oncompanionnotfound && this.oncompanionnotfound()
       }
     }))
   }
@@ -382,8 +389,8 @@ export class OrbitDatabase implements AppDatabase {
 
       return allDocs
     } catch (err) {
-      console.error('Could not query ntwork:', err)
-      throw new Error('Could not query ntwork')
+      console.error('Could not query network:', err)
+      throw new Error('Could not query network')
     }
   }
 
@@ -393,7 +400,7 @@ export class OrbitDatabase implements AppDatabase {
 
   getAllCompanions() {
     const companions = this.companions.all
-    console.log('*** getAllCompanions, companions:', companions)
+    // console.log('*** getAllCompanions, companions:', companions)
     return companions
   }
 

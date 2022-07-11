@@ -1,4 +1,5 @@
 import path from 'path';
+import util from 'util'
 import { promises as fs } from 'fs';
 import * as mm from 'music-metadata';
 import { randomBytes } from 'crypto';
@@ -64,15 +65,29 @@ export class UploadAudioFileChannel implements IpcChannel {
 
       /**
        * Upload file to IPFS
-      */
+       */
       const files = await getFilesFromPath(filePath)
       const cid = await storageService.put(files as unknown as File[])
 
       /**
-       * Get audio metadata
+       * Get audio metadata,
+       * Destructure "picture" from metadata.common and exclude it from 
+       * recordingData since Buffer does not seem to be supported by orbitDB.
        */
       const metadata = await mm.parseFile(filePath);
-      console.log('*** metadata:', metadata);
+      const { picture, ...common } = metadata.common
+      console.log('*** metadata:', util.inspect(metadata, true, 8, true));
+
+      /**
+       * Attempt to get cover art from MusicBrainz.
+       * Don't throw an error if unsuccessful.
+       */
+      let musicBrainzCoverArt
+      try {
+        musicBrainzCoverArt = await getMusicBrainzCoverArt(metadata.common)
+      } catch (err) {
+        console.error(err)
+      }
 
       /**
        * Check for metadata.common.title
@@ -81,7 +96,6 @@ export class UploadAudioFileChannel implements IpcChannel {
       let recordingData: Recording;
       if (!metadata.common.title || !metadata.common.artist) {
         console.log('*** Not enough metadata. Starting Acoustid process...');
-        // console.log('*** ACOUSTID_API_KEY:', process.env.ACOUSTID_API_KEY);
 
         /**
          * Get acoustic fingerprint
@@ -122,10 +136,10 @@ export class UploadAudioFileChannel implements IpcChannel {
           duration: metadata.format.duration,
           format,
           channels: metadata.format.numberOfChannels,
-          common: metadata.common,
+          common,
           cid,
           acoustidResults: [await acoustidResponse.data.results[0]],
-          musicBrainzCoverArt: await getMusicBrainzCoverArt(metadata.common),
+          musicBrainzCoverArt,
         };
       } else {
         recordingData = {
@@ -136,14 +150,11 @@ export class UploadAudioFileChannel implements IpcChannel {
           duration: metadata.format.duration,
           format,
           channels: metadata.format.numberOfChannels,
-          common: metadata.common,
+          common,
           cid,
-          musicBrainzCoverArt: await getMusicBrainzCoverArt(metadata.common),
+          musicBrainzCoverArt,
         };
       }
-
-      // const docId = await db.add('recordings', recordingData)
-      // const createdRecording = await db.findById('recordings', docId) as unknown as Recording
 
       recordings.push(recordingData)
     }

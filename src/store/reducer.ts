@@ -83,13 +83,14 @@ export const initialState: RecorderState = {
   selectedRecording: null,
   caching: false,
   selectedRecordingStorageStatus: null,
-  debugEnabled: process.env.NODE_ENV === 'development'
+  debugEnabled: process.env.NODE_ENV === 'development',
+  databaseInitilizing: false
 };
 
 export const reducer = (
   state: RecorderState = initialState,
   action: RecorderAction
-) => {
+): RecorderState => {
   switch (action.type) {
     case START_MONITOR: {
       return {
@@ -117,7 +118,7 @@ export const reducer = (
         ...state,
         // loading: false,
         // isRecording: true,
-        recordingQue: [...state.recordingQueue, action.payload.filename],
+        recordingQueue: [...state.recordingQueue, action.payload.filename],
       };
 
     case START_RECORDING_FAILURE:
@@ -322,18 +323,21 @@ export const reducer = (
       return {
         ...state,
         loading: true,
+        databaseInitilizing: true,
       };
 
     case INIT_DATABASE_SUCCESS:
       return {
         ...state,
         loading: false,
+        databaseInitilizing: false,
       };
 
     case INIT_DATABASE_FAILURE:
       return {
         ...state,
         loading: false,
+        databaseInitilizing: false,
         error: action.payload,
       };
 

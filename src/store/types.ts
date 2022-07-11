@@ -79,6 +79,7 @@ export interface RecorderState {
   caching: boolean;
   selectedRecordingStorageStatus: RecordingStorageStatus | null
   debugEnabled: boolean;
+  databaseInitilizing: boolean;
 }
 
 export interface StartRecordingRequestAction extends Action {

@@ -102,6 +102,7 @@ export const getMusicBrainzCoverArt = async (
     musicBrainzCoverArt = mbCoverArtResponse.data.images[0];
   } catch (err) {
     console.error('Could not get album art:', err);
+    musicBrainzCoverArt = ''
   }
   return musicBrainzCoverArt;
 };

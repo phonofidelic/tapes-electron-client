@@ -1,11 +1,13 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 import styled from 'styled-components';
-import { Button, Typography } from '@mui/material'
+import { Button, IconButton, Tooltip, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles';
 import { TreeView, TreeItem } from '@mui/lab';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CircleIcon from '@mui/icons-material/Circle';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CopyButton from '../components/CopyButton';
 
 declare const LIBP2P_SIG_SERVER: string
 
@@ -42,26 +44,54 @@ export default function Debug({ }: Props) {
     setUserData(window.db.getUserData())
   }, [window.db])
 
+  const renderCopyButton = (data: string) => {
+    const [copied, setCopied] = useState(false)
+    
+    const handleCopy = async () => {
+      await navigator.clipboard.writeText(data)
+
+      setCopied(true)
+      setTimeout(() => setCopied(false), 500)
+    }
+
+    return (
+      <Tooltip title="Content copied!" open={copied}>
+        <IconButton onClick={handleCopy}>
+          <ContentCopyIcon />
+        </IconButton>
+      </Tooltip>
+    )
+  }
+
   const renderTree = (data: any, _key?: string): any => {
     switch (typeof data) {
       case 'undefined':
         return null;
 
       case 'string':
-        return <TreeItem key={data} nodeId={data} label={data} />;
+        return <TreeItem key={data} nodeId={data} label={<Typography noWrap>{data}</Typography>} />;
 
       case 'object':
         return Array.isArray(data)
           ? data.map((node: any) => <TreeItem key={node} nodeId={String(node)} label={String(node)} />)
-          : Object.keys(data).map((objKey) => (
+          : Object.keys(data).map((objKey, i) => (
             /orbitdb/.test(objKey)
               ? <TreeItem
                 key={objKey}
-                nodeId={'obj_' + objKey}
-                label={objKey}
+                nodeId={`obj_${objKey}_${i}`}
+                label={<Typography noWrap>{objKey} <CopyButton data={JSON.stringify(data[objKey], null, 2)} /></Typography>}
                 icon={<CircleIcon color={data[objKey].status === 'online' ? 'success' : 'action'} />}
-              >{data[objKey] ? renderTree(data[objKey], objKey) : null}</TreeItem>
-              : <TreeItem key={objKey} nodeId={'obj_' + objKey} label={objKey}>{data[objKey] ? renderTree(data[objKey], objKey) : null}</TreeItem>
+              >
+                {data[objKey] ? renderTree(data[objKey], objKey) : null}
+              </TreeItem>
+              : 
+              <TreeItem 
+                key={objKey} 
+                nodeId={`obj_${objKey}_${i}`} 
+                label={<Typography noWrap>{objKey} <CopyButton data={JSON.stringify(data[objKey], null, 2)} /></Typography>} 
+              >
+                {data[objKey] ? renderTree(data[objKey], objKey) : null}
+              </TreeItem>
           ))
 
       default:
@@ -77,8 +107,8 @@ export default function Debug({ }: Props) {
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
         >
-          <TreeItem nodeId="sigServer" label="signaling server">
-            <Typography noWrap variant="caption">{LIBP2P_SIG_SERVER && renderTree(LIBP2P_SIG_SERVER)}</Typography>
+          <TreeItem nodeId="sigServer" label={<>signaling server  <CopyButton data={JSON.stringify(LIBP2P_SIG_SERVER, null, 2)} /></>}>
+            {renderTree(LIBP2P_SIG_SERVER)}
           </TreeItem>
         </TreeView>
       </Section>
@@ -87,7 +117,7 @@ export default function Debug({ }: Props) {
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
         >
-          <TreeItem nodeId="peerInfo" label="peerInfo">
+          <TreeItem nodeId="peerInfo" label={<>peerInfo <CopyButton data={JSON.stringify(peerInfo, null, 2)} /></>}>
             {peerInfo && renderTree(peerInfo)}
           </TreeItem>
         </TreeView>
@@ -97,7 +127,7 @@ export default function Debug({ }: Props) {
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
         >
-          <TreeItem nodeId="userData" label="userData">
+          <TreeItem nodeId="userData" label={<>userData <CopyButton data={JSON.stringify(userData, null, 2)} /></>}>
             {userData && renderTree(userData)}
           </TreeItem>
         </TreeView>
@@ -107,7 +137,7 @@ export default function Debug({ }: Props) {
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
         >
-          <TreeItem nodeId="companions" label="companions">
+          <TreeItem nodeId="companions" label={<>companions <CopyButton data={JSON.stringify(companions, null, 2)} /></>}>
             {companions && renderTree(companions)}
           </TreeItem>
         </TreeView>
