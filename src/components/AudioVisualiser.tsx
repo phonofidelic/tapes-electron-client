@@ -2,6 +2,8 @@ import React, { ReactElement, useRef, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
 import useAudioAnalyser from '../hooks/useAudioAnalyser';
 import { getAudioStream } from '../utils';
+import isElectron from 'is-electron';
+import useWindowSize from '../hooks/useWindowSize';
 
 const draw = (
   data: Uint8Array | [],
@@ -65,9 +67,10 @@ export default function AudioVisualiser({
 }: Props): ReactElement {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const theme = useTheme();
+  const { width: windowWidth } = useWindowSize()
   // const audioData = useAudioAnalyser(selectedMediaDeviceId, 'frequency');
 
-  const CANVAS_WIDTH = theme.dimensions.Tray.width;
+  const CANVAS_WIDTH = isElectron() ? theme.dimensions.Tray.width : windowWidth;
   const CANVAS_HEIGHT =
     theme.dimensions.Tray.height - theme.dimensions.Navigation.height;
 
