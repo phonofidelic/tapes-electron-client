@@ -105,7 +105,7 @@ export function Player({
         <div
           style={{
             display: 'flex',
-            margin: 4,
+            // margin: 4,
           }}
         >
           {!playing ? (
@@ -127,6 +127,14 @@ export function Player({
               </Typography>
             </div>
           </div>
+          <div style={{ flex: 1 }} />
+          {currentPlaying.musicBrainzCoverArt && <div style={{
+            width: 48,
+            height: 48,
+            borderRadius: '0 0 8px 0'
+          }}>
+            <img style={{ borderRadius: '0 0 8px 0' }} width={48} height={48} src={currentPlaying.musicBrainzCoverArt?.thumbnails?.small || ''} />
+          </div>}
         </div>
       </Paper>
     </Slide>
