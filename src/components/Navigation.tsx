@@ -37,6 +37,8 @@ export function Navigation({ debugEnabled }: Props): ReactElement {
         position: 'fixed',
         width: '100%',
         top: '0px',
+        left: '0px',
+        justifyContent: 'center',
         zIndex: theme.zIndex.appBar,
       }}
       value={activeTab}
