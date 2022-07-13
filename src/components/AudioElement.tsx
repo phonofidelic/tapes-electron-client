@@ -34,16 +34,20 @@ export function AudioElement({
 }: AudioElementProps) {
   const audioRef = useRef(null);
 
-  const onListen = (currentTime: number) => {
+  const handleListen = (currentTime: number) => {
     setCurrentTime(currentTime);
   };
 
-  const onEnded = (event: Event) => {
+  const handleEnded = (event: Event) => {
     const audioEl = event.currentTarget as HTMLAudioElement;
     pauseRecording();
     setCurrentTime(0);
     audioEl.currentTime = 0;
   };
+
+  const handleSeeked = (event: any) => {
+    setCurrentTime(event.target.currentTime);
+  }
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -69,8 +73,9 @@ export function AudioElement({
       // src={'tapes://' + currentPlaying.filename}
       src={audioSrc}
       listenInterval={500}
-      onListen={onListen}
-      onEnded={onEnded}
+      onListen={handleListen}
+      onEnded={handleEnded}
+      onSeeked={handleSeeked}
     />
   );
 }

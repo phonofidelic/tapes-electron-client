@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useRef } from 'react';
+import React, { ReactElement, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../store/actions';
 import {
@@ -20,6 +20,7 @@ import {
   Typography,
   LinearProgress,
   useTheme,
+  Slider,
 } from '@mui/material';
 
 interface Props {
@@ -41,13 +42,12 @@ export function Player({
   pauseRecording,
   setSeekedTime,
 }: Props): ReactElement {
+  const duration = currentPlaying?.duration || 0;
   const theme = useTheme();
   const { pathname } = useLocation();
   const progressRef = useRef(null);
-
-  // console.log('currentPlaying?.location', currentPlaying?.location);
-
-  const duration = currentPlaying?.duration || 0;
+  const [seeking, setSeeking] = useState(false)
+  const [progressPosition, setProgressPosition] = useState((currentTime / duration) * 100)
 
   const handlePlay = () => {
     playRecording();
@@ -57,10 +57,23 @@ export function Player({
     pauseRecording();
   };
 
+  const handleSeek = (event: React.MouseEvent<HTMLDivElement>) => {
+    setProgressPosition((event.clientX / progressRef.current.offsetWidth) * 100)
+  }
+
   const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
     const clickedProgress = event.clientX / progressRef.current.offsetWidth;
     setSeekedTime(duration * clickedProgress);
+    setProgressPosition((duration * clickedProgress / duration) * 100)
+    setSeeking(false)
   };
+
+  const handleValueLabelFormat = (n: number) => {
+    const percentage = n / 100
+    const time = duration * percentage
+
+    return msToTime(time * 1000)
+  }
 
   useEffect(() => {
     if (!currentPlaying) return;
@@ -87,15 +100,40 @@ export function Player({
           borderRadius: '8px'
         }}
       >
-        <div>
-          <LinearProgress
+        <div 
+          style={{ 
+            position: 'relative',
+            marginBottom: 4
+          }}
+        >
+          {/* <LinearProgress
             style={{
-              borderRadius: '8px, 8px, 0, 0',
+              borderRadius: '8px 8px 0px 0px',
             }}
             ref={progressRef}
             variant={caching ? 'indeterminate' : 'determinate'}
             value={(currentTime / duration) * 100}
             onClick={
+              !caching
+                ? handleProgressClick
+                : () => console.log('still caching')
+            }
+          /> */}
+          <Slider
+            ref={progressRef}
+            size="small"
+            style={{ 
+              position: 'absolute', padding: 0,
+              borderRadius: '8px 8px 0px 0px',
+              height: 4
+            }}
+            value={seeking ? progressPosition : (currentTime / duration) * 100}
+            valueLabelDisplay="auto"
+            onMouseDown={() => setSeeking(true)}
+            valueLabelFormat={handleValueLabelFormat}
+            //@ts-ignore
+            onChange={handleSeek}
+            onChangeCommitted={
               !caching
                 ? handleProgressClick
                 : () => console.log('still caching')
