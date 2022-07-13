@@ -89,72 +89,52 @@ export class UploadAudioFileChannel implements IpcChannel {
         console.error(err)
       }
 
-      /**
-       * Check for metadata.common.title
-       * If it is empty, start Acoustid process here
-       */
       let recordingData: Recording;
-      if (!metadata.common.title || !metadata.common.artist) {
-        console.log('*** Not enough metadata. Starting Acoustid process...');
 
-        /**
-         * Get acoustic fingerprint
-         */
-        let duration, fingerprint;
-        try {
-          const fpcalcResponse = await fpcalcPromise(file.path);
-          duration = fpcalcResponse.duration;
-          fingerprint = fpcalcResponse.fingerprint;
-        } catch (err) {
-          console.error('Could not generate acoustic fingerprint:', err);
-          return event.sender.send(request.responseChannel, {
-            error: new Error('Could not generate acoustic fingerprint'),
-          });
-        }
-
-        /**
-         * Get Acoustid results
-         */
-        let acoustidResponse;
-        try {
-          acoustidResponse = await getAcoustidResults(duration, fingerprint);
-        } catch (err) {
-          console.error('Could not get Acoustid results:', err);
-          return event.sender.send(request.responseChannel, {
-            error: new Error('Could not get Acoustid results'),
-          });
-        }
-
-        recordingData = {
-          location: filePath,
-          filename,
-          title:
-            metadata.common.title ||
-            acoustidResponse.data.results[0]?.recordings[0]?.title ||
-            'No title',
-          size: file.size,
-          duration: metadata.format.duration,
-          format,
-          channels: metadata.format.numberOfChannels,
-          common,
-          cid,
-          acoustidResults: [await acoustidResponse.data.results[0]],
-          musicBrainzCoverArt,
-        };
-      } else {
-        recordingData = {
-          location: filePath,
-          filename,
-          title: metadata.common.title,
-          size: file.size,
-          duration: metadata.format.duration,
-          format,
-          channels: metadata.format.numberOfChannels,
-          common,
-          cid,
-          musicBrainzCoverArt,
-        };
+      /**
+       * Get acoustic fingerprint
+       */
+      let duration, fingerprint;
+      try {
+        const fpcalcResponse = await fpcalcPromise(file.path);
+        duration = fpcalcResponse.duration;
+        fingerprint = fpcalcResponse.fingerprint;
+      } catch (err) {
+        console.error('Could not generate acoustic fingerprint:', err);
+        return event.sender.send(request.responseChannel, {
+          error: new Error('Could not generate acoustic fingerprint'),
+        });
       }
+
+      /**
+       * Get Acoustid results
+       */
+      let acoustidResponse;
+      try {
+        acoustidResponse = await getAcoustidResults(duration, fingerprint);
+      } catch (err) {
+        console.error('Could not get Acoustid results:', err);
+        return event.sender.send(request.responseChannel, {
+          error: new Error('Could not get Acoustid results'),
+        });
+      }
+
+      recordingData = {
+        location: filePath,
+        filename,
+        title:
+          metadata.common.title ||
+          acoustidResponse.data.results[0]?.recordings[0]?.title ||
+          'No title',
+        size: file.size,
+        duration: metadata.format.duration,
+        format,
+        channels: metadata.format.numberOfChannels,
+        common,
+        cid,
+        acoustidResults: [await acoustidResponse.data.results[0]],
+        musicBrainzCoverArt,
+      };
 
       recordings.push(recordingData)
     }
