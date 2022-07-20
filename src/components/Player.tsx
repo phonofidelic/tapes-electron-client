@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState, useRef } from 'react';
+import React, { ReactElement, useEffect, useState, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../store/actions';
 import {
@@ -47,7 +47,7 @@ export function Player({
   const { pathname } = useLocation();
   const progressRef = useRef(null);
   const [seeking, setSeeking] = useState(false)
-  const [progressPosition, setProgressPosition] = useState((currentTime / duration) * 100)
+  const [progressPosition, setProgressPosition] = useState(0)
 
   const handlePlay = () => {
     playRecording();
@@ -57,14 +57,25 @@ export function Player({
     pauseRecording();
   };
 
-  const handleSeek = (event: React.MouseEvent<HTMLDivElement>) => {
-    setProgressPosition((event.clientX / progressRef.current.offsetWidth) * 100)
+  const handleSeek = (event: any) => {
+    const position = event.clientX || event.targetTouches?.[0].clientX
+    // console.log('handleSeek, position:', position)
+    // if (!position) return;
+
+    setProgressPosition((position / progressRef.current.offsetWidth) * 100)
   }
 
-  const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const clickedProgress = event.clientX / progressRef.current.offsetWidth;
+  const handleProgressClick = (event: any, value: number) => {
+    console.log('handleProgressClick event:', event)
+    console.log('handleProgressClick value:', value)
+    // const position = event.clientX || event.targetTouches[0].clientX
+    const clickedProgress = value / 100;
+    console.log('clickedProgress:', clickedProgress)
     setSeekedTime(duration * clickedProgress);
-    setProgressPosition((duration * clickedProgress / duration) * 100)
+
+    const progressPosition = (duration * clickedProgress / duration) * 100
+    console.log('progressPosition:', progressPosition)
+    setProgressPosition(progressPosition)
     setSeeking(false)
   };
 
@@ -81,8 +92,6 @@ export function Player({
     playing ? handlePlay() : handlePause();
   }, [currentPlaying, caching, playing]);
 
-  // console.log('Player, currentPlaying.title:', currentPlaying?.title);
-
   if (!currentPlaying) return null;
 
   return (
@@ -97,7 +106,7 @@ export function Player({
           flexDirection: 'column',
           margin: 4,
           zIndex: theme.zIndex.appBar,
-          borderRadius: '8px'
+          borderRadius: '8px',
         }}
       >
         <div 
@@ -106,44 +115,33 @@ export function Player({
             marginBottom: 4
           }}
         >
-          {/* <LinearProgress
-            style={{
-              borderRadius: '8px 8px 0px 0px',
-            }}
-            ref={progressRef}
-            variant={caching ? 'indeterminate' : 'determinate'}
-            value={(currentTime / duration) * 100}
-            onClick={
-              !caching
-                ? handleProgressClick
-                : () => console.log('still caching')
-            }
-          /> */}
-          <Slider
-            ref={progressRef}
-            size="small"
-            style={{ 
-              position: 'absolute', padding: 0,
-              borderRadius: '8px 8px 0px 0px',
-              height: 4
-            }}
-            value={seeking ? progressPosition : (currentTime / duration) * 100}
-            valueLabelDisplay="auto"
-            onMouseDown={() => setSeeking(true)}
-            valueLabelFormat={handleValueLabelFormat}
-            //@ts-ignore
-            onChange={handleSeek}
-            onChangeCommitted={
-              !caching
-                ? handleProgressClick
-                : () => console.log('still caching')
-            }
-          />
+          { caching ? (
+              <LinearProgress variant="indeterminate" />
+            ) : (
+              <Slider
+                ref={progressRef}
+                size="small"
+                style={{ 
+                  position: 'absolute', 
+                  padding: 0,
+                  borderRadius: '8px 8px 0px 0px',
+                  height: 4,
+                }}
+                value={seeking ? progressPosition : (currentTime / duration) * 100}
+                valueLabelDisplay="auto"
+                onMouseDown={() => setSeeking(true)}
+                onTouchStart={() => setSeeking(true)}
+                valueLabelFormat={handleValueLabelFormat}
+                onChange={handleSeek}
+                onChangeCommitted={handleProgressClick}
+              />
+            )
+          }
+          
         </div>
         <div
           style={{
             display: 'flex',
-            // margin: 4,
           }}
         >
           {!playing ? (
