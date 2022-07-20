@@ -8,6 +8,7 @@ import {
   RecorderState,
   SelectRecordingAction,
   ConfirmErrorAction,
+  PlayRecordingAction,
 } from '../store/types';
 
 import Loader from '../components/Loader';
@@ -39,6 +40,7 @@ interface LibraryProps {
   selectedRecording: Recording | null;
   currentPlaying: Recording | null;
   selectRecording(recording: Recording): SelectRecordingAction;
+  playRecording(): PlayRecordingAction;
   confirmError(): ConfirmErrorAction;
 }
 
@@ -52,6 +54,7 @@ export function Library({
   selectedRecording,
   currentPlaying,
   selectRecording,
+  playRecording,
   confirmError,
 }: LibraryProps) {
   const [filteredRecordings, setFilteredRecordings] =
@@ -80,7 +83,9 @@ export function Library({
   };
 
   const handleCacheAndPlayRecording = (recording: Recording) => {
-    dispatch(cacheAndPlayRecording(recording));
+    recording._id === currentPlaying?._id 
+      ? playRecording() 
+      : dispatch(cacheAndPlayRecording(recording));
   };
 
   const searchLibrary = (searchValue: string) => {

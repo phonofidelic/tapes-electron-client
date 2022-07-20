@@ -279,7 +279,7 @@ export class OrbitDatabase implements AppDatabase {
         const peerDb = await this.orbitdb.open(parsedMsg.userDb);
         peerDb.events.on('replicated', async () => {
           //@ts-ignore
-          console.log('*** peer db replicated ***', peerDb.get('docStores'))
+          // console.log('*** peer db replicated ***', peerDb.get('docStores'))
           //@ts-ignore
           if (peerDb.get('docStores')) {
             //@ts-ignore
