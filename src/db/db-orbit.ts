@@ -198,20 +198,6 @@ export class OrbitDatabase implements AppDatabase {
     return this;
   }
 
-  async testConnect() {
-    const MOBILE_PEER = 'QmdBriFpsjqbgwHzPq3rY3n9zfer6rT8Z2s1qHobjtk4i7'
-    const BROWSER_PEER = 'QmVV4j6te7hWGYPD85xeKVWzSWwxhA1c2zVauVeivE8DEs'
-    const SIG_SERVER = '/dns4/cryptic-thicket-32566.herokuapp.com/tcp/443/wss/p2p-webrtc-star/p2p/'
-    // const SIG_SERVER = '/ip4/127.0.0.1/tcp/0/ipfs/'
-    try {
-      console.log('*** Connecting to peer ', SIG_SERVER + MOBILE_PEER)
-      await this.node.swarm.connect(SIG_SERVER + MOBILE_PEER)
-      console.log('*** Connected to peer!')
-    } catch (err) {
-      console.error('*** Could not connect to peer:', err)
-    }
-  }
-
   async connectToPeer(peerId: string) {
     const SIG_SERVER = '/dns4/cryptic-thicket-32566.herokuapp.com/tcp/443/wss/p2p-webrtc-star/p2p/'
 

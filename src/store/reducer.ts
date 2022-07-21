@@ -55,12 +55,16 @@ import {
   GET_RECORDING_STORAGE_STATUS_FAILURE,
   ENABLE_DEBUG,
   DISABLE_DEBUG,
-  TOGGLE_DEBUG
+  TOGGLE_DEBUG,
+  LOAD_ACCOUNT_INFO_REQUEST,
+  LOAD_ACCOUNT_INFO_SUCCESS,
+  LOAD_ACCOUNT_INFO_FAILURE
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
 
 export const initialState: RecorderState = {
+  accountInfo: null,
   isRecording: false,
   isMonitoring: false,
   loading: false,
@@ -468,6 +472,25 @@ export const reducer = (
       return {
         ...state,
         debugEnabled: !action.payload
+      }
+
+    case LOAD_ACCOUNT_INFO_REQUEST:
+      return {
+        ...state,
+        loading: true
+      }
+
+    case LOAD_ACCOUNT_INFO_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        accountInfo: action.payload
+      }
+
+    case LOAD_ACCOUNT_INFO_FAILURE:
+      return {
+        ...state,
+        error: action.payload
       }
 
     default:

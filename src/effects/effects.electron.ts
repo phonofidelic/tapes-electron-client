@@ -46,6 +46,9 @@ import {
   getRecordingStorageStatusRequest,
   getRecordingStorageStatusFailure,
   getRecordingStorageStatusSuccess,
+  loadAccountInfoRequest,
+  loadAccountInfoFailure,
+  loadAccountInfoSuccess,
 } from '../store/actions';
 // import { browserDB as db, RecordingModel } from './db';
 import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
@@ -350,10 +353,8 @@ export const editRecording =
   (recordingId: string, update: any): Effect =>
     async (dispatch) => {
       dispatch(editRecordingRequest());
-
       try {
         const updatedRecording = await window.db.update('recordings', recordingId, update)
-        // const { updatedRecording } = await ipc.send('recordings:update', { data: { recordingId, update } }) as { updatedRecording: Recording };
         console.log('updatedRecording:', updatedRecording);
         dispatch(editRecordingSuccess(updatedRecording));
       } catch (err) {
@@ -534,7 +535,22 @@ export const getRecordingStorageStatus = (recordingCid: string): Effect => async
   }
 }
 
+// TODO: Remove if unused
 export const exportIdentity = (): Effect => async (dispatch) => {
   console.log('exporting identity...')
   await ipc.send('identity:export')
+}
+
+export const loadAccountInfo = (): Effect => (dispatch) => {
+  dispatch(loadAccountInfoRequest())
+
+  try {
+    const accountInfo = window.db.getUserData()
+    console.log('loadAccountInfo, accountInfo:', accountInfo)
+    
+    dispatch(loadAccountInfoSuccess(accountInfo))
+  } catch (err) {
+    console.error('Could not load account info:', err)
+    dispatch(loadAccountInfoFailure(new Error('Could not load account info')))
+  }
 }

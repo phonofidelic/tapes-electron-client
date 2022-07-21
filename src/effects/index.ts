@@ -24,6 +24,7 @@ interface EffectsExport {
   cacheAndPlayRecording(recording: Recording): Effect;
   getRecordingStorageStatus(recordingCid: string): Effect;
   exportIdentity(): Effect;
+  loadAccountInfo(): Effect;
 }
 
 let effectsExports: EffectsExport

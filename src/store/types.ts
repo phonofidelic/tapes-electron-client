@@ -1,4 +1,5 @@
 import { Action } from 'redux';
+import { AccountInfo } from '../common/AccountInfo.interface';
 import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 
@@ -57,9 +58,13 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   CONFIRM_ERROR = 'confirm_error',
   ENABLE_DEBUG = 'enable_debug',
   DISABLE_DEBUG = 'disable_debug',
-  TOGGLE_DEBUG = 'toggle_debug';
+  TOGGLE_DEBUG = 'toggle_debug',
+  LOAD_ACCOUNT_INFO_REQUEST = 'load_account_info_request',
+  LOAD_ACCOUNT_INFO_SUCCESS = 'load_account_info_success',
+  LOAD_ACCOUNT_INFO_FAILURE = 'load_account_info_failure';
 
 export interface RecorderState {
+  accountInfo: AccountInfo
   isRecording: boolean;
   isMonitoring: boolean;
   loading: boolean | { message: string };
@@ -339,6 +344,20 @@ export interface ToggleDebugAction extends Action {
   payload: boolean
 }
 
+export interface LoadAccountInfoRequestActino extends Action {
+  type: typeof LOAD_ACCOUNT_INFO_REQUEST
+}
+
+export interface LoadAccountInfoSuccessAction extends Action {
+  type: typeof LOAD_ACCOUNT_INFO_SUCCESS,
+  payload: AccountInfo
+}
+
+export interface LoadAccountInfoFailureAction extends Action {
+  type: typeof LOAD_ACCOUNT_INFO_FAILURE,
+  payload: Error
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -394,4 +413,7 @@ export type RecorderAction =
   | GetRecordingStorageStatusFailureAction
   | EnableDebugAction
   | DisableDebugAction
-  | ToggleDebugAction;
+  | ToggleDebugAction
+  | LoadAccountInfoRequestActino
+  | LoadAccountInfoSuccessAction
+  | LoadAccountInfoFailureAction;

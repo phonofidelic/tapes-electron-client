@@ -10,7 +10,13 @@ import {
   pauseRecording,
   cacheRecordingRequest,
   playRecording,
-  cacheRecordingSuccess
+  cacheRecordingSuccess,
+  editRecordingRequest,
+  editRecordingSuccess,
+  editRecordingFailure,
+  loadAccountInfoFailure,
+  loadAccountInfoRequest,
+  loadAccountInfoSuccess
 } from '../store/actions';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { Recording } from '../common/Recording.interface';
@@ -55,7 +61,15 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 }
 
 export const editRecording = (recordingId: string, update: any): Effect => async (dispatch) => {
-  console.log('TODO: implement editRecording for web')
+  dispatch(editRecordingRequest());
+  try {
+    const updatedRecording = await window.db.update('recordings', recordingId, update)
+    console.log('updatedRecording:', updatedRecording);
+    dispatch(editRecordingSuccess(updatedRecording));
+  } catch (err) {
+    console.error('Could not update Recording document:', err);
+    dispatch(editRecordingFailure(err));
+  }
 }
 
 export const deleteRecording = (recordingId: string): Effect => async (dispatch) => {
@@ -105,4 +119,18 @@ export const getRecordingStorageStatus = (recordingCid: string): Effect => async
 
 export const exportIdentity = (): Effect => async (dispatch) => {
   console.log('TODO: implement exportIdentity for web')
+}
+
+export const loadAccountInfo = (): Effect => (dispatch) => {
+  dispatch(loadAccountInfoRequest())
+
+  try {
+    const accountInfo = window.db.getUserData()
+    console.log('loadAccountInfo, accountInfo:', accountInfo)
+    
+    dispatch(loadAccountInfoSuccess(accountInfo))
+  } catch (err) {
+    console.error('Could not load account info:', err)
+    dispatch(loadAccountInfoFailure(new Error('Could not load account info')))
+  }
 }

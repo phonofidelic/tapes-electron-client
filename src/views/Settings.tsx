@@ -29,11 +29,11 @@ import Fade from '@mui/material/Fade';
 import QrCodeIcon from '@mui/icons-material/QrCode2';
 import { Checkbox, FormGroup, SelectChangeEvent } from '@mui/material';
 
-
 //@ts-ignore
 import { PeerInfo } from 'ipfs';
+import { AccountInfo } from '../common/AccountInfo.interface';
 
-const { loadAccountToken, setInputDevice, exportIdentity } = effects
+const { loadAccountToken, setInputDevice, loadAccountInfo } = effects
 
 declare const WEB_CLIENT_URL: string
 
@@ -50,6 +50,8 @@ interface SettingsProps {
   loadingMessage: string | null;
   recordingSettings: RecordingSettings;
   debugEnabled: boolean;
+  databaseInitializing: boolean;
+  accountInfo: AccountInfo
   setRecordingSettings(
     recordingSettings: RecordingSettings
   ): SetRecordingSettingsAction;
@@ -61,6 +63,8 @@ export function Settings({
   loadingMessage,
   recordingSettings,
   debugEnabled,
+  databaseInitializing,
+  accountInfo,
   setRecordingSettings,
   toggleDebug,
 }: SettingsProps) {
@@ -168,6 +172,10 @@ export function Settings({
     getMediaDevices();
   }, []);
 
+  useEffect(() => {
+    (!loading && !databaseInitializing) && dispatch(loadAccountInfo())
+  }, [databaseInitializing])
+
   // if (loading) {
   //   return <Loader />;
   // }
@@ -179,17 +187,24 @@ export function Settings({
         open={QROpen} 
         value={`${localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL}/?peerid=${peerInfo?.id || ''}&address=${window.db?.initialized ? window.db?.getUserData().docStores.recordings.root : ''}`} onClose={handleCloseQR} 
       />
+
+      <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
+        <Typography variant="caption">Account Info</Typography>
+      </SectionHeader>
+      <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
+        <Typography variant="caption" color="textSecondary">
+          Device name: {accountInfo ? accountInfo.deviceName : <i>loading...</i>}
+        </Typography>
+      </div>
       
       <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
         <Typography variant="caption">Account Link</Typography>
       </SectionHeader>
-
       <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
         <Typography variant="caption" color="textSecondary">
           Use this link to access your data on multiple devices.
         </Typography>
       </div>
-
       <div
         style={{
           display: 'flex',
@@ -209,6 +224,7 @@ export function Settings({
           </Typography>
         </Button>
       </div>
+
       <SectionHeader theme={theme}>
         <Typography variant="caption">Recording</Typography>
       </SectionHeader>
@@ -309,7 +325,9 @@ const mapStateToProps = (state: RecorderState) => {
     recordingSettings: state.recordingSettings,
     loading: state.loading,
     loadingMessage: state.loadingMessage,
-    debugEnabled: state.debugEnabled
+    debugEnabled: state.debugEnabled,
+    databaseInitializing: state.databaseInitilizing,
+    accountInfo: state.accountInfo
   };
 };
 
