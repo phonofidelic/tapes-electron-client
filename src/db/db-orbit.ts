@@ -110,7 +110,7 @@ export class OrbitDatabase implements AppDatabase {
 
     for (const docStore in this.docStores) {
       try {
-        console.log('*** docstore:', this.docStores[docStore])
+        console.log('*** loading docstore:', this.docStores[docStore].address.path)
         await this.docStores[docStore].load()
       } catch (err) {
         console.error(`Could not load docstore ${docStore}:`, err)
@@ -122,6 +122,7 @@ export class OrbitDatabase implements AppDatabase {
      * Users key-value store
      */
     this.user = await this.orbitdb.keyvalue('user', this.defaultOptions);
+    console.log('*** loading key-val store:', this.user.address.path)
     await this.user.load();
 
     await this.setUserData({
@@ -144,7 +145,9 @@ export class OrbitDatabase implements AppDatabase {
       'companions',
       this.defaultOptions
     );
+    console.log('*** loading key-val store:', this.companions.address.path)
     await this.companions.load();
+    console.log('*** done loading companions ***')
 
     /**
      * DEBUG INFO
@@ -394,8 +397,13 @@ export class OrbitDatabase implements AppDatabase {
     const companions = Object.keys(this.companions.all)
     console.log('*** removeAllCompanions, companions before:', companions)
 
-    for await (const companion of companions) {
-      await this.companions.del(companion)
+    // for await (const companion of companions) {
+    //   await this.companions.del(companion)
+    // }
+    try {
+      await this.companions.drop()
+    } catch (err) {
+      console.error('Could not drop companions store:', err)
     }
     console.log('*** removeAllCompanions, companions after:', Object.keys(this.companions.all))
   }
