@@ -1,14 +1,9 @@
 import React, {
-  ChangeEvent,
   ReactElement,
   useState,
-  useEffect,
 } from 'react';
-// import { connect, useDispatch } from 'react-redux';
-// import * as actions from '../store/actions';
 import { useHistory } from 'react-router-dom';
 import prettyBytes from 'pretty-bytes';
-import styled from 'styled-components';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
@@ -18,6 +13,7 @@ import useHover from '../hooks/useHover';
 import { msToTime } from '../utils';
 
 import PlayButton from './PlayButton';
+import EditableText from './EditableText';
 
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
@@ -25,12 +21,8 @@ import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
 import Grow from '@mui/material/Grow';
-import Fade from '@mui/material/Fade';
 
-import EditIcon from '@mui/icons-material/Edit';
-import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 import { CircularProgress, Tooltip } from '@mui/material';
@@ -67,25 +59,12 @@ export function RecordingsListItem({
   handleCacheAndPlayRecording,
 }: RecordingsListItemProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [editing, setEditing] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-
   const [hoverRef, hovered] = useHover();
-  const [titleHoverRef, titleHovered] = useHover();
   const history = useHistory();
-
-  const duration = recording.duration;
-
   const theme = useTheme();
-
   const selected = selectedRecording?._id === recording._id;
-  // const isPlaying = playing;
-  const isPlaying = false;
+  const duration = recording.duration;
   const durationObj = dayjs.duration(duration);
-
-  const handleStop = () => {
-    // setPlaying(false);
-  };
 
   const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -110,28 +89,15 @@ export function RecordingsListItem({
     handleDeleteRecording(recordingId);
   };
 
-  const handleTitleChange = (
-    event: ChangeEvent<{ name?: string; value: string }>
-  ) => {
-    setNewTitle(event.target.value);
-  };
-
-  const handleSubimtTitleChange = () => {
-    console.log('handleTitleChange, newTitle:', newTitle);
+  const handleSubimtTitleChange = (newTitle: string) => {
     newTitle &&
       newTitle !== recording.title &&
       handleEditRecording(recording._id, { title: newTitle });
-    setEditing(false);
-    // setNewTitle('');
   };
 
   const handleOpenDetailView = (recordingId: string) => {
     history.push({ pathname: `/library/${recordingId}`, state: recording });
   };
-
-  useEffect(() => {
-    setNewTitle(recording.title);
-  }, [selected, recording]);
 
   return (
     <ListItem
@@ -160,55 +126,17 @@ export function RecordingsListItem({
               justifyContent: 'space-between',
             }}
           >
-            {!editing ? (
-              <div style={{ display: 'flex' }}>
-                <div
-                  role="button"
-                  aria-label={`Edit ${recording.title}`}
-                  tabIndex={0}
-                  ref={titleHoverRef}
-                  style={{
-                    cursor: 'pointer',
-                    textDecoration:
-                      selected && titleHovered ? 'underline' : 'none',
-                  }}
-                  onClick={() => selected && setEditing(true)}
-                >
-                  <Tooltip title={recording.title} enterDelay={400}>
-                    <Typography style={{ maxWidth: '50vw' }} noWrap>
-                      {recording.title}
-                    </Typography>
-                  </Tooltip>
-                </div>
-
-                {selected && (
-                  <div style={{ marginLeft: 8 }}>
-                    <Fade in={titleHovered}>
-                      <EditIcon fontSize="small" />
-                    </Fade>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div style={{ display: 'flex' }}>
-                <div>
-                  <TextField
-                    id="edit-title-input"
-                    placeholder={recording.title}
-                    value={newTitle}
-                    size="small"
-                    autoFocus
-                    onBlur={handleSubimtTitleChange}
-                    onChange={handleTitleChange}
-                  />
-                </div>
-                <div style={{ marginLeft: 8 }}>
-                  <IconButton size="small" onClick={() => setEditing(false)}>
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </div>
-              </div>
-            )}
+            <EditableText
+              textValue={recording.title}
+              size="small"
+              onChangeCommitted={handleSubimtTitleChange}
+            >
+              <Tooltip title={recording.title} enterDelay={400}>
+                <Typography style={{ maxWidth: '50vw' }} noWrap>
+                  {recording.title}
+                </Typography>
+              </Tooltip>
+            </EditableText>
             {selected && (
               <div
                 style={{
@@ -358,9 +286,4 @@ export function RecordingsListItem({
   );
 }
 
-// const mapStateToProps = (state: RecorderState) => {
-//   return { playing: state.playing };
-// };
-
-// export default connect(mapStateToProps, actions)(RecordingsListItem);
 export default RecordingsListItem;

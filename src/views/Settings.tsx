@@ -9,12 +9,10 @@ import effects from '../effects';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
-import Loader from '../components/Loader';
 import QRCodeModal from '../components/QRCodeModal';
 import StatusMessage from '../components/StatusMessage'
 
 import Typography from '@mui/material/Typography';
-import Tooltip from '@mui/material/Tooltip';
 import { useTheme, Theme } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -25,13 +23,13 @@ import RadioGroup from '@mui/material/RadioGroup';
 import Radio from '@mui/material/Radio';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-import Fade from '@mui/material/Fade';
 import QrCodeIcon from '@mui/icons-material/QrCode2';
 import { Checkbox, FormGroup, SelectChangeEvent } from '@mui/material';
 
 //@ts-ignore
 import { PeerInfo } from 'ipfs';
 import { AccountInfo } from '../common/AccountInfo.interface';
+import EditableText from '../components/EditableText';
 
 const { loadAccountToken, setInputDevice, loadAccountInfo } = effects
 
@@ -123,6 +121,7 @@ export function Settings({
     dispatch(setInputDevice(deviceInfo.label));
   };
 
+  /** TODO: Rename this */
   const downloadToken = () => {
     console.log('Downloading token');
     console.log('peerInfo:', window.db.peerInfo)
@@ -191,10 +190,28 @@ export function Settings({
       <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
         <Typography variant="caption">Account Info</Typography>
       </SectionHeader>
-      <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
-        <Typography variant="caption" color="textSecondary">
-          Device name: {accountInfo ? accountInfo.deviceName : <i>loading...</i>}
+      <div 
+        style={{ 
+          padding: 8, 
+          paddingBottom: 0, 
+          paddingTop: 0,
+          display: 'flex'
+        }}
+      >
+        <Typography color="textSecondary">
+          Device name:&nbsp;
         </Typography>
+        {accountInfo ?
+          <EditableText 
+            textValue={accountInfo.deviceName} 
+            size="small"
+            onChangeCommitted={(newDeviceName) => console.log('*** new device name:', newDeviceName)}
+          >
+            <Typography>{accountInfo.deviceName}</Typography>
+          </EditableText>  
+          : 
+          <Typography><i>loading...</i></Typography>
+        }
       </div>
       
       <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
