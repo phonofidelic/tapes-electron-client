@@ -31,7 +31,7 @@ import { PeerInfo } from 'ipfs';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import EditableText from '../components/EditableText';
 
-const { loadAccountToken, setInputDevice, loadAccountInfo } = effects
+const { loadAccountToken, setInputDevice, loadAccountInfo, setAccountInfo } = effects
 
 declare const WEB_CLIENT_URL: string
 
@@ -155,6 +155,10 @@ export function Settings({
     setLocalWebClient(!localWebClient)
   }
 
+  const handleUpdateDeviceName = (newDeviceName: string) => {
+    dispatch(setAccountInfo('deviceName', newDeviceName))
+  }
+
   useEffect(() => {
     const getMediaDevices = async () => {
       const foundDevices = await navigator.mediaDevices.enumerateDevices();
@@ -184,7 +188,8 @@ export function Settings({
       <StatusMessage />
       <QRCodeModal 
         open={QROpen} 
-        value={`${localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL}/?peerid=${peerInfo?.id || ''}&address=${window.db?.initialized ? window.db?.getUserData().docStores.recordings.root : ''}`} onClose={handleCloseQR} 
+        value={`${localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL}/?peerid=${peerInfo?.id || ''}&address=${window.db?.initialized ? window.db?.getAccountInfo().docStores.recordings.root : ''}`} 
+        onClose={handleCloseQR} 
       />
 
       <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
@@ -205,7 +210,7 @@ export function Settings({
           <EditableText 
             textValue={accountInfo.deviceName} 
             size="small"
-            onChangeCommitted={(newDeviceName) => console.log('*** new device name:', newDeviceName)}
+            onChangeCommitted={handleUpdateDeviceName}
           >
             <Typography>{accountInfo.deviceName}</Typography>
           </EditableText>  

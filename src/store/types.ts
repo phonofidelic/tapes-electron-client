@@ -61,7 +61,10 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   TOGGLE_DEBUG = 'toggle_debug',
   LOAD_ACCOUNT_INFO_REQUEST = 'load_account_info_request',
   LOAD_ACCOUNT_INFO_SUCCESS = 'load_account_info_success',
-  LOAD_ACCOUNT_INFO_FAILURE = 'load_account_info_failure';
+  LOAD_ACCOUNT_INFO_FAILURE = 'load_account_info_failure',
+  SET_ACCOUNT_INFO_REQUEST = 'set_account_info_request',
+  SET_ACCOUNT_INFO_SUCCESS = 'set_account_info_success',
+  SET_ACCOUNT_INFO_FAILURE = 'set_account_info_failure';
 
 export interface RecorderState {
   accountInfo: AccountInfo
@@ -358,6 +361,20 @@ export interface LoadAccountInfoFailureAction extends Action {
   payload: Error
 }
 
+export interface SetAccountInfoRequstAction extends Action {
+  type: typeof SET_ACCOUNT_INFO_REQUEST
+}
+
+export interface SetAccountInfoSuccessAction extends Action {
+  type: typeof SET_ACCOUNT_INFO_SUCCESS,
+  payload: AccountInfo
+}
+
+export interface SetAccountInfoFailureAction extends Action {
+  type: typeof SET_ACCOUNT_INFO_FAILURE,
+  payload: Error
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -416,4 +433,7 @@ export type RecorderAction =
   | ToggleDebugAction
   | LoadAccountInfoRequestActino
   | LoadAccountInfoSuccessAction
-  | LoadAccountInfoFailureAction;
+  | LoadAccountInfoFailureAction
+  | SetAccountInfoRequstAction
+  | SetAccountInfoSuccessAction
+  | SetAccountInfoFailureAction;

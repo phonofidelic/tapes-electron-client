@@ -6,6 +6,7 @@ import { CID } from 'multiformats/cid'
 import * as jsonEncoder from 'multiformats/codecs/json'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { base64 } from "multiformats/bases/base64"
+import { generateUsername } from 'unique-username-generator'
 import { createIpfsNode } from './utils';
 import { AppDatabase } from './AppDatabase.interface'
 import DocumentStore from 'orbit-db-docstore';
@@ -13,6 +14,7 @@ import DocumentStore from 'orbit-db-docstore';
 import { PeerId, PeerInfo } from 'ipfs';
 import Store from 'orbit-db-store';
 import { Companion, CompanionStatus } from '../common/Companion.interface';
+import { AccountInfo } from '../common/AccountInfo.interface';
 
 // const Buffer = require('buffer/').Buffer;
 
@@ -125,6 +127,7 @@ export class OrbitDatabase implements AppDatabase {
     console.log('*** loading key-val store:', this.user.address.path)
     await this.user.load();
 
+    console.log('### DEVICE NAME:', await this.getDeviceName())
     await this.setUserData({
       // deviceInfo: {
       //   hostname: os.hostname(),
@@ -133,9 +136,10 @@ export class OrbitDatabase implements AppDatabase {
       docStores: this.getDocStoreIds(),
       nodeId: this.peerInfo.id,
       dbAddress: await this.orbitdb.determineAddress('user', 'keyvalue'),
-      deviceName: await this.getDeviceName() || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+      deviceName: await this.getDeviceName() 
+      // || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
       //@ts-ignore
-      identity: await this.orbitdb.identity.toJSON()
+      // identity: await this.orbitdb.identity.toJSON()
     })
 
     /**
@@ -383,10 +387,6 @@ export class OrbitDatabase implements AppDatabase {
     }
   }
 
-  // getCompanions() {
-  //   return this.companions.all
-  // }
-
   getAllCompanions() {
     const companions = this.companions.all
     // console.log('*** getAllCompanions, companions:', companions)
@@ -415,18 +415,30 @@ export class OrbitDatabase implements AppDatabase {
     })
   }
 
-  getUserData() {
-    const userData = this.user.all
-    console.log('*** userData:', userData)
-    return userData
+  getAccountInfo() {
+    const accountInfo = this.user.all
+    console.log('*** accountInfo:', accountInfo)
+    return accountInfo
   }
 
-  async setDeviceName(name: string) {
-    await this.user.set('deviceName', name)
+  async setDeviceName(deviceName: string) {
+    if (!deviceName) deviceName = generateUsername('-')
+    await this.user.set('deviceName', deviceName)
   }
 
   getDeviceName() {
-    return this.user.get('deviceName')
+    let deviceName = this.user.get('deviceName')
+    if (!deviceName) deviceName = generateUsername('-')
+    return deviceName
+  }
+
+  async setAccountInfo(key: keyof AccountInfo, value: AccountInfo) {
+    try {
+      await this.user.set(key, value)
+    } catch (err) {
+      console.error('Could not set account info:', err)
+      throw new Error('Could not set account info')
+    }
   }
 
   /**

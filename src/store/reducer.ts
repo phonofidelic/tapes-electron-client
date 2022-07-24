@@ -58,7 +58,10 @@ import {
   TOGGLE_DEBUG,
   LOAD_ACCOUNT_INFO_REQUEST,
   LOAD_ACCOUNT_INFO_SUCCESS,
-  LOAD_ACCOUNT_INFO_FAILURE
+  LOAD_ACCOUNT_INFO_FAILURE,
+  SET_ACCOUNT_INFO_REQUEST,
+  SET_ACCOUNT_INFO_SUCCESS,
+  SET_ACCOUNT_INFO_FAILURE
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -88,7 +91,7 @@ export const initialState: RecorderState = {
   caching: false,
   selectedRecordingStorageStatus: null,
   debugEnabled: process.env.NODE_ENV === 'development',
-  databaseInitilizing: false
+  databaseInitilizing: true
 };
 
 export const reducer = (
@@ -490,6 +493,26 @@ export const reducer = (
     case LOAD_ACCOUNT_INFO_FAILURE:
       return {
         ...state,
+        error: action.payload
+      }
+
+    case SET_ACCOUNT_INFO_REQUEST:
+      return {
+        ...state,
+        loading: true
+      }
+
+    case SET_ACCOUNT_INFO_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        accountInfo: action.payload
+      }
+
+    case SET_ACCOUNT_INFO_FAILURE:
+      return {
+        ...state,
+        loading: false,
         error: action.payload
       }
 

@@ -16,13 +16,17 @@ import {
   editRecordingFailure,
   loadAccountInfoFailure,
   loadAccountInfoRequest,
-  loadAccountInfoSuccess
+  loadAccountInfoSuccess,
+  setAccountInfoRequest,
+  setAccountInfoFailure,
+  setAccountInfoSuccess
 } from '../store/actions';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { Recording } from '../common/Recording.interface';
 import { RecorderState, RecorderAction } from '../store/types';
 import { OrbitDatabase } from '../db/db-orbit'
 import { asyncCallWithTimeout } from '../utils';
+import { AccountInfo } from '../common/AccountInfo.interface';
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
@@ -125,12 +129,25 @@ export const loadAccountInfo = (): Effect => (dispatch) => {
   dispatch(loadAccountInfoRequest())
 
   try {
-    const accountInfo = window.db.getUserData()
+    const accountInfo = window.db.getAccountInfo()
     console.log('loadAccountInfo, accountInfo:', accountInfo)
     
     dispatch(loadAccountInfoSuccess(accountInfo))
   } catch (err) {
     console.error('Could not load account info:', err)
     dispatch(loadAccountInfoFailure(new Error('Could not load account info')))
+  }
+}
+
+export const setAccountInfo = (key: keyof AccountInfo, value: string): Effect => async (dispatch) => {
+  dispatch(setAccountInfoRequest())
+
+  try {
+    await window.db.setAccountInfo(key, value)
+    const updatedAccountInfo = window.db.getAccountInfo()
+    dispatch(setAccountInfoSuccess(updatedAccountInfo))
+  } catch (err) {
+    console.log('Could not set account info:', err)
+    dispatch(setAccountInfoFailure(new Error('Could not set account info')))
   }
 }

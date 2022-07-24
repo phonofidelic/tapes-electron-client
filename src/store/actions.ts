@@ -113,7 +113,13 @@ import {
   LOAD_ACCOUNT_INFO_SUCCESS,
   LOAD_ACCOUNT_INFO_REQUEST,
   LoadAccountInfoFailureAction,
-  LOAD_ACCOUNT_INFO_FAILURE
+  LOAD_ACCOUNT_INFO_FAILURE,
+  SetAccountInfoRequstAction,
+  SET_ACCOUNT_INFO_REQUEST,
+  SetAccountInfoSuccessAction,
+  SET_ACCOUNT_INFO_SUCCESS,
+  SetAccountInfoFailureAction,
+  SET_ACCOUNT_INFO_FAILURE
 } from './types';
 import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -539,6 +545,26 @@ export function loadAccountInfoSuccess(accountInfo: AccountInfo): LoadAccountInf
 export function loadAccountInfoFailure(error: Error): LoadAccountInfoFailureAction {
   return {
     type: LOAD_ACCOUNT_INFO_FAILURE,
+    payload: error
+  }
+}
+
+export function setAccountInfoRequest(): SetAccountInfoRequstAction {
+  return {
+    type: SET_ACCOUNT_INFO_REQUEST
+  }
+}
+
+export function setAccountInfoSuccess(accountInfoUpdate: AccountInfo): SetAccountInfoSuccessAction {
+  return {
+    type: SET_ACCOUNT_INFO_SUCCESS,
+    payload: accountInfoUpdate
+  }
+}
+
+export function setAccountInfoFailure(error: Error): SetAccountInfoFailureAction {
+  return {
+    type: SET_ACCOUNT_INFO_FAILURE,
     payload: error
   }
 }

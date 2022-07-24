@@ -41,7 +41,7 @@ export default function Debug({ }: Props) {
 
     setPeerInfo(window.db.peerInfo)
     setCompanions(window.db.getAllCompanions())
-    setUserData(window.db.getUserData())
+    setUserData(window.db.getAccountInfo())
   }, [window.db])
 
   const renderCopyButton = (data: string) => {

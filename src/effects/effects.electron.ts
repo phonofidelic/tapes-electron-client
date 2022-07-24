@@ -49,8 +49,10 @@ import {
   loadAccountInfoRequest,
   loadAccountInfoFailure,
   loadAccountInfoSuccess,
+  setAccountInfoRequest,
+  setAccountInfoFailure,
+  setAccountInfoSuccess,
 } from '../store/actions';
-// import { browserDB as db, RecordingModel } from './db';
 import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RECORDING_COLLECTION, IDENTITY_STORE } from '../common/constants';
@@ -58,151 +60,9 @@ import { IpcService } from '../IpcService';
 import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
 import { OrbitDatabase } from '../db/db-orbit'
 import { RecordingModel } from '../db/recording.model';
-// const db = window.db
-// const db: any = {}
-
-
-// const THREADS_DB_NAME = 'tapes-thread-db';
-// const RECORDING_COLLECTION = 'Recording';
-
-// const REQUEST_TIMEOUT = 60000;
-
-// declare const USER_API_KEY: any;
+import { AccountInfo } from '../common/AccountInfo.interface';
 
 const ipc = new IpcService();
-
-/**
- * Textile utils
- *
- * getBucket:
- * https://github.com/textileio/js-examples/blob/a8a5a9fe8cf8331f0bc4f811791e15dbc0597469/bucket-photo-gallery/src/App.tsx#L99
- */
-// const IPFS_GATEWAY = 'https://hub.textile.io';
-// const keyInfo: KeyInfo = {
-//   key: USER_API_KEY,
-// };
-
-// const getBucket = async () => {
-//   const storedIdent = localStorage.getItem(IDENTITY_STORE);
-//   const identity = PrivateKey.fromString(storedIdent);
-
-//   if (!identity) {
-//     throw new Error('Identity not set');
-//   }
-//   const buckets = await Buckets.withKeyInfo(keyInfo, { debug: true });
-//   // Authorize the user and your insecure keys with getToken
-//   const token = await buckets.getToken(identity);
-
-//   const buck = await buckets.getOrCreate('com.phonofidelic.tapes', {
-//     encrypted: true,
-//   });
-//   if (!buck.root) {
-//     throw new Error('Failed to open bucket');
-//   }
-
-//   return {
-//     token,
-//     buckets: buckets,
-//     bucketKey: buck.root.key,
-//     threadId: buck.threadID,
-//   };
-// };
-
-// const addRemoteRecording = async (
-//   recordingData: Recording
-// ): Promise<Recording> => {
-//   console.log('Adding audio file to remote bucket...');
-//   const { buckets, bucketKey, threadId } = await getBucket();
-//   console.log('threadId:', threadId);
-//   /**
-//    * Push audio data to IPFS
-//    */
-//   if (!recordingData.fileData) {
-//     console.error('No file data for ' + recordingData.title);
-//     throw new Error('No file data for ' + recordingData.title);
-//   }
-
-//   let pushPathResult;
-//   try {
-//     const abortController = new AbortController();
-//     const timeoutId = setTimeout(() => {
-//       console.log('*** ran out of time! ***');
-//       abortController.abort();
-
-//       throw new Error('Push path request timed out');
-//     }, REQUEST_TIMEOUT);
-
-//     pushPathResult = await buckets.pushPath(
-//       bucketKey,
-//       recordingData.filename,
-//       {
-//         path: '/' + recordingData.filename,
-//         content: recordingData.fileData,
-//       },
-//       {
-//         progress: (prog) => {
-//           // console.log('Push progress:', prog);
-//         },
-//         signal: abortController.signal,
-//       }
-//     );
-//     clearTimeout(timeoutId);
-//     console.log('pushPathResult:', pushPathResult);
-//   } catch (err) {
-//     console.error('Could not push audio file to remote bucket:', err);
-//     throw new Error('Could not push audio file to remote bucket');
-//   }
-
-//   /**
-//    * Set remote Textile Bucket location
-//    */
-//   const remoteLocation =
-//     IPFS_GATEWAY +
-//     '/thread/' +
-//     threadId +
-//     '/buckets/' +
-//     bucketKey +
-//     '/' +
-//     recordingData.filename;
-
-//   const recordingDoc = new RecordingModel(
-//     recordingData.location,
-//     recordingData.filename,
-//     recordingData.title,
-//     recordingData.size,
-//     recordingData.format,
-//     recordingData.channels,
-//     recordingData.duration,
-//     remoteLocation,
-//     null,
-//     recordingData.common,
-//     recordingData.acoustidResults,
-//     recordingData.musicBrainzCoverArt
-//   );
-
-//   /**
-//    * Add recording doc to Textile DB
-//    */
-//   console.log('Adding recording doc to Textile DB...');
-//   const newRecordingId = await db.add(RECORDING_COLLECTION, recordingDoc);
-//   console.log('recordingDoc:', recordingDoc);
-
-//   /**
-//    * Update recording doc with remoteLocation
-//    */
-//   await db.update(RECORDING_COLLECTION, newRecordingId, {
-//     remoteLocation,
-//     bucketPath: pushPathResult.path.path,
-//   });
-
-//   const createdRecording = (await db.findById(
-//     RECORDING_COLLECTION,
-//     newRecordingId
-//   )) as unknown as Recording;
-
-//   return createdRecording;
-// };
-/** End Textile utils */
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
@@ -238,7 +98,6 @@ export const uploadAudioFiles =
       }
 
       let createdRecordings: Recording[] = [];
-      // const createdRecordings = ipcResponse.data;
       for await (let recordingData of ipcResponse.data) {
         console.log(`Creating database entry for ${recordingData.title}`)
         try {
@@ -250,20 +109,6 @@ export const uploadAudioFiles =
           dispatch(uploadRecordingsFailure(new Error(`Could not create database entry for ${recordingData.title}`)))
         }
       }
-
-      // try {
-      //   for await (let recordingData of ipcResponse.data) {
-      //     console.log(`Uploading "${recordingData.title}"`);
-      //     dispatch(setLoadingMessage(`Uploading "${recordingData.title}"`));
-      //     const createdRecording = await addRemoteRecording(recordingData);
-      //     createdRecordings.push(createdRecording);
-      //   }
-      //   console.log('Updating remote DB...');
-      //   await db.push(RECORDING_COLLECTION);
-      // } catch (err) {
-      //   console.error('Could not push audio files to remote:', err);
-      //   return dispatch(uploadRecordingsFailure(err));
-      // }
 
       dispatch(uploadRecordingsSuccess(createdRecordings));
       dispatch(setLoadingMessage(null));
@@ -298,21 +143,6 @@ export const startRecording =
 
         dispatch(addRecordingSuccess(createdRecording));
         dispatch(setLoadingMessage(null));
-      } catch (err) {
-        return dispatch(startRecordingFailure(err));
-      }
-
-      try {
-        // dispatch(addRecordingRequest());
-        // dispatch(setLoadingMessage('Storing file on IPFS...'));
-
-        /**
-         * TODO: Re-implement remote storage with Web3.Storage in NewRecordingChannel
-         */
-        // createdRecording = await addRemoteRecording(recordingData);
-
-        // dispatch(addRecordingSuccess(createdRecording));
-        // dispatch(setLoadingMessage(null));
       } catch (err) {
         console.error('addRecordingRequest error:', err);
         dispatch(addRecordingFailure(err));
@@ -545,12 +375,25 @@ export const loadAccountInfo = (): Effect => (dispatch) => {
   dispatch(loadAccountInfoRequest())
 
   try {
-    const accountInfo = window.db.getUserData()
+    const accountInfo = window.db.getAccountInfo()
     console.log('loadAccountInfo, accountInfo:', accountInfo)
     
     dispatch(loadAccountInfoSuccess(accountInfo))
   } catch (err) {
     console.error('Could not load account info:', err)
     dispatch(loadAccountInfoFailure(new Error('Could not load account info')))
+  }
+}
+
+export const setAccountInfo = (key: keyof AccountInfo, value: string): Effect => async (dispatch) => {
+  dispatch(setAccountInfoRequest())
+
+  try {
+    await window.db.setAccountInfo(key, value)
+    const updatedAccountInfo = window.db.getAccountInfo()
+    dispatch(setAccountInfoSuccess(updatedAccountInfo))
+  } catch (err) {
+    console.log('Could not set account info:', err)
+    dispatch(setAccountInfoFailure(new Error('Could not set account info')))
   }
 }

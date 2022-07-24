@@ -5,6 +5,7 @@ import { ThunkAction } from 'redux-thunk';
 import { Recording } from '../common/Recording.interface';
 import { RecorderState, RecorderAction } from '../store/types';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
+import { AccountInfo } from '../common/AccountInfo.interface';
 // const electronEffects = import(/* webpackChunkName: "electronEffects" */'./effects.electron')
 // const webEffects = import(/* webpackChunkName: "webEffects" */'./effects.web')
 
@@ -25,6 +26,7 @@ interface EffectsExport {
   getRecordingStorageStatus(recordingCid: string): Effect;
   exportIdentity(): Effect;
   loadAccountInfo(): Effect;
+  setAccountInfo(key: keyof AccountInfo, value: string): Effect;
 }
 
 let effectsExports: EffectsExport
