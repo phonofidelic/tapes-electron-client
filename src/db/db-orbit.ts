@@ -6,6 +6,7 @@ import { CID } from 'multiformats/cid'
 import * as jsonEncoder from 'multiformats/codecs/json'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { base64 } from "multiformats/bases/base64"
+import { generateUsername } from 'unique-username-generator'
 import { createIpfsNode } from './utils';
 import { AppDatabase } from './AppDatabase.interface'
 import DocumentStore from 'orbit-db-docstore';
@@ -13,6 +14,7 @@ import DocumentStore from 'orbit-db-docstore';
 import { PeerId, PeerInfo } from 'ipfs';
 import Store from 'orbit-db-store';
 import { Companion, CompanionStatus } from '../common/Companion.interface';
+import { AccountInfo } from '../common/AccountInfo.interface';
 
 // const Buffer = require('buffer/').Buffer;
 
@@ -110,7 +112,7 @@ export class OrbitDatabase implements AppDatabase {
 
     for (const docStore in this.docStores) {
       try {
-        console.log('*** docstore:', this.docStores[docStore])
+        console.log('*** loading docstore:', this.docStores[docStore].address.path)
         await this.docStores[docStore].load()
       } catch (err) {
         console.error(`Could not load docstore ${docStore}:`, err)
@@ -122,8 +124,10 @@ export class OrbitDatabase implements AppDatabase {
      * Users key-value store
      */
     this.user = await this.orbitdb.keyvalue('user', this.defaultOptions);
+    console.log('*** loading key-val store:', this.user.address.path)
     await this.user.load();
 
+    console.log('### DEVICE NAME:', await this.getDeviceName())
     await this.setUserData({
       // deviceInfo: {
       //   hostname: os.hostname(),
@@ -132,9 +136,10 @@ export class OrbitDatabase implements AppDatabase {
       docStores: this.getDocStoreIds(),
       nodeId: this.peerInfo.id,
       dbAddress: await this.orbitdb.determineAddress('user', 'keyvalue'),
-      deviceName: await this.getDeviceName() || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+      deviceName: await this.getDeviceName() 
+      // || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
       //@ts-ignore
-      identity: await this.orbitdb.identity.toJSON()
+      // identity: await this.orbitdb.identity.toJSON()
     })
 
     /**
@@ -144,7 +149,9 @@ export class OrbitDatabase implements AppDatabase {
       'companions',
       this.defaultOptions
     );
+    console.log('*** loading key-val store:', this.companions.address.path)
     await this.companions.load();
+    console.log('*** done loading companions ***')
 
     /**
      * DEBUG INFO
@@ -196,20 +203,6 @@ export class OrbitDatabase implements AppDatabase {
 
     this.initialized = true
     return this;
-  }
-
-  async testConnect() {
-    const MOBILE_PEER = 'QmdBriFpsjqbgwHzPq3rY3n9zfer6rT8Z2s1qHobjtk4i7'
-    const BROWSER_PEER = 'QmVV4j6te7hWGYPD85xeKVWzSWwxhA1c2zVauVeivE8DEs'
-    const SIG_SERVER = '/dns4/cryptic-thicket-32566.herokuapp.com/tcp/443/wss/p2p-webrtc-star/p2p/'
-    // const SIG_SERVER = '/ip4/127.0.0.1/tcp/0/ipfs/'
-    try {
-      console.log('*** Connecting to peer ', SIG_SERVER + MOBILE_PEER)
-      await this.node.swarm.connect(SIG_SERVER + MOBILE_PEER)
-      console.log('*** Connected to peer!')
-    } catch (err) {
-      console.error('*** Could not connect to peer:', err)
-    }
   }
 
   async connectToPeer(peerId: string) {
@@ -394,10 +387,6 @@ export class OrbitDatabase implements AppDatabase {
     }
   }
 
-  // getCompanions() {
-  //   return this.companions.all
-  // }
-
   getAllCompanions() {
     const companions = this.companions.all
     // console.log('*** getAllCompanions, companions:', companions)
@@ -408,8 +397,13 @@ export class OrbitDatabase implements AppDatabase {
     const companions = Object.keys(this.companions.all)
     console.log('*** removeAllCompanions, companions before:', companions)
 
-    for await (const companion of companions) {
-      await this.companions.del(companion)
+    // for await (const companion of companions) {
+    //   await this.companions.del(companion)
+    // }
+    try {
+      await this.companions.drop()
+    } catch (err) {
+      console.error('Could not drop companions store:', err)
     }
     console.log('*** removeAllCompanions, companions after:', Object.keys(this.companions.all))
   }
@@ -421,18 +415,30 @@ export class OrbitDatabase implements AppDatabase {
     })
   }
 
-  getUserData() {
-    const userData = this.user.all
-    console.log('*** userData:', userData)
-    return userData
+  getAccountInfo() {
+    const accountInfo = this.user.all
+    console.log('*** accountInfo:', accountInfo)
+    return accountInfo
   }
 
-  async setDeviceName(name: string) {
-    await this.user.set('deviceName', name)
+  async setDeviceName(deviceName: string) {
+    if (!deviceName) deviceName = generateUsername('-')
+    await this.user.set('deviceName', deviceName)
   }
 
   getDeviceName() {
-    return this.user.get('deviceName')
+    let deviceName = this.user.get('deviceName')
+    if (!deviceName) deviceName = generateUsername('-')
+    return deviceName
+  }
+
+  async setAccountInfo(key: keyof AccountInfo, value: AccountInfo) {
+    try {
+      await this.user.set(key, value)
+    } catch (err) {
+      console.error('Could not set account info:', err)
+      throw new Error('Could not set account info')
+    }
   }
 
   /**

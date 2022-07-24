@@ -10,13 +10,23 @@ import {
   pauseRecording,
   cacheRecordingRequest,
   playRecording,
-  cacheRecordingSuccess
+  cacheRecordingSuccess,
+  editRecordingRequest,
+  editRecordingSuccess,
+  editRecordingFailure,
+  loadAccountInfoFailure,
+  loadAccountInfoRequest,
+  loadAccountInfoSuccess,
+  setAccountInfoRequest,
+  setAccountInfoFailure,
+  setAccountInfoSuccess
 } from '../store/actions';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { Recording } from '../common/Recording.interface';
 import { RecorderState, RecorderAction } from '../store/types';
 import { OrbitDatabase } from '../db/db-orbit'
 import { asyncCallWithTimeout } from '../utils';
+import { AccountInfo } from '../common/AccountInfo.interface';
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
@@ -55,7 +65,15 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 }
 
 export const editRecording = (recordingId: string, update: any): Effect => async (dispatch) => {
-  console.log('TODO: implement editRecording for web')
+  dispatch(editRecordingRequest());
+  try {
+    const updatedRecording = await window.db.update('recordings', recordingId, update)
+    console.log('updatedRecording:', updatedRecording);
+    dispatch(editRecordingSuccess(updatedRecording));
+  } catch (err) {
+    console.error('Could not update Recording document:', err);
+    dispatch(editRecordingFailure(err));
+  }
 }
 
 export const deleteRecording = (recordingId: string): Effect => async (dispatch) => {
@@ -105,4 +123,31 @@ export const getRecordingStorageStatus = (recordingCid: string): Effect => async
 
 export const exportIdentity = (): Effect => async (dispatch) => {
   console.log('TODO: implement exportIdentity for web')
+}
+
+export const loadAccountInfo = (): Effect => (dispatch) => {
+  dispatch(loadAccountInfoRequest())
+
+  try {
+    const accountInfo = window.db.getAccountInfo()
+    console.log('loadAccountInfo, accountInfo:', accountInfo)
+    
+    dispatch(loadAccountInfoSuccess(accountInfo))
+  } catch (err) {
+    console.error('Could not load account info:', err)
+    dispatch(loadAccountInfoFailure(new Error('Could not load account info')))
+  }
+}
+
+export const setAccountInfo = (key: keyof AccountInfo, value: string): Effect => async (dispatch) => {
+  dispatch(setAccountInfoRequest())
+
+  try {
+    await window.db.setAccountInfo(key, value)
+    const updatedAccountInfo = window.db.getAccountInfo()
+    dispatch(setAccountInfoSuccess(updatedAccountInfo))
+  } catch (err) {
+    console.log('Could not set account info:', err)
+    dispatch(setAccountInfoFailure(new Error('Could not set account info')))
+  }
 }
