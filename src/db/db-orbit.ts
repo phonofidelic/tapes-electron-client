@@ -38,6 +38,7 @@ export class OrbitDatabase implements AppDatabase {
   /** https://stackoverflow.com/a/50428377 */
   private peerConnectTimeout: ReturnType<typeof setTimeout>
   private companionConnectionInterval: ReturnType<typeof setInterval>
+  private loadCompanionsTimeout: ReturnType<typeof setTimeout>
   private docStores: { [key: string]: DocumentStore<unknown> } = {}
 
   public peerInfo: PeerInfo
@@ -150,8 +151,33 @@ export class OrbitDatabase implements AppDatabase {
       this.defaultOptions
     );
     console.log('*** loading key-val store:', this.companions.address.path)
-    await this.companions.load();
-    console.log('*** done loading companions ***')
+  
+    /**
+     * If loading companions key-val store takes more than 15 sec,
+     * drop the current store and try again.
+     */
+    const loadCompanions = async () => {
+      try {
+        const loadCompanionsAC = new AbortController()
+
+        loadCompanionsAC.signal.addEventListener('abort', async () => {
+          console.log('### ABORT SIGNAL TRIGGERED ###')
+          await this.companions.drop()
+          clearTimeout(this.loadCompanionsTimeout)
+          await loadCompanions()
+        })
+
+        this.loadCompanionsTimeout = setTimeout(() => loadCompanionsAC.abort(), 15000)
+        
+        await this.companions.load();
+      } catch (err) {
+        console.error('Could not load companions:', err)
+        throw new Error('Could not load companions')
+      }
+      console.log('*** done loading companions ***')
+    }
+    await loadCompanions()
+    clearTimeout(this.loadCompanionsTimeout)
 
     /**
      * DEBUG INFO
