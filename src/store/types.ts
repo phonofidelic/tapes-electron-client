@@ -1,4 +1,5 @@
 import { Action } from 'redux';
+import { Companion } from '../common/Companion.interface';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -64,30 +65,34 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   LOAD_ACCOUNT_INFO_FAILURE = 'load_account_info_failure',
   SET_ACCOUNT_INFO_REQUEST = 'set_account_info_request',
   SET_ACCOUNT_INFO_SUCCESS = 'set_account_info_success',
-  SET_ACCOUNT_INFO_FAILURE = 'set_account_info_failure';
+  SET_ACCOUNT_INFO_FAILURE = 'set_account_info_failure',
+  GET_COMPANIONS_REQUEST = 'get_companions_request',
+  GET_COMPANIONS_SUCCESS = 'get_companions_success',
+  GET_COMPANIONS_FAILURE = 'get_companions_failure';
 
 export interface RecorderState {
-  accountInfo: AccountInfo
+  accountInfo: AccountInfo;
+  accountToken: string | null; // TODO: remove this
+  audioSrc: string;
+  bucketToken: string | null; // TODO: remove this
+  caching: boolean;
+  companions: Companion[];
+  currentPlaying: Recording | null;
+  currentTime: number;
+  databaseInitilizing: boolean;
+  debugEnabled: boolean;
+  error: Error | null;
   isRecording: boolean;
   isMonitoring: boolean;
   loading: boolean | { message: string };
   loadingMessage: string | null;
-  error: Error | null;
-  recordings: Recording[];
   playing: boolean;
-  audioSrc: string;
-  currentTime: number;
-  seekedTime: number;
-  currentPlaying: Recording | null;
-  bucketToken: string | null;
-  recordingSettings: RecordingSettings;
+  recordings: Recording[];
   recordingQueue: string[];
-  accountToken: string | null;
+  recordingSettings: RecordingSettings;
+  seekedTime: number;  
   selectedRecording: Recording | null;
-  caching: boolean;
   selectedRecordingStorageStatus: RecordingStorageStatus | null
-  debugEnabled: boolean;
-  databaseInitilizing: boolean;
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -375,6 +380,20 @@ export interface SetAccountInfoFailureAction extends Action {
   payload: Error
 }
 
+export interface GetCompanionsRequestAction extends Action {
+  type: typeof GET_COMPANIONS_REQUEST,
+}
+
+export interface GetCompanionsSuccessAction extends Action {
+  type: typeof GET_COMPANIONS_SUCCESS,
+  payload: Companion[]
+}
+
+export interface GetCompanionsFailureAction extends Action {
+  type: typeof GET_COMPANIONS_FAILURE,
+  payload: Error
+}
+
 export type RecorderAction =
   | StartRecordingRequestAction
   | StartRecordingSuccessAction
@@ -436,4 +455,7 @@ export type RecorderAction =
   | LoadAccountInfoFailureAction
   | SetAccountInfoRequstAction
   | SetAccountInfoSuccessAction
-  | SetAccountInfoFailureAction;
+  | SetAccountInfoFailureAction
+  | GetCompanionsRequestAction
+  | GetCompanionsSuccessAction
+  | GetCompanionsFailureAction;

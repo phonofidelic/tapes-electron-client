@@ -119,11 +119,18 @@ import {
   SetAccountInfoSuccessAction,
   SET_ACCOUNT_INFO_SUCCESS,
   SetAccountInfoFailureAction,
-  SET_ACCOUNT_INFO_FAILURE
+  SET_ACCOUNT_INFO_FAILURE,
+  GET_COMPANIONS_SUCCESS,
+  GetCompanionsRequestAction,
+  GET_COMPANIONS_REQUEST,
+  GetCompanionsFailureAction,
+  GET_COMPANIONS_FAILURE,
+  GetCompanionsSuccessAction
 } from './types';
 import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { AccountInfo } from '../common/AccountInfo.interface';
+import { Companion } from '../common/Companion.interface';
 
 export function startMonitor(): StartMonitorAction {
   return {
@@ -565,6 +572,26 @@ export function setAccountInfoSuccess(accountInfoUpdate: AccountInfo): SetAccoun
 export function setAccountInfoFailure(error: Error): SetAccountInfoFailureAction {
   return {
     type: SET_ACCOUNT_INFO_FAILURE,
+    payload: error
+  }
+}
+
+export function getCompanionsRequest(): GetCompanionsRequestAction {
+  return {
+    type: GET_COMPANIONS_REQUEST
+  }
+}
+
+export function getCompanionsSuccess(companions: Companion[]): GetCompanionsSuccessAction {
+  return {
+    type: GET_COMPANIONS_SUCCESS,
+    payload: companions
+  }
+}
+
+export function getCompanionsFailuere(error: Error): GetCompanionsFailureAction {
+  return {
+    type: GET_COMPANIONS_FAILURE,
     payload: error
   }
 }

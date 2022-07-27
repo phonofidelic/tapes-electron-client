@@ -61,37 +61,41 @@ import {
   LOAD_ACCOUNT_INFO_FAILURE,
   SET_ACCOUNT_INFO_REQUEST,
   SET_ACCOUNT_INFO_SUCCESS,
-  SET_ACCOUNT_INFO_FAILURE
+  SET_ACCOUNT_INFO_FAILURE,
+  GET_COMPANIONS_REQUEST,
+  GET_COMPANIONS_SUCCESS,
+  GET_COMPANIONS_FAILURE
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
 
 export const initialState: RecorderState = {
   accountInfo: null,
+  accountToken: localStorage.getItem(IDENTITY_STORE), // TODO: remove this
+  audioSrc: null,
+  bucketToken: null, // TODO: remove this
+  caching: false,
+  companions: [],
+  currentPlaying: null,
+  currentTime: 0,
+  databaseInitilizing: true,
+  debugEnabled: process.env.NODE_ENV === 'development',
+  error: null,
   isRecording: false,
   isMonitoring: false,
   loading: false,
   loadingMessage: null,
-  error: null,
-  recordings: [],
   playing: false,
-  audioSrc: null,
-  currentTime: 0,
-  seekedTime: 0,
-  currentPlaying: null,
-  bucketToken: null,
+  recordings: [],
+  recordingQueue: [], // <- Unused?
   recordingSettings: {
     channels: 2,
     format: RecordingFormats.Wav,
-    selectedMediaDeviceId: 'default',
+    selectedMediaDeviceId: 'default', // <- TODO: BUG: 'default' is an out-of-range option
   },
-  recordingQueue: [],
-  accountToken: localStorage.getItem(IDENTITY_STORE), // <-- ANTI-PATTERN?
+  seekedTime: 0,
   selectedRecording: null,
-  caching: false,
   selectedRecordingStorageStatus: null,
-  debugEnabled: process.env.NODE_ENV === 'development',
-  databaseInitilizing: true
 };
 
 export const reducer = (
@@ -510,6 +514,26 @@ export const reducer = (
       }
 
     case SET_ACCOUNT_INFO_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload
+      }
+
+    case GET_COMPANIONS_REQUEST:
+      return {
+        ...state,
+        loading: true
+      }
+    
+    case GET_COMPANIONS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        companions: action.payload
+      }
+
+    case GET_COMPANIONS_FAILURE:
       return {
         ...state,
         loading: false,

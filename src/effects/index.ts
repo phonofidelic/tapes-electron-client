@@ -27,6 +27,7 @@ interface EffectsExport {
   exportIdentity(): Effect;
   loadAccountInfo(): Effect;
   setAccountInfo(key: keyof AccountInfo, value: string): Effect;
+  getCompanions(): Effect;
 }
 
 let effectsExports: EffectsExport

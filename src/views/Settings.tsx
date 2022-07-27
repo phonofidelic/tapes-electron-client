@@ -31,7 +31,7 @@ import { PeerInfo } from 'ipfs';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import EditableText from '../components/EditableText';
 
-const { loadAccountToken, setInputDevice, loadAccountInfo, setAccountInfo } = effects
+const { loadAccountToken, setInputDevice, loadAccountInfo, setAccountInfo, getCompanions } = effects
 
 declare const WEB_CLIENT_URL: string
 
@@ -176,7 +176,10 @@ export function Settings({
   }, []);
 
   useEffect(() => {
-    (!loading && !databaseInitializing) && dispatch(loadAccountInfo())
+    (!loading && !databaseInitializing) && (
+      dispatch(loadAccountInfo()),
+      dispatch(getCompanions())
+    )
   }, [databaseInitializing])
 
   // if (loading) {
@@ -192,7 +195,7 @@ export function Settings({
         onClose={handleCloseQR} 
       />
 
-      <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
+      <SectionHeader theme={theme}>
         <Typography variant="caption">Account Info</Typography>
       </SectionHeader>
       <div 
@@ -218,8 +221,17 @@ export function Settings({
           <Typography><i>loading...</i></Typography>
         }
       </div>
+      <div 
+        style={{
+          padding: 8
+        }}
+      >
+      <Typography color="textSecondary">
+          Connected devices:
+        </Typography>
+      </div>
       
-      <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
+      <SectionHeader theme={theme}>
         <Typography variant="caption">Account Link</Typography>
       </SectionHeader>
       <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
