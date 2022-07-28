@@ -52,6 +52,9 @@ import {
   setAccountInfoRequest,
   setAccountInfoFailure,
   setAccountInfoSuccess,
+  getCompanionsRequest,
+  getCompanionsFailuere,
+  getCompanionsSuccess,
 } from '../store/actions';
 import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
@@ -61,6 +64,7 @@ import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
 import { OrbitDatabase } from '../db/db-orbit'
 import { RecordingModel } from '../db/recording.model';
 import { AccountInfo } from '../common/AccountInfo.interface';
+import { Companion } from '../common/Companion.interface';
 
 const ipc = new IpcService();
 
@@ -395,5 +399,26 @@ export const setAccountInfo = (key: keyof AccountInfo, value: string): Effect =>
   } catch (err) {
     console.log('Could not set account info:', err)
     dispatch(setAccountInfoFailure(new Error('Could not set account info')))
+  }
+}
+
+export const getCompanions = (): Effect => (dispatch) => {
+  dispatch(getCompanionsRequest)
+  
+  try {
+  const companions = window.db.getAllCompanions()
+
+  const companionsArray: Companion[] = Object.keys(companions).map((key: string) => ({
+    dbAddress: companions[key].dbAddress,
+    deviceName: companions[key].deviceName,
+    docStores: companions[key].docStores,
+    nodeId: companions[key].nodeId,
+    status: companions[key].status
+  }))
+
+  dispatch(getCompanionsSuccess(companionsArray))
+  } catch (err) {
+    console.error('Could not retrieve companions:', err)
+    dispatch(getCompanionsFailuere(new Error('Could not retrieve companions')))
   }
 }

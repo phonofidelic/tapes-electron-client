@@ -3,14 +3,18 @@ import { hot } from 'react-hot-loader';
 import styled from 'styled-components';
 import { connect, useDispatch } from 'react-redux';
 
-import { RecorderState, SetRecordingSettingsAction, ToggleDebugAction } from '../store/types';
+import {
+  RecorderState,
+  SetRecordingSettingsAction,
+  ToggleDebugAction,
+} from '../store/types';
 import * as actions from '../store/actions';
 import effects from '../effects';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
 import QRCodeModal from '../components/QRCodeModal';
-import StatusMessage from '../components/StatusMessage'
+import StatusMessage from '../components/StatusMessage';
 
 import Typography from '@mui/material/Typography';
 import { useTheme, Theme } from '@mui/material/styles';
@@ -30,10 +34,18 @@ import { Checkbox, FormGroup, SelectChangeEvent } from '@mui/material';
 import { PeerInfo } from 'ipfs';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import EditableText from '../components/EditableText';
+import { Companion } from '../common/Companion.interface';
+import CompanionsList from '../components/CompanionsList';
 
-const { loadAccountToken, setInputDevice, loadAccountInfo, setAccountInfo } = effects
+const {
+  loadAccountToken,
+  setInputDevice,
+  loadAccountInfo,
+  setAccountInfo,
+  getCompanions,
+} = effects;
 
-declare const WEB_CLIENT_URL: string
+declare const WEB_CLIENT_URL: string;
 
 const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
   // backgroundColor: theme.palette.background.default,
@@ -49,7 +61,8 @@ interface SettingsProps {
   recordingSettings: RecordingSettings;
   debugEnabled: boolean;
   databaseInitializing: boolean;
-  accountInfo: AccountInfo
+  accountInfo: AccountInfo;
+  companions: Companion[];
   setRecordingSettings(
     recordingSettings: RecordingSettings
   ): SetRecordingSettingsAction;
@@ -63,14 +76,15 @@ export function Settings({
   debugEnabled,
   databaseInitializing,
   accountInfo,
+  companions,
   setRecordingSettings,
   toggleDebug,
 }: SettingsProps) {
   const [audioInputDevices, setAudioInputDevices] = useState([]);
-  const [QROpen, setQROpen] = useState(false)
-  const [peerInfo, setPeerInfo] = useState<PeerInfo | null>(null)
-  const [showDebug, setShowDebug] = useState(0)
-  const [localWebClient, setLocalWebClient] = useState(false)
+  const [QROpen, setQROpen] = useState(false);
+  const [peerInfo, setPeerInfo] = useState<PeerInfo | null>(null);
+  const [showDebug, setShowDebug] = useState(0);
+  const [localWebClient, setLocalWebClient] = useState(false);
 
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId || 'default';
@@ -122,42 +136,32 @@ export function Settings({
   };
 
   /** TODO: Rename this */
-  const downloadToken = () => {
+  const handleOpenQR = () => {
     console.log('Downloading token');
-    console.log('peerInfo:', window.db.peerInfo)
-    setPeerInfo(window.db.peerInfo)
-    setQROpen(true)
-
-    // const identity = localStorage.getItem('identity');
-
-    // const a = document.createElement('a');
-    // a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(identity);
-    // a.download = 'tapes_account.token';
-    // document.body.appendChild(a);
-    // a.click();
-    // document.body.removeChild(a);
-    // dispatch(exportIdentity())
+    console.log('peerInfo:', window.db.peerInfo);
+    setPeerInfo(window.db.peerInfo);
+    setQROpen(true);
   };
 
   const handleCloseQR = () => {
-    setQROpen(false)
-  }
+    setQROpen(false);
+  };
 
   const handleDebugClick = () => {
-    setShowDebug(showDebug + 1)
-  }
+    setShowDebug(showDebug + 1);
+  };
 
   const handleToggleDebug = () => {
-    toggleDebug(debugEnabled)
-  }
+    toggleDebug(debugEnabled);
+  };
 
   const handleToggleLocalWebClient = () => {
-    setLocalWebClient(!localWebClient)
-  }
+    setLocalWebClient(!localWebClient);
+  };
 
   const handleUpdateDeviceName = (newDeviceName: string) => {
-    dispatch(setAccountInfo('deviceName', newDeviceName))
-  }
+    dispatch(setAccountInfo('deviceName', newDeviceName));
+  };
 
   useEffect(() => {
     const getMediaDevices = async () => {
@@ -176,8 +180,10 @@ export function Settings({
   }, []);
 
   useEffect(() => {
-    (!loading && !databaseInitializing) && dispatch(loadAccountInfo())
-  }, [databaseInitializing])
+    !loading &&
+      !databaseInitializing &&
+      (dispatch(loadAccountInfo()), dispatch(getCompanions()));
+  }, [databaseInitializing]);
 
   // if (loading) {
   //   return <Loader />;
@@ -186,69 +192,20 @@ export function Settings({
   return (
     <div>
       <StatusMessage />
-      <QRCodeModal 
-        open={QROpen} 
-        value={`${localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL}/?peerid=${peerInfo?.id || ''}&address=${window.db?.initialized ? window.db?.getAccountInfo().docStores.recordings.root : ''}`} 
-        onClose={handleCloseQR} 
+      <QRCodeModal
+        open={QROpen}
+        value={`${
+          localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
+        }/?peerid=${peerInfo?.id || ''}&address=${
+          window.db?.initialized
+            ? window.db?.getAccountInfo().docStores.recordings.root
+            : ''
+        }`}
+        onClose={handleCloseQR}
       />
 
-      <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
-        <Typography variant="caption">Account Info</Typography>
-      </SectionHeader>
-      <div 
-        style={{ 
-          padding: 8, 
-          paddingBottom: 0, 
-          paddingTop: 0,
-          display: 'flex'
-        }}
-      >
-        <Typography color="textSecondary">
-          Device name:&nbsp;
-        </Typography>
-        {accountInfo ?
-          <EditableText 
-            textValue={accountInfo.deviceName} 
-            size="small"
-            onChangeCommitted={handleUpdateDeviceName}
-          >
-            <Typography>{accountInfo.deviceName}</Typography>
-          </EditableText>  
-          : 
-          <Typography><i>loading...</i></Typography>
-        }
-      </div>
-      
-      <SectionHeader theme={theme} style={{ paddingTop: 0 }}>
-        <Typography variant="caption">Account Link</Typography>
-      </SectionHeader>
-      <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
-        <Typography variant="caption" color="textSecondary">
-          Use this link to access your data on multiple devices.
-        </Typography>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-        }}
-      >
-        <Button
-          style={{
-            margin: 8,
-            flex: 1,
-          }}
-          variant="outlined"
-          endIcon={<QrCodeIcon />}
-          onClick={downloadToken}
-        >
-          <Typography noWrap variant="caption" color="textSecondary">
-            Share account
-          </Typography>
-        </Button>
-      </div>
-
       <SectionHeader theme={theme}>
-        <Typography variant="caption">Recording</Typography>
+        <Typography>Recording Settings</Typography>
       </SectionHeader>
       <div style={{ padding: 8, paddingTop: 0 }}>
         <Typography variant="caption" color="textSecondary">
@@ -317,26 +274,97 @@ export function Settings({
           </RadioGroup>
         </FormControl>
       </div>
+
+      <SectionHeader theme={theme}>
+        <Typography>Account Info</Typography>
+      </SectionHeader>
+      {loading || !accountInfo ? (
+        <div style={{ padding: 8 }}>
+          <Typography variant="caption" color="textSecondary">
+            <i>Loading...</i>
+          </Typography>
+        </div>
+      ) : (
+        <>
+          <div
+            style={{
+              padding: 8,
+              paddingBottom: 0,
+              paddingTop: 0,
+              display: 'flex',
+            }}
+          >
+            <Typography color="textSecondary">Device name:&nbsp;</Typography>
+            <EditableText
+              textValue={accountInfo.deviceName}
+              size="small"
+              onChangeCommitted={handleUpdateDeviceName}
+            >
+              <Typography>{accountInfo.deviceName}</Typography>
+            </EditableText>
+          </div>
+          <div
+            style={{
+              paddingLeft: 8,
+            }}
+          >
+            <CompanionsList companions={companions} />
+          </div>
+        </>
+      )}
+
+      <SectionHeader theme={theme}>
+        <Typography>Account Link</Typography>
+      </SectionHeader>
+      <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
+        <Typography variant="caption" color="textSecondary">
+          Use this link to access your data on multiple devices.
+        </Typography>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+        }}
+      >
+        <Button
+          style={{
+            margin: 8,
+            flex: 1,
+          }}
+          variant="outlined"
+          endIcon={<QrCodeIcon />}
+          onClick={handleOpenQR}
+        >
+          <Typography noWrap variant="caption" color="textSecondary">
+            Share account
+          </Typography>
+        </Button>
+      </div>
+
       {showDebug >= 3 ? (
         <div style={{ padding: 8 }}>
           <FormGroup>
             <FormControlLabel
-              control={<Checkbox checked={debugEnabled} onChange={handleToggleDebug} />}
+              control={
+                <Checkbox checked={debugEnabled} onChange={handleToggleDebug} />
+              }
               label="Debug enabled"
             />
           </FormGroup>
           <FormGroup>
             <FormControlLabel
-              control={<Checkbox checked={localWebClient} onChange={handleToggleLocalWebClient} />}
+              control={
+                <Checkbox
+                  checked={localWebClient}
+                  onChange={handleToggleLocalWebClient}
+                />
+              }
               label="Local web client"
             />
           </FormGroup>
         </div>
       ) : (
-        <div
-          style={{ height: 50, width: '100%' }}
-          onClick={handleDebugClick}
-        />
+        <div style={{ height: 50, width: '100%' }} onClick={handleDebugClick} />
       )}
     </div>
   );
@@ -349,7 +377,8 @@ const mapStateToProps = (state: RecorderState) => {
     loadingMessage: state.loadingMessage,
     debugEnabled: state.debugEnabled,
     databaseInitializing: state.databaseInitilizing,
-    accountInfo: state.accountInfo
+    accountInfo: state.accountInfo,
+    companions: state.companions,
   };
 };
 
