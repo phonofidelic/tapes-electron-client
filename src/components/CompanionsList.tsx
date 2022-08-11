@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Companion } from '../common/Companion.interface';
 import {
   Collapse,
@@ -7,6 +7,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -35,12 +36,16 @@ export default function CompanionsList({ companions }: CompanionsListProps) {
           <List dense>
             {companions.map((companion) => (
               <ListItem key={companion.nodeId} dense>
-                <ListItemIcon>
-                  <CircleIcon
-                    fontSize="small"
-                    color={companion.status === 'online' ? 'success' : 'action'}
-                  />
-                </ListItemIcon>
+                <Tooltip title={`Status: ${companion.status}`}>
+                  <ListItemIcon>
+                    <CircleIcon
+                      fontSize="small"
+                      color={
+                        companion.status === 'online' ? 'success' : 'action'
+                      }
+                    />
+                  </ListItemIcon>
+                </Tooltip>
                 <ListItemText>{companion.deviceName}</ListItemText>
               </ListItem>
             ))}
