@@ -1,7 +1,10 @@
 import { Action } from 'redux';
 import { Companion } from '../common/Companion.interface';
 import { AccountInfo } from '../common/AccountInfo.interface';
-import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
+import {
+  Recording,
+  RecordingStorageStatus,
+} from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 
 export const START_RECORDING_REQUEST = 'start_recording_request',
@@ -90,9 +93,9 @@ export interface RecorderState {
   recordings: Recording[];
   recordingQueue: string[];
   recordingSettings: RecordingSettings;
-  seekedTime: number;  
+  seekedTime: number;
   selectedRecording: Recording | null;
-  selectedRecordingStorageStatus: RecordingStorageStatus | null
+  selectedRecordingStorageStatus: RecordingStorageStatus | null;
 }
 
 export interface StartRecordingRequestAction extends Action {
@@ -331,67 +334,67 @@ export interface GetRecordingStorageStatusRequestAction extends Action {
 
 export interface GetRecordingStorageStatusSuccessAction extends Action {
   type: typeof GET_RECORDING_STORAGE_STATUS_SUCCESS;
-  payload: RecordingStorageStatus
+  payload: RecordingStorageStatus;
 }
 
 export interface GetRecordingStorageStatusFailureAction extends Action {
   type: typeof GET_RECORDING_STORAGE_STATUS_FAILURE;
-  payload: Error
+  payload: Error;
 }
 
 export interface EnableDebugAction extends Action {
-  type: typeof ENABLE_DEBUG
+  type: typeof ENABLE_DEBUG;
 }
 
 export interface DisableDebugAction extends Action {
-  type: typeof DISABLE_DEBUG
+  type: typeof DISABLE_DEBUG;
 }
 
 export interface ToggleDebugAction extends Action {
-  type: typeof TOGGLE_DEBUG,
-  payload: boolean
+  type: typeof TOGGLE_DEBUG;
+  payload: boolean;
 }
 
 export interface LoadAccountInfoRequestActino extends Action {
-  type: typeof LOAD_ACCOUNT_INFO_REQUEST
+  type: typeof LOAD_ACCOUNT_INFO_REQUEST;
 }
 
 export interface LoadAccountInfoSuccessAction extends Action {
-  type: typeof LOAD_ACCOUNT_INFO_SUCCESS,
-  payload: AccountInfo
+  type: typeof LOAD_ACCOUNT_INFO_SUCCESS;
+  payload: AccountInfo;
 }
 
 export interface LoadAccountInfoFailureAction extends Action {
-  type: typeof LOAD_ACCOUNT_INFO_FAILURE,
-  payload: Error
+  type: typeof LOAD_ACCOUNT_INFO_FAILURE;
+  payload: Error;
 }
 
 export interface SetAccountInfoRequstAction extends Action {
-  type: typeof SET_ACCOUNT_INFO_REQUEST
+  type: typeof SET_ACCOUNT_INFO_REQUEST;
 }
 
 export interface SetAccountInfoSuccessAction extends Action {
-  type: typeof SET_ACCOUNT_INFO_SUCCESS,
-  payload: AccountInfo
+  type: typeof SET_ACCOUNT_INFO_SUCCESS;
+  payload: AccountInfo;
 }
 
 export interface SetAccountInfoFailureAction extends Action {
-  type: typeof SET_ACCOUNT_INFO_FAILURE,
-  payload: Error
+  type: typeof SET_ACCOUNT_INFO_FAILURE;
+  payload: Error;
 }
 
 export interface GetCompanionsRequestAction extends Action {
-  type: typeof GET_COMPANIONS_REQUEST,
+  type: typeof GET_COMPANIONS_REQUEST;
 }
 
 export interface GetCompanionsSuccessAction extends Action {
-  type: typeof GET_COMPANIONS_SUCCESS,
-  payload: Companion[]
+  type: typeof GET_COMPANIONS_SUCCESS;
+  payload: Companion[];
 }
 
 export interface GetCompanionsFailureAction extends Action {
-  type: typeof GET_COMPANIONS_FAILURE,
-  payload: Error
+  type: typeof GET_COMPANIONS_FAILURE;
+  payload: Error;
 }
 
 export type RecorderAction =

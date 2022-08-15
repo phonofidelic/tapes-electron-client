@@ -125,9 +125,12 @@ import {
   GET_COMPANIONS_REQUEST,
   GetCompanionsFailureAction,
   GET_COMPANIONS_FAILURE,
-  GetCompanionsSuccessAction
+  GetCompanionsSuccessAction,
 } from './types';
-import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
+import {
+  Recording,
+  RecordingStorageStatus,
+} from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import { Companion } from '../common/Companion.interface';
@@ -499,99 +502,115 @@ export function cacheRecordingFailure(
 
 export function getRecordingStorageStatusRequest(): GetRecordingStorageStatusRequestAction {
   return {
-    type: GET_RECORDING_STORAGE_STATUS_REQUEST
-  }
+    type: GET_RECORDING_STORAGE_STATUS_REQUEST,
+  };
 }
 
-export function getRecordingStorageStatusSuccess(recordingStorageStatus: RecordingStorageStatus): GetRecordingStorageStatusSuccessAction {
+export function getRecordingStorageStatusSuccess(
+  recordingStorageStatus: RecordingStorageStatus
+): GetRecordingStorageStatusSuccessAction {
   return {
     type: GET_RECORDING_STORAGE_STATUS_SUCCESS,
-    payload: recordingStorageStatus
-  }
+    payload: recordingStorageStatus,
+  };
 }
 
-export function getRecordingStorageStatusFailure(error: Error): GetRecordingStorageStatusFailureAction {
+export function getRecordingStorageStatusFailure(
+  error: Error
+): GetRecordingStorageStatusFailureAction {
   return {
     type: GET_RECORDING_STORAGE_STATUS_FAILURE,
-    payload: error
-  }
+    payload: error,
+  };
 }
 
 export function enableDebug() {
   return {
-    type: ENABLE_DEBUG
-  }
+    type: ENABLE_DEBUG,
+  };
 }
 
 export function disableDebut() {
   return {
-    type: DISABLE_DEBUG
-  }
+    type: DISABLE_DEBUG,
+  };
 }
 
 export function toggleDebug(currentDebugState: boolean): ToggleDebugAction {
   return {
     type: TOGGLE_DEBUG,
-    payload: currentDebugState
-  }
+    payload: currentDebugState,
+  };
 }
 
 export function loadAccountInfoRequest(): LoadAccountInfoRequestActino {
   return {
-    type: LOAD_ACCOUNT_INFO_REQUEST
-  }
+    type: LOAD_ACCOUNT_INFO_REQUEST,
+  };
 }
 
-export function loadAccountInfoSuccess(accountInfo: AccountInfo): LoadAccountInfoSuccessAction {
+export function loadAccountInfoSuccess(
+  accountInfo: AccountInfo
+): LoadAccountInfoSuccessAction {
   return {
     type: LOAD_ACCOUNT_INFO_SUCCESS,
-    payload: accountInfo
-  }
+    payload: accountInfo,
+  };
 }
 
-export function loadAccountInfoFailure(error: Error): LoadAccountInfoFailureAction {
+export function loadAccountInfoFailure(
+  error: Error
+): LoadAccountInfoFailureAction {
   return {
     type: LOAD_ACCOUNT_INFO_FAILURE,
-    payload: error
-  }
+    payload: error,
+  };
 }
 
 export function setAccountInfoRequest(): SetAccountInfoRequstAction {
   return {
-    type: SET_ACCOUNT_INFO_REQUEST
-  }
+    type: SET_ACCOUNT_INFO_REQUEST,
+  };
 }
 
-export function setAccountInfoSuccess(accountInfoUpdate: AccountInfo): SetAccountInfoSuccessAction {
+export function setAccountInfoSuccess(
+  accountInfoUpdate: AccountInfo
+): SetAccountInfoSuccessAction {
   return {
     type: SET_ACCOUNT_INFO_SUCCESS,
-    payload: accountInfoUpdate
-  }
+    payload: accountInfoUpdate,
+  };
 }
 
-export function setAccountInfoFailure(error: Error): SetAccountInfoFailureAction {
+export function setAccountInfoFailure(
+  error: Error
+): SetAccountInfoFailureAction {
   return {
     type: SET_ACCOUNT_INFO_FAILURE,
-    payload: error
-  }
+    payload: error,
+  };
 }
 
 export function getCompanionsRequest(): GetCompanionsRequestAction {
   return {
-    type: GET_COMPANIONS_REQUEST
-  }
+    type: GET_COMPANIONS_REQUEST,
+  };
 }
 
-export function getCompanionsSuccess(companions: Companion[]): GetCompanionsSuccessAction {
+export function getCompanionsSuccess(
+  companions: Companion[]
+): GetCompanionsSuccessAction {
   return {
     type: GET_COMPANIONS_SUCCESS,
-    payload: companions
-  }
+    payload: companions,
+  };
 }
 
-export function getCompanionsFailuere(error: Error): GetCompanionsFailureAction {
+export function getCompanionsFailuere(
+  error: Error
+): GetCompanionsFailureAction {
   return {
     type: GET_COMPANIONS_FAILURE,
-    payload: error
-  }
+    payload: error,
+  };
 }

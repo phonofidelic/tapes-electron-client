@@ -64,7 +64,7 @@ import {
   SET_ACCOUNT_INFO_FAILURE,
   GET_COMPANIONS_REQUEST,
   GET_COMPANIONS_SUCCESS,
-  GET_COMPANIONS_FAILURE
+  GET_COMPANIONS_FAILURE,
 } from './types';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '../common/constants';
@@ -446,99 +446,99 @@ export const reducer = (
     case GET_RECORDING_STORAGE_STATUS_REQUEST:
       return {
         ...state,
-        loading: true
-      }
+        loading: true,
+      };
 
     case GET_RECORDING_STORAGE_STATUS_SUCCESS:
       return {
         ...state,
         loading: false,
-        selectedRecordingStorageStatus: action.payload
-      }
+        selectedRecordingStorageStatus: action.payload,
+      };
 
     case GET_RECORDING_STORAGE_STATUS_FAILURE:
       return {
         ...state,
         loading: false,
-        error: action.payload
-      }
+        error: action.payload,
+      };
 
     case ENABLE_DEBUG:
       return {
         ...state,
-        debugEnabled: true
-      }
+        debugEnabled: true,
+      };
 
     case DISABLE_DEBUG:
       return {
         ...state,
-        debugEnabled: false
-      }
+        debugEnabled: false,
+      };
 
     case TOGGLE_DEBUG:
       return {
         ...state,
-        debugEnabled: !action.payload
-      }
+        debugEnabled: !action.payload,
+      };
 
     case LOAD_ACCOUNT_INFO_REQUEST:
       return {
         ...state,
-        loading: true
-      }
+        loading: true,
+      };
 
     case LOAD_ACCOUNT_INFO_SUCCESS:
       return {
         ...state,
         loading: false,
-        accountInfo: action.payload
-      }
+        accountInfo: action.payload,
+      };
 
     case LOAD_ACCOUNT_INFO_FAILURE:
       return {
         ...state,
-        error: action.payload
-      }
+        error: action.payload,
+      };
 
     case SET_ACCOUNT_INFO_REQUEST:
       return {
         ...state,
-        loading: true
-      }
+        loading: true,
+      };
 
     case SET_ACCOUNT_INFO_SUCCESS:
       return {
         ...state,
         loading: false,
-        accountInfo: action.payload
-      }
+        accountInfo: action.payload,
+      };
 
     case SET_ACCOUNT_INFO_FAILURE:
       return {
         ...state,
         loading: false,
-        error: action.payload
-      }
+        error: action.payload,
+      };
 
     case GET_COMPANIONS_REQUEST:
       return {
         ...state,
-        loading: true
-      }
-    
+        loading: true,
+      };
+
     case GET_COMPANIONS_SUCCESS:
       return {
         ...state,
         loading: false,
-        companions: action.payload
-      }
+        companions: action.payload,
+      };
 
     case GET_COMPANIONS_FAILURE:
       return {
         ...state,
         loading: false,
-        error: action.payload
-      }
+        error: action.payload,
+      };
 
     default:
       return state;

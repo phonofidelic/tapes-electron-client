@@ -137,8 +137,6 @@ export function Settings({
 
   /** TODO: Rename this */
   const handleOpenQR = () => {
-    console.log('Downloading token');
-    console.log('peerInfo:', window.db.peerInfo);
     setPeerInfo(window.db.peerInfo);
     setQROpen(true);
   };
@@ -184,6 +182,17 @@ export function Settings({
       !databaseInitializing &&
       (dispatch(loadAccountInfo()), dispatch(getCompanions()));
   }, [databaseInitializing]);
+
+  useEffect(() => {
+    /**
+     * Check for companion status updates every 10 sec
+     */
+    const getCompanionsInterval = setInterval(
+      () => dispatch(getCompanions()),
+      10000
+    );
+    return () => clearInterval(getCompanionsInterval);
+  }, []);
 
   // if (loading) {
   //   return <Loader />;

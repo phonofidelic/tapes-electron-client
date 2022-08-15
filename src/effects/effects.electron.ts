@@ -56,15 +56,18 @@ import {
   getCompanionsFailuere,
   getCompanionsSuccess,
 } from '../store/actions';
-import { Recording, RecordingStorageStatus } from '../common/Recording.interface';
+import {
+  Recording,
+  RecordingStorageStatus,
+} from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RECORDING_COLLECTION, IDENTITY_STORE } from '../common/constants';
 import { IpcService } from '../IpcService';
 import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
-import { OrbitDatabase } from '../db/db-orbit'
+import { OrbitDatabase } from '../db/db-orbit';
 import { RecordingModel } from '../db/recording.model';
 import { AccountInfo } from '../common/AccountInfo.interface';
-import { Companion } from '../common/Companion.interface';
+import { Companion, CompanionStatus } from '../common/Companion.interface';
 
 const ipc = new IpcService();
 
@@ -72,87 +75,96 @@ type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
 export const uploadAudioFiles =
   (audioFiles: File[]): Effect =>
-    async (dispatch) => {
-      dispatch(uploadRecordingsRequest());
-      dispatch(setLoadingMessage('Processing audio files...'));
-      console.log('uploadAudioFiles, audioFiles:', audioFiles);
+  async (dispatch) => {
+    dispatch(uploadRecordingsRequest());
+    dispatch(setLoadingMessage('Processing audio files...'));
+    console.log('uploadAudioFiles, audioFiles:', audioFiles);
 
-      /**
-       * Parse data needed for Recording object
-       */
-      const parsedFiles = audioFiles.map((file) => ({
-        path: file.path,
-        name: file.name,
-        size: file.size,
-      }));
+    /**
+     * Parse data needed for Recording object
+     */
+    const parsedFiles = audioFiles.map((file) => ({
+      path: file.path,
+      name: file.name,
+      size: file.size,
+    }));
 
-      /**
-       * Get Recordings with metadata from files
-       */
-      let ipcResponse: { message: string; data: Recording[]; error?: Error };
+    /**
+     * Get Recordings with metadata from files
+     */
+    let ipcResponse: { message: string; data: Recording[]; error?: Error };
+    try {
+      ipcResponse = await ipc.send('storage:upload', {
+        data: { files: parsedFiles },
+      });
+      console.log('uploadAudioFiles, response:', ipcResponse);
+      if (ipcResponse.error) throw ipcResponse.error;
+    } catch (err) {
+      console.error('Could not upload audio files:', err.message);
+      return dispatch(uploadRecordingsFailure(err));
+    }
+
+    let createdRecordings: Recording[] = [];
+    for await (let recordingData of ipcResponse.data) {
+      console.log(`Creating database entry for ${recordingData.title}`);
       try {
-        ipcResponse = await ipc.send('storage:upload', {
-          data: { files: parsedFiles },
-        });
-        console.log('uploadAudioFiles, response:', ipcResponse);
-        if (ipcResponse.error) throw ipcResponse.error;
+        const docId = await window.db.add('recordings', recordingData);
+        const createdRecording = await window.db.findById('recordings', docId);
+        createdRecordings.push(createdRecording);
       } catch (err) {
-        console.error('Could not upload audio files:', err.message);
-        return dispatch(uploadRecordingsFailure(err));
+        console.error(
+          `Could not create database entry for ${recordingData.title}:`,
+          err
+        );
+        dispatch(
+          uploadRecordingsFailure(
+            new Error(
+              `Could not create database entry for ${recordingData.title}`
+            )
+          )
+        );
       }
+    }
 
-      let createdRecordings: Recording[] = [];
-      for await (let recordingData of ipcResponse.data) {
-        console.log(`Creating database entry for ${recordingData.title}`)
-        try {
-          const docId = await window.db.add('recordings', recordingData)
-          const createdRecording = await window.db.findById('recordings', docId)
-          createdRecordings.push(createdRecording)
-        } catch (err) {
-          console.error(`Could not create database entry for ${recordingData.title}:`, err)
-          dispatch(uploadRecordingsFailure(new Error(`Could not create database entry for ${recordingData.title}`)))
-        }
-      }
-
-      dispatch(uploadRecordingsSuccess(createdRecordings));
-      dispatch(setLoadingMessage(null));
-    };
+    dispatch(uploadRecordingsSuccess(createdRecordings));
+    dispatch(setLoadingMessage(null));
+  };
 
 export const startRecording =
   (recordingSettings: RecordingSettings): Effect =>
-    async (dispatch) => {
-      dispatch(startRecordingRequest());
+  async (dispatch) => {
+    dispatch(startRecordingRequest());
 
-      let ipcResponse: { recordingData: Recording; file?: any; error?: Error };
-      let recordingData;
-      let createdRecording;
-      try {
-        ipcResponse = await ipc.send('recorder:start', {
-          data: { recordingSettings },
-        });
-        console.log('recorder:start, ipcResponse:', ipcResponse);
+    let ipcResponse: { recordingData: Recording; file?: any; error?: Error };
+    let recordingData;
+    let createdRecording;
+    try {
+      ipcResponse = await ipc.send('recorder:start', {
+        data: { recordingSettings },
+      });
+      console.log('recorder:start, ipcResponse:', ipcResponse);
 
-        if (ipcResponse.error) {
-          console.error(ipcResponse.error)
-          throw ipcResponse.error;
-        }
-
-        recordingData = ipcResponse.recordingData;
-        const docId = await window.db.add('recordings', recordingData)
-        console.log('docId:', docId)
-        createdRecording = await window.db.findById('recordings', docId)
-
-        console.log('createdRecording:', createdRecording);
-        dispatch(startRecordingSuccess(createdRecording));
-
-        dispatch(addRecordingSuccess(createdRecording));
-        dispatch(setLoadingMessage(null));
-      } catch (err) {
-        console.error('addRecordingRequest error:', err);
-        dispatch(addRecordingFailure(err));
-        dispatch(setLoadingMessage(null));
+      if (ipcResponse.error) {
+        console.error(ipcResponse.error);
+        throw ipcResponse.error;
       }
-    };
+
+      recordingData = ipcResponse.recordingData;
+      const docId = await window.db.add('recordings', recordingData);
+      console.log('docId:', docId);
+      createdRecording = await window.db.findById('recordings', docId);
+
+      console.log('createdRecording:', createdRecording);
+      dispatch(startRecordingSuccess(createdRecording));
+
+      dispatch(addRecordingSuccess(createdRecording));
+      dispatch(setLoadingMessage(null));
+    } catch (err) {
+      console.error('addRecordingRequest error:', err);
+      dispatch(addRecordingFailure(err));
+      dispatch(setLoadingMessage(null));
+    }
+  };
 
 export const stopRecording = (): Effect => async (dispatch) => {
   dispatch(stopRecordingRequest());
@@ -173,7 +185,7 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 
   try {
     dispatch(setLoadingMessage('Loading library...'));
-    const recordings = await window.db.find('recordings', {})
+    const recordings = await window.db.find('recordings', {});
 
     dispatch(loadRecordingsSuccess(recordings));
     dispatch(setLoadingMessage(null));
@@ -185,41 +197,50 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 
 export const editRecording =
   (recordingId: string, update: any): Effect =>
-    async (dispatch) => {
-      dispatch(editRecordingRequest());
-      try {
-        const updatedRecording = await window.db.update('recordings', recordingId, update)
-        console.log('updatedRecording:', updatedRecording);
-        dispatch(editRecordingSuccess(updatedRecording));
-      } catch (err) {
-        console.error('Could not update Recording document:', err);
-        dispatch(editRecordingFailure(err));
-      }
-    };
+  async (dispatch) => {
+    dispatch(editRecordingRequest());
+    try {
+      const updatedRecording = await window.db.update(
+        'recordings',
+        recordingId,
+        update
+      );
+      console.log('updatedRecording:', updatedRecording);
+      dispatch(editRecordingSuccess(updatedRecording));
+    } catch (err) {
+      console.error('Could not update Recording document:', err);
+      dispatch(editRecordingFailure(err));
+    }
+  };
 
 export const deleteRecording =
   (recordingId: string): Effect =>
-    async (dispatch) => {
-      dispatch(deleteRecordingRequest(recordingId));
+  async (dispatch) => {
+    dispatch(deleteRecordingRequest(recordingId));
 
-      try {
-        dispatch(setLoadingMessage('Updating database...'));
+    try {
+      dispatch(setLoadingMessage('Updating database...'));
 
-        const recording = await window.db.findById('recordings', recordingId) as unknown as Recording;
+      const recording = (await window.db.findById(
+        'recordings',
+        recordingId
+      )) as unknown as Recording;
 
-        const deleteRecordingResponse = await ipc.send('recordings:delete_one', { data: { recording } })
-        console.log('deleteRecordingResponse:', deleteRecordingResponse)
+      const deleteRecordingResponse = await ipc.send('recordings:delete_one', {
+        data: { recording },
+      });
+      console.log('deleteRecordingResponse:', deleteRecordingResponse);
 
-        await window.db.delete('recordings', recordingId)
+      await window.db.delete('recordings', recordingId);
 
-        dispatch(deleteRecordingSuccess(recordingId));
-      } catch (err) {
-        console.error('Could not delete recording:', err);
+      dispatch(deleteRecordingSuccess(recordingId));
+    } catch (err) {
+      console.error('Could not delete recording:', err);
 
-        dispatch(deleteRecordingFailure(err));
-      }
-      dispatch(setLoadingMessage(null));
-    };
+      dispatch(deleteRecordingFailure(err));
+    }
+    dispatch(setLoadingMessage(null));
+  };
 
 // export const getBucketToken = (): Effect => async (dispatch) => {
 //   dispatch(getBucketTokenRequest());
@@ -235,190 +256,204 @@ export const deleteRecording =
 
 export const loadAccountToken =
   (tokenString: string): Effect =>
-    async (dispatch) => {
-      dispatch(loadAccountTokenRequest());
+  async (dispatch) => {
+    dispatch(loadAccountTokenRequest());
 
-      try {
-        localStorage.setItem(IDENTITY_STORE, tokenString);
+    try {
+      localStorage.setItem(IDENTITY_STORE, tokenString);
 
-        dispatch(setLoadingMessage('Cleaning up local database...'));
-        await window.db.deleteDB();
+      dispatch(setLoadingMessage('Cleaning up local database...'));
+      await window.db.deleteDB();
 
-        dispatch(setLoadingMessage('Initializing new database...'));
-        !window.db.initialized && await window.db.init();
+      dispatch(setLoadingMessage('Initializing new database...'));
+      !window.db.initialized && (await window.db.init());
 
-        dispatch(loadAccountTokenSuccess(tokenString));
-        dispatch(setLoadingMessage(null));
-      } catch (err) {
-        console.error('Could not load account token:', err);
-        dispatch(loadAccountTokenFailure(err));
-      }
-    };
+      dispatch(loadAccountTokenSuccess(tokenString));
+      dispatch(setLoadingMessage(null));
+    } catch (err) {
+      console.error('Could not load account token:', err);
+      dispatch(loadAccountTokenFailure(err));
+    }
+  };
 
 export const initDatabase = (): Effect => async (dispatch) => {
   dispatch(initDatabaseRequest());
   dispatch(setLoadingMessage('Initializing database...'));
 
   try {
-    if (!window.db) window.db = new OrbitDatabase({ onPeerDbDiscovered: console.log })
-    !window.db.initialized && await window.db.init()
+    if (!window.db)
+      window.db = new OrbitDatabase({
+        onPeerDbDiscovered: console.log,
+      });
+    !window.db.initialized && (await window.db.init());
     console.log('Database initialized');
     dispatch(initDatabaseSuccess());
   } catch (err) {
-    console.error('Could not initialize database:', err)
+    console.error('Could not initialize database:', err);
     dispatch(initDatabaseFailure(err));
   }
 };
 
 export const setInputDevice =
   (deviceName: string): Effect =>
-    async (dispatch) => {
-      console.log('setInputDevice, deviceName:', deviceName);
-      dispatch(setInputDeviceRequest());
+  async (dispatch) => {
+    console.log('setInputDevice, deviceName:', deviceName);
+    dispatch(setInputDeviceRequest());
 
-      let ipcResponse: { message: string; error?: Error };
-      try {
-        ipcResponse = await ipc.send('recorder:set-input', { data: deviceName });
+    let ipcResponse: { message: string; error?: Error };
+    try {
+      ipcResponse = await ipc.send('recorder:set-input', { data: deviceName });
 
-        console.log('recorder:set-input, ipcResponse:', ipcResponse);
+      console.log('recorder:set-input, ipcResponse:', ipcResponse);
 
-        if (ipcResponse.error) {
-          throw ipcResponse.error;
-        }
-      } catch (err) {
-        dispatch(setInputDeviceFailure(err));
+      if (ipcResponse.error) {
+        throw ipcResponse.error;
       }
+    } catch (err) {
+      dispatch(setInputDeviceFailure(err));
+    }
 
-      dispatch(setInputDeviceSuccess());
-    };
+    dispatch(setInputDeviceSuccess());
+  };
 
 // TODO: re-implement
 export const downloadRecording =
   (recordingId: string): Effect =>
-    async (dispatch) => {
-      dispatch(downloadRecordingRequest());
-      // try {
-      //   const { token } = await getBucket();
+  async (dispatch) => {
+    dispatch(downloadRecordingRequest());
+    // try {
+    //   const { token } = await getBucket();
 
-      //   const recordingData = (await db.findById(
-      //     RECORDING_COLLECTION,
-      //     recordingId
-      //   )) as unknown as Recording;
-      //   console.log('downloadRecording, recordingData:', recordingData);
+    //   const recordingData = (await db.findById(
+    //     RECORDING_COLLECTION,
+    //     recordingId
+    //   )) as unknown as Recording;
+    //   console.log('downloadRecording, recordingData:', recordingData);
 
-      //   const response = await fetch(
-      //     recordingData.remoteLocation + `?token=${token}`,
-      //     { method: 'GET' }
-      //   );
+    //   const response = await fetch(
+    //     recordingData.remoteLocation + `?token=${token}`,
+    //     { method: 'GET' }
+    //   );
 
-      //   const blob = await response.blob();
+    //   const blob = await response.blob();
 
-      //   const a = document.createElement('a');
-      //   a.href = URL.createObjectURL(blob);
-      //   a.download = `${recordingData.title}.${recordingData.format}`;
-      //   document.body.appendChild(a);
-      //   a.click();
-      //   document.body.removeChild(a);
+    //   const a = document.createElement('a');
+    //   a.href = URL.createObjectURL(blob);
+    //   a.download = `${recordingData.title}.${recordingData.format}`;
+    //   document.body.appendChild(a);
+    //   a.click();
+    //   document.body.removeChild(a);
 
-      //   console.log('downloadRecording, response:', response);
-      // } catch (err) {
-      //   console.error('Could not download recording:', err);
-      //   dispatch(
-      //     downloadRecordingFailue(new Error('Could not download recording'))
-      //   );
-      // }
+    //   console.log('downloadRecording, response:', response);
+    // } catch (err) {
+    //   console.error('Could not download recording:', err);
+    //   dispatch(
+    //     downloadRecordingFailue(new Error('Could not download recording'))
+    //   );
+    // }
 
-      dispatch(downloadRecordingSucess());
-      console.log('TODO: Re-implement downloadRecording')
-    };
+    dispatch(downloadRecordingSucess());
+    console.log('TODO: Re-implement downloadRecording');
+  };
 
 export const cacheAndPlayRecording =
   (recording: Recording): Effect =>
-    async (dispatch) => {
-      dispatch(pauseRecording());
-      dispatch(cacheRecordingRequest(recording));
-      try {
-        const ipcResponse: { message: string; error?: Error } = await ipc.send(
-          'storage:cache_recording',
-          {
-            data: { recording },
-          }
-        );
-
-        console.log('cacheRecording, ipcResponse:', ipcResponse);
-        if (ipcResponse.error) {
-          dispatch(cacheRecordingFailure(ipcResponse.error));
+  async (dispatch) => {
+    dispatch(pauseRecording());
+    dispatch(cacheRecordingRequest(recording));
+    try {
+      const ipcResponse: { message: string; error?: Error } = await ipc.send(
+        'storage:cache_recording',
+        {
+          data: { recording },
         }
+      );
 
-        dispatch(cacheRecordingSuccess());
-        dispatch(playRecording());
-      } catch (err) {
-        console.error('Could not cache recording:', err);
-        dispatch(cacheRecordingFailure(err));
+      console.log('cacheRecording, ipcResponse:', ipcResponse);
+      if (ipcResponse.error) {
+        dispatch(cacheRecordingFailure(ipcResponse.error));
       }
-    };
 
-export const getRecordingStorageStatus = (recordingCid: string): Effect => async (dispatch) => {
-  dispatch(getRecordingStorageStatusRequest())
-  try {
-    const { recordingStorageStatus }: { recordingStorageStatus: RecordingStorageStatus } = await ipc.send('storage:get_recording_stats', { data: recordingCid })
-    console.log('recordingStorageStatus:', recordingStorageStatus)
-    dispatch(getRecordingStorageStatusSuccess(recordingStorageStatus))
-  } catch (err) {
-    dispatch(getRecordingStorageStatusFailure(err))
-  }
-}
+      dispatch(cacheRecordingSuccess());
+      dispatch(playRecording());
+    } catch (err) {
+      console.error('Could not cache recording:', err);
+      dispatch(cacheRecordingFailure(err));
+    }
+  };
+
+export const getRecordingStorageStatus =
+  (recordingCid: string): Effect =>
+  async (dispatch) => {
+    dispatch(getRecordingStorageStatusRequest());
+    try {
+      const {
+        recordingStorageStatus,
+      }: { recordingStorageStatus: RecordingStorageStatus } = await ipc.send(
+        'storage:get_recording_stats',
+        { data: recordingCid }
+      );
+      console.log('recordingStorageStatus:', recordingStorageStatus);
+      dispatch(getRecordingStorageStatusSuccess(recordingStorageStatus));
+    } catch (err) {
+      dispatch(getRecordingStorageStatusFailure(err));
+    }
+  };
 
 // TODO: Remove if unused
 export const exportIdentity = (): Effect => async (dispatch) => {
-  console.log('exporting identity...')
-  await ipc.send('identity:export')
-}
+  console.log('exporting identity...');
+  await ipc.send('identity:export');
+};
 
 export const loadAccountInfo = (): Effect => (dispatch) => {
-  dispatch(loadAccountInfoRequest())
+  dispatch(loadAccountInfoRequest());
 
   try {
-    const accountInfo = window.db.getAccountInfo()
-    console.log('loadAccountInfo, accountInfo:', accountInfo)
-    
-    dispatch(loadAccountInfoSuccess(accountInfo))
-  } catch (err) {
-    console.error('Could not load account info:', err)
-    dispatch(loadAccountInfoFailure(new Error('Could not load account info')))
-  }
-}
+    const accountInfo = window.db.getAccountInfo();
+    console.log('loadAccountInfo, accountInfo:', accountInfo);
 
-export const setAccountInfo = (key: keyof AccountInfo, value: string): Effect => async (dispatch) => {
-  dispatch(setAccountInfoRequest())
-
-  try {
-    await window.db.setAccountInfo(key, value)
-    const updatedAccountInfo = window.db.getAccountInfo()
-    dispatch(setAccountInfoSuccess(updatedAccountInfo))
+    dispatch(loadAccountInfoSuccess(accountInfo));
   } catch (err) {
-    console.log('Could not set account info:', err)
-    dispatch(setAccountInfoFailure(new Error('Could not set account info')))
+    console.error('Could not load account info:', err);
+    dispatch(loadAccountInfoFailure(new Error('Could not load account info')));
   }
-}
+};
+
+export const setAccountInfo =
+  (key: keyof AccountInfo, value: string): Effect =>
+  async (dispatch) => {
+    dispatch(setAccountInfoRequest());
+
+    try {
+      await window.db.setAccountInfo(key, value);
+      const updatedAccountInfo = window.db.getAccountInfo();
+      dispatch(setAccountInfoSuccess(updatedAccountInfo));
+    } catch (err) {
+      console.log('Could not set account info:', err);
+      dispatch(setAccountInfoFailure(new Error('Could not set account info')));
+    }
+  };
 
 export const getCompanions = (): Effect => (dispatch) => {
-  dispatch(getCompanionsRequest)
-  
+  dispatch(getCompanionsRequest);
+
   try {
-  const companions = window.db.getAllCompanions()
+    const companions = window.db.getAllCompanions();
 
-  const companionsArray: Companion[] = Object.keys(companions).map((key: string) => ({
-    dbAddress: companions[key].dbAddress,
-    deviceName: companions[key].deviceName,
-    docStores: companions[key].docStores,
-    nodeId: companions[key].nodeId,
-    status: companions[key].status
-  }))
+    const companionsArray: Companion[] = Object.keys(companions).map(
+      (key: string) => ({
+        dbAddress: companions[key].dbAddress,
+        deviceName: companions[key].deviceName,
+        docStores: companions[key].docStores,
+        nodeId: companions[key].nodeId,
+        status: companions[key].status,
+      })
+    );
 
-  dispatch(getCompanionsSuccess(companionsArray))
+    dispatch(getCompanionsSuccess(companionsArray));
   } catch (err) {
-    console.error('Could not retrieve companions:', err)
-    dispatch(getCompanionsFailuere(new Error('Could not retrieve companions')))
+    console.error('Could not retrieve companions:', err);
+    dispatch(getCompanionsFailuere(new Error('Could not retrieve companions')));
   }
-}
+};
