@@ -2,14 +2,11 @@ import OrbitDB from 'orbit-db';
 import type { IPFS } from 'ipfs-core-types';
 //@ts-ignore
 import { PeerInfo } from 'ipfs';
-import DocumentStore from 'orbit-db-docstore';
 import { generateUsername } from 'unique-username-generator';
-import { createIpfsNode } from './utils';
-import { Companion, CompanionStatus } from '../common/Companion.interface';
-import { User } from '../common/User.interface';
+import { createIpfsNode } from '@/db/utils';
+import { Companion, CompanionStatus } from '@/common/Companion.interface';
+import { User } from '@/common/User.interface';
 import KeyValueStore from 'orbit-db-kvstore';
-
-const RECORDINGS_COLLECTION = 'recordings';
 
 interface OrbitAccessControllerOptions {
   accessController: {
@@ -90,42 +87,6 @@ export class OrbitConnection {
         write: [this.orbitdb.id],
       },
     };
-
-    /**
-     * Recordings document store
-     */
-    // const docStoreOptions = {
-    //   ...this.defaultOptions,
-    //   indexBy: '_id',
-    //   accessController: {
-    //     type: 'orbitdb',
-    //     write: ['*'],
-    //   },
-    // };
-
-    // const recordingsAddress = recordingsAddrRoot
-    //   ? `/orbitdb/${recordingsAddrRoot}/${RECORDINGS_COLLECTION}`
-    //   : RECORDINGS_COLLECTION;
-
-    // this.docStores[RECORDINGS_COLLECTION] = await orbitdb.docstore(
-    //   recordingsAddress,
-    //   {
-    //     ...docStoreOptions,
-    //   }
-    // );
-
-    // for (const docStore in this.docStores) {
-    //   try {
-    //     console.log(
-    //       '*** loading docstore:',
-    //       this.docStores[docStore].address.path
-    //     );
-    //     await this.docStores[docStore].load();
-    //   } catch (err) {
-    //     console.error(`Could not load docstore ${docStore}:`, err);
-    //     // throw new Error(`Could not load docstore "${docStore}"`)
-    //   }
-    // }
 
     /**
      * Users key-value store
@@ -293,8 +254,6 @@ export class OrbitConnection {
       default:
         break;
     }
-
-    // if (this.onmessage) this.onmessage(msg);
   }
 
   private async connectToCompanions() {
@@ -393,33 +352,11 @@ export class OrbitConnection {
     }
   }
 
-  // private getDocStoreIds() {
-  //   let docStoreIds = {};
-  //   for (const docStore in this.docStores) {
-  //     //@ts-ignore
-  //     docStoreIds[docStore] = this.docStores[docStore].address;
-  //   }
-
-  //   return docStoreIds;
-  // }
-
   private async getIpfsPeerIds() {
     const peerIds = (await this.node.swarm.peers()).map((peer) => peer.peer);
     console.log('Connected IPFS peers:', peerIds);
     return peerIds;
   }
-
-  // public static get info() {
-  //   return this.
-  // }
-
-  // public static async connection() {
-  //   if (!this._instance) {
-  //     console.log('NO CONNECTION INSTANCE');
-  //     this._instance = new this();
-  //   }
-  //   return this.orbitdb || (this.orbitdb = await this._instance.connect());
-  // }
 
   async removeAllCompanions() {
     try {
