@@ -14,21 +14,26 @@ import Settings from './views/Settings';
 import StatusMessage from './components/StatusMessage';
 import Debug from './views/Debug';
 
-const Recorder = React.lazy(() => import(/* webpackChunkName: "recorder" */ './views/Recorder'))
+const Recorder = React.lazy(() =>
+  import(/* webpackChunkName: "recorder" */ './views/Recorder')
+);
 // const Settings = React.lazy(() => import(/* webpackChunkName: "settings" */ './views/Settings'))
-const Library = React.lazy(() => import(/* webpackChunkName: "library" */ './views/Library'))
-const RecordingDetail = React.lazy(() => import(/* webpackChunkName: "recordingDetail" */ './views/RecordingDetail'))
+const Library = React.lazy(() =>
+  import(/* webpackChunkName: "library" */ './views/Library')
+);
+const RecordingDetail = React.lazy(() =>
+  import(/* webpackChunkName: "recordingDetail" */ './views/RecordingDetail')
+);
 
-const { initDatabase } = effects
-
+const { initDatabase } = effects;
 
 function App() {
   const theme = useTheme();
   const dispatch = useDispatch();
 
   const searchParams = new URLSearchParams(window.location.search);
-  const desktopPeerId = searchParams.get('peerid')
-  const recordingsAddrRoot = searchParams.get('address')
+  const desktopPeerId = searchParams.get('peerid');
+  const recordingsAddrRoot = searchParams.get('address');
 
   useEffect(() => {
     dispatch(initDatabase(desktopPeerId, recordingsAddrRoot));

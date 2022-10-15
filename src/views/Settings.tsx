@@ -36,6 +36,10 @@ import { AccountInfo } from '../common/AccountInfo.interface';
 import EditableText from '../components/EditableText';
 import { Companion } from '../common/Companion.interface';
 import CompanionsList from '../components/CompanionsList';
+import { RecordingRepository } from '../db/Repository';
+import { OrbitConnection } from '../db/OrbitConnection';
+import { RECORDING_COLLECTION } from '../common/constants';
+import { Loader } from '../components/Loader';
 
 const {
   loadAccountToken,
@@ -137,7 +141,7 @@ export function Settings({
 
   /** TODO: Rename this */
   const handleOpenQR = () => {
-    setPeerInfo(window.db.peerInfo);
+    // setPeerInfo(accountInfo.peerInfo);
     setQROpen(true);
   };
 
@@ -177,41 +181,65 @@ export function Settings({
     getMediaDevices();
   }, []);
 
+  // useEffect(() => {
+  //   !loading &&
+  //     !databaseInitializing &&
+  //     (dispatch(loadAccountInfo()), dispatch(getCompanions()));
+  // }, [databaseInitializing]);
   useEffect(() => {
-    !loading &&
-      !databaseInitializing &&
-      (dispatch(loadAccountInfo()), dispatch(getCompanions()));
-  }, [databaseInitializing]);
-
-  useEffect(() => {
-    /**
-     * Check for companion status updates every 10 sec
-     */
-    const getCompanionsInterval = setInterval(
-      () => dispatch(getCompanions()),
-      10000
-    );
-    return () => clearInterval(getCompanionsInterval);
+    dispatch(loadAccountInfo());
+    // dispatch(getCompanions());
   }, []);
+
+  // useEffect(() => {
+  //   /**
+  //    * Check for companion status updates every 10 sec
+  //    */
+  //   const getCompanionsInterval = setInterval(
+  //     () => dispatch(getCompanions()),
+  //     10000
+  //   );
+  //   return () => clearInterval(getCompanionsInterval);
+  // }, []);
 
   // if (loading) {
   //   return <Loader />;
   // }
 
+  // useEffect(() => {
+  //   const loadRecordingsRepo = async () => {
+  //     console.log('### CONNECTING ###');
+  //     await OrbitConnection.Instance.connect();
+  //     console.log('### CONNECTED ###', OrbitConnection.Instance.orbitdb);
+  //     const recordingsRepo = new RecordingRepository(
+  //       OrbitConnection.Instance.orbitdb,
+  //       RECORDING_COLLECTION
+  //     );
+  //     console.log('recordingRepo:', recordingsRepo);
+  //     const address = (await recordingsRepo.orbitdb.docs(RECORDING_COLLECTION))
+  //       .address;
+  //     console.log('### ADDRESS:', address);
+  //   };
+  //   loadRecordingsRepo();
+  // }, []);
+
+  // if (!accountInfo) return <Loader loading={true} loadingMessage="bajs!" />;
+
   return (
     <div>
       <StatusMessage />
-      <QRCodeModal
-        open={QROpen}
-        value={`${
-          localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
-        }/?peerid=${peerInfo?.id || ''}&address=${
-          window.db?.initialized
-            ? window.db?.getAccountInfo().docStores.recordings.root
-            : ''
-        }`}
-        onClose={handleCloseQR}
-      />
+      {accountInfo && (
+        <QRCodeModal
+          open={QROpen}
+          value={`${
+            localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
+          }/?peerid=${accountInfo.nodeId || ''}&address=${
+            `${accountInfo.recordingsDb.root}/${accountInfo.recordingsDb.path}` ||
+            ''
+          }`}
+          onClose={handleCloseQR}
+        />
+      )}
 
       <SectionHeader theme={theme}>
         <Typography>Recording Settings</Typography>
@@ -343,6 +371,7 @@ export function Settings({
           variant="outlined"
           endIcon={<QrCodeIcon />}
           onClick={handleOpenQR}
+          disabled={!accountInfo}
         >
           <Typography noWrap variant="caption" color="textSecondary">
             Share account

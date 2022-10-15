@@ -22,7 +22,7 @@ import {
   setAccountInfoSuccess,
   getCompanionsRequest,
   getCompanionsSuccess,
-  getCompanionsFailuere,
+  getCompanionsFailure,
 } from '../store/actions';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { Recording } from '../common/Recording.interface';
@@ -31,6 +31,9 @@ import { OrbitDatabase } from '../db/db-orbit';
 import { asyncCallWithTimeout } from '../utils';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import { Companion, CompanionStatus } from '../common/Companion.interface';
+import { OrbitConnection } from '../db/OrbitConnection';
+import { RecordingRepository, UserRepository } from '../db/Repository';
+import { RECORDING_COLLECTION } from '@/common/constants';
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
@@ -52,18 +55,32 @@ export const stopRecording = (): Effect => async (dispatch) => {
 
 export const loadRecordings = (): Effect => async (dispatch) => {
   dispatch(loadRecordingsRequest());
+  await OrbitConnection.Instance.connect();
+
+  console.log(
+    'loadRecordings, recordingsAddrRoot',
+    OrbitConnection.Instance.recordingsAddrRoot
+  );
 
   try {
     dispatch(setLoadingMessage('Loading library...'));
-    const recordings = await window.db.find('recordings', {});
-    // const recordings = await asyncCallWithTimeout(window.db.queryNetwork('recordings', (doc: any) => doc), 15000) as Recording[]
+    const repository = new RecordingRepository(
+      OrbitConnection.Instance.node,
+      OrbitConnection.Instance.orbitdb,
+      RECORDING_COLLECTION,
+      OrbitConnection.Instance.recordingsAddrRoot
+    );
 
-    dispatch(loadRecordingsSuccess(await recordings));
+    const recordings = await repository.find({});
+
+    // const recordings = await window.db.find('recordings', {});
+
+    dispatch(loadRecordingsSuccess(recordings));
     dispatch(setLoadingMessage(null));
   } catch (err) {
     if (err.message === 'Async call timeout limit reached') {
       console.log('Timeout limit reached. Clearing companion list...');
-      await window.db.removeAllCompanions();
+      await OrbitConnection.Instance.removeAllCompanions();
       loadRecordings();
     } else {
       console.error(err);
@@ -109,12 +126,12 @@ export const initDatabase =
     dispatch(setLoadingMessage('Initializing database...'));
 
     try {
-      window.db = new OrbitDatabase({});
-      await window.db.init(desktopPeerId, recordingsAddrRoot);
+      // window.db = new OrbitDatabase({});
+      // await window.db.init(desktopPeerId, recordingsAddrRoot);
+
+      await OrbitConnection.Instance.connect(desktopPeerId, recordingsAddrRoot);
+
       console.log('Database initialized');
-
-      // await window.db.removeAllCompanions()
-
       dispatch(initDatabaseSuccess());
     } catch (err) {
       console.error('Could not initialize database:', err);
@@ -153,14 +170,35 @@ export const exportIdentity = (): Effect => async (dispatch) => {
   console.log('TODO: implement exportIdentity for web');
 };
 
-export const loadAccountInfo = (): Effect => (dispatch) => {
+export const loadAccountInfo = (): Effect => async (dispatch) => {
   dispatch(loadAccountInfoRequest());
 
   try {
-    const accountInfo = window.db.getAccountInfo();
+    dispatch(setLoadingMessage('Loading account info...'));
+    await OrbitConnection.Instance.connect();
+    const userRepository = await new UserRepository(
+      OrbitConnection.Instance.node,
+      OrbitConnection.Instance.orbitdb,
+      'user'
+    ).init();
+
+    const recordingsRepository = new RecordingRepository(
+      OrbitConnection.Instance.node,
+      OrbitConnection.Instance.orbitdb,
+      RECORDING_COLLECTION
+    );
+
+    const accountInfo = {
+      ...userRepository.all,
+      recordingsDb: await recordingsRepository.getAddress(),
+    };
+
+    // const accountInfo = window.db.getAccountInfo();
     console.log('loadAccountInfo, accountInfo:', accountInfo);
 
+    //@ts-ignore
     dispatch(loadAccountInfoSuccess(accountInfo));
+    dispatch(setLoadingMessage(null));
   } catch (err) {
     console.error('Could not load account info:', err);
     dispatch(loadAccountInfoFailure(new Error('Could not load account info')));
@@ -201,6 +239,6 @@ export const getCompanions = (): Effect => (dispatch) => {
     dispatch(getCompanionsSuccess(companionsArray));
   } catch (err) {
     console.error('Could not retrieve companions:', err);
-    dispatch(getCompanionsFailuere(new Error('Could not retrieve companions')));
+    dispatch(getCompanionsFailure(new Error('Could not retrieve companions')));
   }
 };

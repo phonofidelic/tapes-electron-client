@@ -53,7 +53,7 @@ import {
   setAccountInfoFailure,
   setAccountInfoSuccess,
   getCompanionsRequest,
-  getCompanionsFailuere,
+  getCompanionsFailure,
   getCompanionsSuccess,
 } from '../store/actions';
 import {
@@ -68,6 +68,13 @@ import { OrbitDatabase } from '../db/db-orbit';
 import { RecordingModel } from '../db/recording.model';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import { Companion, CompanionStatus } from '../common/Companion.interface';
+import { OrbitConnection } from '../db/OrbitConnection';
+import {
+  CompanionRepository,
+  RecordingRepository,
+  UserRepository,
+} from '../db/Repository';
+import { User } from '../common/User.interface';
 
 const ipc = new IpcService();
 
@@ -108,8 +115,18 @@ export const uploadAudioFiles =
     for await (let recordingData of ipcResponse.data) {
       console.log(`Creating database entry for ${recordingData.title}`);
       try {
-        const docId = await window.db.add('recordings', recordingData);
-        const createdRecording = await window.db.findById('recordings', docId);
+        // const docId = await window.db.add('recordings', recordingData);
+        // const createdRecording = await window.db.findById('recordings', docId);
+
+        // const connection = await OrbitConnection.connection();
+        await OrbitConnection.Instance.connect();
+        const repository = new RecordingRepository(
+          OrbitConnection.Instance.node,
+          OrbitConnection.Instance.orbitdb,
+          RECORDING_COLLECTION
+        );
+        const createdRecording = await repository.add(recordingData);
+
         createdRecordings.push(createdRecording);
       } catch (err) {
         console.error(
@@ -150,9 +167,20 @@ export const startRecording =
       }
 
       recordingData = ipcResponse.recordingData;
-      const docId = await window.db.add('recordings', recordingData);
-      console.log('docId:', docId);
-      createdRecording = await window.db.findById('recordings', docId);
+
+      // const docId = await window.db.add('recordings', recordingData);
+      // console.log('docId:', docId);
+      // createdRecording = await window.db.findById('recordings', docId);
+
+      // const connection = await OrbitConnection.connection();
+      await OrbitConnection.Instance.connect();
+      const repository = new RecordingRepository(
+        OrbitConnection.Instance.node,
+        OrbitConnection.Instance.orbitdb,
+        RECORDING_COLLECTION
+      );
+
+      createdRecording = await repository.add(recordingData);
 
       console.log('createdRecording:', createdRecording);
       dispatch(startRecordingSuccess(createdRecording));
@@ -180,31 +208,56 @@ export const stopRecording = (): Effect => async (dispatch) => {
   }
 };
 
-export const loadRecordings = (): Effect => async (dispatch) => {
-  dispatch(loadRecordingsRequest());
+export const loadRecordings =
+  (recordingsAddrRoot: string | undefined): Effect =>
+  async (dispatch) => {
+    dispatch(loadRecordingsRequest());
 
-  try {
-    dispatch(setLoadingMessage('Loading library...'));
-    const recordings = await window.db.find('recordings', {});
+    try {
+      // const recordings = await window.db.find('recordings', {});
 
-    dispatch(loadRecordingsSuccess(recordings));
-    dispatch(setLoadingMessage(null));
-  } catch (err) {
-    console.error(err);
-    dispatch(loadRecordingsFailure(err));
-  }
-};
+      dispatch(setLoadingMessage('Initializing database...'));
+      await OrbitConnection.Instance.connect();
+
+      console.log('load recordings, recordingsAddrRoot', recordingsAddrRoot);
+
+      const repository = new RecordingRepository(
+        OrbitConnection.Instance.node,
+        OrbitConnection.Instance.orbitdb,
+        RECORDING_COLLECTION,
+        recordingsAddrRoot + `/${RECORDING_COLLECTION}`
+      );
+
+      dispatch(setLoadingMessage('Loading library...'));
+      const recordings = await repository.find({});
+
+      dispatch(loadRecordingsSuccess(recordings));
+      dispatch(setLoadingMessage(null));
+    } catch (err) {
+      console.error(err);
+      dispatch(loadRecordingsFailure(new Error('Could not load recordings')));
+    }
+  };
 
 export const editRecording =
   (recordingId: string, update: any): Effect =>
   async (dispatch) => {
     dispatch(editRecordingRequest());
     try {
-      const updatedRecording = await window.db.update(
-        'recordings',
-        recordingId,
-        update
+      // const updatedRecording = await window.db.update(
+      //   'recordings',
+      //   recordingId,
+      //   update
+      // );
+      // const connection = await OrbitConnection.connection();\
+      await OrbitConnection.Instance.connect();
+      const repository = new RecordingRepository(
+        OrbitConnection.Instance.node,
+        OrbitConnection.Instance.orbitdb,
+        RECORDING_COLLECTION
       );
+      const updatedRecording = await repository.update(recordingId, update);
+
       console.log('updatedRecording:', updatedRecording);
       dispatch(editRecordingSuccess(updatedRecording));
     } catch (err) {
@@ -219,19 +272,28 @@ export const deleteRecording =
     dispatch(deleteRecordingRequest(recordingId));
 
     try {
-      dispatch(setLoadingMessage('Updating database...'));
+      dispatch(setLoadingMessage('Deleting recording...'));
+      // const connection = await OrbitConnection.connection();
+      await OrbitConnection.Instance.connect();
+      const repository = new RecordingRepository(
+        OrbitConnection.Instance.node,
+        OrbitConnection.Instance.orbitdb,
+        RECORDING_COLLECTION
+      );
 
-      const recording = (await window.db.findById(
-        'recordings',
-        recordingId
-      )) as unknown as Recording;
+      // const recording = (await window.db.findById(
+      //   'recordings',
+      //   recordingId
+      // )) as unknown as Recording;
+      const recording = await repository.findById(recordingId);
 
       const deleteRecordingResponse = await ipc.send('recordings:delete_one', {
         data: { recording },
       });
       console.log('deleteRecordingResponse:', deleteRecordingResponse);
 
-      await window.db.delete('recordings', recordingId);
+      // await window.db.delete('recordings', recordingId);
+      await repository.delete(recordingId);
 
       dispatch(deleteRecordingSuccess(recordingId));
     } catch (err) {
@@ -241,18 +303,6 @@ export const deleteRecording =
     }
     dispatch(setLoadingMessage(null));
   };
-
-// export const getBucketToken = (): Effect => async (dispatch) => {
-//   dispatch(getBucketTokenRequest());
-//   dispatch(setLoadingMessage('Loading token...'));
-
-//   try {
-//     const { token } = await getBucket();
-//     dispatch(getBucketTokenSuccess(token));
-//   } catch (err) {
-//     dispatch(getBucketTokenFailure(err));
-//   }
-// };
 
 export const loadAccountToken =
   (tokenString: string): Effect =>
@@ -281,11 +331,14 @@ export const initDatabase = (): Effect => async (dispatch) => {
   dispatch(setLoadingMessage('Initializing database...'));
 
   try {
-    if (!window.db)
-      window.db = new OrbitDatabase({
-        onPeerDbDiscovered: console.log,
-      });
-    !window.db.initialized && (await window.db.init());
+    // if (!window.db)
+    //   window.db = new OrbitDatabase({
+    //     onPeerDbDiscovered: console.log,
+    //   });
+    // !window.db.initialized && (await window.db.init());
+
+    await OrbitConnection.Instance.connect();
+
     console.log('Database initialized');
     dispatch(initDatabaseSuccess());
   } catch (err) {
@@ -406,17 +459,75 @@ export const exportIdentity = (): Effect => async (dispatch) => {
   await ipc.send('identity:export');
 };
 
-export const loadAccountInfo = (): Effect => (dispatch) => {
+export const loadAccountInfo = (): Effect => async (dispatch) => {
   dispatch(loadAccountInfoRequest());
-
   try {
-    const accountInfo = window.db.getAccountInfo();
+    dispatch(setLoadingMessage('Loading account info...'));
+    await OrbitConnection.Instance.connect();
+    const userRepo = await new UserRepository(
+      OrbitConnection.Instance.node,
+      OrbitConnection.Instance.orbitdb,
+      'user'
+    ).init();
+
+    const recordingRepo = new RecordingRepository(
+      OrbitConnection.Instance.node,
+      OrbitConnection.Instance.orbitdb,
+      RECORDING_COLLECTION
+    );
+
+    const accountInfo = {
+      ...userRepo.all,
+      recordingsDb: await recordingRepo.getAddress(),
+    };
+
+    // const accountInfo = OrbitConnection.Instance.user
+    //   .all as unknown as AccountInfo;
+
     console.log('loadAccountInfo, accountInfo:', accountInfo);
 
+    //@ts-ignore
     dispatch(loadAccountInfoSuccess(accountInfo));
+    dispatch(setLoadingMessage(null));
   } catch (err) {
     console.error('Could not load account info:', err);
-    dispatch(loadAccountInfoFailure(new Error('Could not load account info')));
+    return dispatch(
+      loadAccountInfoFailure(new Error('Could not load account info'))
+    );
+  }
+
+  dispatch(getCompanionsRequest);
+
+  try {
+    // const companions = window.db.getAllCompanions();
+
+    dispatch(setLoadingMessage('Loading companions status...'));
+    // const connection = await OrbitConnection.connection();
+    // const companionsRepo = new CompanionRepository(connection, 'companions');
+    // const companions = (await connection.keyvalue<Companion>('companions')).all;
+
+    // const companions = await companionsRepo.all();
+    // const companions = OrbitConnection._instance.companions.all;
+
+    const companions = OrbitConnection.Instance.companions.all;
+
+    console.log('### companions:', companions);
+
+    const companionsArray: Companion[] = Object.keys(companions).map(
+      (key: string) => ({
+        dbAddress: companions[key].dbAddress,
+        deviceName: companions[key].deviceName,
+        docStores: companions[key].docStores,
+        nodeId: companions[key].nodeId,
+        status: companions[key].status,
+      })
+    );
+
+    dispatch(getCompanionsSuccess(companionsArray));
+    dispatch(setLoadingMessage(null));
+  } catch (err) {
+    console.error('Could not retrieve companions:', err);
+    dispatch(getCompanionsFailure(new Error('Could not retrieve companions')));
   }
 };
 
@@ -430,16 +541,26 @@ export const setAccountInfo =
       const updatedAccountInfo = window.db.getAccountInfo();
       dispatch(setAccountInfoSuccess(updatedAccountInfo));
     } catch (err) {
-      console.log('Could not set account info:', err);
+      console.error('Could not set account info:', err);
       dispatch(setAccountInfoFailure(new Error('Could not set account info')));
     }
   };
 
-export const getCompanions = (): Effect => (dispatch) => {
+export const getCompanions = (): Effect => async (dispatch) => {
   dispatch(getCompanionsRequest);
 
   try {
-    const companions = window.db.getAllCompanions();
+    // const companions = window.db.getAllCompanions();
+
+    dispatch(setLoadingMessage('Loading companions status...'));
+    // const connection = await OrbitConnection.connection();
+    // const companionsRepo = new CompanionRepository(connection, 'companions');
+    // await companionsRepo.init();
+    // // const companions = (await connection.keyvalue<Companion>('companions')).all;
+
+    // const companions = await companionsRepo.all();
+    await OrbitConnection.Instance.connect();
+    const companions = OrbitConnection._instance.companions.all;
 
     const companionsArray: Companion[] = Object.keys(companions).map(
       (key: string) => ({
@@ -452,8 +573,9 @@ export const getCompanions = (): Effect => (dispatch) => {
     );
 
     dispatch(getCompanionsSuccess(companionsArray));
+    dispatch(setLoadingMessage(null));
   } catch (err) {
     console.error('Could not retrieve companions:', err);
-    dispatch(getCompanionsFailuere(new Error('Could not retrieve companions')));
+    dispatch(getCompanionsFailure(new Error('Could not retrieve companions')));
   }
 };
