@@ -1,9 +1,8 @@
 import { ThunkAction } from 'redux-thunk';
-import { RecorderState, RecorderAction } from '../store/types';
+import { RecorderState, RecorderAction } from '@/store/types';
 import {
   startRecordingRequest,
   startRecordingSuccess,
-  startRecordingFailure,
   loadRecordingsRequest,
   loadRecordingsSuccess,
   loadRecordingsFailure,
@@ -12,16 +11,12 @@ import {
   deleteRecordingFailure,
   stopRecordingRequest,
   stopRecordingFailure,
-  stopRecordingSuccess,
   addRecordingRequest,
   addRecordingSuccess,
   addRecordingFailure,
   editRecordingRequest,
   editRecordingSuccess,
   editRecordingFailure,
-  getBucketTokenRequest,
-  getBucketTokenSuccess,
-  getBucketTokenFailure,
   loadAccountTokenRequest,
   loadAccountTokenSuccess,
   loadAccountTokenFailure,
@@ -36,7 +31,6 @@ import {
   setInputDeviceSuccess,
   setInputDeviceFailure,
   downloadRecordingSucess,
-  downloadRecordingFailue,
   downloadRecordingRequest,
   cacheRecordingRequest,
   cacheRecordingSuccess,
@@ -55,26 +49,18 @@ import {
   getCompanionsRequest,
   getCompanionsFailure,
   getCompanionsSuccess,
-} from '../store/actions';
+} from '@/store/actions';
 import {
   Recording,
   RecordingStorageStatus,
-} from '../common/Recording.interface';
-import { RecordingSettings } from '../common/RecordingSettings.interface';
-import { RECORDING_COLLECTION, IDENTITY_STORE } from '../common/constants';
-import { IpcService } from '../IpcService';
-import { Buckets, KeyInfo, PrivateKey } from '@textile/hub';
-import { OrbitDatabase } from '../db/db-orbit';
-import { RecordingModel } from '../db/recording.model';
-import { AccountInfo } from '../common/AccountInfo.interface';
-import { Companion, CompanionStatus } from '../common/Companion.interface';
-import { OrbitConnection } from '../db/OrbitConnection';
-import {
-  CompanionRepository,
-  RecordingRepository,
-  UserRepository,
-} from '../db/Repository';
-import { User } from '../common/User.interface';
+} from '@/common/Recording.interface';
+import { RecordingSettings } from '@/common/RecordingSettings.interface';
+import { RECORDING_COLLECTION, IDENTITY_STORE } from '@/common/constants';
+import { IpcService } from '@/IpcService';
+import { AccountInfo } from '@/common/AccountInfo.interface';
+import { Companion } from '@/common/Companion.interface';
+import { OrbitConnection } from '@/db/OrbitConnection';
+import { RecordingRepository, UserRepository } from '@/db/Repository';
 
 const ipc = new IpcService();
 
