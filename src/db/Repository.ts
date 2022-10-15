@@ -153,15 +153,6 @@ export abstract class OrbitKVRepository<T> implements BaseKVRepository<T> {
     await this.db.load();
     await this.setup();
 
-    // this.db.set({
-    //   nodeId: this.peerInfo.id,
-    //   dbAddress: this.db.address,
-    //   deviceName: this.getDeviceName(),
-    // })
-    // await this.db.set('nodeId', await this.node.id() as unknown as T)
-    // await this.db.set('dbAddress', this.db.address as unknown as T)
-    // await this.db.set('deviceName', )
-
     return this;
   }
 
@@ -212,65 +203,4 @@ export class UserRepository extends OrbitKVRepository<AccountInfo> {
     if (!deviceName) deviceName = generateUsername('-');
     return deviceName;
   }
-
-  // async init() {
-  //   try {
-  //     const db = await this.orbitdb.keyvalue(this.dbName);
-  //     await db.load();
-  //     console.log(
-  //       '### this.orbitdb._ipfs.id():',
-  //       (await this.orbitdb._ipfs.id()).id
-  //     );
-  //     await db.set('nodeId', (await this.orbitdb._ipfs.id()).id);
-  //     await db.set('dbAddress', db.address);
-  //     await db.set('deviceName', await this.getDeviceName());
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
-  // async getDeviceName() {
-  //   const db = await this.orbitdb.keyvalue(this.dbName);
-  //   await db.load();
-  //   let deviceName = await db.get('deviceName');
-  //   if (!deviceName) deviceName = generateUsername('-');
-  //   return deviceName;
-  // }
-}
-
-export class CompanionRepository extends OrbitKVRepository<Companion> {
-  async setup() {}
-  // private db: KeyValueStore<Companion>;
-  // private loadCompanionsTimeout: ReturnType<typeof setTimeout>;
-  // async init() {
-  //   this.db = await this.orbitdb.keyvalue(this.dbName);
-  //   await this.loadCompanions();
-  // }
-  // loadCompanions = async () => {
-  //   try {
-  //     const loadCompanionsAC = new AbortController();
-  //     loadCompanionsAC.signal.addEventListener('abort', async () => {
-  //       console.log('### ABORT SIGNAL TRIGGERED ###');
-  //       await this.db.drop();
-  //       clearTimeout(this.loadCompanionsTimeout);
-  //       await this.loadCompanions();
-  //     });
-  //     this.loadCompanionsTimeout = setTimeout(
-  //       () => loadCompanionsAC.abort(),
-  //       15000
-  //     );
-  //     await this.db.load();
-  //     const companions = this.db.all;
-  //     const companionKeys = Object.keys(companions);
-  //     // companionKeys.forEach((key) => {
-  //     //   console.log(`* companion ${key}:`, companions[key]);
-  //     // });
-  //     for (const key of companionKeys) {
-  //       console.log(`* companion ${key}:`, companions[key]);
-  //     }
-  //   } catch (err) {
-  //     console.error('Could not load companions:', err);
-  //     throw new Error('Could not load companions');
-  //   }
-  //   console.log('*** done loading companions ***');
-  // };
 }
