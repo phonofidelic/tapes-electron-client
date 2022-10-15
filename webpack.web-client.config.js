@@ -1,8 +1,8 @@
 const path = require('path');
-const webpack = require('webpack')
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
-require('dotenv').config()
+require('dotenv').config();
 
 module.exports = {
   entry: {
@@ -17,26 +17,27 @@ module.exports = {
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/'
+    publicPath: '/',
   },
   devServer: {
     hot: true,
     port: 3001,
     // contentBase: path.resolve(__dirname, 'src'),
-    historyApiFallback: true
+    historyApiFallback: true,
   },
   resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
     fallback: {
       path: require.resolve('path-browserify'),
-      buffer: require.resolve("buffer"),
-      stream: require.resolve("stream-browserify"),
+      buffer: require.resolve('buffer'),
+      stream: require.resolve('stream-browserify'),
       process: false,
       crypto: false,
-      zlib: false
+      zlib: false,
     },
     alias: {
-      stream: path.resolve(__dirname, 'node_modules/stream-browserfy')
+      stream: path.resolve(__dirname, 'node_modules/stream-browserfy'),
+      '@': path.resolve('src'),
     },
   },
   module: {
@@ -47,15 +48,15 @@ module.exports = {
         use: {
           loader: 'ts-loader',
           options: {
-            transpileOnly: true
-          }
-        }
+            transpileOnly: true,
+          },
+        },
       },
       {
         test: /\.css$/,
         use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
-      }
-    ]
+      },
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -66,20 +67,22 @@ module.exports = {
     }),
     // new HtmlWebpackInlineSourcePlugin(HtmlWebpackPlugin),
     new webpack.ProvidePlugin({
-      process: 'process/browser'
+      process: 'process/browser',
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
     }),
     new webpack.DefinePlugin({
-      'process.env.USER_API_KEY': JSON.stringify(process.env.USER_API_KEY || '')
+      'process.env.USER_API_KEY': JSON.stringify(
+        process.env.USER_API_KEY || ''
+      ),
     }),
     new webpack.DefinePlugin({
       WEB_CLIENT_URL: JSON.stringify(process.env.WEB_CLIENT_URL),
     }),
     new webpack.DefinePlugin({
-      LIBP2P_SIG_SERVER: JSON.stringify(process.env.LIBP2P_SIG_SERVER)
+      LIBP2P_SIG_SERVER: JSON.stringify(process.env.LIBP2P_SIG_SERVER),
     }),
   ],
-  devtool: 'eval-cheap-source-map'
+  devtool: 'eval-cheap-source-map',
 };

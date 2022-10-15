@@ -10,6 +10,7 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
+    '@': path.resolve('src'),
   },
   externals: [
     'datastore-level',
@@ -25,5 +26,5 @@ module.exports = {
   //   __dirname: true,
   //   __filename: true
   // }
-  devtool: 'eval-cheap-source-map'
+  devtool: 'eval-cheap-source-map',
 };
