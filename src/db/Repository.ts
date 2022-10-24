@@ -12,11 +12,7 @@ import { generateUsername } from 'unique-username-generator';
 
 import { Recording } from '../common/Recording.interface';
 import KeyValueStore from 'orbit-db-kvstore';
-import { User } from '../common/User.interface';
-//@ts-ignore
-import { PeerInfo } from 'ipfs';
 import type { IPFS } from 'ipfs-core-types';
-import { Companion } from '../common/Companion.interface';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import { RECORDING_COLLECTION } from '../common/constants';
 
