@@ -2,10 +2,8 @@ import OrbitDB from 'orbit-db';
 import type { IPFS } from 'ipfs-core-types';
 //@ts-ignore
 import { PeerInfo } from 'ipfs';
-import { generateUsername } from 'unique-username-generator';
 import { createIpfsNode } from '@/db/utils';
 import { Companion, CompanionStatus } from '@/common/Companion.interface';
-import { User } from '@/common/User.interface';
 import KeyValueStore from 'orbit-db-kvstore';
 import { UserRepository } from './Repository';
 import { AccountInfo } from '@/common/AccountInfo.interface';
@@ -22,18 +20,11 @@ interface OrbitDBWithPeerInfo extends OrbitDB {
 }
 
 export class OrbitConnection {
-  // private orbitdb: OrbitDB;
   public static _instance: OrbitConnection;
   public orbitdb: OrbitDBWithPeerInfo;
-  private static connect(): OrbitDBWithPeerInfo {
-    throw new Error('Method not implemented.');
-  }
   public node: IPFS;
-  // private orbitdb: OrbitDB;
-  /* REMOVE? */ public user: KeyValueStore<AccountInfo>;
-  /* REMOVE? */ public companions: KeyValueStore<Companion>;
-  // /* REMOVE? */ private docStores: { [key: string]: DocumentStore<unknown> } =
-  //   {};
+  public user: KeyValueStore<AccountInfo>;
+  public companions: KeyValueStore<Companion>;
   private defaultOptions: OrbitAccessControllerOptions;
   private peerConnectTimeout: ReturnType<typeof setTimeout>;
   private companionConnectionInterval: ReturnType<typeof setInterval>;
@@ -331,21 +322,6 @@ export class OrbitConnection {
       );
 
     return matchedCompanion.dbAddress;
-  }
-
-  private getDeviceName() {
-    let deviceName = this.user.get('deviceName');
-    //@ts-ignore
-    if (!deviceName) deviceName = generateUsername('-');
-    return deviceName;
-  }
-
-  private async setUserData(fixtureData: any) {
-    const fixtureKeys = Object.keys(fixtureData);
-    for (const i in fixtureKeys) {
-      const key = fixtureKeys[i];
-      await this.user.set(key, fixtureData[key]);
-    }
   }
 
   private async getIpfsPeerIds() {
