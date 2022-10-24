@@ -7,6 +7,8 @@ import { createIpfsNode } from '@/db/utils';
 import { Companion, CompanionStatus } from '@/common/Companion.interface';
 import { User } from '@/common/User.interface';
 import KeyValueStore from 'orbit-db-kvstore';
+import { UserRepository } from './Repository';
+import { AccountInfo } from '@/common/AccountInfo.interface';
 
 interface OrbitAccessControllerOptions {
   accessController: {
@@ -28,7 +30,7 @@ export class OrbitConnection {
   }
   public node: IPFS;
   // private orbitdb: OrbitDB;
-  /* REMOVE? */ public user: KeyValueStore<User>;
+  /* REMOVE? */ public user: KeyValueStore<AccountInfo>;
   /* REMOVE? */ public companions: KeyValueStore<Companion>;
   // /* REMOVE? */ private docStores: { [key: string]: DocumentStore<unknown> } =
   //   {};
@@ -91,17 +93,11 @@ export class OrbitConnection {
     /**
      * Users key-value store
      */
-    this.user = await this.orbitdb.keyvalue('user', this.defaultOptions);
-
-    await this.user.load();
-
-    await this.setUserData({
-      // docStores: this.getDocStoreIds(),
-      nodeId: this.peerInfo.id,
-      // nodeId: await this.node.id(),
-      dbAddress: this.user.address,
-      deviceName: this.getDeviceName(),
-    });
+    this.user = await new UserRepository(
+      this.node,
+      this.orbitdb,
+      'user'
+    ).init();
 
     /**
      * Companions key-value store

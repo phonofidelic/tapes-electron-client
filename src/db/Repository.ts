@@ -20,31 +20,34 @@ import { Companion } from '../common/Companion.interface';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import { RECORDING_COLLECTION } from '../common/constants';
 
-interface Reader<T> {
+interface DocumentReader<T> {
   find(query: Partial<T>): Promise<T[]>;
   findById(_id: string): Promise<T>;
 }
 
-interface Writer<T> {
+interface DocumentWriter<T> {
   add(doc: T): Promise<T>;
   update(_id: string, update: Partial<T>): Promise<T>;
   delete(_id: string): Promise<string>;
 }
 
-interface KVReader<T> {
+interface KeyValueReader<T> {
   get(key: string): Promise<T>;
-  all: T;
+  all(): Promise<T>;
 }
 
-interface KVWriter<T> {
+interface KeyValueWriter<T> {
   set(key: string, value: T): Promise<void>;
 }
 
-type BaseRepository<T> = Reader<T> & Writer<T>;
+type BaseRepository<T> = DocumentReader<T> &
+  DocumentWriter<T> &
+  KeyValueReader<T> &
+  KeyValueWriter<T>;
 
-type BaseKVRepository<T> = KVReader<T> & KVWriter<T>;
+export class OrbitRepository<T> implements BaseRepository<T> {
+  public kvstore: KeyValueStore<AccountInfo>;
 
-export abstract class OrbitRepository<T> implements BaseRepository<T> {
   constructor(
     public readonly node: IPFS,
     public readonly orbitdb: OrbitDB,
@@ -52,9 +55,28 @@ export abstract class OrbitRepository<T> implements BaseRepository<T> {
     public readonly recordingsAddrRoot?: string
   ) {}
 
-  async find(query: any) {
-    console.log('find, recordingsAddrRoot', this.recordingsAddrRoot);
+  async init(): Promise<KeyValueStore<AccountInfo>> {
+    this.kvstore = await this.orbitdb.kvstore(this.dbName);
+    const peerInfo = await this.node.id();
 
+    await this.kvstore.load();
+    await this.kvstore.set('nodeId', peerInfo.id as unknown as AccountInfo);
+    await this.kvstore.set(
+      'dbAddress',
+      this.kvstore.address as unknown as AccountInfo
+    );
+
+    let deviceName = this.kvstore.get('deviceName');
+    if (!deviceName) {
+      deviceName = generateUsername('-') as unknown as AccountInfo;
+    }
+
+    await this.kvstore.set('deviceName', deviceName);
+
+    return this.kvstore;
+  }
+
+  async find(query: any) {
     const db: DocumentStore<T> = await this.orbitdb.docs(
       // this.dbName
       this.recordingsAddrRoot
@@ -86,8 +108,6 @@ export abstract class OrbitRepository<T> implements BaseRepository<T> {
         ...db.query((doc: any) => doc[key] === query[key]),
       ];
     });
-
-    console.log('*** find recordings results:', results);
 
     return results;
   }
@@ -135,26 +155,6 @@ export abstract class OrbitRepository<T> implements BaseRepository<T> {
 
     return _id;
   }
-}
-
-export abstract class OrbitKVRepository<T> implements BaseKVRepository<T> {
-  public db: KeyValueStore<T>;
-
-  abstract setup(): Promise<void>;
-
-  constructor(
-    public readonly node: IPFS,
-    public readonly orbitdb: OrbitDB,
-    public readonly dbName: string
-  ) {}
-
-  async init() {
-    this.db = await this.orbitdb.keyvalue(this.dbName);
-    await this.db.load();
-    await this.setup();
-
-    return this;
-  }
 
   async get(key: string) {
     const db: KeyValueStore<T> = await this.orbitdb.keyvalue(this.dbName);
@@ -163,11 +163,11 @@ export abstract class OrbitKVRepository<T> implements BaseKVRepository<T> {
     return db.get(key);
   }
 
-  get all() {
-    // const db: KeyValueStore<T> = await this.orbitdb.keyvalue(this.dbName);
-    // await db.load();
+  async all() {
+    const db: KeyValueStore<T> = await this.orbitdb.keyvalue(this.dbName);
+    await db.load();
 
-    return this.db.all as unknown as T;
+    return db.all as unknown as T;
   }
 
   async set(key: string, value: T) {
@@ -175,32 +175,15 @@ export abstract class OrbitKVRepository<T> implements BaseKVRepository<T> {
     await db.set(key as string, value);
   }
 }
-
 export class RecordingRepository extends OrbitRepository<Recording> {
   async getAddress() {
     const address = await this.orbitdb.determineAddress(
       RECORDING_COLLECTION,
       'docstore'
     );
-    console.log('*** getAddress, address:', address);
 
     return address;
   }
 }
 
-export class UserRepository extends OrbitKVRepository<AccountInfo> {
-  async setup(): Promise<void> {
-    const peerInfo = await this.node.id();
-    console.log('*** peerInfo:', peerInfo);
-    await this.db.set('nodeId', peerInfo.id as unknown as AccountInfo);
-    await this.db.set('dbAddress', this.db.address as unknown as AccountInfo);
-    await this.db.set('deviceName', this.getDeviceName());
-  }
-
-  private getDeviceName() {
-    let deviceName = this.db.get('deviceName');
-    //@ts-ignore
-    if (!deviceName) deviceName = generateUsername('-');
-    return deviceName;
-  }
-}
+export class UserRepository extends OrbitRepository<AccountInfo> {}

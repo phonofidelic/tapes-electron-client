@@ -176,11 +176,7 @@ export const loadAccountInfo = (): Effect => async (dispatch) => {
   try {
     dispatch(setLoadingMessage('Loading account info...'));
     await OrbitConnection.Instance.connect();
-    const userRepository = await new UserRepository(
-      OrbitConnection.Instance.node,
-      OrbitConnection.Instance.orbitdb,
-      'user'
-    ).init();
+    const userRepository = OrbitConnection.Instance.user;
 
     const recordingsRepository = new RecordingRepository(
       OrbitConnection.Instance.node,
