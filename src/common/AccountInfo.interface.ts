@@ -3,4 +3,5 @@ export type AccountInfo = {
   dbAddress: string;
   deviceName: string;
   recordingsDb?: { root: string; path: string };
+  recordingsAddrRoot: string;
 };
