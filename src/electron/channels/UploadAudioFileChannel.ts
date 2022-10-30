@@ -1,10 +1,10 @@
 import path from 'path';
-import util from 'util'
+import util from 'util';
 import { promises as fs } from 'fs';
 import * as mm from 'music-metadata';
 import { randomBytes } from 'crypto';
 import { IpcMainEvent } from 'electron';
-import { getFilesFromPath } from 'web3.storage'
+import { getFilesFromPath } from 'web3.storage';
 
 import {
   setStorageDir,
@@ -66,27 +66,27 @@ export class UploadAudioFileChannel implements IpcChannel {
       /**
        * Upload file to IPFS
        */
-      const files = await getFilesFromPath(filePath)
-      const cid = await storageService.put(files as unknown as File[])
+      const files = await getFilesFromPath(filePath);
+      const cid = await storageService.put(files as unknown as File[]);
 
       /**
        * Get audio metadata,
-       * Destructure "picture" from metadata.common and exclude it from 
+       * Destructure "picture" from metadata.common and exclude it from
        * recordingData since Buffer does not seem to be supported by orbitDB.
        */
       const metadata = await mm.parseFile(filePath);
-      const { picture, ...common } = metadata.common
+      const { picture, ...common } = metadata.common;
       console.log('*** metadata:', util.inspect(metadata, true, 8, true));
 
       /**
        * Attempt to get cover art from MusicBrainz.
        * Don't throw an error if unsuccessful.
        */
-      let musicBrainzCoverArt
+      let musicBrainzCoverArt;
       try {
-        musicBrainzCoverArt = await getMusicBrainzCoverArt(metadata.common)
+        musicBrainzCoverArt = await getMusicBrainzCoverArt(metadata.common);
       } catch (err) {
-        console.error(err)
+        console.error(err);
       }
 
       let recordingData: Recording;
@@ -133,10 +133,10 @@ export class UploadAudioFileChannel implements IpcChannel {
         common,
         cid,
         acoustidResults: [await acoustidResponse.data.results[0]],
-        musicBrainzCoverArt,
+        musicBrainzCoverArt: musicBrainzCoverArt ?? null,
       };
 
-      recordings.push(recordingData)
+      recordings.push(recordingData);
     }
     event.sender.send(request.responseChannel, {
       message: 'Success!',
