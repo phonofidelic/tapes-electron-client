@@ -30,14 +30,10 @@ import FormLabel from '@mui/material/FormLabel';
 import QrCodeIcon from '@mui/icons-material/QrCode2';
 import { Checkbox, FormGroup, SelectChangeEvent } from '@mui/material';
 
-//@ts-ignore
-import { PeerInfo } from 'ipfs';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import EditableText from '../components/EditableText';
 import { Companion } from '../common/Companion.interface';
 import CompanionsList from '../components/CompanionsList';
-import { RecordingRepository } from '../db/Repository';
-import { OrbitConnection } from '../db/OrbitConnection';
 import { RECORDING_COLLECTION } from '../common/constants';
 import { Loader } from '../components/Loader';
 
@@ -86,7 +82,6 @@ export function Settings({
 }: SettingsProps) {
   const [audioInputDevices, setAudioInputDevices] = useState([]);
   const [QROpen, setQROpen] = useState(false);
-  const [peerInfo, setPeerInfo] = useState<PeerInfo | null>(null);
   const [showDebug, setShowDebug] = useState(0);
   const [localWebClient, setLocalWebClient] = useState(false);
 
@@ -129,7 +124,6 @@ export function Settings({
     );
     console.log('handleSelectAudioInput, deviceInfo:', deviceInfo);
 
-    // setSelectedMediaDeviceId(event.target.value);
     setRecordingSettings({
       ...recordingSettings,
       selectedMediaDeviceId: deviceId,
@@ -139,9 +133,7 @@ export function Settings({
     dispatch(setInputDevice(deviceInfo.label));
   };
 
-  /** TODO: Rename this */
   const handleOpenQR = () => {
-    // setPeerInfo(accountInfo.peerInfo);
     setQROpen(true);
   };
 
@@ -181,49 +173,13 @@ export function Settings({
     getMediaDevices();
   }, []);
 
-  // useEffect(() => {
-  //   !loading &&
-  //     !databaseInitializing &&
-  //     (dispatch(loadAccountInfo()), dispatch(getCompanions()));
-  // }, [databaseInitializing]);
   useEffect(() => {
     dispatch(loadAccountInfo());
-    // dispatch(getCompanions());
   }, []);
 
-  // useEffect(() => {
-  //   /**
-  //    * Check for companion status updates every 10 sec
-  //    */
-  //   const getCompanionsInterval = setInterval(
-  //     () => dispatch(getCompanions()),
-  //     10000
-  //   );
-  //   return () => clearInterval(getCompanionsInterval);
-  // }, []);
-
-  // if (loading) {
-  //   return <Loader />;
-  // }
-
-  // useEffect(() => {
-  //   const loadRecordingsRepo = async () => {
-  //     console.log('### CONNECTING ###');
-  //     await OrbitConnection.Instance.connect();
-  //     console.log('### CONNECTED ###', OrbitConnection.Instance.orbitdb);
-  //     const recordingsRepo = new RecordingRepository(
-  //       OrbitConnection.Instance.orbitdb,
-  //       RECORDING_COLLECTION
-  //     );
-  //     console.log('recordingRepo:', recordingsRepo);
-  //     const address = (await recordingsRepo.orbitdb.docs(RECORDING_COLLECTION))
-  //       .address;
-  //     console.log('### ADDRESS:', address);
-  //   };
-  //   loadRecordingsRepo();
-  // }, []);
-
-  // if (!accountInfo) return <Loader loading={true} loadingMessage="bajs!" />;
+  if (loading) {
+    return <Loader loading={loading} loadingMessage={loadingMessage} />;
+  }
 
   return (
     <div>
