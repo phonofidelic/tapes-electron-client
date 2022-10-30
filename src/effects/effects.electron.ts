@@ -519,8 +519,13 @@ export const setAccountInfo =
     dispatch(setAccountInfoRequest());
 
     try {
-      await window.db.setAccountInfo(key, value);
-      const updatedAccountInfo = window.db.getAccountInfo();
+      // await window.db.setAccountInfo(key, value);
+      // const updatedAccountInfo = window.db.getAccountInfo();
+      const userRepository = OrbitConnection.Instance.user;
+
+      userRepository.set(key, value);
+      const updatedAccountInfo = userRepository.all;
+
       dispatch(setAccountInfoSuccess(updatedAccountInfo));
     } catch (err) {
       console.error('Could not set account info:', err);

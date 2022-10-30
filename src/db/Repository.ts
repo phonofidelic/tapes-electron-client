@@ -41,6 +41,14 @@ type BaseRepository<T> = DocumentReader<T> &
   KeyValueReader<T> &
   KeyValueWriter<T>;
 
+type AccountInfoKey = keyof AccountInfo;
+export interface UserStore {
+  get<T extends AccountInfoKey>(key: T): AccountInfo[T];
+  put<T extends AccountInfoKey>(key: T, value: AccountInfo[T]): Promise<string>;
+  set<T extends AccountInfoKey>(key: T, value: AccountInfo[T]): Promise<string>;
+  all: AccountInfo;
+}
+
 export class OrbitRepository<T> implements BaseRepository<T> {
   public kvstore: KeyValueStore<AccountInfo>;
 
@@ -51,7 +59,7 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     public readonly recordingsAddrRoot?: string
   ) {}
 
-  async init(): Promise<KeyValueStore<AccountInfo>> {
+  async init(): Promise<UserStore> {
     this.kvstore = await this.orbitdb.kvstore(this.dbName);
     const peerInfo = await this.node.id();
 
@@ -62,6 +70,12 @@ export class OrbitRepository<T> implements BaseRepository<T> {
       this.kvstore.address as unknown as AccountInfo
     );
 
+    this.recordingsAddrRoot &&
+      (await this.kvstore.set(
+        'recordingsAddrRoot',
+        this.recordingsAddrRoot as unknown as AccountInfo
+      ));
+
     let deviceName = this.kvstore.get('deviceName');
     if (!deviceName) {
       deviceName = generateUsername('-') as unknown as AccountInfo;
@@ -69,7 +83,7 @@ export class OrbitRepository<T> implements BaseRepository<T> {
 
     await this.kvstore.set('deviceName', deviceName);
 
-    return this.kvstore;
+    return this.kvstore as unknown as UserStore;
   }
 
   async find(query: any) {

@@ -234,8 +234,7 @@ export function Settings({
           value={`${
             localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
           }/?peerid=${accountInfo.nodeId || ''}&address=${
-            `${accountInfo.recordingsDb.root}/${accountInfo.recordingsDb.path}` ||
-            ''
+            `${accountInfo.recordingsAddrRoot}/${RECORDING_COLLECTION}` || ''
           }`}
           onClose={handleCloseQR}
         />

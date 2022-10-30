@@ -5,7 +5,7 @@ import { PeerInfo } from 'ipfs';
 import { createIpfsNode } from '@/db/utils';
 import { Companion, CompanionStatus } from '@/common/Companion.interface';
 import KeyValueStore from 'orbit-db-kvstore';
-import { UserRepository } from './Repository';
+import { UserRepository, UserStore } from './Repository';
 import { AccountInfo } from '@/common/AccountInfo.interface';
 
 interface OrbitAccessControllerOptions {
@@ -23,7 +23,7 @@ export class OrbitConnection {
   public static _instance: OrbitConnection;
   public orbitdb: OrbitDBWithPeerInfo;
   public node: IPFS;
-  public user: KeyValueStore<AccountInfo>;
+  public user: UserStore;
   public companions: KeyValueStore<Companion>;
   private defaultOptions: OrbitAccessControllerOptions;
   private peerConnectTimeout: ReturnType<typeof setTimeout>;
@@ -87,7 +87,8 @@ export class OrbitConnection {
     this.user = await new UserRepository(
       this.node,
       this.orbitdb,
-      'user'
+      'user',
+      this.recordingsAddrRoot
     ).init();
 
     /**
