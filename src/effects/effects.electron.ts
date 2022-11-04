@@ -107,8 +107,7 @@ export const uploadAudioFiles =
         // const connection = await OrbitConnection.connection();
         await OrbitConnection.Instance.connect();
         const repository = new RecordingRepository(
-          OrbitConnection.Instance.node,
-          OrbitConnection.Instance.orbitdb,
+          OrbitConnection.Instance,
           RECORDING_COLLECTION
         );
         const createdRecording = await repository.add(recordingData);
@@ -161,8 +160,7 @@ export const startRecording =
       // const connection = await OrbitConnection.connection();
       await OrbitConnection.Instance.connect();
       const repository = new RecordingRepository(
-        OrbitConnection.Instance.node,
-        OrbitConnection.Instance.orbitdb,
+        OrbitConnection.Instance,
         RECORDING_COLLECTION
       );
 
@@ -208,8 +206,7 @@ export const loadRecordings =
       console.log('load recordings, recordingsAddrRoot', recordingsAddrRoot);
 
       const repository = new RecordingRepository(
-        OrbitConnection.Instance.node,
-        OrbitConnection.Instance.orbitdb,
+        OrbitConnection.Instance,
         RECORDING_COLLECTION,
         recordingsAddrRoot + `/${RECORDING_COLLECTION}`
       );
@@ -238,8 +235,7 @@ export const editRecording =
       // const connection = await OrbitConnection.connection();\
       await OrbitConnection.Instance.connect();
       const repository = new RecordingRepository(
-        OrbitConnection.Instance.node,
-        OrbitConnection.Instance.orbitdb,
+        OrbitConnection.Instance,
         RECORDING_COLLECTION
       );
       const updatedRecording = await repository.update(recordingId, update);
@@ -262,8 +258,7 @@ export const deleteRecording =
       // const connection = await OrbitConnection.connection();
       await OrbitConnection.Instance.connect();
       const repository = new RecordingRepository(
-        OrbitConnection.Instance.node,
-        OrbitConnection.Instance.orbitdb,
+        OrbitConnection.Instance,
         RECORDING_COLLECTION
       );
 
@@ -453,8 +448,7 @@ export const loadAccountInfo = (): Effect => async (dispatch) => {
     const userRepository = OrbitConnection.Instance.user;
 
     const recordingsRepository = new RecordingRepository(
-      OrbitConnection.Instance.node,
-      OrbitConnection.Instance.orbitdb,
+      OrbitConnection.Instance,
       RECORDING_COLLECTION
     );
 

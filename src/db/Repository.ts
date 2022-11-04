@@ -15,6 +15,7 @@ import KeyValueStore from 'orbit-db-kvstore';
 import type { IPFS } from 'ipfs-core-types';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import { RECORDING_COLLECTION } from '../common/constants';
+import { OrbitConnection } from './OrbitConnection';
 
 interface DocumentReader<T> {
   find(query: Partial<T>): Promise<T[]>;
@@ -51,13 +52,17 @@ export interface UserStore {
 
 export class OrbitRepository<T> implements BaseRepository<T> {
   public kvstore: KeyValueStore<AccountInfo>;
+  public readonly node: IPFS;
+  public readonly orbitdb: OrbitDB;
 
   constructor(
-    public readonly node: IPFS,
-    public readonly orbitdb: OrbitDB,
+    private orbitConnection: typeof OrbitConnection.Instance,
     public readonly dbName: string,
     public readonly recordingsAddrRoot?: string
-  ) {}
+  ) {
+    this.node = this.orbitConnection.node;
+    this.orbitdb = this.orbitConnection.orbitdb;
+  }
 
   async init(): Promise<UserStore> {
     this.kvstore = await this.orbitdb.kvstore(this.dbName);

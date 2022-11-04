@@ -65,8 +65,7 @@ export const loadRecordings = (): Effect => async (dispatch) => {
   try {
     dispatch(setLoadingMessage('Loading library...'));
     const repository = new RecordingRepository(
-      OrbitConnection.Instance.node,
-      OrbitConnection.Instance.orbitdb,
+      OrbitConnection.Instance,
       RECORDING_COLLECTION,
       OrbitConnection.Instance.recordingsAddrRoot
     );
@@ -179,8 +178,7 @@ export const loadAccountInfo = (): Effect => async (dispatch) => {
     const userRepository = OrbitConnection.Instance.user;
 
     const recordingsRepository = new RecordingRepository(
-      OrbitConnection.Instance.node,
-      OrbitConnection.Instance.orbitdb,
+      OrbitConnection.Instance,
       RECORDING_COLLECTION
     );
 

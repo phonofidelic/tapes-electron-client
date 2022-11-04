@@ -85,8 +85,7 @@ export class OrbitConnection {
      * Users key-value store
      */
     this.user = await new UserRepository(
-      this.node,
-      this.orbitdb,
+      this,
       'user',
       this.recordingsAddrRoot
     ).init();
