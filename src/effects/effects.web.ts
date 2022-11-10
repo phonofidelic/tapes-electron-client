@@ -93,11 +93,14 @@ export const editRecording =
   async (dispatch) => {
     dispatch(editRecordingRequest());
     try {
-      const updatedRecording = await window.db.update(
-        'recordings',
-        recordingId,
-        update
+      await OrbitConnection.Instance.connect();
+      const repository = new RecordingRepository(
+        OrbitConnection.Instance,
+        RECORDING_COLLECTION,
+        OrbitConnection.Instance.recordingsAddrRoot
       );
+      const updatedRecording = await repository.update(recordingId, update);
+
       console.log('updatedRecording:', updatedRecording);
       dispatch(editRecordingSuccess(updatedRecording));
     } catch (err) {

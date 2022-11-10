@@ -190,7 +190,7 @@ export function Settings({
           value={`${
             localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
           }/?peerid=${accountInfo.nodeId || ''}&address=${
-            `${accountInfo.recordingsAddrRoot}/${RECORDING_COLLECTION}` || ''
+            `${accountInfo.recordingsDb.root}/${RECORDING_COLLECTION}` || ''
           }`}
           onClose={handleCloseQR}
         />

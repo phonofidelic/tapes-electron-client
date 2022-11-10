@@ -227,16 +227,11 @@ export const editRecording =
   async (dispatch) => {
     dispatch(editRecordingRequest());
     try {
-      // const updatedRecording = await window.db.update(
-      //   'recordings',
-      //   recordingId,
-      //   update
-      // );
-      // const connection = await OrbitConnection.connection();\
       await OrbitConnection.Instance.connect();
       const repository = new RecordingRepository(
         OrbitConnection.Instance,
-        RECORDING_COLLECTION
+        RECORDING_COLLECTION,
+        OrbitConnection.Instance.recordingsAddrRoot
       );
       const updatedRecording = await repository.update(recordingId, update);
 
@@ -312,12 +307,6 @@ export const initDatabase = (): Effect => async (dispatch) => {
   dispatch(setLoadingMessage('Initializing database...'));
 
   try {
-    // if (!window.db)
-    //   window.db = new OrbitDatabase({
-    //     onPeerDbDiscovered: console.log,
-    //   });
-    // !window.db.initialized && (await window.db.init());
-
     await OrbitConnection.Instance.connect();
 
     console.log('Database initialized');
@@ -475,19 +464,8 @@ export const loadAccountInfo = (): Effect => async (dispatch) => {
   dispatch(getCompanionsRequest);
 
   try {
-    // const companions = window.db.getAllCompanions();
-
     dispatch(setLoadingMessage('Loading companions status...'));
-    // const connection = await OrbitConnection.connection();
-    // const companionsRepo = new CompanionRepository(connection, 'companions');
-    // const companions = (await connection.keyvalue<Companion>('companions')).all;
-
-    // const companions = await companionsRepo.all();
-    // const companions = OrbitConnection._instance.companions.all;
-
     const companions = OrbitConnection.Instance.companions.all;
-
-    console.log('### companions:', companions);
 
     const companionsArray: Companion[] = Object.keys(companions).map(
       (key: string) => ({

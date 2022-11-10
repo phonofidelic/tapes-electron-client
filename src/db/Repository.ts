@@ -91,9 +91,8 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     return this.kvstore as unknown as UserStore;
   }
 
-  async find(query: any) {
+  private async getDb() {
     const db: DocumentStore<T> = await this.orbitdb.docs(
-      // this.dbName
       this.recordingsAddrRoot
         ? '/orbitdb/' + this.recordingsAddrRoot
         : this.dbName,
@@ -105,6 +104,11 @@ export class OrbitRepository<T> implements BaseRepository<T> {
       }
     );
     await db.load();
+    return db;
+  }
+
+  async find(query: any) {
+    const db = await this.getDb();
 
     let results: T[] = [];
 
@@ -128,10 +132,12 @@ export class OrbitRepository<T> implements BaseRepository<T> {
   }
 
   async findById(_id: string): Promise<T> {
-    const db: DocumentStore<T> = await this.orbitdb.docs(this.dbName);
-    await db.load();
+    const db = await this.getDb();
 
-    return db.query((doc: any) => doc._id === _id)[0];
+    const results = db.query((doc: any) => doc._id === _id);
+    console.log('findById, results', results);
+
+    return results[0];
   }
 
   async add(doc: T): Promise<T> {
@@ -148,10 +154,13 @@ export class OrbitRepository<T> implements BaseRepository<T> {
   }
 
   async update(_id: string, update: Partial<T>): Promise<T> {
-    const db: DocumentStore<T> = await this.orbitdb.docs(this.dbName);
-    await db.load();
+    const db = await this.getDb();
 
     let document = await this.findById(_id);
+    console.log('Repository, _id', _id);
+    console.log('Repository, document', document);
+
+    if (!document) throw new Error(`No document fount matching id ${_id}`);
 
     document = {
       ...document,
