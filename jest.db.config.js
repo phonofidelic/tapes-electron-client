@@ -6,4 +6,7 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   testTimeout: 15000,
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src',
+  },
 };
