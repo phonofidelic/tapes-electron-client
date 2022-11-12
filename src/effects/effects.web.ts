@@ -27,12 +27,10 @@ import {
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { Recording } from '../common/Recording.interface';
 import { RecorderState, RecorderAction } from '../store/types';
-import { OrbitDatabase } from '../db/db-orbit';
-import { asyncCallWithTimeout } from '../utils';
 import { AccountInfo } from '../common/AccountInfo.interface';
-import { Companion, CompanionStatus } from '../common/Companion.interface';
+import { Companion } from '../common/Companion.interface';
 import { OrbitConnection } from '../db/OrbitConnection';
-import { RecordingRepository, UserRepository } from '../db/Repository';
+import { RecordingRepository } from '../db/Repository';
 import { RECORDING_COLLECTION } from '@/common/constants';
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;

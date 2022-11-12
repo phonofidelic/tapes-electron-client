@@ -60,7 +60,7 @@ import { IpcService } from '@/IpcService';
 import { AccountInfo } from '@/common/AccountInfo.interface';
 import { Companion } from '@/common/Companion.interface';
 import { OrbitConnection } from '@/db/OrbitConnection';
-import { RecordingRepository, UserRepository } from '@/db/Repository';
+import { RecordingRepository } from '@/db/Repository';
 
 const ipc = new IpcService();
 
