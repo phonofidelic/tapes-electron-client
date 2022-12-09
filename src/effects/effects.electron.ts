@@ -59,7 +59,7 @@ import { RECORDING_COLLECTION, IDENTITY_STORE } from '@/common/constants';
 import { IpcService } from '@/IpcService';
 import { AccountInfo } from '@/common/AccountInfo.interface';
 import { Companion } from '@/common/Companion.interface';
-import { OrbitConnection } from '@/db/OrbitConnection';
+import OrbitConnection from '@/db/OrbitConnection';
 import { RecordingRepository } from '@/db/Repository';
 
 const ipc = new IpcService();

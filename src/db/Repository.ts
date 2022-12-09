@@ -15,7 +15,7 @@ import KeyValueStore from 'orbit-db-kvstore';
 import type { IPFS } from 'ipfs-core-types';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import { RECORDING_COLLECTION } from '../common/constants';
-import { OrbitConnection } from './OrbitConnection';
+import OrbitConnection from './OrbitConnection';
 
 interface DocumentReader<T> {
   find(query: Partial<T>): Promise<T[]>;

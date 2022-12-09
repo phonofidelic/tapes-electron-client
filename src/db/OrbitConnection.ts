@@ -19,7 +19,7 @@ interface OrbitDBWithPeerInfo extends OrbitDB {
   peerInfo: PeerInfo;
 }
 
-export class OrbitConnection {
+export default class OrbitConnection {
   public static _instance: OrbitConnection;
   public orbitdb: OrbitDBWithPeerInfo;
   public node: IPFS;
