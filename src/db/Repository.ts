@@ -54,7 +54,9 @@ export type UserStore = Omit<
   id: string;
 };
 
-export class OrbitRepository<T> implements BaseRepository<T> {
+export class OrbitRepository<T extends { _id: string }>
+  implements BaseRepository<T>
+{
   public kvstore: KeyValueStore<AccountInfo>;
   public readonly node: IPFS;
   public readonly orbitdb: OrbitDB;
@@ -111,12 +113,12 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     return db;
   }
 
-  async find(query: any) {
+  async find(query: T) {
     const db = await this.getDb();
 
     let results: T[] = [];
 
-    const keys = Object.keys(query);
+    const keys = Object.keys(query) as unknown as (keyof T)[];
     /*
      * If query is empty, return all documents
      */
@@ -126,10 +128,7 @@ export class OrbitRepository<T> implements BaseRepository<T> {
      * Otherwise, collect and return query results
      */
     keys.forEach((key) => {
-      results = [
-        ...results,
-        ...db.query((doc: any) => doc[key] === query[key]),
-      ];
+      results = [...results, ...db.query((doc: T) => doc[key] === query[key])];
     });
 
     return results;
@@ -138,7 +137,7 @@ export class OrbitRepository<T> implements BaseRepository<T> {
   async findById(_id: string): Promise<T> {
     const db = await this.getDb();
 
-    const results = db.query((doc: any) => doc._id === _id);
+    const results = db.query((doc: T) => doc._id === _id);
     console.log('findById, results', results);
 
     return results[0];
@@ -154,7 +153,7 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     const docId = cid.toString(base64.encoder);
 
     await db.put({ ...doc, _id: docId });
-    return await db.query((doc: any) => doc._id === docId)[0];
+    return await db.query((doc: T) => doc._id === docId)[0];
   }
 
   async update(_id: string, update: Partial<T>): Promise<T> {
@@ -203,7 +202,9 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     await db.set(key as string, value);
   }
 }
-export class RecordingRepository extends OrbitRepository<Recording> {
+export class RecordingRepository extends OrbitRepository<
+  Recording & { _id: string }
+> {
   async getAddress() {
     const address = await this.orbitdb.determineAddress(
       RECORDING_COLLECTION,
@@ -214,4 +215,6 @@ export class RecordingRepository extends OrbitRepository<Recording> {
   }
 }
 
-export class UserRepository extends OrbitRepository<AccountInfo> {}
+export class UserRepository extends OrbitRepository<
+  AccountInfo & { _id: string }
+> {}
