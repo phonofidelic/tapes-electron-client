@@ -16,7 +16,6 @@ import type { IPFS } from 'ipfs-core-types';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import { RECORDING_COLLECTION } from '../common/constants';
 import OrbitConnection from './OrbitConnection';
-import Store from 'orbit-db-store';
 
 interface DocumentReader<T> {
   find(query: Partial<T>): Promise<T[]>;
@@ -119,12 +118,12 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     let results: T[] = [];
 
     const keys = Object.keys(query);
-    /**
+    /*
      * If query is empty, return all documents
      */
     if (!keys.length) return db.get('');
 
-    /**
+    /*
      * Otherwise, collect and return query results
      */
     keys.forEach((key) => {
