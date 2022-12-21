@@ -16,7 +16,7 @@ interface EffectsExport {
   startRecording(recordingSettings: RecordingSettings): Effect;
   stopRecording(): Effect;
   loadRecordings(recordingsAddrRoot?: string): Effect;
-  editRecording(recordingId: string, update: any): Effect;
+  editRecording(recordingId: string, update: Partial<Recording>): Effect;
   deleteRecording(recordingId: string): Effect;
   loadAccountToken(tokenString: string): Effect;
   initDatabase(desktopPeerId?: string, recordingsAddrRoot?: string): Effect;
@@ -24,7 +24,6 @@ interface EffectsExport {
   downloadRecording(recordingId: string): Effect;
   cacheAndPlayRecording(recording: Recording): Effect;
   getRecordingStorageStatus(recordingCid: string): Effect;
-  exportIdentity(): Effect;
   loadAccountInfo(): Effect;
   setAccountInfo(key: keyof AccountInfo, value: string): Effect;
   getCompanions(): Effect;

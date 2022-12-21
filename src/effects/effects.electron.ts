@@ -133,7 +133,7 @@ export const startRecording =
   async (dispatch) => {
     dispatch(startRecordingRequest());
 
-    let ipcResponse: { recordingData: Recording; file?: any; error?: Error };
+    let ipcResponse: { recordingData: Recording; file?: File; error?: Error };
     let recordingData;
     let createdRecording;
     try {
@@ -212,7 +212,7 @@ export const loadRecordings =
   };
 
 export const editRecording =
-  (recordingId: string, update: any): Effect =>
+  (recordingId: string, update: Partial<Recording>): Effect =>
   async (dispatch) => {
     dispatch(editRecordingRequest());
     try {
@@ -324,43 +324,45 @@ export const setInputDevice =
 
 // TODO: re-implement
 export const downloadRecording =
-  (recordingId: string): Effect =>
-  async (dispatch) => {
-    dispatch(downloadRecordingRequest());
-    // try {
-    //   const { token } = await getBucket();
+  // prettier-ignore
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (_recordingId: string): Effect =>
+    async (dispatch) => {
+      dispatch(downloadRecordingRequest());
+      // try {
+      //   const { token } = await getBucket();
 
-    //   const recordingData = (await db.findById(
-    //     RECORDING_COLLECTION,
-    //     recordingId
-    //   )) as unknown as Recording;
-    //   console.log('downloadRecording, recordingData:', recordingData);
+      //   const recordingData = (await db.findById(
+      //     RECORDING_COLLECTION,
+      //     recordingId
+      //   )) as unknown as Recording;
+      //   console.log('downloadRecording, recordingData:', recordingData);
 
-    //   const response = await fetch(
-    //     recordingData.remoteLocation + `?token=${token}`,
-    //     { method: 'GET' }
-    //   );
+      //   const response = await fetch(
+      //     recordingData.remoteLocation + `?token=${token}`,
+      //     { method: 'GET' }
+      //   );
 
-    //   const blob = await response.blob();
+      //   const blob = await response.blob();
 
-    //   const a = document.createElement('a');
-    //   a.href = URL.createObjectURL(blob);
-    //   a.download = `${recordingData.title}.${recordingData.format}`;
-    //   document.body.appendChild(a);
-    //   a.click();
-    //   document.body.removeChild(a);
+      //   const a = document.createElement('a');
+      //   a.href = URL.createObjectURL(blob);
+      //   a.download = `${recordingData.title}.${recordingData.format}`;
+      //   document.body.appendChild(a);
+      //   a.click();
+      //   document.body.removeChild(a);
 
-    //   console.log('downloadRecording, response:', response);
-    // } catch (err) {
-    //   console.error('Could not download recording:', err);
-    //   dispatch(
-    //     downloadRecordingFailue(new Error('Could not download recording'))
-    //   );
-    // }
+      //   console.log('downloadRecording, response:', response);
+      // } catch (err) {
+      //   console.error('Could not download recording:', err);
+      //   dispatch(
+      //     downloadRecordingFailue(new Error('Could not download recording'))
+      //   );
+      // }
 
-    dispatch(downloadRecordingSucess());
-    console.log('TODO: Re-implement downloadRecording');
-  };
+      dispatch(downloadRecordingSucess());
+      console.log('TODO: Re-implement downloadRecording');
+    };
 
 export const cacheAndPlayRecording =
   (recording: Recording): Effect =>
@@ -405,12 +407,6 @@ export const getRecordingStorageStatus =
       dispatch(getRecordingStorageStatusFailure(err));
     }
   };
-
-// TODO: Remove if unused
-export const exportIdentity = (): Effect => async (dispatch) => {
-  console.log('exporting identity...');
-  await ipc.send('identity:export');
-};
 
 export const loadAccountInfo = (): Effect => async (dispatch) => {
   dispatch(loadAccountInfoRequest());
