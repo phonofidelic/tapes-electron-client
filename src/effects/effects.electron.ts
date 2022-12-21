@@ -73,7 +73,7 @@ export const uploadAudioFiles =
     dispatch(setLoadingMessage('Processing audio files...'));
     console.log('uploadAudioFiles, audioFiles:', audioFiles);
 
-    /**
+    /*
      * Parse data needed for Recording object
      */
     const parsedFiles = audioFiles.map((file) => ({
@@ -82,7 +82,7 @@ export const uploadAudioFiles =
       size: file.size,
     }));
 
-    /**
+    /*
      * Get Recordings with metadata from files
      */
     let ipcResponse: { message: string; data: Recording[]; error?: Error };
@@ -101,10 +101,6 @@ export const uploadAudioFiles =
     for await (const recordingData of ipcResponse.data) {
       console.log(`Creating database entry for ${recordingData.title}`);
       try {
-        // const docId = await window.db.add('recordings', recordingData);
-        // const createdRecording = await window.db.findById('recordings', docId);
-
-        // const connection = await OrbitConnection.connection();
         await OrbitConnection.Instance.connect();
         const repository = new RecordingRepository(
           OrbitConnection.Instance,
@@ -153,11 +149,6 @@ export const startRecording =
 
       recordingData = ipcResponse.recordingData;
 
-      // const docId = await window.db.add('recordings', recordingData);
-      // console.log('docId:', docId);
-      // createdRecording = await window.db.findById('recordings', docId);
-
-      // const connection = await OrbitConnection.connection();
       await OrbitConnection.Instance.connect();
       const repository = new RecordingRepository(
         OrbitConnection.Instance,
@@ -198,8 +189,6 @@ export const loadRecordings =
     dispatch(loadRecordingsRequest());
 
     try {
-      // const recordings = await window.db.find('recordings', {});
-
       dispatch(setLoadingMessage('Initializing database...'));
       await OrbitConnection.Instance.connect();
 
@@ -250,17 +239,12 @@ export const deleteRecording =
 
     try {
       dispatch(setLoadingMessage('Deleting recording...'));
-      // const connection = await OrbitConnection.connection();
       await OrbitConnection.Instance.connect();
       const repository = new RecordingRepository(
         OrbitConnection.Instance,
         RECORDING_COLLECTION
       );
 
-      // const recording = (await window.db.findById(
-      //   'recordings',
-      //   recordingId
-      // )) as unknown as Recording;
       const recording = await repository.findById(recordingId);
 
       const deleteRecordingResponse = await ipc.send('recordings:delete_one', {
@@ -268,7 +252,6 @@ export const deleteRecording =
       });
       console.log('deleteRecordingResponse:', deleteRecordingResponse);
 
-      // await window.db.delete('recordings', recordingId);
       await repository.delete(recordingId);
 
       dispatch(deleteRecordingSuccess(recordingId));
@@ -487,8 +470,6 @@ export const setAccountInfo =
     dispatch(setAccountInfoRequest());
 
     try {
-      // await window.db.setAccountInfo(key, value);
-      // const updatedAccountInfo = window.db.getAccountInfo();
       const userRepository = OrbitConnection.Instance.user;
 
       userRepository.set(key, value);
@@ -505,15 +486,8 @@ export const getCompanions = (): Effect => async (dispatch) => {
   dispatch(getCompanionsRequest);
 
   try {
-    // const companions = window.db.getAllCompanions();
-
     dispatch(setLoadingMessage('Loading companions status...'));
-    // const connection = await OrbitConnection.connection();
-    // const companionsRepo = new CompanionRepository(connection, 'companions');
-    // await companionsRepo.init();
-    // // const companions = (await connection.keyvalue<Companion>('companions')).all;
 
-    // const companions = await companionsRepo.all();
     await OrbitConnection.Instance.connect();
     const companions = OrbitConnection._instance.companions.all;
 
