@@ -54,9 +54,7 @@ export type UserStore = Omit<
   id: string;
 };
 
-export class OrbitRepository<T extends { _id: string }>
-  implements BaseRepository<T>
-{
+export class OrbitRepository<T> implements BaseRepository<T> {
   public kvstore: KeyValueStore<AccountInfo>;
   public readonly node: IPFS;
   public readonly orbitdb: OrbitDB;
@@ -113,7 +111,7 @@ export class OrbitRepository<T extends { _id: string }>
     return db;
   }
 
-  async find(query: T) {
+  async find(query: Partial<T>) {
     const db = await this.getDb();
 
     let results: T[] = [];
@@ -137,7 +135,7 @@ export class OrbitRepository<T extends { _id: string }>
   async findById(_id: string): Promise<T> {
     const db = await this.getDb();
 
-    const results = db.query((doc: T) => doc._id === _id);
+    const results = db.query((doc: T & { _id: string }) => doc._id === _id);
     console.log('findById, results', results);
 
     return results[0];
@@ -153,7 +151,7 @@ export class OrbitRepository<T extends { _id: string }>
     const docId = cid.toString(base64.encoder);
 
     await db.put({ ...doc, _id: docId });
-    return await db.query((doc: T) => doc._id === docId)[0];
+    return await db.query((doc: T & { _id: string }) => doc._id === docId)[0];
   }
 
   async update(_id: string, update: Partial<T>): Promise<T> {
@@ -202,9 +200,7 @@ export class OrbitRepository<T extends { _id: string }>
     await db.set(key as string, value);
   }
 }
-export class RecordingRepository extends OrbitRepository<
-  Recording & { _id: string }
-> {
+export class RecordingRepository extends OrbitRepository<Recording> {
   async getAddress() {
     const address = await this.orbitdb.determineAddress(
       RECORDING_COLLECTION,
@@ -215,6 +211,4 @@ export class RecordingRepository extends OrbitRepository<
   }
 }
 
-export class UserRepository extends OrbitRepository<
-  AccountInfo & { _id: string }
-> {}
+export class UserRepository extends OrbitRepository<AccountInfo> {}
