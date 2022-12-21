@@ -97,8 +97,8 @@ export const uploadAudioFiles =
       return dispatch(uploadRecordingsFailure(err));
     }
 
-    let createdRecordings: Recording[] = [];
-    for await (let recordingData of ipcResponse.data) {
+    const createdRecordings: Recording[] = [];
+    for await (const recordingData of ipcResponse.data) {
       console.log(`Creating database entry for ${recordingData.title}`);
       try {
         // const docId = await window.db.add('recordings', recordingData);
@@ -446,12 +446,8 @@ export const loadAccountInfo = (): Effect => async (dispatch) => {
       recordingsDb: await recordingsRepository.getAddress(),
     };
 
-    // const accountInfo = OrbitConnection.Instance.user
-    //   .all as unknown as AccountInfo;
-
     console.log('loadAccountInfo, accountInfo:', accountInfo);
 
-    //@ts-ignore
     dispatch(loadAccountInfoSuccess(accountInfo));
     dispatch(setLoadingMessage(null));
   } catch (err) {
@@ -496,7 +492,7 @@ export const setAccountInfo =
       const userRepository = OrbitConnection.Instance.user;
 
       userRepository.set(key, value);
-      const updatedAccountInfo = userRepository.all;
+      const updatedAccountInfo = userRepository.all as unknown as AccountInfo;
 
       dispatch(setAccountInfoSuccess(updatedAccountInfo));
     } catch (err) {

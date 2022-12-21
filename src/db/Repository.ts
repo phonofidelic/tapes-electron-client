@@ -16,6 +16,7 @@ import type { IPFS } from 'ipfs-core-types';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import { RECORDING_COLLECTION } from '../common/constants';
 import OrbitConnection from './OrbitConnection';
+import Store from 'orbit-db-store';
 
 interface DocumentReader<T> {
   find(query: Partial<T>): Promise<T[]>;
@@ -43,12 +44,17 @@ type BaseRepository<T> = DocumentReader<T> &
   KeyValueWriter<T>;
 
 type AccountInfoKey = keyof AccountInfo;
-export interface UserStore {
+
+export type UserStore = Omit<
+  KeyValueStore<AccountInfo>,
+  'get' | 'put' | 'set' | 'all'
+> & {
   get<T extends AccountInfoKey>(key: T): AccountInfo[T];
   put<T extends AccountInfoKey>(key: T, value: AccountInfo[T]): Promise<string>;
   set<T extends AccountInfoKey>(key: T, value: AccountInfo[T]): Promise<string>;
   all: AccountInfo;
-}
+  id: string;
+};
 
 export class OrbitRepository<T> implements BaseRepository<T> {
   public kvstore: KeyValueStore<AccountInfo>;
@@ -206,7 +212,7 @@ export class RecordingRepository extends OrbitRepository<Recording> {
       'docstore'
     );
 
-    return address;
+    return address as unknown as { root: string; path: string };
   }
 }
 

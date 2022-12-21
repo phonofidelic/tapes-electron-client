@@ -1,12 +1,10 @@
 import OrbitDB from 'orbit-db';
-import type { IPFS } from 'ipfs-core-types';
-//@ts-ignore
-import { PeerInfo } from 'ipfs';
-import { createIpfsNode } from '@/db/utils';
-import { Companion, CompanionStatus } from '@/common/Companion.interface';
+import { IPFS } from 'ipfs-core-types';
 import KeyValueStore from 'orbit-db-kvstore';
-import { UserRepository, UserStore } from './Repository';
-import { AccountInfo } from '@/common/AccountInfo.interface';
+import { Companion, CompanionStatus } from '@/common/Companion.interface';
+import { createIpfsNode } from '@/db/utils';
+import { UserRepository, UserStore } from '@/db//Repository';
+import { Libp2p } from 'libp2p/src/connection-manager';
 
 interface OrbitAccessControllerOptions {
   accessController: {
@@ -14,15 +12,13 @@ interface OrbitAccessControllerOptions {
     write: string[];
   };
 }
-
-interface OrbitDBWithPeerInfo extends OrbitDB {
-  peerInfo: PeerInfo;
+interface IPFSWithLibp2p extends IPFS {
+  libp2p: Libp2p;
 }
-
 export default class OrbitConnection {
   public static _instance: OrbitConnection;
-  public orbitdb: OrbitDBWithPeerInfo;
-  public node: IPFS;
+  public orbitdb: OrbitDB;
+  public node: IPFSWithLibp2p;
   public user: UserStore;
   public companions: KeyValueStore<Companion>;
   private defaultOptions: OrbitAccessControllerOptions;
@@ -30,46 +26,44 @@ export default class OrbitConnection {
   private companionConnectionInterval: ReturnType<typeof setInterval>;
   private loadCompanionsTimeout: ReturnType<typeof setTimeout>;
 
-  public initialized: boolean = false;
-  private initializing: boolean = false;
-  public peerInfo: PeerInfo;
+  public initialized = false;
+  private initializing = false;
+  public peerInfo: Awaited<ReturnType<IPFSWithLibp2p['id']>>;
 
   public desktopPeerId: string | undefined;
   public recordingsAddrRoot: string | undefined;
 
-  async connect(desktopPeerId?: string, recordingsAddrRoot?: string) {
+  async connect(
+    desktopPeerId?: string,
+    recordingsAddrRoot?: string
+  ): Promise<OrbitDB> {
     if (this.initialized || this.initializing) return;
     this.initializing = true;
     this.desktopPeerId = desktopPeerId;
     this.recordingsAddrRoot = recordingsAddrRoot;
-    /**
+    /*
      * Establish IPFS connection and set peer info
      */
     try {
-      this.node = this.node || (await createIpfsNode());
+      this.node = this.node || ((await createIpfsNode()) as IPFSWithLibp2p);
       this.peerInfo = await this.node.id();
     } catch (err) {
       console.error('Could not create IPFS node:', err);
       throw new Error('Could not create IPFS node');
     }
 
-    /**
+    /*
      * Create OrbitDB instance
      */
     let orbitdb;
     try {
-      this.orbitdb = (await OrbitDB.createInstance(this.node, {
-        //@ts-ignore
-        offline: process.env.NODE_ENV === 'test',
-      })) as OrbitDBWithPeerInfo;
-
-      // orbitdb.peerInfo = this.node.id();
+      this.orbitdb = (await OrbitDB.createInstance(this.node)) as OrbitDB;
     } catch (err) {
       console.error('Could not create OrbitDB instance:', err);
       throw new Error('Could not create OrbitDB instance');
     }
 
-    /**
+    /*
      * TODO: provide accesscontroller that gives access to remote
      * peer after database initialization:
      * https://github.com/orbitdb/orbit-db/blob/main/GUIDE.md#granting-access-after-database-creation
@@ -81,7 +75,7 @@ export default class OrbitConnection {
       },
     };
 
-    /**
+    /*
      * Users key-value store
      */
     this.user = await new UserRepository(
@@ -90,16 +84,17 @@ export default class OrbitConnection {
       this.recordingsAddrRoot
     ).init();
 
-    /**
+    /*
      * Companions key-value store
      */
     this.companions = await this.orbitdb.keyvalue(
       'companions',
       this.defaultOptions
     );
+
     console.log('*** loading key-val store:', this.companions.address.path);
 
-    /**
+    /*
      * If loading companions key-val store takes more than 15 sec,
      * drop the current store and try again.
      */
@@ -126,10 +121,6 @@ export default class OrbitConnection {
         const companions = this.companions.all;
         const companionKeys = Object.keys(companions);
 
-        // companionKeys.forEach((key) => {
-        //   console.log(`* companion ${key}:`, companions[key]);
-        // });
-
         for (const key of companionKeys) {
           console.log(`* companion ${key}:`, companions[key]);
         }
@@ -142,10 +133,9 @@ export default class OrbitConnection {
     await loadCompanions();
     clearTimeout(this.loadCompanionsTimeout);
 
-    /**
+    /*
      * Listen for incoming connections
      */
-    //@ts-ignore
     this.node.libp2p.connectionManager.on(
       'peer:connect',
       this.handlePeerConnected.bind(this)
@@ -156,7 +146,7 @@ export default class OrbitConnection {
       this.handleMessageReceived.bind(this)
     );
 
-    /**
+    /*
      * Handle companion connections
      */
     this.companionConnectionInterval = setInterval(
@@ -165,7 +155,7 @@ export default class OrbitConnection {
     );
     this.connectToCompanions();
 
-    /**
+    /*
      * Connect to desktop peer if one is provided
      */
     if (desktopPeerId) {
@@ -187,29 +177,23 @@ export default class OrbitConnection {
     const SIG_SERVER =
       '/dns4/cryptic-thicket-32566.herokuapp.com/tcp/443/wss/p2p-webrtc-star/p2p/';
 
-    try {
-      console.log('*** Connecting to peer ', SIG_SERVER + peerId);
-      await this.node.swarm.connect(SIG_SERVER + peerId);
-      console.log('*** Connected to peer!');
-    } catch (err) {
-      throw err;
-    }
+    await this.node.swarm.connect(SIG_SERVER + peerId);
   }
 
-  private async handlePeerConnected(ipfsPeer: any) {
+  private async handlePeerConnected(ipfsPeer: {
+    remotePeer: { _idB58String: string };
+  }) {
     const ipfsId = ipfsPeer.remotePeer._idB58String;
 
     this.peerConnectTimeout = setTimeout(async () => {
       await this.sendMessage(ipfsId, {
-        //@ts-ignore
         userDb: this.user.id,
         // recordingsDb: this.docStores[RECORDINGS_COLLECTION].identity.id,
       });
     }, 2000);
-    // if (this.openpeerconnect) this.openpeerconnect(ipfsId);
   }
 
-  private async sendMessage(topic: string, message: any) {
+  private async sendMessage(topic: string, message: unknown) {
     try {
       const msgString = JSON.stringify(message);
       const messageBuffer = Buffer.from(msgString);
@@ -220,15 +204,19 @@ export default class OrbitConnection {
     }
   }
 
-  private async handleMessageReceived(msg: any) {
+  private async handleMessageReceived(msg: { data: unknown }) {
     const parsedMsg = JSON.parse(msg.data.toString());
     const msgKeys = Object.keys(parsedMsg);
 
+    let peerDb: UserStore;
     switch (msgKeys[0]) {
       case 'userDb':
-        const peerDb = await this.orbitdb.open(parsedMsg.userDb);
+        peerDb = (await this.orbitdb.open(
+          parsedMsg.userDb
+        )) as unknown as UserStore;
 
         peerDb.events.on('replicated', async () => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           //@ts-ignore
           await this.companions.set(peerDb.id, {
             ...peerDb.all,
@@ -244,15 +232,14 @@ export default class OrbitConnection {
   }
 
   private async connectToCompanions() {
-    //@ts-ignore
-    const companions: any = Object.values(this.companions.all)
+    const companions = Object.values(this.companions.all)
       .filter((companion: Companion) => companion.nodeId)
       .map((companion) => companion);
     // console.log('connectToCompanions, companionIds:', companionIds)
-    const connectedPeerIds = await this.getIpfsPeerIds();
+    // const connectedPeerIds = await this.getIpfsPeerIds();
 
     await Promise.all(
-      companions.map(async (companion: any) => {
+      companions.map(async (companion) => {
         const companionAddress = this.getCompanionAddress(companion.nodeId);
         const companionAddressString = `/orbitdb/${companionAddress.root}/${companionAddress.path}`;
         const prevState = this.companions.get(companionAddressString);
@@ -263,7 +250,7 @@ export default class OrbitConnection {
         }
         try {
           // if (connectedPeerIds.indexOf(companion.nodeId) !== -1) return;
-          /**
+          /*
            * Grant write access to Recordings DB
            * BUG: this does not seem to work. Current workaround is
            * to give write access to all connected companions for the
@@ -279,7 +266,7 @@ export default class OrbitConnection {
 
           await this.connectToPeer(companion.nodeId);
 
-          /**
+          /*
            * Set Companion status as 'online'
            */
           await this.companions.set(companionAddressString, {
@@ -289,7 +276,7 @@ export default class OrbitConnection {
         } catch (err) {
           console.error('Companion not found:', err);
 
-          /**
+          /*
            * Set Companion status as 'offline'
            */
           await this.companions.set(companionAddressString, {

@@ -20,5 +20,8 @@
       "import/resolver": {
         "typescript": {}
       }
+    },
+    "rules": {
+      "@typescript-eslint/ban-ts-comment": "warn"
     }
 }
