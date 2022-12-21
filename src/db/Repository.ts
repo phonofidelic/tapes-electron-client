@@ -9,13 +9,12 @@ import * as jsonEncoder from 'multiformats/codecs/json';
 import { sha256 } from 'multiformats/hashes/sha2';
 import { base64 } from 'multiformats/bases/base64';
 import { generateUsername } from 'unique-username-generator';
-
-import { Recording } from '../common/Recording.interface';
 import KeyValueStore from 'orbit-db-kvstore';
 import type { IPFS } from 'ipfs-core-types';
-import { AccountInfo } from '../common/AccountInfo.interface';
-import { RECORDING_COLLECTION } from '../common/constants';
-import OrbitConnection from './OrbitConnection';
+import { Recording } from '@/common/Recording.interface';
+import { AccountInfo } from '@/common/AccountInfo.interface';
+import { RECORDING_COLLECTION } from '@/common/constants';
+import OrbitConnection from '@/db/OrbitConnection';
 
 interface DocumentReader<T> {
   find(query: Partial<T>): Promise<T[]>;
