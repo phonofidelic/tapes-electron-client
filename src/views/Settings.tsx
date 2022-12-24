@@ -345,7 +345,7 @@ const mapStateToProps = (state: RecorderState) => {
     loading: state.loading,
     loadingMessage: state.loadingMessage,
     debugEnabled: state.debugEnabled,
-    databaseInitializing: state.databaseInitilizing,
+    databaseInitializing: state.databaseInitializing,
     accountInfo: state.accountInfo,
     companions: state.companions,
   };

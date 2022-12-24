@@ -255,7 +255,7 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     recordings: state.recordings,
     loading: state.loading,
-    databaseInitializing: state.databaseInitilizing,
+    databaseInitializing: state.databaseInitializing,
     caching: state.caching,
     playing: state.playing,
     error: state.error,
