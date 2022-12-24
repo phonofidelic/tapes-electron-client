@@ -122,7 +122,6 @@ export function Settings({
     const deviceInfo = audioInputDevices.find(
       (device) => device.deviceId === deviceId
     );
-    console.log('handleSelectAudioInput, deviceInfo:', deviceInfo);
 
     setRecordingSettings({
       ...recordingSettings,
@@ -160,12 +159,10 @@ export function Settings({
   useEffect(() => {
     const getMediaDevices = async () => {
       const foundDevices = await navigator.mediaDevices.enumerateDevices();
-      console.log('foundDevices:', foundDevices);
 
       const audioInputs = foundDevices.filter(
         (device) => device.kind === 'audioinput'
       );
-      console.log('audioInputs:', audioInputs);
 
       setAudioInputDevices(audioInputs);
     };

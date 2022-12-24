@@ -166,10 +166,6 @@ export const getRecordingStorageStatus =
     console.log('TODO: implement getRecordingStorageStatus for web');
   };
 
-export const exportIdentity = (): Effect => async (dispatch) => {
-  console.log('TODO: implement exportIdentity for web');
-};
-
 export const loadAccountInfo = (): Effect => async (dispatch) => {
   dispatch(loadAccountInfoRequest());
 
@@ -187,9 +183,6 @@ export const loadAccountInfo = (): Effect => async (dispatch) => {
       ...userRepository.all,
       recordingsDb: await recordingsRepository.getAddress(),
     };
-
-    // const accountInfo = window.db.getAccountInfo();
-    console.log('loadAccountInfo, accountInfo:', accountInfo);
 
     //@ts-ignore
     dispatch(loadAccountInfoSuccess(accountInfo));

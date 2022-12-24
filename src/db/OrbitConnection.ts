@@ -92,8 +92,6 @@ export default class OrbitConnection {
       this.defaultOptions
     );
 
-    console.log('*** loading key-val store:', this.companions.address.path);
-
     /*
      * If loading companions key-val store takes more than 15 sec,
      * drop the current store and try again.
@@ -105,7 +103,6 @@ export default class OrbitConnection {
         loadCompanionsAbortController.signal.addEventListener(
           'abort',
           async () => {
-            console.log('### ABORT SIGNAL TRIGGERED ###');
             await this.companions.drop();
             clearTimeout(this.loadCompanionsTimeout);
             await loadCompanions();
@@ -118,17 +115,9 @@ export default class OrbitConnection {
         );
 
         await this.companions.load();
-        const companions = this.companions.all;
-        const companionKeys = Object.keys(companions);
-
-        for (const key of companionKeys) {
-          console.log(`* companion ${key}:`, companions[key]);
-        }
-      } catch (err) {
-        console.error('Could not load companions:', err);
+      } catch (error) {
         throw new Error('Could not load companions');
       }
-      console.log('*** done loading companions ***');
     };
     await loadCompanions();
     clearTimeout(this.loadCompanionsTimeout);
@@ -274,8 +263,6 @@ export default class OrbitConnection {
             status: CompanionStatus.Online,
           });
         } catch (err) {
-          console.error('Companion not found:', err);
-
           /*
            * Set Companion status as 'offline'
            */
