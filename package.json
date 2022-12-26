@@ -160,7 +160,6 @@
     "jest-electron": "^0.1.12",
     "jest-environment-jsdom": "^29.3.1",
     "jest-environment-node-single-context": "^27.3.0",
-    "mockipfs": "^0.1.0",
     "mockttp": "^3.1.0",
     "node-loader": "^1.0.1",
     "react-hot-loader": "^4.13.0",
