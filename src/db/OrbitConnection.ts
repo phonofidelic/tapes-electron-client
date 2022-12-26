@@ -6,6 +6,8 @@ import { createIpfsNode } from '@/db/utils';
 import { UserRepository, UserStore } from '@/db//Repository';
 import { Libp2p } from 'libp2p/src/connection-manager';
 
+declare const LIBP2P_SIG_SERVER: string;
+
 interface OrbitAccessControllerOptions {
   accessController: {
     type: string;
@@ -163,10 +165,7 @@ export default class OrbitConnection {
   }
 
   private async connectToPeer(peerId: string) {
-    const SIG_SERVER =
-      '/dns4/cryptic-thicket-32566.herokuapp.com/tcp/443/wss/p2p-webrtc-star/p2p/';
-
-    await this.node.swarm.connect(SIG_SERVER + peerId);
+    await this.node.swarm.connect(`${LIBP2P_SIG_SERVER}/p2p/${peerId}`);
   }
 
   private async handlePeerConnected(ipfsPeer: {
