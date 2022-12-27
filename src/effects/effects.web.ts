@@ -191,6 +191,28 @@ export const loadAccountInfo = (): Effect => async (dispatch) => {
     console.error('Could not load account info:', err);
     dispatch(loadAccountInfoFailure(new Error('Could not load account info')));
   }
+
+  dispatch(getCompanionsRequest);
+  try {
+    dispatch(setLoadingMessage('Loading companions status...'));
+    const companions = OrbitConnection.Instance.companions.all;
+
+    const companionsArray: Companion[] = Object.keys(companions).map(
+      (key: string) => ({
+        dbAddress: companions[key].dbAddress,
+        deviceName: companions[key].deviceName,
+        docStores: companions[key].docStores,
+        nodeId: companions[key].nodeId,
+        status: companions[key].status,
+      })
+    );
+
+    dispatch(getCompanionsSuccess(companionsArray));
+    dispatch(setLoadingMessage(null));
+  } catch (error) {
+    console.error('Could not retrieve companions:', error);
+    dispatch(getCompanionsFailure(new Error('Could not retrieve companions')));
+  }
 };
 
 export const setAccountInfo =
@@ -216,6 +238,7 @@ export const getCompanions = (): Effect => (dispatch) => {
 
   try {
     const companions = window.db.getAllCompanions();
+    console.log('companions', companions);
 
     const companionsArray: Companion[] = Object.keys(companions).map(
       (key: string) => ({

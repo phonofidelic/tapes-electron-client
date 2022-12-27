@@ -425,8 +425,6 @@ export const loadAccountInfo = (): Effect => async (dispatch) => {
       recordingsDb: await recordingsRepository.getAddress(),
     };
 
-    console.log('loadAccountInfo, accountInfo:', accountInfo);
-
     dispatch(loadAccountInfoSuccess(accountInfo));
     dispatch(setLoadingMessage(null));
   } catch (err) {
@@ -437,7 +435,6 @@ export const loadAccountInfo = (): Effect => async (dispatch) => {
   }
 
   dispatch(getCompanionsRequest);
-
   try {
     dispatch(setLoadingMessage('Loading companions status...'));
     const companions = OrbitConnection.Instance.companions.all;
@@ -454,8 +451,8 @@ export const loadAccountInfo = (): Effect => async (dispatch) => {
 
     dispatch(getCompanionsSuccess(companionsArray));
     dispatch(setLoadingMessage(null));
-  } catch (err) {
-    console.error('Could not retrieve companions:', err);
+  } catch (error) {
+    console.error('Could not retrieve companions:', error);
     dispatch(getCompanionsFailure(new Error('Could not retrieve companions')));
   }
 };
