@@ -165,8 +165,10 @@ export function Settings({
           open={QROpen}
           value={`${
             localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
-          }/?peerid=${accountInfo.nodeId || ''}&address=${
-            `${accountInfo.recordingsDb.root}/${RECORDING_COLLECTION}` || ''
+          }/?peerid=${accountInfo.nodeId ?? ''}&address=${
+            accountInfo.recordingsDb
+              ? `${accountInfo.recordingsDb.root}/${RECORDING_COLLECTION}`
+              : ''
           }`}
           onClose={handleCloseQR}
         />
