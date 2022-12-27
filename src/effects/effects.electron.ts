@@ -465,7 +465,7 @@ export const setAccountInfo =
     try {
       const userRepository = OrbitConnection.Instance.user;
 
-      userRepository.set(key, value);
+      await userRepository.set(key, value);
       const updatedAccountInfo = userRepository.all as unknown as AccountInfo;
 
       dispatch(setAccountInfoSuccess(updatedAccountInfo));

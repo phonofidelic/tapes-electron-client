@@ -223,7 +223,7 @@ export const setAccountInfo =
     try {
       const userRepository = OrbitConnection.Instance.user;
 
-      userRepository.set(key, value);
+      await userRepository.set(key, value);
       const updatedAccountInfo = userRepository.all as unknown as AccountInfo;
 
       dispatch(setAccountInfoSuccess(updatedAccountInfo));
@@ -238,7 +238,6 @@ export const getCompanions = (): Effect => (dispatch) => {
 
   try {
     const companions = window.db.getAllCompanions();
-    console.log('companions', companions);
 
     const companionsArray: Companion[] = Object.keys(companions).map(
       (key: string) => ({
