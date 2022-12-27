@@ -14,13 +14,10 @@ interface OrbitAccessControllerOptions {
     write: string[];
   };
 }
-interface IPFSWithLibp2p extends IPFS {
-  libp2p: Libp2p;
-}
 export default class OrbitConnection {
   public static _instance: OrbitConnection;
   public orbitdb: OrbitDB;
-  public node: IPFSWithLibp2p;
+  public node: IPFS & { libp2p: Libp2p };
   public user: UserStore;
   public companions: KeyValueStore<Companion>;
   private defaultOptions: OrbitAccessControllerOptions;
@@ -30,7 +27,7 @@ export default class OrbitConnection {
 
   public initialized = false;
   private initializing = false;
-  public peerInfo: Awaited<ReturnType<IPFSWithLibp2p['id']>>;
+  public peerInfo: Awaited<ReturnType<IPFS['id']>>;
 
   public desktopPeerId: string | undefined;
   public recordingsAddrRoot: string | undefined;
@@ -47,7 +44,7 @@ export default class OrbitConnection {
      * Establish IPFS connection and set peer info
      */
     try {
-      this.node = this.node || ((await createIpfsNode()) as IPFSWithLibp2p);
+      this.node = this.node || (await createIpfsNode());
       this.peerInfo = await this.node.id();
     } catch (err) {
       console.error('Could not create IPFS node:', err);
