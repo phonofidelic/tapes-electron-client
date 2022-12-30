@@ -3,7 +3,7 @@
   "productName": "Tapes",
   "version": "1.0.1",
   "description": "My Electron application description",
-  "main": "./.webpack/main",
+  "main": "./.webpack/main/index.cjs",
   "type": "module",
   "scripts": {
     "install": "TARGET_ARCH=x64 yarn install",
