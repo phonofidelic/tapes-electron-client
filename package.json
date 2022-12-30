@@ -4,8 +4,9 @@
   "version": "1.0.1",
   "description": "My Electron application description",
   "main": "./.webpack/main",
+  "type": "module",
   "scripts": {
-    "install": "TARGET_ARCH=x64",
+    "install": "TARGET_ARCH=x64 yarn install",
     "start": "DEBUG='electron-forge:*' NODE_ENV=development electron-forge start --inspect-electron",
     "start:web": "npx webpack serve --mode development --config webpack.web-client.config.js",
     "build:web": "npx webpack --config webpack.web-client.config.js",
@@ -77,16 +78,16 @@
         }
       ],
       "plugins": [
-        [
-          "@electron-forge/plugin-webpack",
-          {
+        {
+          "name": "@electron-forge/plugin-webpack",
+          "config": {
             "devServer": {
               "hot": true
             },
-            "mainConfig": "./webpack.main.config.js",
+            "mainConfig": "./webpack.main.config.cjs",
             "devContentSecurityPolicy": "connect-src 'self' * 'unsafe-eval'",
             "renderer": {
-              "config": "./webpack.renderer.config.js",
+              "config": "./webpack.renderer.config.cjs",
               "entryPoints": [
                 {
                   "html": "./src/index.html",
@@ -96,7 +97,7 @@
               ]
             }
           }
-        ]
+        }
       ],
       "publishers": [
         {
@@ -151,6 +152,7 @@
     "electron-icon-builder": "^2.0.1",
     "eslint": "^7.6.0",
     "eslint-import-resolver-typescript": "^3.5.2",
+    "eslint-import-resolver-webpack": "^0.13.2",
     "eslint-plugin-import": "^2.26.0",
     "fork-ts-checker-webpack-plugin": "^5.0.14",
     "html-webpack-inline-source-plugin": "@1.0.0-beta.2",
@@ -174,26 +176,19 @@
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
-    "@chainsafe/libp2p-noise": "^5.0.3",
+    "@chainsafe/libp2p-noise": "^10.2.0",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
+    "@libp2p/mplex": "^7.1.1",
     "@libp2p/tcp": "^1.0.8",
+    "@libp2p/webrtc-star": "^5.0.3",
+    "@libp2p/websockets": "^5.0.2",
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
     "@mui/icons-material": "^5.3.1",
     "@mui/lab": "^5.0.0-alpha.87",
     "@mui/material": "^5.3.1",
     "@mui/styles": "^5.3.0",
-    "@textile/crypto": "^4.1.1",
-    "@textile/eth-storage": "^1.0.0",
-    "@textile/hub": "^6.1.2",
-    "@textile/near-storage": "^8.0.0",
-    "@textile/tableland": "^0.0.8-dev3",
-    "@textile/threaddb": "^0.0.6",
-    "@textile/threads-client": "^2.1.2",
-    "@textile/threads-id": "^0.5.1",
-    "@walletconnect/client": "^1.7.1",
-    "@walletconnect/qrcode-modal": "^1.7.1",
     "app-root-dir": "^1.0.2",
     "assert": "^2.0.0",
     "axios": "^0.24.0",
@@ -217,7 +212,7 @@
     "key-did-provider-ed25519": "^1.1.0",
     "key-did-resolver": "^1.4.4",
     "level": "^7.0.1",
-    "libp2p": "^0.36.2",
+    "libp2p": "^0.41.0",
     "libp2p-bootstrap": "^0.14.0",
     "libp2p-gossipsub": "^0.13.0",
     "libp2p-kad-dht": "^0.28.6",
@@ -225,7 +220,6 @@
     "libp2p-mplex": "^0.10.7",
     "libp2p-noise": "^4.0.0",
     "libp2p-tcp": "^0.17.2",
-    "libp2p-webrtc-direct": "^0.7.1",
     "libp2p-webrtc-star": "^0.25.0",
     "libp2p-websocket-star": "^0.10.2",
     "libp2p-websockets": "^0.16.2",
@@ -258,8 +252,7 @@
     "styled-components": "^5.2.1",
     "unique-username-generator": "^1.1.1",
     "ursa-optional": "^0.10.2",
-    "web3.storage": "^4.0.0",
-    "wrtc": "^0.4.7"
+    "web3.storage": "^4.0.0"
   },
   "browser": {
     "crypto": false

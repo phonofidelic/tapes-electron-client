@@ -1,12 +1,15 @@
-const path = require('path');
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
-require('dotenv').config();
+import path from 'path';
+import webpack from 'webpack';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import dotenv from 'dotenv';
+dotenv.config();
 
-module.exports = {
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+export default {
   entry: {
-    index: path.resolve(__dirname, 'src', 'index.web-client.tsx'),
+    index: path.resolve('src', 'index.web-client.tsx'),
     // db: path.resolve(__dirname, 'src', 'db', 'index.ts'),
     // effects: path.resolve(__dirname, 'src', 'effects', 'index.ts'),
     // recorder: path.resolve(__dirname, 'src', 'views', 'Recorder.tsx'),
@@ -16,7 +19,7 @@ module.exports = {
   },
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve('dist'),
     publicPath: '/',
   },
   devServer: {
@@ -36,7 +39,7 @@ module.exports = {
       zlib: false,
     },
     alias: {
-      stream: path.resolve(__dirname, 'node_modules/stream-browserfy'),
+      stream: path.resolve('node_modules/stream-browserfy'),
       '@': path.resolve('src'),
     },
   },
@@ -61,7 +64,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       // inject: true,
-      template: path.join(__dirname, 'src', 'index.html'),
+      template: path.join('src', 'index.html'),
       // inlineSource: '.(ts|tsx|js|css)$',
       // scriptLoading: 'blocking'
     }),
@@ -85,4 +88,7 @@ module.exports = {
     }),
   ],
   devtool: 'eval-cheap-source-map',
+  experiments: {
+    topLevelAwait: true,
+  },
 };

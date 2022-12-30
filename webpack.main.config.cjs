@@ -1,4 +1,8 @@
 const path = require('path');
+const rules = require('./webpack.rules.cjs');
+
+// import { createRequire } from 'module';
+// const require = createRequire(import.meta.url);
 
 module.exports = {
   /**
@@ -8,7 +12,7 @@ module.exports = {
   entry: './src/electron/index.ts',
   // Put your normal webpack config below here
   module: {
-    rules: require('./webpack.rules'),
+    rules,
   },
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
@@ -18,7 +22,7 @@ module.exports = {
     'datastore-level',
     'level',
     // '@koush/wrtc',
-    'wrtc',
+    // 'wrtc',
     // 'dlv',
     // 'ipfs-repo',
   ],

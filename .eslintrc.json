@@ -23,5 +23,8 @@
     },
     "rules": {
       "@typescript-eslint/ban-ts-comment": "warn"
-    }
+    },
+    "ignorePatterns": [
+      "webpack.*.cjs"
+    ]
 }
