@@ -12,6 +12,9 @@ module.exports = {
   entry: './src/electron/index.ts',
   // Put your normal webpack config below here
   output: { filename: 'index.cjs' },
+  experiments: {
+    topLevelAwait: true,
+  },
   module: {
     rules,
   },
