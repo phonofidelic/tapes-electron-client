@@ -8,7 +8,7 @@
   "scripts": {
     "start": "DEBUG='electron-forge:*' NODE_ENV=development electron-forge start --inspect-electron",
     "start:web": "npx webpack serve --mode development --config webpack.web-client.config.mjs",
-    "build:web": "npx webpack --config webpack.web-client.config.js",
+    "build:web": "npx webpack --config webpack.web-client.config.mjs",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
