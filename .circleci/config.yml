@@ -76,7 +76,8 @@ workflows:
     jobs:
       - test
   release-workflow:
-    jobs: 
+    jobs:
+      - test
       - release:
           requires:
             - test
