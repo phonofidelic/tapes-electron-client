@@ -75,15 +75,14 @@ workflows:
   unit-tests:
     jobs:
       - test
-  test-and-release:
+  release:
     jobs: 
-      - test
       - release:
           requires:
             - test
-    filters:
-      branches:
-        only: /main\/.*/
+        filters:
+          branches:
+            only: /main\/.*/
   # build-and-publish:
   #   jobs:
   #     - build
