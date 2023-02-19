@@ -60,6 +60,9 @@ See [Textile Hub: Authentication & authorization](https://textileio.github.io/js
 ### Install packages: 
 `yarn`
 
+<i>__NOTE:__</i> If you are working on a mac, run `TARGET_ARCH=x64 yarn` 
+</br><i>TODO: explain why</i>
+
 ### Start the Electron development environment:
 `yarn start`
 

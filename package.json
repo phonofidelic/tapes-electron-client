@@ -6,7 +6,6 @@
   "main": "./.webpack/main/index.cjs",
   "type": "module",
   "scripts": {
-    "install": "TARGET_ARCH=x64 yarn install",
     "start": "DEBUG='electron-forge:*' NODE_ENV=development electron-forge start --inspect-electron",
     "start:web": "npx webpack serve --mode development --config webpack.web-client.config.mjs",
     "build:web": "npx webpack --config webpack.web-client.config.js",
