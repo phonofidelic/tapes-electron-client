@@ -80,9 +80,9 @@ workflows:
       - release:
           requires:
             - test
-        filters:
-          branches:
-            only: /main\/.*/
+          filters:
+            branches:
+              only: /main\/.*/
   # build-and-publish:
   #   jobs:
   #     - build
