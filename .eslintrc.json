@@ -26,6 +26,7 @@
     },
     "ignorePatterns": [
       "webpack.*.cjs",
-      "preload.*"
+      "preload.*",
+      "jest.*"
     ]
 }
