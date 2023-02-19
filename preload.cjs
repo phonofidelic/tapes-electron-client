@@ -15,10 +15,12 @@ const validChannels = [
   // 'recordings:update',
   'recordings:delete_one',
   // 'identity:export',
-  'web-clinet:deploy'
+  'web-clinet:deploy',
 ];
 
-const validResponseChannels = validChannels.map(channel => `${channel}:response:.*`)
+const validResponseChannels = validChannels.map(
+  (channel) => `${channel}:response:.*`
+);
 
 const api = {
   send: (channel, data) => {

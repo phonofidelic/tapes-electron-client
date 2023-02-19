@@ -25,6 +25,7 @@
       "@typescript-eslint/ban-ts-comment": "warn"
     },
     "ignorePatterns": [
-      "webpack.*.cjs"
+      "webpack.*.cjs",
+      "preload.*"
     ]
 }
