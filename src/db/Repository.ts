@@ -1,7 +1,6 @@
-/**
+/*
  * https://dev.to/fyapy/repository-pattern-with-typescript-and-nodejs-25da
  */
-
 import OrbitDB from 'orbit-db';
 import DocumentStore from 'orbit-db-docstore';
 import { CID } from 'multiformats/cid';
@@ -10,11 +9,11 @@ import { sha256 } from 'multiformats/hashes/sha2';
 import { base64 } from 'multiformats/bases/base64';
 import { generateUsername } from 'unique-username-generator';
 import KeyValueStore from 'orbit-db-kvstore';
-import type { IPFS } from 'ipfs-core-types';
 import { Recording } from '@/common/Recording.interface';
 import { AccountInfo } from '@/common/AccountInfo.interface';
 import { RECORDING_COLLECTION } from '@/common/constants';
 import OrbitConnection from '@/db/OrbitConnection';
+import { IpfsWithLibp2p } from './utils';
 
 interface DocumentReader<T> {
   find(query: Partial<T>): Promise<T[]>;
@@ -56,7 +55,7 @@ export type UserStore = Omit<
 
 export class OrbitRepository<T> implements BaseRepository<T> {
   public kvstore: KeyValueStore<AccountInfo>;
-  public readonly node: IPFS;
+  public readonly node: IpfsWithLibp2p;
   public readonly orbitdb: OrbitDB;
 
   constructor(
@@ -69,11 +68,15 @@ export class OrbitRepository<T> implements BaseRepository<T> {
   }
 
   async init(): Promise<UserStore> {
-    this.kvstore = await this.orbitdb.kvstore(this.dbName);
-    const peerInfo = await this.node.id();
+    try {
+      this.kvstore = await this.orbitdb.kvstore(this.dbName);
+    } catch (error) {
+      console.error('Could not create database:', error);
+    }
+    const nodeId = this.node.libp2p.peerId.toString();
 
     await this.kvstore.load();
-    await this.kvstore.set('nodeId', peerInfo.id as unknown as AccountInfo);
+    await this.kvstore.set('nodeId', nodeId as unknown as AccountInfo);
     await this.kvstore.set(
       'dbAddress',
       this.kvstore.address as unknown as AccountInfo

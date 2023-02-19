@@ -1,10 +1,11 @@
 import OrbitDB from 'orbit-db';
 import { IPFS } from 'ipfs-core-types';
 import KeyValueStore from 'orbit-db-kvstore';
+import { multiaddr } from '@multiformats/multiaddr';
 import { Companion, CompanionStatus } from '@/common/Companion.interface';
-import { createIpfsNode } from '@/db/utils';
-import { UserRepository, UserStore } from '@/db//Repository';
-import { Libp2p } from 'libp2p/src/connection-manager';
+import { createIpfsNode, IpfsWithLibp2p } from '@/db/utils';
+import { UserRepository, UserStore } from '@/db/Repository';
+import { PeerId } from 'libp2p-interfaces/src/pubsub';
 
 declare const LIBP2P_SIG_SERVER: string;
 
@@ -14,10 +15,14 @@ interface OrbitAccessControllerOptions {
     write: string[];
   };
 }
+
+interface Libp2pConnection {
+  remotePeer: PeerId;
+}
 export default class OrbitConnection {
   public static _instance: OrbitConnection;
   public orbitdb: OrbitDB;
-  public node: IPFS & { libp2p: Libp2p };
+  public node: IpfsWithLibp2p;
   public user: UserStore;
   public companions: KeyValueStore<Companion>;
   private defaultOptions: OrbitAccessControllerOptions;
@@ -45,7 +50,6 @@ export default class OrbitConnection {
      */
     try {
       this.node = this.node || (await createIpfsNode());
-      this.peerInfo = await this.node.id();
     } catch (err) {
       console.error('Could not create IPFS node:', err);
       throw new Error('Could not create IPFS node');
@@ -56,7 +60,7 @@ export default class OrbitConnection {
      */
     let orbitdb;
     try {
-      this.orbitdb = (await OrbitDB.createInstance(this.node)) as OrbitDB;
+      this.orbitdb = await OrbitDB.createInstance(this.node);
     } catch (err) {
       console.error('Could not create OrbitDB instance:', err);
       throw new Error('Could not create OrbitDB instance');
@@ -124,15 +128,27 @@ export default class OrbitConnection {
     /*
      * Listen for incoming connections
      */
-    this.node.libp2p.connectionManager.on(
+    this.node.libp2p.connectionManager.addEventListener(
       'peer:connect',
-      this.handlePeerConnected.bind(this)
+      (event) => {
+        //@ts-ignore
+        this.handlePeerConnected(event);
+      }
     );
 
-    await this.node.pubsub.subscribe(
-      this.peerInfo.id,
-      this.handleMessageReceived.bind(this)
-    );
+    this.node.libp2p.pubsub.subscribe(this.node.id.toString());
+
+    this.node.libp2p.pubsub.addEventListener('message', (event) => {
+      console.log('# message received #');
+      this.handleMessageReceived(event.detail);
+    });
+
+    this.node.libp2p.addEventListener('peer:discovery', (event) => {
+      this.handleDiscovery(event);
+    });
+
+    console.log('* topics', this.node.libp2p.pubsub.getTopics());
+    console.log('* listening on', this.node.libp2p.getMultiaddrs().toString());
 
     /*
      * Handle companion connections
@@ -148,6 +164,7 @@ export default class OrbitConnection {
      */
     if (desktopPeerId) {
       try {
+        console.log('* Connecting to desktop peer', desktopPeerId);
         await this.connectToPeer(desktopPeerId);
       } catch (err) {
         console.error('Could not connect to desktop peer:', err);
@@ -161,28 +178,56 @@ export default class OrbitConnection {
     return orbitdb;
   }
 
-  private async connectToPeer(peerId: string) {
-    await this.node.swarm.connect(`${LIBP2P_SIG_SERVER}/p2p/${peerId}`);
+  private async handleDiscovery(event: CustomEvent) {
+    const peerId = event.detail.id.toString();
+    console.log('* handleDiscovery', peerId);
+    await this.connectToPeer(peerId);
   }
 
-  private async handlePeerConnected(ipfsPeer: {
-    remotePeer: { _idB58String: string };
-  }) {
-    const ipfsId = ipfsPeer.remotePeer._idB58String;
+  private async connectToPeer(peerId: string) {
+    console.log('Connecting to peer:', peerId);
+
+    await this.node.libp2p.dial(
+      multiaddr(`${LIBP2P_SIG_SERVER}/p2p/${peerId}`)
+    );
+    console.log('Connected to', peerId);
+  }
+
+  private async handlePeerConnected(ipfsPeer: CustomEvent<Libp2pConnection>) {
+    console.log('* handlePeerConnected, ipfsPeer', ipfsPeer);
+
+    const ipfsId = ipfsPeer.detail.remotePeer.toString();
+    console.log('* ipfsId', ipfsId);
 
     this.peerConnectTimeout = setTimeout(async () => {
-      await this.sendMessage(ipfsId, {
-        userDb: this.user.id,
-        // recordingsDb: this.docStores[RECORDINGS_COLLECTION].identity.id,
-      });
+      console.log('* Sending message to', ipfsId);
+      try {
+        await this.sendMessage(ipfsId, {
+          userDb: this.user.id,
+          // recordingsDb: this.docStores[RECORDINGS_COLLECTION].identity.id,
+        });
+      } catch (error) {
+        console.error(`Could not send message to ${ipfsId}`, error);
+      }
     }, 2000);
   }
 
   private async sendMessage(topic: string, message: unknown) {
     try {
+      console.log(
+        '* sendMessage, pubsub peers',
+        this.node.libp2p.pubsub.getPeers().map((peer) => peer.toString())
+      );
+      console.log(
+        '* sendMessage, subscribers',
+        this.node.libp2p.pubsub.getSubscribers(
+          this.node.libp2p.peerId.toString()
+        )
+      );
+
       const msgString = JSON.stringify(message);
       const messageBuffer = Buffer.from(msgString);
-      await this.node.pubsub.publish(topic, messageBuffer);
+      await this.node.libp2p.pubsub.publish(topic, messageBuffer);
     } catch (err) {
       console.error('Could not send message:', err);
       throw new Error('Could not send message');
@@ -191,6 +236,8 @@ export default class OrbitConnection {
 
   private async handleMessageReceived(msg: { data: unknown }) {
     const parsedMsg = JSON.parse(msg.data.toString());
+    console.log('# handleMessageReceived, parsedMsg', parsedMsg);
+
     const msgKeys = Object.keys(parsedMsg);
 
     let peerDb: UserStore;
@@ -220,7 +267,7 @@ export default class OrbitConnection {
     const companions = Object.values(this.companions.all)
       .filter((companion: Companion) => companion.nodeId)
       .map((companion) => companion);
-    // console.log('connectToCompanions, companionIds:', companionIds)
+    console.log('* connectToCompanions, companions:', companions);
     // const connectedPeerIds = await this.getIpfsPeerIds();
 
     await Promise.all(
@@ -292,12 +339,6 @@ export default class OrbitConnection {
       );
 
     return matchedCompanion.dbAddress;
-  }
-
-  private async getIpfsPeerIds() {
-    const peerIds = (await this.node.swarm.peers()).map((peer) => peer.peer);
-    console.log('Connected IPFS peers:', peerIds);
-    return peerIds;
   }
 
   async removeAllCompanions() {
