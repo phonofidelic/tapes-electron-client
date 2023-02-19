@@ -169,9 +169,13 @@ export const getRecordingStorageStatus =
 export const loadAccountInfo = (): Effect => async (dispatch) => {
   dispatch(loadAccountInfoRequest());
 
+  const searchParams = new URLSearchParams(window.location.search);
+  const desktopPeerId = searchParams.get('peerid');
+  const recordingsAddrRoot = searchParams.get('address');
+
   try {
     dispatch(setLoadingMessage('Loading account info...'));
-    await OrbitConnection.Instance.connect();
+    await OrbitConnection.Instance.connect(desktopPeerId, recordingsAddrRoot);
     const userRepository = OrbitConnection.Instance.user;
 
     const recordingsRepository = new RecordingRepository(
