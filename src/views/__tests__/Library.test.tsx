@@ -5,7 +5,11 @@ import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import reduxThunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
-import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
+import {
+  ThemeProvider,
+  Theme,
+  StyledEngineProvider,
+} from '@mui/material/styles';
 
 import { RecordingFormats } from '../../common/RecordingFormats.enum';
 import { RecorderState } from '../../store/types';
@@ -14,6 +18,10 @@ import { store } from '../../store';
 import Library from '../Library';
 import Root from '../../Root';
 import { theme } from '../../theme';
+
+jest.mock('@/db/Repository', () => ({
+  RecordingRepository: jest.fn(),
+}));
 
 const renderComponent = () =>
   render(
@@ -59,6 +67,9 @@ beforeEach(() => {
       removeEventListener: jest.fn(),
     };
   });
+
+  Storage.prototype.setItem = jest.fn();
+  Storage.prototype.getItem = jest.fn();
 });
 
 it('shows a default empty message', async () => {

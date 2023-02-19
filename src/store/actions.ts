@@ -606,9 +606,7 @@ export function getCompanionsSuccess(
   };
 }
 
-export function getCompanionsFailuere(
-  error: Error
-): GetCompanionsFailureAction {
+export function getCompanionsFailure(error: Error): GetCompanionsFailureAction {
   return {
     type: GET_COMPANIONS_FAILURE,
     payload: error,

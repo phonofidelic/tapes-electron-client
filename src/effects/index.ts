@@ -1,5 +1,5 @@
-import * as electronEffects from './effects.electron'
-import * as webEffects from './effects.web'
+import * as electronEffects from './effects.electron';
+import * as webEffects from './effects.web';
 import isElectron from 'is-electron';
 import { ThunkAction } from 'redux-thunk';
 import { Recording } from '../common/Recording.interface';
@@ -15,8 +15,8 @@ interface EffectsExport {
   uploadAudioFiles(audioFiles: File[]): Effect;
   startRecording(recordingSettings: RecordingSettings): Effect;
   stopRecording(): Effect;
-  loadRecordings(): Effect;
-  editRecording(recordingId: string, update: any): Effect;
+  loadRecordings(recordingsAddrRoot?: string): Effect;
+  editRecording(recordingId: string, update: Partial<Recording>): Effect;
   deleteRecording(recordingId: string): Effect;
   loadAccountToken(tokenString: string): Effect;
   initDatabase(desktopPeerId?: string, recordingsAddrRoot?: string): Effect;
@@ -24,19 +24,18 @@ interface EffectsExport {
   downloadRecording(recordingId: string): Effect;
   cacheAndPlayRecording(recording: Recording): Effect;
   getRecordingStorageStatus(recordingCid: string): Effect;
-  exportIdentity(): Effect;
   loadAccountInfo(): Effect;
   setAccountInfo(key: keyof AccountInfo, value: string): Effect;
   getCompanions(): Effect;
 }
 
-let effectsExports: EffectsExport
+let effectsExports: EffectsExport;
 (async () => {
   if (!isElectron()) {
-    effectsExports = webEffects
+    effectsExports = webEffects;
   } else {
-    effectsExports = electronEffects
+    effectsExports = electronEffects;
   }
-})()
+})();
 
-export default effectsExports 
+export default effectsExports;

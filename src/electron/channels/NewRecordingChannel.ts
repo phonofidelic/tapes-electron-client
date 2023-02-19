@@ -6,13 +6,9 @@ import { spawn } from 'child_process';
 import { randomBytes } from 'crypto';
 import appRootDir from 'app-root-dir';
 import * as mm from 'music-metadata';
-import { getFilesFromPath } from 'web3.storage'
+import { getFilesFromPath } from 'web3.storage';
 
-import {
-  fpcalcPromise,
-  getAcoustidResults,
-  getMusicBrainzCoverArt,
-} from '../utils';
+import { fpcalcPromise, getAcoustidResults } from '../utils';
 import { IpcMainEvent, ipcMain } from 'electron';
 import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
@@ -41,7 +37,9 @@ export class NewRecordingChannel implements IpcChannel {
     console.log(this.name);
 
     const recordingSettings: RecordingSettings = request.data.recordingSettings;
-    const filename = `${randomBytes(16).toString('hex')}.${recordingSettings.format}`;
+    const filename = `${randomBytes(16).toString('hex')}.${
+      recordingSettings.format
+    }`;
     const filePath = path.resolve(await setStorageDir('Data'), filename);
 
     let soxPath;
@@ -52,10 +50,10 @@ export class NewRecordingChannel implements IpcChannel {
           process.env.NODE_ENV === 'production'
             ? path.resolve(process.resourcesPath, 'bin', 'sox-14.4.2-macOS')
             : (soxPath = path.resolve(
-              appRootDir.get(),
-              'bin',
-              'sox-14.4.2-macOS'
-            ));
+                appRootDir.get(),
+                'bin',
+                'sox-14.4.2-macOS'
+              ));
         break;
 
       case 'win32':
@@ -134,15 +132,15 @@ export class NewRecordingChannel implements IpcChannel {
         /**
          * Upload file to IPFS
          */
-        console.log('*** Storing file on IPFS...')
-        const files = await getFilesFromPath(filePath)
-        const cid = await storageService.put(files as unknown as File[])
-        console.log('*** File stored!')
+        console.log('*** Storing file on IPFS...');
+        const files = await getFilesFromPath(filePath);
+        const cid = await storageService.put(files as unknown as File[]);
+        console.log('*** File stored!');
         /**
          * Create default title based on Recording count
          */
         // const recordings = await db.find('recordings', {})
-        const defaultTitle = `New Recording: ${(new Date()).toLocaleString()}`;
+        const defaultTitle = `New Recording: ${new Date().toLocaleString()}`;
 
         const recordingData: Recording = {
           location: filePath,
@@ -156,9 +154,8 @@ export class NewRecordingChannel implements IpcChannel {
             acoustidResponse.data.results[0]?.recordings[0]?.title ||
             defaultTitle,
           acoustidResults: await acoustidResponse.data.results,
-          cid
+          cid,
         };
-
 
         // const docId = await db.add('recordings', recordingData)
         // console.log('*** docId:', docId)

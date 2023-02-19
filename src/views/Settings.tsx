@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { hot } from 'react-hot-loader';
 import styled from 'styled-components';
 import { connect, useDispatch } from 'react-redux';
@@ -30,30 +30,22 @@ import FormLabel from '@mui/material/FormLabel';
 import QrCodeIcon from '@mui/icons-material/QrCode2';
 import { Checkbox, FormGroup, SelectChangeEvent } from '@mui/material';
 
-//@ts-ignore
-import { PeerInfo } from 'ipfs';
 import { AccountInfo } from '../common/AccountInfo.interface';
 import EditableText from '../components/EditableText';
 import { Companion } from '../common/Companion.interface';
 import CompanionsList from '../components/CompanionsList';
+import { RECORDING_COLLECTION } from '../common/constants';
+import { Loader } from '../components/Loader';
 
-const {
-  loadAccountToken,
-  setInputDevice,
-  loadAccountInfo,
-  setAccountInfo,
-  getCompanions,
-} = effects;
+const { setInputDevice, loadAccountInfo, setAccountInfo } = effects;
 
 declare const WEB_CLIENT_URL: string;
 
-const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
-  // backgroundColor: theme.palette.background.default,
-  // color: theme.palette.getContrastText(theme.palette.background.default),
-  paddingTop: 8,
-  paddingBottom: 0,
-  marginLeft: 8,
-}));
+const SectionHeader = styled.div`
+  padding-top: 8px;
+  padding-bottom: 0;
+  margin-left: 8px;
+`;
 
 interface SettingsProps {
   loading: boolean;
@@ -74,7 +66,6 @@ export function Settings({
   loadingMessage,
   recordingSettings,
   debugEnabled,
-  databaseInitializing,
   accountInfo,
   companions,
   setRecordingSettings,
@@ -82,27 +73,14 @@ export function Settings({
 }: SettingsProps) {
   const [audioInputDevices, setAudioInputDevices] = useState([]);
   const [QROpen, setQROpen] = useState(false);
-  const [peerInfo, setPeerInfo] = useState<PeerInfo | null>(null);
   const [showDebug, setShowDebug] = useState(0);
   const [localWebClient, setLocalWebClient] = useState(false);
 
   const selectedMediaDeviceId =
-    recordingSettings.selectedMediaDeviceId || 'default';
+    recordingSettings.selectedMediaDeviceId && 'default';
 
   const dispatch = useDispatch();
   const theme: Theme = useTheme();
-
-  const onDrop = useCallback(async (acceptedFiles) => {
-    const tokenFile = acceptedFiles[0];
-
-    const fileReader = new FileReader();
-    fileReader.readAsText(tokenFile);
-
-    fileReader.onloadend = async () => {
-      const tokenString = fileReader.result as string;
-      dispatch(loadAccountToken(tokenString.trim()));
-    };
-  }, []);
 
   const handleRecordingFormatChange = (event: SelectChangeEvent) => {
     setRecordingSettings({
@@ -123,9 +101,7 @@ export function Settings({
     const deviceInfo = audioInputDevices.find(
       (device) => device.deviceId === deviceId
     );
-    console.log('handleSelectAudioInput, deviceInfo:', deviceInfo);
 
-    // setSelectedMediaDeviceId(event.target.value);
     setRecordingSettings({
       ...recordingSettings,
       selectedMediaDeviceId: deviceId,
@@ -135,9 +111,7 @@ export function Settings({
     dispatch(setInputDevice(deviceInfo.label));
   };
 
-  /** TODO: Rename this */
   const handleOpenQR = () => {
-    setPeerInfo(window.db.peerInfo);
     setQROpen(true);
   };
 
@@ -164,12 +138,10 @@ export function Settings({
   useEffect(() => {
     const getMediaDevices = async () => {
       const foundDevices = await navigator.mediaDevices.enumerateDevices();
-      console.log('foundDevices:', foundDevices);
 
       const audioInputs = foundDevices.filter(
         (device) => device.kind === 'audioinput'
       );
-      console.log('audioInputs:', audioInputs);
 
       setAudioInputDevices(audioInputs);
     };
@@ -178,40 +150,29 @@ export function Settings({
   }, []);
 
   useEffect(() => {
-    !loading &&
-      !databaseInitializing &&
-      (dispatch(loadAccountInfo()), dispatch(getCompanions()));
-  }, [databaseInitializing]);
-
-  useEffect(() => {
-    /**
-     * Check for companion status updates every 10 sec
-     */
-    const getCompanionsInterval = setInterval(
-      () => dispatch(getCompanions()),
-      10000
-    );
-    return () => clearInterval(getCompanionsInterval);
+    dispatch(loadAccountInfo());
   }, []);
 
-  // if (loading) {
-  //   return <Loader />;
-  // }
+  if (loading) {
+    return <Loader loading={loading} loadingMessage={loadingMessage} />;
+  }
 
   return (
     <div>
       <StatusMessage />
-      <QRCodeModal
-        open={QROpen}
-        value={`${
-          localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
-        }/?peerid=${peerInfo?.id || ''}&address=${
-          window.db?.initialized
-            ? window.db?.getAccountInfo().docStores.recordings.root
-            : ''
-        }`}
-        onClose={handleCloseQR}
-      />
+      {accountInfo && (
+        <QRCodeModal
+          open={QROpen}
+          value={`${
+            localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
+          }/?peerid=${accountInfo.nodeId ?? ''}&address=${
+            accountInfo.recordingsDb
+              ? `${accountInfo.recordingsDb.root}/${RECORDING_COLLECTION}`
+              : ''
+          }`}
+          onClose={handleCloseQR}
+        />
+      )}
 
       <SectionHeader theme={theme}>
         <Typography>Recording Settings</Typography>
@@ -343,6 +304,7 @@ export function Settings({
           variant="outlined"
           endIcon={<QrCodeIcon />}
           onClick={handleOpenQR}
+          disabled={!accountInfo}
         >
           <Typography noWrap variant="caption" color="textSecondary">
             Share account
@@ -385,7 +347,7 @@ const mapStateToProps = (state: RecorderState) => {
     loading: state.loading,
     loadingMessage: state.loadingMessage,
     debugEnabled: state.debugEnabled,
-    databaseInitializing: state.databaseInitilizing,
+    databaseInitializing: state.databaseInitializing,
     accountInfo: state.accountInfo,
     companions: state.companions,
   };

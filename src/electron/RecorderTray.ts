@@ -1,6 +1,5 @@
-import { BrowserWindow, Tray, Menu } from "electron";
-
-const APP_NAME = "Tapes"; // TODO: import from config
+import { BrowserWindow, Tray, Menu } from 'electron';
+const APP_NAME = 'Tapes'; // TODO: import from config
 
 interface Bounds {
   x: number;
@@ -15,14 +14,16 @@ export class RecorderTray extends Tray {
 
     this.recorderWindow = recorderWindow;
     this.setToolTip(APP_NAME);
-    this.on("click", this.handleClick);
-    this.on("right-click", this.handleRightClick);
+    //@ts-ignore
+    this.on('click', this.handleClick);
+    //@ts-ignore
+    this.on('right-click', this.handleRightClick);
   }
 
   handleClick = (e: Event, bounds: Bounds) => {
     const { x, y } = bounds;
     const { width, height } = this.recorderWindow.getBounds();
-    const yPos = process.platform === "darwin" ? y : y - height;
+    const yPos = process.platform === 'darwin' ? y : y - height;
 
     if (this.recorderWindow.isVisible()) {
       this.recorderWindow.hide();
@@ -35,10 +36,10 @@ export class RecorderTray extends Tray {
       });
       this.recorderWindow.show();
     }
-  }
+  };
 
   handleRightClick = (e: Event, bounds: Bounds) => {
-    const menuConfig = Menu.buildFromTemplate([{ role: "quit" }]);
+    const menuConfig = Menu.buildFromTemplate([{ role: 'quit' }]);
     this.popUpContextMenu(menuConfig);
-  }
+  };
 }

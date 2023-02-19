@@ -82,7 +82,7 @@ export interface RecorderState {
   companions: Companion[];
   currentPlaying: Recording | null;
   currentTime: number;
-  databaseInitilizing: boolean;
+  databaseInitializing: boolean;
   debugEnabled: boolean;
   error: Error | null;
   isRecording: boolean;

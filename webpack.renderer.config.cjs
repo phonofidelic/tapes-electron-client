@@ -1,6 +1,6 @@
-const rules = require('./webpack.rules');
-const plugins = require('./webpack.plugins');
-const path = require('path')
+const rules = require('./webpack.rules.cjs');
+const plugins = require('./webpack.plugins.cjs');
+const path = require('path');
 
 rules.push({
   test: /\.css$/,
@@ -20,14 +20,15 @@ module.exports = {
       // path: false,
       path: require.resolve('path-browserify'),
       // assert: false,
-      assert: require.resolve("assert/"),
+      assert: require.resolve('assert/'),
       // stream: false,
-      stream: require.resolve("stream-browserify"),
+      stream: require.resolve('stream-browserify'),
       url: false,
-      buffer: require.resolve("buffer"),
+      buffer: require.resolve('buffer'),
     },
     alias: {
-      stream: path.resolve(__dirname, 'node_modules/stream-browserfy')
-    }
+      stream: path.resolve(__dirname, 'node_modules/stream-browserfy'),
+      '@': path.resolve('src'),
+    },
   },
 };

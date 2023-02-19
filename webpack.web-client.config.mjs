@@ -1,12 +1,15 @@
-const path = require('path');
-const webpack = require('webpack')
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
-require('dotenv').config()
+import path from 'path';
+import webpack from 'webpack';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import dotenv from 'dotenv';
+dotenv.config();
 
-module.exports = {
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+export default {
   entry: {
-    index: path.resolve(__dirname, 'src', 'index.web-client.tsx'),
+    index: path.resolve('src', 'index.web-client.tsx'),
     // db: path.resolve(__dirname, 'src', 'db', 'index.ts'),
     // effects: path.resolve(__dirname, 'src', 'effects', 'index.ts'),
     // recorder: path.resolve(__dirname, 'src', 'views', 'Recorder.tsx'),
@@ -16,27 +19,28 @@ module.exports = {
   },
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist'),
-    publicPath: '/'
+    path: path.resolve('dist'),
+    publicPath: '/',
   },
   devServer: {
     hot: true,
     port: 3001,
     // contentBase: path.resolve(__dirname, 'src'),
-    historyApiFallback: true
+    historyApiFallback: true,
   },
   resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
     fallback: {
       path: require.resolve('path-browserify'),
-      buffer: require.resolve("buffer"),
-      stream: require.resolve("stream-browserify"),
+      buffer: require.resolve('buffer'),
+      stream: require.resolve('stream-browserify'),
       process: false,
       crypto: false,
-      zlib: false
+      zlib: false,
     },
     alias: {
-      stream: path.resolve(__dirname, 'node_modules/stream-browserfy')
+      stream: path.resolve('node_modules/stream-browserfy'),
+      '@': path.resolve('src'),
     },
   },
   module: {
@@ -47,39 +51,44 @@ module.exports = {
         use: {
           loader: 'ts-loader',
           options: {
-            transpileOnly: true
-          }
-        }
+            transpileOnly: true,
+          },
+        },
       },
       {
         test: /\.css$/,
         use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
-      }
-    ]
+      },
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
       // inject: true,
-      template: path.join(__dirname, 'src', 'index.html'),
+      template: path.join('src', 'index.html'),
       // inlineSource: '.(ts|tsx|js|css)$',
       // scriptLoading: 'blocking'
     }),
     // new HtmlWebpackInlineSourcePlugin(HtmlWebpackPlugin),
     new webpack.ProvidePlugin({
-      process: 'process/browser'
+      process: 'process/browser',
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
     }),
     new webpack.DefinePlugin({
-      'process.env.USER_API_KEY': JSON.stringify(process.env.USER_API_KEY || '')
+      'process.env.USER_API_KEY': JSON.stringify(
+        process.env.USER_API_KEY || ''
+      ),
     }),
     new webpack.DefinePlugin({
       WEB_CLIENT_URL: JSON.stringify(process.env.WEB_CLIENT_URL),
     }),
     new webpack.DefinePlugin({
-      LIBP2P_SIG_SERVER: JSON.stringify(process.env.LIBP2P_SIG_SERVER)
+      LIBP2P_SIG_SERVER: JSON.stringify(process.env.LIBP2P_SIG_SERVER),
     }),
   ],
-  devtool: 'eval-cheap-source-map'
+  devtool: 'eval-cheap-source-map',
+  experiments: {
+    topLevelAwait: true,
+  },
 };

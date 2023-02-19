@@ -12,11 +12,21 @@
       "plugin:import/warnings"
     ],
     "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "project": "./tsconfig.json",
+      "tsconfigRootDir": "./"
+    },
     "settings": {
       "import/resolver": {
-        "node": {
-          "extensions": [".js", ".jsx", ".ts", ".tsx"]
-        }
+        "typescript": {}
       }
-    }
+    },
+    "rules": {
+      "@typescript-eslint/ban-ts-comment": "warn"
+    },
+    "ignorePatterns": [
+      "webpack.*.cjs",
+      "preload.*",
+      "jest.*"
+    ]
 }

@@ -3,12 +3,20 @@ import '@testing-library/jest-dom';
 import { render, fireEvent } from '@testing-library/react';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
+import {
+  ThemeProvider,
+  Theme,
+  StyledEngineProvider,
+} from '@mui/material/styles';
 import { theme } from '../../theme';
 import { RecorderState } from '../../store/types';
 import { initialState } from '../../store/reducer';
 import { store } from '../../store';
 import Recorder from '../Recorder';
+
+jest.mock('@/db/Repository', () => ({
+  RecordingRepository: jest.fn(),
+}));
 
 const renderComponent = () =>
   render(
