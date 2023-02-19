@@ -50,7 +50,6 @@ export function Library({
   accountInfo,
   recordings,
   loading,
-  databaseInitializing,
   caching,
   playing,
   error,
@@ -72,8 +71,10 @@ export function Library({
     selectRecording(recording);
   };
 
-  const handleEditRecording = (recordingId: string, update: any) => {
-    console.log('*** handleEditRecording');
+  const handleEditRecording = (
+    recordingId: string,
+    update: Partial<Recording>
+  ) => {
     dispatch(editRecording(recordingId, update));
   };
 
@@ -94,7 +95,6 @@ export function Library({
   const searchLibrary = (searchValue: string) => {
     setSearchTerm(searchValue);
     if (!searchTerm) {
-      console.log('*** NO SEARCH TERM ***');
       return setFilteredRecordings(recordings);
     }
 
@@ -113,7 +113,6 @@ export function Library({
     const sorted = list.sort((a, b) =>
       a[sortByValue] > b[sortByValue] ? 1 : -1
     );
-    console.log('*** sorted:', sorted);
     setFilteredRecordings(sorted);
   };
 
@@ -121,18 +120,10 @@ export function Library({
     dispatch(uploadAudioFiles(audioFiles));
   };
 
-  // useEffect(() => {
-  //   (!loading && !databaseInitializing) && dispatch(loadRecordings());
-  // }, [recordings.length, databaseInitializing]);
-
   useEffect(() => {
     if (!accountInfo) return;
     dispatch(loadRecordings(accountInfo.recordingsDb?.root));
   }, [accountInfo, recordings.length]);
-
-  console.log('*** searchTerm:', searchTerm);
-  console.log('*** recordings:', recordings);
-  console.log('*** filteredRecordings:', filteredRecordings);
 
   const renderFilteredRecordings = (filteredRecordings: Recording[]) => {
     if (!filteredRecordings.length)
@@ -255,7 +246,7 @@ const mapStateToProps = (state: RecorderState) => {
   return {
     recordings: state.recordings,
     loading: state.loading,
-    databaseInitializing: state.databaseInitilizing,
+    databaseInitializing: state.databaseInitializing,
     caching: state.caching,
     playing: state.playing,
     error: state.error,

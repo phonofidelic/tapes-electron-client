@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import effects from '../effects';
 import {
@@ -16,10 +16,9 @@ import Loader from '../components/Loader';
 import RecorderControls from '../components/RecorderControls';
 import Timer from '../components/Timer';
 import ErrorModal from '../components/ErrorModal';
-import VolumeMeter from '../components/VolumeMeter';
 import AudioVisualiser from '../components/AudioVisualiser';
 
-const { startRecording, stopRecording } = effects
+const { startRecording, stopRecording } = effects;
 
 interface RecorderProps {
   // isMonitoring: boolean;
@@ -41,8 +40,6 @@ function Recorder({
   recordingSettings,
   loading,
   error,
-  startMonitor,
-  stopMonitor,
   confirmError,
 }: RecorderProps) {
   const selectedMediaDeviceId =
@@ -52,18 +49,10 @@ function Recorder({
   const { isMonitoring, setIsMonitoring } = useMonitor(selectedMediaDeviceId);
 
   const handleStartMonitor = async () => {
-    const monitorInstance = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: false,
-    });
-    // startMonitor(monitorInstance);
-
     setIsMonitoring(true);
   };
 
   const handleStopMonitor = () => {
-    // stopMonitor();
-
     setIsMonitoring(false);
   };
 

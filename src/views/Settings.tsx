@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { hot } from 'react-hot-loader';
 import styled from 'styled-components';
 import { connect, useDispatch } from 'react-redux';
@@ -37,23 +37,15 @@ import CompanionsList from '../components/CompanionsList';
 import { RECORDING_COLLECTION } from '../common/constants';
 import { Loader } from '../components/Loader';
 
-const {
-  loadAccountToken,
-  setInputDevice,
-  loadAccountInfo,
-  setAccountInfo,
-  getCompanions,
-} = effects;
+const { setInputDevice, loadAccountInfo, setAccountInfo } = effects;
 
 declare const WEB_CLIENT_URL: string;
 
-const SectionHeader = styled('div')(({ theme }: { theme: Theme }) => ({
-  // backgroundColor: theme.palette.background.default,
-  // color: theme.palette.getContrastText(theme.palette.background.default),
-  paddingTop: 8,
-  paddingBottom: 0,
-  marginLeft: 8,
-}));
+const SectionHeader = styled.div`
+  padding-top: 8px;
+  padding-bottom: 0;
+  margin-left: 8px;
+`;
 
 interface SettingsProps {
   loading: boolean;
@@ -74,7 +66,6 @@ export function Settings({
   loadingMessage,
   recordingSettings,
   debugEnabled,
-  databaseInitializing,
   accountInfo,
   companions,
   setRecordingSettings,
@@ -86,22 +77,10 @@ export function Settings({
   const [localWebClient, setLocalWebClient] = useState(false);
 
   const selectedMediaDeviceId =
-    recordingSettings.selectedMediaDeviceId || 'default';
+    recordingSettings.selectedMediaDeviceId && 'default';
 
   const dispatch = useDispatch();
   const theme: Theme = useTheme();
-
-  const onDrop = useCallback(async (acceptedFiles) => {
-    const tokenFile = acceptedFiles[0];
-
-    const fileReader = new FileReader();
-    fileReader.readAsText(tokenFile);
-
-    fileReader.onloadend = async () => {
-      const tokenString = fileReader.result as string;
-      dispatch(loadAccountToken(tokenString.trim()));
-    };
-  }, []);
 
   const handleRecordingFormatChange = (event: SelectChangeEvent) => {
     setRecordingSettings({
@@ -122,7 +101,6 @@ export function Settings({
     const deviceInfo = audioInputDevices.find(
       (device) => device.deviceId === deviceId
     );
-    console.log('handleSelectAudioInput, deviceInfo:', deviceInfo);
 
     setRecordingSettings({
       ...recordingSettings,
@@ -160,12 +138,10 @@ export function Settings({
   useEffect(() => {
     const getMediaDevices = async () => {
       const foundDevices = await navigator.mediaDevices.enumerateDevices();
-      console.log('foundDevices:', foundDevices);
 
       const audioInputs = foundDevices.filter(
         (device) => device.kind === 'audioinput'
       );
-      console.log('audioInputs:', audioInputs);
 
       setAudioInputDevices(audioInputs);
     };
@@ -189,8 +165,10 @@ export function Settings({
           open={QROpen}
           value={`${
             localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
-          }/?peerid=${accountInfo.nodeId || ''}&address=${
-            `${accountInfo.recordingsDb.root}/${RECORDING_COLLECTION}` || ''
+          }/?peerid=${accountInfo.nodeId ?? ''}&address=${
+            accountInfo.recordingsDb
+              ? `${accountInfo.recordingsDb.root}/${RECORDING_COLLECTION}`
+              : ''
           }`}
           onClose={handleCloseQR}
         />
@@ -369,7 +347,7 @@ const mapStateToProps = (state: RecorderState) => {
     loading: state.loading,
     loadingMessage: state.loadingMessage,
     debugEnabled: state.debugEnabled,
-    databaseInitializing: state.databaseInitilizing,
+    databaseInitializing: state.databaseInitializing,
     accountInfo: state.accountInfo,
     companions: state.companions,
   };

@@ -78,7 +78,7 @@ export const initialState: RecorderState = {
   companions: [],
   currentPlaying: null,
   currentTime: 0,
-  databaseInitilizing: true,
+  databaseInitializing: true,
   debugEnabled: process.env.NODE_ENV === 'development',
   error: null,
   isRecording: false,
@@ -334,21 +334,21 @@ export const reducer = (
       return {
         ...state,
         loading: true,
-        databaseInitilizing: true,
+        databaseInitializing: true,
       };
 
     case INIT_DATABASE_SUCCESS:
       return {
         ...state,
         loading: false,
-        databaseInitilizing: false,
+        databaseInitializing: false,
       };
 
     case INIT_DATABASE_FAILURE:
       return {
         ...state,
         loading: false,
-        databaseInitilizing: false,
+        databaseInitializing: false,
         error: action.payload,
       };
 

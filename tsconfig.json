@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2022",
     "allowJs": true,
-    "module": "commonjs",
+    "module": "es2022",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
     "baseUrl": ".",
     "outDir": "dist",
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["src/*"]
@@ -19,6 +19,10 @@
     "downlevelIteration": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "webpack.*"
+  ],
+  "exclude": [
+    "node_modules",
   ]
 }

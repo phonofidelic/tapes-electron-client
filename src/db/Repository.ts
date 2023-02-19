@@ -1,7 +1,6 @@
-/**
+/*
  * https://dev.to/fyapy/repository-pattern-with-typescript-and-nodejs-25da
  */
-
 import OrbitDB from 'orbit-db';
 import DocumentStore from 'orbit-db-docstore';
 import { CID } from 'multiformats/cid';
@@ -9,13 +8,12 @@ import * as jsonEncoder from 'multiformats/codecs/json';
 import { sha256 } from 'multiformats/hashes/sha2';
 import { base64 } from 'multiformats/bases/base64';
 import { generateUsername } from 'unique-username-generator';
-
-import { Recording } from '../common/Recording.interface';
 import KeyValueStore from 'orbit-db-kvstore';
-import type { IPFS } from 'ipfs-core-types';
-import { AccountInfo } from '../common/AccountInfo.interface';
-import { RECORDING_COLLECTION } from '../common/constants';
-import OrbitConnection from './OrbitConnection';
+import { Recording } from '@/common/Recording.interface';
+import { AccountInfo } from '@/common/AccountInfo.interface';
+import { RECORDING_COLLECTION } from '@/common/constants';
+import OrbitConnection from '@/db/OrbitConnection';
+import { IpfsWithLibp2p } from './utils';
 
 interface DocumentReader<T> {
   find(query: Partial<T>): Promise<T[]>;
@@ -43,16 +41,21 @@ type BaseRepository<T> = DocumentReader<T> &
   KeyValueWriter<T>;
 
 type AccountInfoKey = keyof AccountInfo;
-export interface UserStore {
+
+export type UserStore = Omit<
+  KeyValueStore<AccountInfo>,
+  'get' | 'put' | 'set' | 'all'
+> & {
   get<T extends AccountInfoKey>(key: T): AccountInfo[T];
   put<T extends AccountInfoKey>(key: T, value: AccountInfo[T]): Promise<string>;
   set<T extends AccountInfoKey>(key: T, value: AccountInfo[T]): Promise<string>;
   all: AccountInfo;
-}
+  id: string;
+};
 
 export class OrbitRepository<T> implements BaseRepository<T> {
   public kvstore: KeyValueStore<AccountInfo>;
-  public readonly node: IPFS;
+  public readonly node: IpfsWithLibp2p;
   public readonly orbitdb: OrbitDB;
 
   constructor(
@@ -65,11 +68,15 @@ export class OrbitRepository<T> implements BaseRepository<T> {
   }
 
   async init(): Promise<UserStore> {
-    this.kvstore = await this.orbitdb.kvstore(this.dbName);
-    const peerInfo = await this.node.id();
+    try {
+      this.kvstore = await this.orbitdb.kvstore(this.dbName);
+    } catch (error) {
+      console.error('Could not create database:', error);
+    }
+    const nodeId = this.node.libp2p.peerId.toString();
 
     await this.kvstore.load();
-    await this.kvstore.set('nodeId', peerInfo.id as unknown as AccountInfo);
+    await this.kvstore.set('nodeId', nodeId as unknown as AccountInfo);
     await this.kvstore.set(
       'dbAddress',
       this.kvstore.address as unknown as AccountInfo
@@ -107,25 +114,22 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     return db;
   }
 
-  async find(query: any) {
+  async find(query: Partial<T>) {
     const db = await this.getDb();
 
     let results: T[] = [];
 
-    const keys = Object.keys(query);
-    /**
+    const keys = Object.keys(query) as unknown as (keyof T)[];
+    /*
      * If query is empty, return all documents
      */
     if (!keys.length) return db.get('');
 
-    /**
+    /*
      * Otherwise, collect and return query results
      */
     keys.forEach((key) => {
-      results = [
-        ...results,
-        ...db.query((doc: any) => doc[key] === query[key]),
-      ];
+      results = [...results, ...db.query((doc: T) => doc[key] === query[key])];
     });
 
     return results;
@@ -134,7 +138,7 @@ export class OrbitRepository<T> implements BaseRepository<T> {
   async findById(_id: string): Promise<T> {
     const db = await this.getDb();
 
-    const results = db.query((doc: any) => doc._id === _id);
+    const results = db.query((doc: T & { _id: string }) => doc._id === _id);
     console.log('findById, results', results);
 
     return results[0];
@@ -150,7 +154,7 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     const docId = cid.toString(base64.encoder);
 
     await db.put({ ...doc, _id: docId });
-    return await db.query((doc: any) => doc._id === docId)[0];
+    return await db.query((doc: T & { _id: string }) => doc._id === docId)[0];
   }
 
   async update(_id: string, update: Partial<T>): Promise<T> {
@@ -206,7 +210,7 @@ export class RecordingRepository extends OrbitRepository<Recording> {
       'docstore'
     );
 
-    return address;
+    return address as unknown as { root: string; path: string };
   }
 }
 

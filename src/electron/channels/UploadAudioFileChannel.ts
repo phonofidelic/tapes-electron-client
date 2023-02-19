@@ -36,12 +36,12 @@ export class UploadAudioFileChannel implements IpcChannel {
       });
     }
 
-    let recordings: Recording[] = [];
+    const recordings: Recording[] = [];
 
-    for await (let file of files) {
+    for await (const file of files) {
       console.log('*** file', file);
 
-      /**
+      /*
        * Copy audio file to Data dir
        */
       console.log('*** ext:', path.extname(file.path).replace(/\./g, ''));
@@ -63,13 +63,13 @@ export class UploadAudioFileChannel implements IpcChannel {
         console.error('Could not copy audio file:', err);
       }
 
-      /**
+      /*
        * Upload file to IPFS
        */
       const files = await getFilesFromPath(filePath);
       const cid = await storageService.put(files as unknown as File[]);
 
-      /**
+      /*
        * Get audio metadata,
        * Destructure "picture" from metadata.common and exclude it from
        * recordingData since Buffer does not seem to be supported by orbitDB.
@@ -78,7 +78,7 @@ export class UploadAudioFileChannel implements IpcChannel {
       const { picture, ...common } = metadata.common;
       console.log('*** metadata:', util.inspect(metadata, true, 8, true));
 
-      /**
+      /*
        * Attempt to get cover art from MusicBrainz.
        * Don't throw an error if unsuccessful.
        */
@@ -89,9 +89,7 @@ export class UploadAudioFileChannel implements IpcChannel {
         console.error(err);
       }
 
-      let recordingData: Recording;
-
-      /**
+      /*
        * Get acoustic fingerprint
        */
       let duration, fingerprint;
@@ -106,7 +104,7 @@ export class UploadAudioFileChannel implements IpcChannel {
         });
       }
 
-      /**
+      /*
        * Get Acoustid results
        */
       let acoustidResponse;
@@ -119,7 +117,7 @@ export class UploadAudioFileChannel implements IpcChannel {
         });
       }
 
-      recordingData = {
+      const recordingData: Recording = {
         location: filePath,
         filename,
         title:

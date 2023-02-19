@@ -1,4 +1,4 @@
-/**
+/*
  * From: https://blog.logrocket.com/electron-ipc-response-request-architecture-with-typescript/
  */
 import path from 'path';
@@ -77,8 +77,8 @@ export class Main {
         contextIsolation: true,
         preload:
           process.env.NODE_ENV === 'production'
-            ? path.join(process.resourcesPath, 'preload.js')
-            : path.join(__dirname, '..', '..', 'preload.js'),
+            ? path.join(process.resourcesPath, 'preload.cjs')
+            : path.join(__dirname, '..', '..', 'preload.cjs'),
       },
     });
 
