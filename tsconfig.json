@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "es2022",
     "allowJs": true,
-    "module": "es2020",
+    "module": "es2022",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
     "baseUrl": ".",
     "outDir": "dist",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["src/*"]
