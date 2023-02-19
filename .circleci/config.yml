@@ -75,7 +75,7 @@ workflows:
   unit-tests:
     jobs:
       - test
-  release:
+  release-workflow:
     jobs: 
       - release:
           requires:
