@@ -72,10 +72,7 @@ jobs:
           name: Publish Builds
           command: yarn run publish
 workflows:
-  unit-tests:
-    jobs:
-      - test
-  release-workflow:
+  test-and-release:
     jobs:
       - test
       - release:
