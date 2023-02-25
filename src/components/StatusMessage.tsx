@@ -2,20 +2,19 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { RecorderState } from '../store/types';
 
-import { useTheme, Theme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 
 type StatusMessageProps = {
-  loading: boolean;
   loadingMessage: string | null;
 };
 
-export function StatusMessage({ loading, loadingMessage }: StatusMessageProps) {
+export function StatusMessage({ loadingMessage }: StatusMessageProps) {
   const theme = useTheme();
 
   return (
-    <Fade in={loading}>
+    <Fade in={Boolean(loadingMessage)}>
       <div
         style={{
           position: 'fixed',
@@ -38,7 +37,6 @@ export function StatusMessage({ loading, loadingMessage }: StatusMessageProps) {
 }
 
 const mapStateToProps = (state: RecorderState) => ({
-  loading: state.loading,
   loadingMessage: state.loadingMessage,
 });
 

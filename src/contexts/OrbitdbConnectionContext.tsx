@@ -1,5 +1,7 @@
 import OrbitConnection from '@/db/OrbitConnection';
+import { setLoadingMessage } from '@/store/actions';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 export const OrbitConnectionContext = createContext<OrbitConnection>(null);
 
@@ -24,6 +26,7 @@ export const useOrbitConnection = (
   const connection = useContext(OrbitConnectionContext);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<null | Error>(null);
+  const dispatch = useDispatch();
 
   if (connection === null) {
     throw new Error('`useConnection` must be inside a `ConnectionProvider`');
@@ -31,13 +34,16 @@ export const useOrbitConnection = (
 
   useEffect(() => {
     async function connect() {
+      dispatch(setLoadingMessage('Initializing database...'));
       try {
         await connection.connect(desktopPeerId, recordingsAddrRoot);
         setLoading(false);
+        dispatch(setLoadingMessage(null));
       } catch (error) {
         console.error(error);
         setError(new Error('Could not initialize database'));
         setLoading(false);
+        dispatch(setLoadingMessage(null));
       }
     }
     connect();
