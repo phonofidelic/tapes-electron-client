@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { matchSorter } from 'match-sorter';
 import { Recording } from '../common/Recording.interface';
@@ -11,7 +11,7 @@ import {
   PlayRecordingAction,
 } from '../store/types';
 
-import Loader from '../components/Loader';
+import { Loader } from '@/components/Loader';
 import SearchBar from '../components/SearchBar';
 import RecordingsListItem from '../components/RecordingsListItem';
 import FileDrop from '../components/FileDrop';
@@ -21,9 +21,9 @@ import { useTheme } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import { AccountInfo } from '@/common/AccountInfo.interface';
+import { useRecordings } from '@/db/hooks/useRecordings';
 
 const {
-  loadRecordings,
   deleteRecording,
   editRecording,
   uploadAudioFiles,
@@ -47,18 +47,15 @@ interface LibraryProps {
 }
 
 export function Library({
-  accountInfo,
-  recordings,
-  loading,
   caching,
   playing,
-  error,
   selectedRecording,
   currentPlaying,
   selectRecording,
   playRecording,
   confirmError,
 }: LibraryProps) {
+  const [recordings, loading, error] = useRecordings();
   const [filteredRecordings, setFilteredRecordings] =
     useState<Recording[]>(recordings);
   const [searchTerm, setSearchTerm] = useState('');
@@ -120,11 +117,6 @@ export function Library({
     dispatch(uploadAudioFiles(audioFiles));
   };
 
-  useEffect(() => {
-    if (!accountInfo) return;
-    dispatch(loadRecordings(accountInfo.recordingsDb?.root));
-  }, [accountInfo, recordings.length]);
-
   const renderFilteredRecordings = (filteredRecordings: Recording[]) => {
     if (!filteredRecordings.length)
       return (
@@ -172,74 +164,88 @@ export function Library({
   };
 
   if (loading) {
-    return <Loader />;
+    return <Loader loading={true} loadingMessage="Loading..." />;
   }
 
-  if (!recordings.length)
+  if (recordings.length < 1) {
     return (
-      <FileDrop accept="audio/*" onFileDrop={handleFileDrop}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: '100%',
-            height:
-              theme.dimensions.Tray.height - theme.dimensions.Navigation.height,
-            justifyContent: 'center',
-          }}
-        >
+      <>
+        <FileDrop accept="audio/*" onFileDrop={handleFileDrop}>
           <div
-            style={{ display: 'flex', width: '100%', justifyContent: 'center' }}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+              height:
+                theme.dimensions.Tray.height -
+                theme.dimensions.Navigation.height,
+              justifyContent: 'center',
+            }}
           >
-            <Typography>Your recordings will live here</Typography>
+            <div
+              style={{
+                display: 'flex',
+                width: '100%',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography>Your recordings will live here</Typography>
+            </div>
           </div>
-          <ErrorModal error={error} onConfirmError={() => confirmError()} />
-        </div>
-      </FileDrop>
-    );
-
-  if (recordings.length > 0)
-    return (
-      <FileDrop accept="audio/*" onFileDrop={handleFileDrop}>
-        <div
-          style={{
-            position: 'sticky',
-            top: theme.dimensions.Navigation.height,
-            zIndex: theme.zIndex.appBar,
-            padding: 4,
-            paddingTop: 0,
-          }}
-        >
-          <SearchBar searchLibrary={searchLibrary} sortLibrary={sortLibrary} />
-        </div>
-        <div
-          style={{
-            paddingBottom: theme.dimensions.Player.height,
-          }}
-        >
-          {searchTerm || sortBy
-            ? renderFilteredRecordings(filteredRecordings)
-            : recordings.map((recording: Recording) => (
-                <RecordingsListItem
-                  key={recording._id}
-                  recording={recording}
-                  caching={caching}
-                  playing={playing}
-                  selectedRecording={selectedRecording}
-                  currentPlayingId={currentPlaying?._id}
-                  handleSelectRecording={handleSelectRecording}
-                  handleDeleteRecording={handleDeleteRecording}
-                  handleEditRecording={handleEditRecording}
-                  handleDownloadRecording={handleDownloadRecording}
-                  handleCacheAndPlayRecording={handleCacheAndPlayRecording}
-                />
-              ))}
-        </div>
+        </FileDrop>
         <ErrorModal error={error} onConfirmError={() => confirmError()} />
-      </FileDrop>
+      </>
     );
+  }
 
-  return <Loader />;
+  if (recordings.length > 0) {
+    return (
+      <>
+        <FileDrop accept="audio/*" onFileDrop={handleFileDrop}>
+          <div
+            style={{
+              position: 'sticky',
+              top: theme.dimensions.Navigation.height,
+              zIndex: theme.zIndex.appBar,
+              padding: 4,
+              paddingTop: 0,
+            }}
+          >
+            <SearchBar
+              searchLibrary={searchLibrary}
+              sortLibrary={sortLibrary}
+            />
+          </div>
+          <div
+            style={{
+              paddingBottom: theme.dimensions.Player.height,
+            }}
+          >
+            {searchTerm || sortBy
+              ? renderFilteredRecordings(filteredRecordings)
+              : recordings.map((recording: Recording) => (
+                  <RecordingsListItem
+                    key={recording._id}
+                    recording={recording}
+                    caching={caching}
+                    playing={playing}
+                    selectedRecording={selectedRecording}
+                    currentPlayingId={currentPlaying?._id}
+                    handleSelectRecording={handleSelectRecording}
+                    handleDeleteRecording={handleDeleteRecording}
+                    handleEditRecording={handleEditRecording}
+                    handleDownloadRecording={handleDownloadRecording}
+                    handleCacheAndPlayRecording={handleCacheAndPlayRecording}
+                  />
+                ))}
+          </div>
+        </FileDrop>
+        <ErrorModal error={error} onConfirmError={() => confirmError()} />
+      </>
+    );
+  }
+
+  return <Loader loading={true} loadingMessage="Loading..." />;
 }
 
 const mapStateToProps = (state: RecorderState) => {
