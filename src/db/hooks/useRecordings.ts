@@ -11,8 +11,6 @@ export const useRecordings = (): [Recording[], boolean, Error | null] => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log('useRecordings, connection', connection);
-
     if (!connection.initialized) {
       return;
     }

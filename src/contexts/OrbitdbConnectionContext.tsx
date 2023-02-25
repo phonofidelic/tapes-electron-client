@@ -1,7 +1,7 @@
 import OrbitConnection from '@/db/OrbitConnection';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-const OrbitConnectionContext = createContext<OrbitConnection>(null);
+export const OrbitConnectionContext = createContext<OrbitConnection>(null);
 
 export const OrbitConnectionProvider = ({
   children,
