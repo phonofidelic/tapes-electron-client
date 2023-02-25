@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const OrbitConnectionContext = createContext<OrbitConnection>(null);
 
-export const ConnectionProvider = ({
+export const OrbitConnectionProvider = ({
   children,
 }: {
   children: React.ReactNode;
