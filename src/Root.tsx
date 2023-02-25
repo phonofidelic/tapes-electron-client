@@ -5,15 +5,18 @@ import { HashRouter as Router } from 'react-router-dom';
 
 import { store } from '@/store/index';
 import { theme } from '@/theme';
+import { ConnectionProvider } from './contexts/OrbitdbConnectionContext';
 
 export default function Root({ children }: { children: React.ReactNode }) {
   return (
-    <Provider store={store}>
-      <Router>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>{children}</ThemeProvider>
-        </StyledEngineProvider>
-      </Router>
-    </Provider>
+    <ConnectionProvider>
+      <Provider store={store}>
+        <Router>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>{children}</ThemeProvider>
+          </StyledEngineProvider>
+        </Router>
+      </Provider>
+    </ConnectionProvider>
   );
 }

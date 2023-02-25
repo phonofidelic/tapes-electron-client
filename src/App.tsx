@@ -13,6 +13,7 @@ import AudioElement from './components/AudioElement';
 import Settings from './views/Settings';
 import StatusMessage from './components/StatusMessage';
 import Debug from './views/Debug';
+import { Loader } from './components/Loader';
 
 const Recorder = React.lazy(() =>
   import(/* webpackChunkName: "recorder" */ './views/Recorder')
@@ -35,9 +36,9 @@ function App() {
   const desktopPeerId = searchParams.get('peerid');
   const recordingsAddrRoot = searchParams.get('address');
 
-  useEffect(() => {
-    dispatch(initDatabase(desktopPeerId, recordingsAddrRoot));
-  }, []);
+  // useEffect(() => {
+  //   dispatch(initDatabase(desktopPeerId, recordingsAddrRoot));
+  // }, []);
 
   return (
     <div className="main">
@@ -45,7 +46,9 @@ function App() {
         <Navigation />
       </nav>
       <main style={{ paddingTop: theme.dimensions.Navigation.height }}>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense
+          fallback={<Loader loading={true} loadingMessage="Loading..." />}
+        >
           <Switch>
             <Route path="/library/:id">
               <RecordingDetail />
