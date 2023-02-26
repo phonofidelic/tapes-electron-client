@@ -1,6 +1,5 @@
 import React from 'react';
-import { connect, useDispatch } from 'react-redux';
-// import effects from '../effects';
+import { connect } from 'react-redux';
 import {
   RecorderState,
   SetRecordingSettingsAction,
@@ -90,11 +89,7 @@ function Recorder({ recordingSettings, loading, confirmError }: RecorderProps) {
 
 const mapStateToProps = (state: RecorderState) => {
   return {
-    // isMonitoring: state.isMonitoring,
-    isRecording: state.isRecording,
     recordingSettings: state.recordingSettings,
-    loading: state.loading,
-    error: state.error,
   };
 };
 
