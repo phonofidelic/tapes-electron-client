@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
-import effects from '../effects';
+// import effects from '../effects';
 import {
   RecorderState,
   SetRecordingSettingsAction,
@@ -17,11 +17,9 @@ import RecorderControls from '../components/RecorderControls';
 import Timer from '../components/Timer';
 import ErrorModal from '../components/ErrorModal';
 import AudioVisualiser from '../components/AudioVisualiser';
-
-const { startRecording, stopRecording } = effects;
+import useRecorder from '@/hooks/useRecorder';
 
 interface RecorderProps {
-  // isMonitoring: boolean;
   isRecording: boolean;
   recordingSettings: RecordingSettings;
   loading: boolean;
@@ -34,19 +32,12 @@ interface RecorderProps {
   confirmError(): ConfirmErrorAction;
 }
 
-function Recorder({
-  // isMonitoring,
-  isRecording,
-  recordingSettings,
-  loading,
-  error,
-  confirmError,
-}: RecorderProps) {
+function Recorder({ recordingSettings, loading, confirmError }: RecorderProps) {
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId || 'default';
 
-  const dispatch = useDispatch();
   const { isMonitoring, setIsMonitoring } = useMonitor(selectedMediaDeviceId);
+  const [isRecording, error, { startRecording, stopRecording }] = useRecorder();
 
   const handleStartMonitor = async () => {
     setIsMonitoring(true);
@@ -57,11 +48,11 @@ function Recorder({
   };
 
   const handleStartRecording = async () => {
-    dispatch(startRecording(recordingSettings));
+    await startRecording(recordingSettings);
   };
 
   const handleStopRecording = () => {
-    dispatch(stopRecording());
+    stopRecording();
   };
 
   if (loading) {
@@ -71,11 +62,6 @@ function Recorder({
   return (
     <div>
       {isRecording && <Timer />}
-      {/* <AudioAnalyser
-        isMonitoring={isMonitoring}
-        selectedMediaDeviceId={selectedMediaDeviceId}
-      /> */}
-      {/* <VolumeMeter selectedMediaDeviceId={selectedMediaDeviceId} /> */}
       <div
         style={{
           position: 'fixed',
