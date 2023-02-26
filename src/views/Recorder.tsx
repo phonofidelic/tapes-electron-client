@@ -19,10 +19,8 @@ import AudioVisualiser from '../components/AudioVisualiser';
 import useRecorder from '@/hooks/useRecorder';
 
 interface RecorderProps {
-  isRecording: boolean;
   recordingSettings: RecordingSettings;
   loading: boolean;
-  error: Error;
   startMonitor(monitorInstance: MediaStream): StartMonitorAction;
   stopMonitor(): StopMonitorAction;
   setRecordingSettings(
@@ -90,6 +88,7 @@ function Recorder({ recordingSettings, loading, confirmError }: RecorderProps) {
 const mapStateToProps = (state: RecorderState) => {
   return {
     recordingSettings: state.recordingSettings,
+    loading: state.loading,
   };
 };
 
