@@ -1,18 +1,38 @@
-import { useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState, useContext } from 'react';
 import { useOrbitConnection } from '@/contexts/OrbitdbConnectionContext';
 import { RECORDING_COLLECTION } from '@/common/constants';
 import { Recording } from '@/common/Recording.interface';
 import { RecordingRepository } from '@/db/Repository';
-import OrbitConnection from '../OrbitConnection';
+import OrbitConnection from '../db/OrbitConnection';
+
+const RecordingsContext = createContext(null);
+
+export const RecordingsProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [recordings, setRecordings] = useState([]);
+
+  return (
+    <RecordingsContext.Provider value={[recordings, setRecordings]}>
+      {children}
+    </RecordingsContext.Provider>
+  );
+};
 
 export const useRecordings = (): [
   Recording[],
   boolean,
   Error | null,
-  { addRecording: (recordingData: Recording) => Promise<Recording> }
+  { addRecording: (recordingData: Recording) => Promise<void> }
 ] => {
+  const recordingsContext = useContext(RecordingsContext);
+  if (recordingsContext === null) {
+    throw new Error('`useRecordings` must be inside a `RecordingsProvider`');
+  }
+  const [recordings, setRecordings] = recordingsContext;
   const [connection] = useOrbitConnection();
-  const [recordings, setRecordings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -29,7 +49,7 @@ export const useRecordings = (): [
 
     const createdRecording = await recordingsRepository.add(recordingData);
     console.log('createdRecording:', createdRecording);
-    return createdRecording;
+    setRecordings([...recordings, createdRecording]);
   };
 
   useEffect(() => {
@@ -41,6 +61,7 @@ export const useRecordings = (): [
     async function loadRecordings() {
       try {
         const recordings = await recordingsRepository.find({});
+
         setRecordings(recordings);
         setLoading(false);
       } catch (error) {
@@ -51,6 +72,7 @@ export const useRecordings = (): [
     }
     loadRecordings();
   }, [connection.initialized]);
+  console.log('### recordings', recordings);
 
   return [recordings, loading, error, { addRecording }];
 };

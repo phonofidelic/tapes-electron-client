@@ -6,17 +6,20 @@ import { HashRouter as Router } from 'react-router-dom';
 import { store } from '@/store/index';
 import { theme } from '@/theme';
 import { OrbitConnectionProvider } from './contexts/OrbitdbConnectionContext';
+import { RecordingsProvider } from './contexts/RecordingsContext';
 
 export default function Root({ children }: { children: React.ReactNode }) {
   return (
     <OrbitConnectionProvider>
-      <Provider store={store}>
-        <Router>
-          <StyledEngineProvider injectFirst>
-            <ThemeProvider theme={theme}>{children}</ThemeProvider>
-          </StyledEngineProvider>
-        </Router>
-      </Provider>
+      <RecordingsProvider>
+        <Provider store={store}>
+          <Router>
+            <StyledEngineProvider injectFirst>
+              <ThemeProvider theme={theme}>{children}</ThemeProvider>
+            </StyledEngineProvider>
+          </Router>
+        </Provider>
+      </RecordingsProvider>
     </OrbitConnectionProvider>
   );
 }

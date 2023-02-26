@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { Recording } from '@/common/Recording.interface';
 import { RecordingSettings } from '@/common/RecordingSettings.interface';
 import { IpcService } from '@/IpcService';
-import { useRecordings } from '@/db/hooks/useRecordings';
+import { useRecordings } from '@/contexts/RecordingsContext';
 import { setLoadingMessage } from '@/store/actions';
 
 export default function useRecorder(): [

@@ -21,7 +21,7 @@ import { useTheme } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import { AccountInfo } from '@/common/AccountInfo.interface';
-import { useRecordings } from '@/db/hooks/useRecordings';
+import { useRecordings } from '@/contexts/RecordingsContext';
 
 const {
   deleteRecording,
