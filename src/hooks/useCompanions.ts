@@ -5,7 +5,6 @@ import { useOrbitConnection } from '@/contexts/OrbitdbConnectionContext';
 export default function useCompanions() {
   const [connection] = useOrbitConnection();
   const [companions, setCompanions] = useState<Companion[] | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -34,5 +33,5 @@ export default function useCompanions() {
     }
   }, []);
 
-  return [companions, loading, error];
+  return [companions, false, error];
 }
