@@ -36,6 +36,7 @@ import { Companion } from '../common/Companion.interface';
 import CompanionsList from '../components/CompanionsList';
 import { RECORDING_COLLECTION } from '../common/constants';
 import { Loader } from '../components/Loader';
+import useUser from '@/hooks/useUser';
 
 const { setInputDevice, loadAccountInfo, setAccountInfo } = effects;
 
@@ -62,11 +63,11 @@ interface SettingsProps {
 }
 
 export function Settings({
-  loading,
+  // loading,
   loadingMessage,
   recordingSettings,
   debugEnabled,
-  accountInfo,
+  // accountInfo,
   companions,
   setRecordingSettings,
   toggleDebug,
@@ -75,6 +76,8 @@ export function Settings({
   const [QROpen, setQROpen] = useState(false);
   const [showDebug, setShowDebug] = useState(0);
   const [localWebClient, setLocalWebClient] = useState(false);
+
+  const [accountInfo, loading, error] = useUser();
 
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId && 'default';
