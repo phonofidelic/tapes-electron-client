@@ -12,6 +12,7 @@ export default function useRecorder(): [
   {
     startRecording(recordingSettings: RecordingSettings): Promise<void>;
     stopRecording(): void;
+    confirmError(): void;
   }
 ] {
   const [isRecording, setIsRecording] = useState(false);
@@ -55,5 +56,9 @@ export default function useRecorder(): [
     }
   };
 
-  return [isRecording, error, { startRecording, stopRecording }];
+  const confirmError = () => {
+    setError(null);
+  };
+
+  return [isRecording, error, { startRecording, stopRecording, confirmError }];
 }

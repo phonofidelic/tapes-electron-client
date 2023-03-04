@@ -27,6 +27,10 @@ export default function useUser() {
     }
   };
 
+  const confirmError = () => {
+    setError(null);
+  };
+
   useEffect(() => {
     if (!connection) {
       throw new Error(
@@ -57,5 +61,5 @@ export default function useUser() {
     loadAccountInfo();
   }, []);
 
-  return [user, loading, error, { setAccountInfo }];
+  return [user, loading, error, { setAccountInfo, confirmError }];
 }

@@ -29,12 +29,13 @@ interface RecorderProps {
   confirmError(): ConfirmErrorAction;
 }
 
-function Recorder({ recordingSettings, loading, confirmError }: RecorderProps) {
+function Recorder({ recordingSettings, loading }: RecorderProps) {
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId || 'default';
 
   const { isMonitoring, setIsMonitoring } = useMonitor(selectedMediaDeviceId);
-  const [isRecording, error, { startRecording, stopRecording }] = useRecorder();
+  const [isRecording, error, { startRecording, stopRecording, confirmError }] =
+    useRecorder();
 
   const handleStartMonitor = async () => {
     setIsMonitoring(true);
@@ -57,31 +58,33 @@ function Recorder({ recordingSettings, loading, confirmError }: RecorderProps) {
   }
 
   return (
-    <div>
-      {isRecording && <Timer />}
-      <div
-        style={{
-          position: 'fixed',
-          width: '100%',
-          left: 0,
-          bottom: 32,
-        }}
-      >
-        <AudioVisualiser
-          selectedMediaDeviceId={selectedMediaDeviceId}
-          feature="frequency"
+    <>
+      <div>
+        {isRecording && <Timer />}
+        <div
+          style={{
+            position: 'fixed',
+            width: '100%',
+            left: 0,
+            bottom: 32,
+          }}
+        >
+          <AudioVisualiser
+            selectedMediaDeviceId={selectedMediaDeviceId}
+            feature="frequency"
+          />
+        </div>
+        <RecorderControls
+          isMonitoring={isMonitoring}
+          isRecording={isRecording}
+          handleStartRecording={handleStartRecording}
+          handleStopRecording={handleStopRecording}
+          handleStartMonitor={handleStartMonitor}
+          handleStopMonitor={handleStopMonitor}
         />
       </div>
-      <RecorderControls
-        isMonitoring={isMonitoring}
-        isRecording={isRecording}
-        handleStartRecording={handleStartRecording}
-        handleStopRecording={handleStopRecording}
-        handleStartMonitor={handleStartMonitor}
-        handleStopMonitor={handleStopMonitor}
-      />
       <ErrorModal error={error} onConfirmError={() => confirmError()} />
-    </div>
+    </>
   );
 }
 
