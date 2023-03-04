@@ -37,8 +37,9 @@ import CompanionsList from '../components/CompanionsList';
 import { RECORDING_COLLECTION } from '../common/constants';
 import { Loader } from '../components/Loader';
 import useUser from '@/hooks/useUser';
+import useCompanions from '@/hooks/useCompanions';
 
-const { setInputDevice, loadAccountInfo, setAccountInfo } = effects;
+const { setInputDevice, setAccountInfo } = effects;
 
 declare const WEB_CLIENT_URL: string;
 
@@ -68,7 +69,7 @@ export function Settings({
   recordingSettings,
   debugEnabled,
   // accountInfo,
-  companions,
+  // companions,
   setRecordingSettings,
   toggleDebug,
 }: SettingsProps) {
@@ -78,6 +79,7 @@ export function Settings({
   const [localWebClient, setLocalWebClient] = useState(false);
 
   const [accountInfo, loading, error] = useUser();
+  const [companions] = useCompanions();
 
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId && 'default';
@@ -150,10 +152,6 @@ export function Settings({
     };
 
     getMediaDevices();
-  }, []);
-
-  useEffect(() => {
-    dispatch(loadAccountInfo());
   }, []);
 
   if (loading) {

@@ -6,8 +6,8 @@ import { RECORDING_COLLECTION } from '@/common/constants';
 import { setLoadingMessage } from '@/store/actions';
 
 export default function useUser() {
-  const [user, setUser] = useState<AccountInfo | null>(null);
   const [connection] = useOrbitConnection();
+  const [user, setUser] = useState<AccountInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
