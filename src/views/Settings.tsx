@@ -39,7 +39,7 @@ import { Loader } from '../components/Loader';
 import useUser from '@/hooks/useUser';
 import useCompanions from '@/hooks/useCompanions';
 
-const { setInputDevice, setAccountInfo } = effects;
+const { setInputDevice } = effects;
 
 declare const WEB_CLIENT_URL: string;
 
@@ -78,7 +78,7 @@ export function Settings({
   const [showDebug, setShowDebug] = useState(0);
   const [localWebClient, setLocalWebClient] = useState(false);
 
-  const [accountInfo, loading, error] = useUser();
+  const [accountInfo, loading, error, { setAccountInfo }] = useUser();
   const [companions] = useCompanions();
 
   const selectedMediaDeviceId =
@@ -137,7 +137,7 @@ export function Settings({
   };
 
   const handleUpdateDeviceName = (newDeviceName: string) => {
-    dispatch(setAccountInfo('deviceName', newDeviceName));
+    setAccountInfo('deviceName', newDeviceName);
   };
 
   useEffect(() => {

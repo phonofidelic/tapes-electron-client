@@ -13,6 +13,20 @@ export default function useUser() {
 
   const dispatch = useDispatch();
 
+  const setAccountInfo = async (key: keyof AccountInfo, value: string) => {
+    setLoading(true);
+
+    try {
+      await connection.user.set(key, value);
+      setUser(connection.user.all);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      setError(new Error('Could not set account info'));
+    }
+  };
+
   useEffect(() => {
     if (!connection) {
       throw new Error(
@@ -43,5 +57,5 @@ export default function useUser() {
     loadAccountInfo();
   }, []);
 
-  return [user, loading, error];
+  return [user, loading, error, { setAccountInfo }];
 }
