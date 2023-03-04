@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { matchSorter } from 'match-sorter';
 import { Recording } from '../common/Recording.interface';
@@ -55,7 +55,7 @@ export function Library({
   playRecording,
   confirmError,
 }: LibraryProps) {
-  const [recordings, loading, error] = useRecordings();
+  const [recordings, loading, error, { loadRecordings }] = useRecordings();
   const [filteredRecordings, setFilteredRecordings] =
     useState<Recording[]>(recordings);
   const [searchTerm, setSearchTerm] = useState('');
@@ -141,6 +141,10 @@ export function Library({
           </div>
         </div>
       );
+
+    useEffect(() => {
+      loadRecordings();
+    }, []);
 
     return (
       <List>

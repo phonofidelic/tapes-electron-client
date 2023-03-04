@@ -188,7 +188,8 @@ export default class OrbitConnection {
     console.log('Connecting to peer:', peerId);
 
     await this.node.libp2p.dial(
-      multiaddr(`${LIBP2P_SIG_SERVER}/p2p/${peerId}`)
+      // multiaddr(`${LIBP2P_SIG_SERVER}/p2p/${peerId}`)
+      multiaddr(`/ip4/192.0.2.0/udp/1234/quic/webtransport/p2p/${peerId}`)
     );
     console.log('Connected to', peerId);
   }

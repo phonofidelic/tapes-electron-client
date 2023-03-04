@@ -6,12 +6,12 @@ import { useDispatch } from 'react-redux';
 export const OrbitConnectionContext = createContext<OrbitConnection>(null);
 
 export const OrbitConnectionProvider = ({
+  connection,
   children,
 }: {
+  connection: OrbitConnection;
   children: React.ReactNode;
 }) => {
-  const connection = OrbitConnection.Instance;
-
   return (
     <OrbitConnectionContext.Provider value={connection}>
       {children}
