@@ -33,6 +33,7 @@ type UseRecordingsReturn = [
   {
     loadRecordings: () => Promise<void>;
     addRecording: (recordingData: Recording) => Promise<void>;
+    editRecording: (recordingId: string, update: Partial<Recording>) => void;
     deleteRecording: (recordingId: string) => Promise<void>;
     confirmError: () => void;
   }
@@ -73,6 +74,29 @@ export const useRecordings = (): UseRecordingsReturn => {
     setRecordings([...recordings, createdRecording]);
   };
 
+  const editRecording = async (
+    recordingId: string,
+    update: Partial<Recording>
+  ) => {
+    setLoading(true);
+    try {
+      const updatedRecording = await recordingsRepository.update(
+        recordingId,
+        update
+      );
+      setRecordings(
+        recordings.map((recording) =>
+          recording._id === updatedRecording._id ? updatedRecording : recording
+        )
+      );
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      setError(new Error('Could not update Recording document'));
+    }
+  };
+
   const deleteRecording = async (recordingId: string) => {
     setLoading(true);
     try {
@@ -106,6 +130,7 @@ export const useRecordings = (): UseRecordingsReturn => {
     {
       loadRecordings,
       addRecording,
+      editRecording,
       deleteRecording,
       confirmError: () => setError(false),
     },

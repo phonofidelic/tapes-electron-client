@@ -23,12 +23,7 @@ import List from '@mui/material/List';
 import { AccountInfo } from '@/common/AccountInfo.interface';
 import { useRecordings } from '@/contexts/RecordingsContext';
 
-const {
-  editRecording,
-  uploadAudioFiles,
-  downloadRecording,
-  cacheAndPlayRecording,
-} = effects;
+const { uploadAudioFiles, downloadRecording, cacheAndPlayRecording } = effects;
 
 interface LibraryProps {
   accountInfo: AccountInfo;
@@ -57,7 +52,7 @@ export function Library({
     recordings,
     loading,
     error,
-    { loadRecordings, deleteRecording, confirmError },
+    { loadRecordings, editRecording, deleteRecording, confirmError },
   ] = useRecordings();
   const [filteredRecordings, setFilteredRecordings] =
     useState<Recording[]>(recordings);
@@ -75,7 +70,7 @@ export function Library({
     recordingId: string,
     update: Partial<Recording>
   ) => {
-    dispatch(editRecording(recordingId, update));
+    editRecording(recordingId, update);
   };
 
   const handleDeleteRecording = async (recordingId: string) => {
