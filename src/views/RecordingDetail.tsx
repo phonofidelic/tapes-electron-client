@@ -3,8 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { Recording } from '../common/Recording.interface';
 import { RecorderState } from '../store/types';
 import * as actions from '../store/actions';
-import effects from '../effects';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
@@ -21,12 +20,11 @@ import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import { visuallyHidden } from '@mui/utils';
 import StorageStatusDisplay from '../components/StorageStatusDisplay';
+import { useRecordings } from '@/contexts/RecordingsContext';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(dayjsDuration);
-
-const { editRecording } = effects
 
 interface Props {
   recording: Recording;
@@ -36,17 +34,19 @@ interface Props {
 export function RecordingDetail({ recording }: Props): ReactElement {
   const history = useHistory();
   const theme = useTheme();
-  const dispatch = useDispatch();
+  const [, , , { editRecording }] = useRecordings();
 
   const duration = recording?.duration || 0;
   const durationObj = dayjs.duration(duration * 1000);
 
-  const handleEditRecording = (recordingId: string, update: any) => {
-    dispatch(editRecording(recordingId, update));
+  const handleEditRecording = (
+    recordingId: string,
+    update: Partial<Recording>
+  ) => {
+    editRecording(recordingId, update);
   };
 
-
-  if (!recording) return <div>No recording selected</div>
+  if (!recording) return <div>No recording selected</div>;
 
   return (
     <div>
@@ -75,7 +75,7 @@ export function RecordingDetail({ recording }: Props): ReactElement {
               <Typography
                 style={{
                   lineHeight: '30px',
-                  maxWidth: theme.dimensions.Tray.width - 58
+                  maxWidth: theme.dimensions.Tray.width - 58,
                 }}
                 noWrap
               >
