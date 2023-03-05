@@ -3,6 +3,7 @@ import { useOrbitConnection } from '@/contexts/OrbitdbConnectionContext';
 import { RECORDING_COLLECTION } from '@/common/constants';
 import { Recording } from '@/common/Recording.interface';
 import { RecordingRepository } from '@/db/Repository';
+import { IpcService } from '@/IpcService';
 
 const RecordingsContext = createContext(null);
 
@@ -25,15 +26,19 @@ export const RecordingsProvider = ({
   );
 };
 
-export const useRecordings = (): [
+type UseRecordingsReturn = [
   Recording[],
   boolean,
   Error | null,
   {
     loadRecordings: () => Promise<void>;
     addRecording: (recordingData: Recording) => Promise<void>;
+    deleteRecording: (recordingId: string) => Promise<void>;
+    confirmError: () => void;
   }
-] => {
+];
+
+export const useRecordings = (): UseRecordingsReturn => {
   const recordingsRepository =
     useContext<RecordingRepository>(RecordingsContext);
   if (recordingsRepository === null) {
@@ -43,6 +48,8 @@ export const useRecordings = (): [
   const [connection] = useOrbitConnection();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const ipc = new IpcService();
 
   const loadRecordings = async () => {
     try {
@@ -66,6 +73,24 @@ export const useRecordings = (): [
     setRecordings([...recordings, createdRecording]);
   };
 
+  const deleteRecording = async (recordingId: string) => {
+    setLoading(true);
+    try {
+      const recording = await recordingsRepository.findById(recordingId);
+
+      await ipc.send('recordings:delete_one', { data: { recording } });
+      await recordingsRepository.delete(recordingId);
+      setRecordings(
+        recordings.filter((recording) => recording._id !== recordingId)
+      );
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      setError(new Error('Could not delete recording'));
+    }
+  };
+
   useEffect(() => {
     if (!connection.initialized) {
       return;
@@ -74,5 +99,15 @@ export const useRecordings = (): [
     loadRecordings();
   }, []);
 
-  return [recordings, loading, error, { loadRecordings, addRecording }];
+  return [
+    recordings,
+    loading,
+    error,
+    {
+      loadRecordings,
+      addRecording,
+      deleteRecording,
+      confirmError: () => setError(false),
+    },
+  ];
 };

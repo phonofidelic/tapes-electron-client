@@ -181,7 +181,8 @@ export class OrbitRepository<T> implements BaseRepository<T> {
   }
 
   async delete(_id: string): Promise<string> {
-    const db: DocumentStore<T> = await this.orbitdb.docs(this.dbName);
+    const db = await this.getDb();
+
     await db.load();
 
     await db.del(_id);

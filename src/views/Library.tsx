@@ -24,7 +24,6 @@ import { AccountInfo } from '@/common/AccountInfo.interface';
 import { useRecordings } from '@/contexts/RecordingsContext';
 
 const {
-  deleteRecording,
   editRecording,
   uploadAudioFiles,
   downloadRecording,
@@ -53,9 +52,13 @@ export function Library({
   currentPlaying,
   selectRecording,
   playRecording,
-  confirmError,
 }: LibraryProps) {
-  const [recordings, loading, error, { loadRecordings }] = useRecordings();
+  const [
+    recordings,
+    loading,
+    error,
+    { loadRecordings, deleteRecording, confirmError },
+  ] = useRecordings();
   const [filteredRecordings, setFilteredRecordings] =
     useState<Recording[]>(recordings);
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,8 +78,8 @@ export function Library({
     dispatch(editRecording(recordingId, update));
   };
 
-  const handleDeleteRecording = (recordingId: string) => {
-    dispatch(deleteRecording(recordingId));
+  const handleDeleteRecording = async (recordingId: string) => {
+    await deleteRecording(recordingId);
   };
 
   const handleDownloadRecording = (recordingId: string) => {
