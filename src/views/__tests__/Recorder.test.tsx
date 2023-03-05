@@ -11,21 +11,11 @@ import { store } from '../../store';
 import Recorder from '../Recorder';
 import OrbitConnection from '@/db/OrbitConnection';
 import { OrbitConnectionContext } from '@/contexts/OrbitdbConnectionContext';
+import { RecordingsProvider } from '@/contexts/RecordingsContext';
 
 jest.mock('@/db/Repository', () => ({
   RecordingRepository: jest.fn(),
 }));
-
-const renderComponent = () =>
-  render(
-    <Provider store={store}>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <Recorder />
-        </ThemeProvider>
-      </StyledEngineProvider>
-    </Provider>
-  );
 
 const renderMockedComponent = (
   ui: React.ReactNode,
@@ -34,13 +24,15 @@ const renderMockedComponent = (
   const mockStore = createStore(() => state);
 
   return render(
-    <OrbitConnectionContext.Provider value={connection}>
-      <Provider store={mockStore}>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>{ui}</ThemeProvider>
-        </StyledEngineProvider>
-      </Provider>
-    </OrbitConnectionContext.Provider>
+    <Provider store={mockStore}>
+      <OrbitConnectionContext.Provider value={connection}>
+        <RecordingsProvider>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>{ui}</ThemeProvider>
+          </StyledEngineProvider>
+        </RecordingsProvider>
+      </OrbitConnectionContext.Provider>
+    </Provider>
   );
 };
 

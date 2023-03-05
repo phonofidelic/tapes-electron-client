@@ -13,6 +13,7 @@ import Library from '../Library';
 import { theme } from '../../theme';
 import { OrbitConnectionContext } from '@/contexts/OrbitdbConnectionContext';
 import OrbitConnection from '@/db/OrbitConnection';
+import { RecordingsProvider } from '@/contexts/RecordingsContext';
 
 const mockRecording = {
   bucketPath:
@@ -47,13 +48,15 @@ const renderMockedComponent = (
   );
 
   return render(
-    <OrbitConnectionContext.Provider value={connection}>
-      <Provider store={mockStore}>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>{ui}</ThemeProvider>
-        </StyledEngineProvider>
-      </Provider>
-    </OrbitConnectionContext.Provider>
+    <Provider store={mockStore}>
+      <OrbitConnectionContext.Provider value={connection}>
+        <RecordingsProvider>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>{ui}</ThemeProvider>
+          </StyledEngineProvider>
+        </RecordingsProvider>
+      </OrbitConnectionContext.Provider>
+    </Provider>
   );
 };
 
