@@ -23,7 +23,7 @@ import List from '@mui/material/List';
 import { AccountInfo } from '@/common/AccountInfo.interface';
 import { useRecordings } from '@/contexts/RecordingsContext';
 
-const { uploadAudioFiles, downloadRecording, cacheAndPlayRecording } = effects;
+const { downloadRecording, cacheAndPlayRecording } = effects;
 
 interface LibraryProps {
   accountInfo: AccountInfo;
@@ -52,7 +52,13 @@ export function Library({
     recordings,
     loading,
     error,
-    { loadRecordings, editRecording, deleteRecording, confirmError },
+    {
+      loadRecordings,
+      uploadAudioFiles,
+      editRecording,
+      deleteRecording,
+      confirmError,
+    },
   ] = useRecordings();
   const [filteredRecordings, setFilteredRecordings] =
     useState<Recording[]>(recordings);
@@ -112,7 +118,7 @@ export function Library({
   };
 
   const handleFileDrop = (audioFiles: File[]) => {
-    dispatch(uploadAudioFiles(audioFiles));
+    uploadAudioFiles(audioFiles);
   };
 
   const renderFilteredRecordings = (filteredRecordings: Recording[]) => {

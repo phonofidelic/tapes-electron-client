@@ -4,6 +4,8 @@ import { RECORDING_COLLECTION } from '@/common/constants';
 import { Recording } from '@/common/Recording.interface';
 import { RecordingRepository } from '@/db/Repository';
 import { IpcService } from '@/IpcService';
+import { useDispatch } from 'react-redux';
+import { setLoadingMessage } from '@/store/actions';
 
 const RecordingsContext = createContext(null);
 
@@ -33,7 +35,11 @@ type UseRecordingsReturn = [
   {
     loadRecordings: () => Promise<void>;
     addRecording: (recordingData: Recording) => Promise<void>;
-    editRecording: (recordingId: string, update: Partial<Recording>) => void;
+    uploadAudioFiles: (audioFiles: File[]) => Promise<void>;
+    editRecording: (
+      recordingId: string,
+      update: Partial<Recording>
+    ) => Promise<void>;
     deleteRecording: (recordingId: string) => Promise<void>;
     confirmError: () => void;
   }
@@ -45,11 +51,13 @@ export const useRecordings = (): UseRecordingsReturn => {
   if (recordingsRepository === null) {
     throw new Error('`useRecordings` must be inside a `RecordingsProvider`');
   }
-  const [recordings, setRecordings] = useState<Recording[]>([]);
   const [connection] = useOrbitConnection();
+
+  const [recordings, setRecordings] = useState<Recording[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const dispatch = useDispatch();
   const ipc = new IpcService();
 
   const loadRecordings = async () => {
@@ -72,6 +80,57 @@ export const useRecordings = (): UseRecordingsReturn => {
 
     const createdRecording = await recordingsRepository.add(recordingData);
     setRecordings([...recordings, createdRecording]);
+  };
+
+  const uploadAudioFiles = async (audioFiles: File[]) => {
+    setLoading(true);
+    dispatch(
+      setLoadingMessage(
+        `Processing ${audioFiles.length} audio file${
+          audioFiles.length > 1 ? 's' : ''
+        }`
+      )
+    );
+
+    const parsedFiles = audioFiles.map((file) => ({
+      path: file.path,
+      name: file.name,
+      size: file.size,
+    }));
+
+    try {
+      const ipcResponse = await ipc.send<{
+        message: string;
+        data: Recording[];
+        error?: Error;
+      }>('storage:upload', {
+        data: { files: parsedFiles },
+      });
+      if (ipcResponse.error) {
+        throw ipcResponse.error;
+      }
+
+      const createdRecordings: Recording[] = [];
+      for await (const recordingData of ipcResponse.data) {
+        try {
+          const createdRecording = await recordingsRepository.add(
+            recordingData
+          );
+          createdRecordings.push(createdRecording);
+        } catch {
+          throw new Error(
+            `Could not create database entry for ${recordingData.title}`
+          );
+        }
+      }
+      setRecordings([...recordings, ...createdRecordings]);
+      setLoading(false);
+      dispatch(setLoadingMessage(null));
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      setError(error);
+    }
   };
 
   const editRecording = async (
@@ -130,6 +189,7 @@ export const useRecordings = (): UseRecordingsReturn => {
     {
       loadRecordings,
       addRecording,
+      uploadAudioFiles,
       editRecording,
       deleteRecording,
       confirmError: () => setError(false),
