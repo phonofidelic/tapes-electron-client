@@ -75,7 +75,7 @@ export class UploadAudioFileChannel implements IpcChannel {
        * recordingData since Buffer does not seem to be supported by orbitDB.
        */
       const metadata = await mm.parseFile(filePath);
-      const { picture, ...common } = metadata.common;
+      const { ...common } = metadata.common;
       console.log('*** metadata:', util.inspect(metadata, true, 8, true));
 
       /*
