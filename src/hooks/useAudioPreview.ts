@@ -1,6 +1,4 @@
-/**
- * TODO: Remove if unused
- *
+/*
  * Adapted from: https://codesandbox.io/s/5wwj02qy7k?file=/src/useAudioPlayer.js
  */
 import { useState, useEffect } from 'react';
