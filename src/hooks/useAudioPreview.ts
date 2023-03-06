@@ -1,16 +1,16 @@
 /**
  * TODO: Remove if unused
- * 
+ *
  * Adapted from: https://codesandbox.io/s/5wwj02qy7k?file=/src/useAudioPlayer.js
  */
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Recording } from '../common/Recording.interface';
-import effects from '../effects'
+import effects from '../effects';
 
-const { cacheAndPlayRecording } = effects
+const { cacheAndPlayRecording } = effects;
 
-function useAudioPreview(recordingId: Recording, location?: string) {
+function useAudioPreview(recording: Recording, location?: string) {
   const [duration, setDuration] = useState(0);
   const [curTime, setCurTime] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -28,7 +28,7 @@ function useAudioPreview(recordingId: Recording, location?: string) {
 
     const handlePlay = () => {
       const cacheAndPlay = () => {
-        dispatch(cacheAndPlayRecording(recordingId));
+        dispatch(cacheAndPlayRecording(recording));
         setIsCached(true);
       };
 
@@ -97,7 +97,7 @@ function useAudioPreview(recordingId: Recording, location?: string) {
       audio.removeEventListener('ended', resetAudio);
       // setPausedTime(0);
     };
-  }, [playing, clickedTime, recordingId]);
+  }, [playing, clickedTime, recording]);
 
   return {
     curTime,
