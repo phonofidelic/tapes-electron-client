@@ -122,7 +122,9 @@ export class UploadAudioFileChannel implements IpcChannel {
         filename,
         title:
           metadata.common.title ||
-          acoustidResponse.data.results[0]?.recordings[0]?.title ||
+          acoustidResponse.data.results[0]?.recordings.find(
+            (recording) => recording.title
+          ).title ||
           'No title',
         size: file.size,
         duration: metadata.format.duration,
@@ -130,7 +132,7 @@ export class UploadAudioFileChannel implements IpcChannel {
         channels: metadata.format.numberOfChannels,
         common,
         cid,
-        acoustidResults: [await acoustidResponse.data.results[0]],
+        acoustidResults: [acoustidResponse.data.results[0]],
         musicBrainzCoverArt: musicBrainzCoverArt ?? null,
       };
 

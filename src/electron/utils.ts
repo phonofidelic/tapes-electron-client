@@ -9,6 +9,10 @@ import * as mm from 'music-metadata';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 import { MusicBrainzCoverArt } from '../common/MusicBrainzCoverArt.interface';
 import { stdout } from 'process';
+import {
+  AcoustidReleaseGroup,
+  AcoustidResult,
+} from '@/common/AcoustidResult.interface';
 
 export const setStorageDir = async (folderName: string): Promise<string> => {
   const storagePath =
@@ -43,19 +47,23 @@ export const validRecordingFormat = (format: string): RecordingFormats => {
   return format as RecordingFormats;
 };
 
+type AcoustidResponse = {
+  status: string;
+  results: AcoustidResult[];
+};
+
 export const getAcoustidResults = async (
   duration: number,
   fingerprint: string
 ) => {
-  const acoustidRequestUrl = `https://api.acoustid.org/v2/lookup?client=${process.env.ACOUSTID_API_KEY
+  try {
+    const acoustidRequestUrl = `https://api.acoustid.org/v2/lookup?client=${
+      process.env.ACOUSTID_API_KEY
     }&meta=recordings+releasegroups+compress&duration=${Math.round(
       duration
     )}&fingerprint=${fingerprint}`;
 
-  let acoustidResponse;
-  try {
-    acoustidResponse = await axios({
-      method: 'GET',
+    const acoustidAxiosClient = axios.create({
       url: acoustidRequestUrl,
       httpsAgent: new https.Agent({
         host: 'api.acoustid.org',
@@ -64,6 +72,10 @@ export const getAcoustidResults = async (
         rejectUnauthorized: false,
       }),
     });
+
+    const acoustidResponse = await acoustidAxiosClient.get<AcoustidResponse>(
+      acoustidRequestUrl
+    );
 
     console.log(
       '*** acoustidResponse:',
@@ -102,7 +114,7 @@ export const getMusicBrainzCoverArt = async (
     musicBrainzCoverArt = mbCoverArtResponse.data.images[0];
   } catch (err) {
     console.error('Could not get album art:', err);
-    musicBrainzCoverArt = ''
+    musicBrainzCoverArt = '';
   }
   return musicBrainzCoverArt;
 };
@@ -140,28 +152,28 @@ export const fpcalcPromise = (
  * https://stackoverflow.com/a/58571306
  */
 export const spawnAsync = async (command: string, args: string[]) => {
-  console.log(`Starting child process ${command} with args:`, args)
-  const child = spawn(command, args)
+  console.log(`Starting child process ${command} with args:`, args);
+  const child = spawn(command, args);
 
   let data = '';
   for await (const chunk of child.stdout) {
-    console.log(`${command} stdout:`, +chunk.toString())
-    data += chunk
+    console.log(`${command} stdout:`, +chunk.toString());
+    data += chunk;
   }
 
-  let error = ''
+  let error = '';
   for await (const chunk of child.stderr) {
-    console.log(`${command} stderr:`, +chunk.toString())
-    error += chunk
+    console.log(`${command} stderr:`, +chunk.toString());
+    error += chunk;
   }
 
   const exitCode = await new Promise((resolve, _reject) => {
-    child.on('close', resolve)
-  })
+    child.on('close', resolve);
+  });
 
   if (exitCode) {
-    throw new Error(`${command} error exit ${exitCode}, ${error}`)
+    throw new Error(`${command} error exit ${exitCode}, ${error}`);
   }
 
-  return data
-}
+  return data;
+};

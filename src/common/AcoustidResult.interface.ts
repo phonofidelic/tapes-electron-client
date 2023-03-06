@@ -5,11 +5,11 @@ export interface AcoustidResult {
 }
 
 export interface AcoustidRecording {
-  artists: AcoustidArtist[];
-  duration: number;
   id: string;
-  releasegroups: AcoustidReleaseGroup[];
-  title: string;
+  artist?: AcoustidArtist[];
+  duration?: number;
+  releasegroups?: AcoustidReleaseGroup[];
+  title?: string;
 }
 
 interface AcoustidArtist {
