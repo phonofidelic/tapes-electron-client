@@ -12,7 +12,7 @@ type Props = {
   handleEditRecording(recordingId: string, update: any): void;
 };
 
-export default function AcoutidResults({
+export default function AcoustidResults({
   acoustidResults,
   recording,
   handleEditRecording,

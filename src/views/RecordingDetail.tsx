@@ -11,7 +11,7 @@ import dayjsDuration from 'dayjs/plugin/duration';
 import prettyBytes from 'pretty-bytes';
 
 import { msToTime } from '../utils';
-import AcoustidResults from '../components/AcoutidResults';
+import AcoustidResults from '../components/AcoustidResults';
 import CommonMetadata from '../components/CommonMetadata';
 
 import { Tooltip, useTheme } from '@mui/material';
