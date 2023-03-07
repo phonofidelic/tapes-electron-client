@@ -28,7 +28,7 @@
 
 import './index.css';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 import Root from './Root';
 
@@ -36,9 +36,10 @@ console.log(
   '👋 This message is being logged by "renderer.js", included via webpack'
 );
 
-ReactDOM.render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
   <Root>
     <App />
-  </Root>,
-  document.getElementById('root')
+  </Root>
 );
