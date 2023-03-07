@@ -1,7 +1,4 @@
-import React, {
-  ReactElement,
-  useState,
-} from 'react';
+import React, { ReactElement, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import prettyBytes from 'pretty-bytes';
 import dayjs from 'dayjs';
@@ -205,9 +202,11 @@ export function RecordingsListItem({
                         : '')}
                   </Typography>
 
-                  <Typography variant="caption">{` - Size: ${prettyBytes(
-                    recording.size
-                  )}`}</Typography>
+                  <Typography variant="caption">{` - Size: ${
+                    typeof recording.size === 'number'
+                      ? prettyBytes(recording.size)
+                      : recording.size
+                  }`}</Typography>
                 </div>
               </div>
             </Grow>
