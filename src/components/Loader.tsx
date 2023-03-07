@@ -4,6 +4,7 @@ import { RecorderState } from '../store/types';
 
 import Fade from '@mui/material/Fade';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useTheme } from '@mui/material';
 
 interface LoaderProps {
   loading: boolean;
@@ -11,6 +12,8 @@ interface LoaderProps {
 }
 
 export function Loader({ loading, loadingMessage }: LoaderProps) {
+  const theme = useTheme();
+
   return (
     <Fade in={loading}>
       <div
@@ -18,7 +21,7 @@ export function Loader({ loading, loadingMessage }: LoaderProps) {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          height: '100vh',
+          height: `calc(100vh - ${theme.dimensions.Navigation.height}px)`,
           textAlign: 'center',
         }}
       >
