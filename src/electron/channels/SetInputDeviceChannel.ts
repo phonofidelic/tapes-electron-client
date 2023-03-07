@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import appRootDir from 'app-root-dir';
 
-import { IpcMainEvent } from 'electron/main';
+import { IpcMainEvent } from 'electron';
 import { IpcChannel } from '../IPC/IpcChannel.interface';
 import { IpcRequest } from '../IPC/IpcRequest.interface';
 
