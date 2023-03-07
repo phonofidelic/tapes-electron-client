@@ -38,7 +38,7 @@ interface RecordingsListItemProps {
   playing: boolean;
   handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
-  handleEditRecording(recordingId: string, update: any): void;
+  handleEditRecording(recordingId: string, update: Partial<Recording>): void;
   handleDownloadRecording(recordingId: string): void;
   handleCacheAndPlayRecording(recording: Recording): void;
 }
