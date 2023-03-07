@@ -1,8 +1,8 @@
 import { AcoustidRecording } from './common/AcoustidResult.interface';
 
 export function msToTime(duration: number): string {
-  let milliseconds: string | number = (duration % 1000) / 100,
-    seconds: string | number = Math.floor((duration / 1000) % 60),
+  // let milliseconds: string | number = (duration % 1000) / 100,
+  let seconds: string | number = Math.floor((duration / 1000) % 60),
     minutes: string | number = Math.floor((duration / (1000 * 60)) % 60),
     hours: string | number = Math.floor((duration / (1000 * 60 * 60)) % 24);
 
