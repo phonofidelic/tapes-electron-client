@@ -36,12 +36,10 @@ import { providers } from 'ethers';
 declare global {
   interface Window {
     ethereum: providers.ExternalProvider;
-    db: any
-    OrbitDB: any
+    db: any;
+    OrbitDB: any;
   }
 }
-
-global = globalThis;
 
 console.log(
   '👋 This message is being logged by "renderer.js", included via webpack'
