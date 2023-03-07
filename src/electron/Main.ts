@@ -14,7 +14,7 @@ import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import { IpcChannel } from './IPC/IpcChannel.interface';
 import { RecorderTray } from './RecorderTray';
 
-declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 
 export class Main {
   private mainWindow: BrowserWindow;
