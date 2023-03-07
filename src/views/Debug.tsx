@@ -34,30 +34,12 @@ export function Debug({ accountInfo }: Props) {
   const dispatch = useDispatch();
 
   const handleClearCompanions = async () => {
-    const confirmed = window.confirm(
-      'Are you sure you want to remove all companions?'
-    );
-    if (!confirmed) return;
-
-    try {
-      await window.db.removeAllCompanions();
-      console.log('Companions removed');
-    } catch (err) {
-      console.error('Could not remove companions');
-    }
+    console.log('TODO: Re-implement clear all companions');
   };
 
   useEffect(() => {
-    if (!window.db || !window.db.initialized)
-      return console.log('No DB or not initialized in Debug');
-    console.log('DB initialized in Debug');
-
-    setPeerInfo(window.db.peerInfo);
-    setCompanions(window.db.getAllCompanions());
-    setUserData(window.db.getAccountInfo());
-
     dispatch(loadAccountInfo());
-  }, [window.db]);
+  }, []);
 
   const renderCopyButton = (data: string) => {
     const [copied, setCopied] = useState(false);

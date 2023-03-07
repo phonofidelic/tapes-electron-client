@@ -70,8 +70,6 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 
     const recordings = await repository.find({});
 
-    // const recordings = await window.db.find('recordings', {});
-
     dispatch(loadRecordingsSuccess(recordings));
     dispatch(setLoadingMessage(null));
   } catch (err) {
@@ -126,9 +124,6 @@ export const initDatabase =
     dispatch(setLoadingMessage('Initializing database...'));
 
     try {
-      // window.db = new OrbitDatabase({});
-      // await window.db.init(desktopPeerId, recordingsAddrRoot);
-
       await OrbitConnection.Instance.connect(desktopPeerId, recordingsAddrRoot);
 
       console.log('Database initialized');
@@ -236,26 +231,3 @@ export const setAccountInfo =
       dispatch(setAccountInfoFailure(new Error('Could not set account info')));
     }
   };
-
-export const getCompanions = (): Effect => (dispatch) => {
-  dispatch(getCompanionsRequest);
-
-  try {
-    const companions = window.db.getAllCompanions();
-
-    const companionsArray: Companion[] = Object.keys(companions).map(
-      (key: string) => ({
-        dbAddress: companions[key].dbAddress,
-        deviceName: companions[key].deviceName,
-        docStores: companions[key].docStores,
-        nodeId: companions[key].nodeId,
-        status: companions[key].status,
-      })
-    );
-
-    dispatch(getCompanionsSuccess(companionsArray));
-  } catch (err) {
-    console.error('Could not retrieve companions:', err);
-    dispatch(getCompanionsFailure(new Error('Could not retrieve companions')));
-  }
-};

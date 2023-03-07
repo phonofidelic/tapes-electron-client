@@ -25,7 +25,6 @@ interface EffectsExport {
   getRecordingStorageStatus(recordingCid: string): Effect;
   loadAccountInfo(): Effect;
   setAccountInfo(key: keyof AccountInfo, value: string): Effect;
-  getCompanions(): Effect;
 }
 
 let effectsExports: EffectsExport;

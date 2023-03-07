@@ -452,30 +452,3 @@ export const setAccountInfo =
       dispatch(setAccountInfoFailure(new Error('Could not set account info')));
     }
   };
-
-export const getCompanions = (): Effect => async (dispatch) => {
-  dispatch(getCompanionsRequest);
-
-  try {
-    dispatch(setLoadingMessage('Loading companions status...'));
-
-    await OrbitConnection.Instance.connect();
-    const companions = OrbitConnection._instance.companions.all;
-
-    const companionsArray: Companion[] = Object.keys(companions).map(
-      (key: string) => ({
-        dbAddress: companions[key].dbAddress,
-        deviceName: companions[key].deviceName,
-        docStores: companions[key].docStores,
-        nodeId: companions[key].nodeId,
-        status: companions[key].status,
-      })
-    );
-
-    dispatch(getCompanionsSuccess(companionsArray));
-    dispatch(setLoadingMessage(null));
-  } catch (err) {
-    console.error('Could not retrieve companions:', err);
-    dispatch(getCompanionsFailure(new Error('Could not retrieve companions')));
-  }
-};
