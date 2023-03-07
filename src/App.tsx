@@ -1,9 +1,7 @@
-import React, { useEffect, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { hot } from 'react-hot-loader';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 
-import effects from './effects';
 import Navigation from './components/Navigation';
 
 import { useTheme } from '@mui/material/styles';
@@ -26,19 +24,8 @@ const RecordingDetail = React.lazy(() =>
   import(/* webpackChunkName: "recordingDetail" */ './views/RecordingDetail')
 );
 
-const { initDatabase } = effects;
-
 function App() {
   const theme = useTheme();
-  const dispatch = useDispatch();
-
-  const searchParams = new URLSearchParams(window.location.search);
-  const desktopPeerId = searchParams.get('peerid');
-  const recordingsAddrRoot = searchParams.get('address');
-
-  // useEffect(() => {
-  //   dispatch(initDatabase(desktopPeerId, recordingsAddrRoot));
-  // }, []);
 
   return (
     <div className="main">
