@@ -263,28 +263,6 @@ export const deleteRecording =
     dispatch(setLoadingMessage(null));
   };
 
-export const loadAccountToken =
-  (tokenString: string): Effect =>
-  async (dispatch) => {
-    dispatch(loadAccountTokenRequest());
-
-    try {
-      localStorage.setItem(IDENTITY_STORE, tokenString);
-
-      dispatch(setLoadingMessage('Cleaning up local database...'));
-      await window.db.deleteDB();
-
-      dispatch(setLoadingMessage('Initializing new database...'));
-      !window.db.initialized && (await window.db.init());
-
-      dispatch(loadAccountTokenSuccess(tokenString));
-      dispatch(setLoadingMessage(null));
-    } catch (err) {
-      console.error('Could not load account token:', err);
-      dispatch(loadAccountTokenFailure(err));
-    }
-  };
-
 export const initDatabase = (): Effect => async (dispatch) => {
   dispatch(initDatabaseRequest());
   dispatch(setLoadingMessage('Initializing database...'));
