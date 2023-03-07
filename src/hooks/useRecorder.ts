@@ -35,12 +35,18 @@ export default function useRecorder(): [
       if (ipcResponse.error) {
         throw ipcResponse.error;
       }
-
-      await addRecording(ipcResponse.recordingData);
       dispatch(setLoadingMessage(null));
     } catch (error) {
       console.error('Could not start recording:', error);
       setError(new Error('Could not start recording'));
+      dispatch(setLoadingMessage(null));
+    }
+
+    try {
+      await addRecording(ipcResponse.recordingData);
+    } catch (error) {
+      console.error(error);
+      setError(new Error('Could not save recording'));
       dispatch(setLoadingMessage(null));
     }
   };
