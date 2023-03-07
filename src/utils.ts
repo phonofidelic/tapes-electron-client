@@ -1,3 +1,5 @@
+import { AcoustidRecording } from './common/AcoustidResult.interface';
+
 export function msToTime(duration: number): string {
   let milliseconds: string | number = (duration % 1000) / 100,
     seconds: string | number = Math.floor((duration / 1000) % 60),
@@ -25,10 +27,13 @@ export const getAudioStream = async (selectedMediaDeviceId: string) => {
   return audioStream;
 };
 
-/**
+/*
  * https://javascript.plainenglish.io/how-to-add-a-timeout-limit-to-asynchronous-javascript-functions-3676d89c186d
  */
-export const asyncCallWithTimeout = async (asyncPromise: Promise<any>, timeLimit: number) => {
+export const asyncCallWithTimeout = async (
+  asyncPromise: Promise<any>,
+  timeLimit: number
+) => {
   let timeoutHandle: ReturnType<typeof setTimeout>;
 
   const timeoutPromise = new Promise((_resolve, reject) => {
@@ -38,8 +43,18 @@ export const asyncCallWithTimeout = async (asyncPromise: Promise<any>, timeLimit
     );
   });
 
-  return Promise.race([asyncPromise, timeoutPromise]).then(result => {
+  return Promise.race([asyncPromise, timeoutPromise]).then((result) => {
     clearTimeout(timeoutHandle);
     return result;
-  })
-}
+  });
+};
+
+export const getArtistNameFromAcoustidRecording = (
+  acoustidRecording: AcoustidRecording
+) => {
+  return acoustidRecording.artists
+    ? acoustidRecording.artists[0].name
+    : acoustidRecording.artist
+    ? acoustidRecording.artist[0].name
+    : 'No artist name found';
+};

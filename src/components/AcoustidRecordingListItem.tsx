@@ -3,6 +3,7 @@ import { AcoustidRecording } from '@/common/AcoustidResult.interface';
 import { Collapse, ListItem, Typography, useTheme } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Recording } from '@/common/Recording.interface';
+import { getArtistNameFromAcoustidRecording } from '@/utils';
 
 interface Props {
   acoustidRecording: AcoustidRecording;
@@ -48,7 +49,8 @@ export default function AcoustidRecordingListItem({
         onClick={handleToggleExpand}
       >
         <Typography>
-          {acoustidRecording.title} by {acoustidRecording.artist[0].name} -{' '}
+          {acoustidRecording.title} by{' '}
+          {getArtistNameFromAcoustidRecording(acoustidRecording)} -{' '}
           {filteredReleaseGroups.length} release
           {filteredReleaseGroups.length > 1 && 's'}
         </Typography>

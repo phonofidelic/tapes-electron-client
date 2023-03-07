@@ -16,6 +16,7 @@ import { Button, CardHeader, CardMedia, Collapse } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { getArtistNameFromAcoustidRecording } from '@/utils';
 
 interface Props {
   recording: Recording;
@@ -48,7 +49,7 @@ export default function AcoustidReleaseGroupCard({
 
     const newCommon: ICommonTagsResult = {
       ...recording.common,
-      artist: acoustidRecording.artist[0].name,
+      artist: getArtistNameFromAcoustidRecording(acoustidRecording),
       title: acoustidRecording.title,
       album: acoustidReleaseGroup.title,
       releasetype: [acoustidReleaseGroup.type],
@@ -134,7 +135,9 @@ export default function AcoustidReleaseGroupCard({
         <CardContent>
           <div>
             <Typography variant="caption">
-              Artist: {acoustidRecording.artist[0].name || 'No artist info'}
+              Artist:{' '}
+              {getArtistNameFromAcoustidRecording(acoustidRecording) ||
+                'No artist info'}
             </Typography>
           </div>
           <div>

@@ -7,6 +7,7 @@ export interface AcoustidResult {
 export interface AcoustidRecording {
   id: string;
   artist?: AcoustidArtist[];
+  artists?: AcoustidArtist[];
   duration?: number;
   releasegroups?: AcoustidReleaseGroup[];
   title?: string;
