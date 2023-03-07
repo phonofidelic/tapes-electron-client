@@ -17,7 +17,7 @@ export default function FileDrop({
 }: Props): ReactElement {
   const theme = useTheme();
 
-  const onDrop = useCallback(async (acceptedFiles) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     // console.log('Droped files:', acceptedFiles);
     if (acceptedFiles.length) onFileDrop(acceptedFiles);
   }, []);
