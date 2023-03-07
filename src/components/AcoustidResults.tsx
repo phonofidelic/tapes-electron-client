@@ -9,7 +9,7 @@ import { Checkbox, List, Typography } from '@mui/material';
 type Props = {
   acoustidResults: AcoustidResult[];
   recording: Recording;
-  handleEditRecording(recordingId: string, update: any): void;
+  handleEditRecording(recordingId: string, update: Partial<Recording>): void;
 };
 
 export default function AcoustidResults({
