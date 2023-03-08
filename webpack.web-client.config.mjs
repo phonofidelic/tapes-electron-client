@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 
 export default {
   entry: {
-    index: path.resolve('src', 'index.web-client.tsx'),
+    index: path.resolve('src', 'renderer.tsx'),
     // db: path.resolve(__dirname, 'src', 'db', 'index.ts'),
     // effects: path.resolve(__dirname, 'src', 'effects', 'index.ts'),
     // recorder: path.resolve(__dirname, 'src', 'views', 'Recorder.tsx'),
