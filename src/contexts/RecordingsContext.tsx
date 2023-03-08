@@ -61,6 +61,7 @@ export const useRecordings = (): UseRecordingsReturn => {
   const ipc = new IpcService();
 
   const loadRecordings = async () => {
+    if (!connection.initialized) return;
     dispatch(setLoadingMessage('Loading recordings'));
     try {
       const results = await recordingsRepository.find({});
@@ -179,10 +180,6 @@ export const useRecordings = (): UseRecordingsReturn => {
   };
 
   useEffect(() => {
-    if (!connection.initialized) {
-      return;
-    }
-
     loadRecordings();
   }, [connection.initialized]);
 
