@@ -60,8 +60,7 @@ export function Library({
       confirmError,
     },
   ] = useRecordings();
-  const [filteredRecordings, setFilteredRecordings] =
-    useState<Recording[]>(recordings);
+  const [filteredRecordings, setFilteredRecordings] = useState<Recording[]>();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<keyof Recording | null>(null);
 
@@ -146,10 +145,6 @@ export function Library({
         </div>
       );
 
-    useEffect(() => {
-      loadRecordings();
-    }, []);
-
     return (
       <List>
         {filteredRecordings.map((recording: Recording) => (
@@ -170,6 +165,10 @@ export function Library({
       </List>
     );
   };
+
+  useEffect(() => {
+    loadRecordings();
+  }, []);
 
   if (loading) {
     return <Loader loading={true} loadingMessage="Loading..." />;
