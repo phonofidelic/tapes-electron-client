@@ -180,7 +180,7 @@ export const useRecordings = (): UseRecordingsReturn => {
     }
 
     loadRecordings();
-  }, []);
+  }, [connection.initialized]);
 
   return [
     recordings,
