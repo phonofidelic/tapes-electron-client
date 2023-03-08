@@ -61,15 +61,18 @@ export const useRecordings = (): UseRecordingsReturn => {
   const ipc = new IpcService();
 
   const loadRecordings = async () => {
+    dispatch(setLoadingMessage('Loading recordings'));
     try {
       const results = await recordingsRepository.find({});
 
       setRecordings([...recordings, ...results]);
       setLoading(false);
+      dispatch(setLoadingMessage(null));
     } catch (error) {
       console.error(error);
       setError(new Error('Could not load recordings'));
       setLoading(false);
+      dispatch(setLoadingMessage(null));
     }
   };
 
@@ -130,6 +133,7 @@ export const useRecordings = (): UseRecordingsReturn => {
       console.error(error);
       setLoading(false);
       setError(error);
+      dispatch(setLoadingMessage(null));
     }
   };
 
