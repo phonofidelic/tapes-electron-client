@@ -55,7 +55,7 @@ export default function useUser() {
         console.error(error);
         setLoading(false);
         setLoadingMessage(null);
-        setError('Could not load account info');
+        setError(new Error('Could not load account info'));
       }
     }
     loadAccountInfo();
