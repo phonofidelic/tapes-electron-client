@@ -1,6 +1,5 @@
 import React from 'react';
-import { connect, useDispatch } from 'react-redux';
-import effects from '../effects';
+import { connect } from 'react-redux';
 import {
   RecorderState,
   SetRecordingSettingsAction,
@@ -17,15 +16,11 @@ import RecorderControls from '../components/RecorderControls';
 import Timer from '../components/Timer';
 import ErrorModal from '../components/ErrorModal';
 import AudioVisualiser from '../components/AudioVisualiser';
-
-const { startRecording, stopRecording } = effects;
+import useRecorder from '@/hooks/useRecorder';
 
 interface RecorderProps {
-  // isMonitoring: boolean;
-  isRecording: boolean;
   recordingSettings: RecordingSettings;
   loading: boolean;
-  error: Error;
   startMonitor(monitorInstance: MediaStream): StartMonitorAction;
   stopMonitor(): StopMonitorAction;
   setRecordingSettings(
@@ -34,19 +29,13 @@ interface RecorderProps {
   confirmError(): ConfirmErrorAction;
 }
 
-function Recorder({
-  // isMonitoring,
-  isRecording,
-  recordingSettings,
-  loading,
-  error,
-  confirmError,
-}: RecorderProps) {
+function Recorder({ recordingSettings, loading }: RecorderProps) {
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId || 'default';
 
-  const dispatch = useDispatch();
   const { isMonitoring, setIsMonitoring } = useMonitor(selectedMediaDeviceId);
+  const [isRecording, error, { startRecording, stopRecording, confirmError }] =
+    useRecorder();
 
   const handleStartMonitor = async () => {
     setIsMonitoring(true);
@@ -57,11 +46,11 @@ function Recorder({
   };
 
   const handleStartRecording = async () => {
-    dispatch(startRecording(recordingSettings));
+    await startRecording(recordingSettings);
   };
 
   const handleStopRecording = () => {
-    dispatch(stopRecording());
+    stopRecording();
   };
 
   if (loading) {
@@ -69,46 +58,40 @@ function Recorder({
   }
 
   return (
-    <div>
-      {isRecording && <Timer />}
-      {/* <AudioAnalyser
-        isMonitoring={isMonitoring}
-        selectedMediaDeviceId={selectedMediaDeviceId}
-      /> */}
-      {/* <VolumeMeter selectedMediaDeviceId={selectedMediaDeviceId} /> */}
-      <div
-        style={{
-          position: 'fixed',
-          width: '100%',
-          left: 0,
-          bottom: 32,
-        }}
-      >
-        <AudioVisualiser
-          selectedMediaDeviceId={selectedMediaDeviceId}
-          feature="frequency"
+    <>
+      <div>
+        {isRecording && <Timer />}
+        <div
+          style={{
+            position: 'fixed',
+            width: '100%',
+            left: 0,
+            bottom: 32,
+          }}
+        >
+          <AudioVisualiser
+            selectedMediaDeviceId={selectedMediaDeviceId}
+            feature="frequency"
+          />
+        </div>
+        <RecorderControls
+          isMonitoring={isMonitoring}
+          isRecording={isRecording}
+          handleStartRecording={handleStartRecording}
+          handleStopRecording={handleStopRecording}
+          handleStartMonitor={handleStartMonitor}
+          handleStopMonitor={handleStopMonitor}
         />
       </div>
-      <RecorderControls
-        isMonitoring={isMonitoring}
-        isRecording={isRecording}
-        handleStartRecording={handleStartRecording}
-        handleStopRecording={handleStopRecording}
-        handleStartMonitor={handleStartMonitor}
-        handleStopMonitor={handleStopMonitor}
-      />
       <ErrorModal error={error} onConfirmError={() => confirmError()} />
-    </div>
+    </>
   );
 }
 
 const mapStateToProps = (state: RecorderState) => {
   return {
-    // isMonitoring: state.isMonitoring,
-    isRecording: state.isRecording,
     recordingSettings: state.recordingSettings,
     loading: state.loading,
-    error: state.error,
   };
 };
 

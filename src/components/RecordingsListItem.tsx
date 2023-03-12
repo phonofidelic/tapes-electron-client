@@ -1,7 +1,4 @@
-import React, {
-  ReactElement,
-  useState,
-} from 'react';
+import React, { ReactElement, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import prettyBytes from 'pretty-bytes';
 import dayjs from 'dayjs';
@@ -41,7 +38,7 @@ interface RecordingsListItemProps {
   playing: boolean;
   handleSelectRecording(recording: Recording): void;
   handleDeleteRecording(recordingId: string): void;
-  handleEditRecording(recordingId: string, update: any): void;
+  handleEditRecording(recordingId: string, update: Partial<Recording>): void;
   handleDownloadRecording(recordingId: string): void;
   handleCacheAndPlayRecording(recording: Recording): void;
 }
@@ -205,9 +202,11 @@ export function RecordingsListItem({
                         : '')}
                   </Typography>
 
-                  <Typography variant="caption">{` - Size: ${prettyBytes(
-                    recording.size
-                  )}`}</Typography>
+                  <Typography variant="caption">{` - Size: ${
+                    typeof recording.size === 'number'
+                      ? prettyBytes(recording.size)
+                      : recording.size
+                  }`}</Typography>
                 </div>
               </div>
             </Grow>

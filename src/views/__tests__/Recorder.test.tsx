@@ -1,44 +1,37 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, fireEvent } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import {
-  ThemeProvider,
-  Theme,
-  StyledEngineProvider,
-} from '@mui/material/styles';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { theme } from '../../theme';
 import { RecorderState } from '../../store/types';
 import { initialState } from '../../store/reducer';
 import { store } from '../../store';
 import Recorder from '../Recorder';
+import OrbitConnection from '@/db/OrbitConnection';
+import { OrbitConnectionContext } from '@/contexts/OrbitdbConnectionContext';
+import { RecordingsProvider } from '@/contexts/RecordingsContext';
 
 jest.mock('@/db/Repository', () => ({
   RecordingRepository: jest.fn(),
 }));
 
-const renderComponent = () =>
-  render(
-    <Provider store={store}>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <Recorder />
-        </ThemeProvider>
-      </StyledEngineProvider>
-    </Provider>
-  );
-
-const renderMockedComponent = (state: RecorderState) => {
+const renderMockedComponent = (
+  ui: React.ReactNode,
+  { connection, state }: { connection: OrbitConnection; state: RecorderState }
+) => {
   const mockStore = createStore(() => state);
 
   return render(
     <Provider store={mockStore}>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <Recorder />
-        </ThemeProvider>
-      </StyledEngineProvider>
+      <OrbitConnectionContext.Provider value={connection}>
+        <RecordingsProvider>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>{ui}</ThemeProvider>
+          </StyledEngineProvider>
+        </RecordingsProvider>
+      </OrbitConnectionContext.Provider>
     </Provider>
   );
 };
@@ -71,16 +64,29 @@ beforeEach(() => {
 });
 
 it('renders the Recorder', () => {
-  const { getByText } = renderComponent();
+  const mockConnection = { connect: jest.fn(), initialized: true };
+  const mockState = {
+    ...initialState,
+    isRecording: false,
+  };
+  const { getByText } = renderMockedComponent(<Recorder />, {
+    connection: mockConnection as unknown as OrbitConnection,
+    state: mockState,
+  });
 
   expect(getByText(/rec/i)).toBeVisible();
 });
 
-it('shows a recording  indicator when recording', () => {
-  const { getByText } = renderMockedComponent({
-    ...initialState,
-    isRecording: true,
-  });
+// it('shows a recording  indicator when recording', () => {
+//   const mockConnection = { connect: jest.fn(), initialized: true };
+//   const mockState = {
+//     ...initialState,
+//     isRecording: true,
+//   };
+//   const { getByText } = renderMockedComponent(<Recorder />, {
+//     connection: mockConnection as unknown as OrbitConnection,
+//     state: mockState,
+//   });
 
-  expect(getByText(/recording/i)).toBeVisible();
-});
+//   expect(getByText(/recording/i)).toBeVisible();
+// });

@@ -115,22 +115,30 @@ export class OrbitRepository<T> implements BaseRepository<T> {
   }
 
   async find(query: Partial<T>) {
-    const db = await this.getDb();
-
     let results: T[] = [];
 
-    const keys = Object.keys(query) as unknown as (keyof T)[];
-    /*
-     * If query is empty, return all documents
-     */
-    if (!keys.length) return db.get('');
+    try {
+      const db = await this.getDb();
 
-    /*
-     * Otherwise, collect and return query results
-     */
-    keys.forEach((key) => {
-      results = [...results, ...db.query((doc: T) => doc[key] === query[key])];
-    });
+      const keys = Object.keys(query) as unknown as (keyof T)[];
+      /*
+       * If query is empty, return all documents
+       */
+      if (!keys.length) return db.get('');
+
+      /*
+       * Otherwise, collect and return query results
+       */
+      keys.forEach((key) => {
+        results = [
+          ...results,
+          ...db.query((doc: T) => doc[key] === query[key]),
+        ];
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Could not perform `find` operation');
+    }
 
     return results;
   }
@@ -139,13 +147,12 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     const db = await this.getDb();
 
     const results = db.query((doc: T & { _id: string }) => doc._id === _id);
-    console.log('findById, results', results);
 
     return results[0];
   }
 
   async add(doc: T): Promise<T> {
-    const db: DocumentStore<T> = await this.orbitdb.docs(this.dbName);
+    const db = await this.getDb();
     await db.load();
 
     const bytes = jsonEncoder.encode(doc);
@@ -161,8 +168,6 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     const db = await this.getDb();
 
     let document = await this.findById(_id);
-    console.log('Repository, _id', _id);
-    console.log('Repository, document', document);
 
     if (!document) throw new Error(`No document fount matching id ${_id}`);
 
@@ -176,7 +181,8 @@ export class OrbitRepository<T> implements BaseRepository<T> {
   }
 
   async delete(_id: string): Promise<string> {
-    const db: DocumentStore<T> = await this.orbitdb.docs(this.dbName);
+    const db = await this.getDb();
+
     await db.load();
 
     await db.del(_id);

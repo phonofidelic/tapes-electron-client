@@ -107,7 +107,7 @@ export class NewRecordingChannel implements IpcChannel {
         let duration, fingerprint;
         try {
           const fpcalcResponse = await fpcalcPromise(filePath);
-          duration = fpcalcResponse.duration;
+          duration = fpcalcResponse.duration ?? metadata.format.duration;
           fingerprint = fpcalcResponse.fingerprint;
         } catch (err) {
           console.error('Could not generate acoustic fingerprint:', err);
@@ -146,14 +146,14 @@ export class NewRecordingChannel implements IpcChannel {
           location: filePath,
           filename,
           size: fileStats.size,
-          duration: metadata.format.duration,
+          duration,
           format: recordingSettings.format,
           channels: recordingSettings.channels,
           common: metadata.common,
           title:
             acoustidResponse.data.results[0]?.recordings[0]?.title ||
             defaultTitle,
-          acoustidResults: await acoustidResponse.data.results,
+          acoustidResults: acoustidResponse.data.results,
           cid,
         };
 

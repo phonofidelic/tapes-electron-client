@@ -70,8 +70,6 @@ export const loadRecordings = (): Effect => async (dispatch) => {
 
     const recordings = await repository.find({});
 
-    // const recordings = await window.db.find('recordings', {});
-
     dispatch(loadRecordingsSuccess(recordings));
     dispatch(setLoadingMessage(null));
   } catch (err) {
@@ -126,9 +124,6 @@ export const initDatabase =
     dispatch(setLoadingMessage('Initializing database...'));
 
     try {
-      // window.db = new OrbitDatabase({});
-      // await window.db.init(desktopPeerId, recordingsAddrRoot);
-
       await OrbitConnection.Instance.connect(desktopPeerId, recordingsAddrRoot);
 
       console.log('Database initialized');
@@ -165,97 +160,3 @@ export const getRecordingStorageStatus =
   async (dispatch) => {
     console.log('TODO: implement getRecordingStorageStatus for web');
   };
-
-export const loadAccountInfo = (): Effect => async (dispatch) => {
-  dispatch(loadAccountInfoRequest());
-
-  const searchParams = new URLSearchParams(window.location.search);
-  const desktopPeerId = searchParams.get('peerid');
-  const recordingsAddrRoot = searchParams.get('address');
-
-  try {
-    dispatch(setLoadingMessage('Loading account info...'));
-    await OrbitConnection.Instance.connect(desktopPeerId, recordingsAddrRoot);
-    const userRepository = OrbitConnection.Instance.user;
-
-    const recordingsRepository = new RecordingRepository(
-      OrbitConnection.Instance,
-      RECORDING_COLLECTION
-    );
-
-    const accountInfo = {
-      ...userRepository.all,
-      recordingsDb: await recordingsRepository.getAddress(),
-    };
-
-    //@ts-ignore
-    dispatch(loadAccountInfoSuccess(accountInfo));
-    dispatch(setLoadingMessage(null));
-  } catch (err) {
-    console.error('Could not load account info:', err);
-    dispatch(loadAccountInfoFailure(new Error('Could not load account info')));
-  }
-
-  dispatch(getCompanionsRequest);
-  try {
-    dispatch(setLoadingMessage('Loading companions status...'));
-    const companions = OrbitConnection.Instance.companions.all;
-
-    const companionsArray: Companion[] = Object.keys(companions).map(
-      (key: string) => ({
-        dbAddress: companions[key].dbAddress,
-        deviceName: companions[key].deviceName,
-        docStores: companions[key].docStores,
-        nodeId: companions[key].nodeId,
-        status: companions[key].status,
-      })
-    );
-
-    dispatch(getCompanionsSuccess(companionsArray));
-    dispatch(setLoadingMessage(null));
-  } catch (error) {
-    console.error('Could not retrieve companions:', error);
-    dispatch(getCompanionsFailure(new Error('Could not retrieve companions')));
-  }
-};
-
-export const setAccountInfo =
-  (key: keyof AccountInfo, value: string): Effect =>
-  async (dispatch) => {
-    dispatch(setAccountInfoRequest());
-
-    try {
-      const userRepository = OrbitConnection.Instance.user;
-
-      await userRepository.set(key, value);
-      const updatedAccountInfo = userRepository.all as unknown as AccountInfo;
-
-      dispatch(setAccountInfoSuccess(updatedAccountInfo));
-    } catch (err) {
-      console.error('Could not set account info:', err);
-      dispatch(setAccountInfoFailure(new Error('Could not set account info')));
-    }
-  };
-
-export const getCompanions = (): Effect => (dispatch) => {
-  dispatch(getCompanionsRequest);
-
-  try {
-    const companions = window.db.getAllCompanions();
-
-    const companionsArray: Companion[] = Object.keys(companions).map(
-      (key: string) => ({
-        dbAddress: companions[key].dbAddress,
-        deviceName: companions[key].deviceName,
-        docStores: companions[key].docStores,
-        nodeId: companions[key].nodeId,
-        status: companions[key].status,
-      })
-    );
-
-    dispatch(getCompanionsSuccess(companionsArray));
-  } catch (err) {
-    console.error('Could not retrieve companions:', err);
-    dispatch(getCompanionsFailure(new Error('Could not retrieve companions')));
-  }
-};

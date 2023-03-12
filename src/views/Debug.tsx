@@ -1,63 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import * as actions from '@/store/actions';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button, IconButton, Tooltip, Typography } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import { TreeView, TreeItem } from '@mui/lab';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CircleIcon from '@mui/icons-material/Circle';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CopyButton from '../components/CopyButton';
-import { RecorderState } from '@/store/types';
-import { connect, useDispatch } from 'react-redux';
-import { AccountInfo } from '@/common/AccountInfo.interface';
-import effects from '@/effects';
-
-const { loadAccountInfo } = effects;
+import useCompanions from '@/hooks/useCompanions';
+import useUser from '@/hooks/useUser';
+import { useOrbitConnection } from '@/contexts/OrbitdbConnectionContext';
 
 declare const LIBP2P_SIG_SERVER: string;
-
-type Props = {
-  accountInfo: AccountInfo;
-};
 
 const Section = styled.div`
   margin: 0px;
 `;
 
-export function Debug({ accountInfo }: Props) {
-  const [companions, setCompanions] = useState([]);
-  const [peerInfo, setPeerInfo] = useState(null);
-  const [userData, setUserData] = useState(null);
-
-  const dispatch = useDispatch();
+export function Debug() {
+  const [companions] = useCompanions();
+  const [accountInfo] = useUser();
+  const connection = useOrbitConnection();
+  const peerInfo = connection.peerInfo;
 
   const handleClearCompanions = async () => {
-    const confirmed = window.confirm(
-      'Are you sure you want to remove all companions?'
-    );
-    if (!confirmed) return;
-
-    try {
-      await window.db.removeAllCompanions();
-      console.log('Companions removed');
-    } catch (err) {
-      console.error('Could not remove companions');
-    }
+    console.log('TODO: Re-implement clear all companions');
   };
-
-  useEffect(() => {
-    if (!window.db || !window.db.initialized)
-      return console.log('No DB or not initialized in Debug');
-    console.log('DB initialized in Debug');
-
-    setPeerInfo(window.db.peerInfo);
-    setCompanions(window.db.getAllCompanions());
-    setUserData(window.db.getAccountInfo());
-
-    dispatch(loadAccountInfo());
-  }, [window.db]);
 
   const renderCopyButton = (data: string) => {
     const [copied, setCopied] = useState(false);
@@ -226,10 +194,4 @@ export function Debug({ accountInfo }: Props) {
   );
 }
 
-const mapStateToProps = (state: RecorderState) => {
-  return {
-    accountInfo: state.accountInfo,
-  };
-};
-
-export default connect(mapStateToProps, actions)(Debug);
+export default Debug;

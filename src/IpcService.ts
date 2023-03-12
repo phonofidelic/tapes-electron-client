@@ -1,6 +1,7 @@
+import { ValidIpcChanel } from './common/ValidIpcChanel.interface';
 import { IpcRequest } from './electron/IPC/IpcRequest.interface';
 
-/**
+/*
  * Use api setup in preload.js
  * https://github.com/electron/electron/issues/9920#issuecomment-575839738
  *
@@ -18,7 +19,7 @@ declare global {
 
 export class IpcService {
   private ipcRenderer?: {
-    send(channel: string, data: any): void;
+    send(channel: ValidIpcChanel, data: any): void;
     receive(channel: string, data: any): void;
   };
 
@@ -30,7 +31,10 @@ export class IpcService {
     this.ipcRenderer = window.api;
   }
 
-  public send<T>(channel: string, request: IpcRequest = {}): Promise<T> {
+  public send<T>(
+    channel: ValidIpcChanel,
+    request: IpcRequest = {}
+  ): Promise<T> {
     // If the ipcRenderer is not available try to initialize it
     if (!this.ipcRenderer) {
       this.initializeIpcRenderer();

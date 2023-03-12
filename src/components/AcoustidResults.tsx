@@ -9,29 +9,44 @@ import { Checkbox, List, Typography } from '@mui/material';
 type Props = {
   acoustidResults: AcoustidResult[];
   recording: Recording;
-  handleEditRecording(recordingId: string, update: any): void;
+  handleEditRecording(recordingId: string, update: Partial<Recording>): void;
 };
 
-export default function AcoutidResults({
+export default function AcoustidResults({
   acoustidResults,
   recording,
   handleEditRecording,
 }: Props) {
   const [excludeCompilations, setExcludeCompilations] = useState(false);
 
-  /**
+  /*
    * https://yagisanatode.com/2021/07/03/get-a-unique-list-of-objects-in-an-array-of-object-in-javascript/
    */
+  console.log('acoustidResults', acoustidResults);
+
+  const acoustidResultRecordingsWithReleaseGroups =
+    acoustidResults[0].recordings.filter(
+      (recording) => recording.releasegroups
+    );
+
+  console.log(
+    'acoustidResultRecordingsWithReleaseGroups',
+    acoustidResultRecordingsWithReleaseGroups
+  );
+
   const uniqueAcoustidRecordings = acoustidResults
     ? [
         ...new Map(
-          acoustidResults[0].recordings.map((item) => [
-            item['releasegroups'][0]['id'],
-            item,
-          ])
+          acoustidResultRecordingsWithReleaseGroups.map((item) => {
+            console.log('item', item);
+
+            return [item.releasegroups[0]['id'], item];
+          })
         ).values(),
       ]
     : [];
+
+  console.log('uniqueAcoustidRecordings', uniqueAcoustidRecordings);
 
   const handleExcludeCompilations = () => {
     setExcludeCompilations(!excludeCompilations);

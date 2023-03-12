@@ -1,9 +1,7 @@
-import React, { useEffect, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { hot } from 'react-hot-loader';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 
-import effects from './effects';
 import Navigation from './components/Navigation';
 
 import { useTheme } from '@mui/material/styles';
@@ -13,6 +11,7 @@ import AudioElement from './components/AudioElement';
 import Settings from './views/Settings';
 import StatusMessage from './components/StatusMessage';
 import Debug from './views/Debug';
+import { Loader } from './components/Loader';
 
 const Recorder = React.lazy(() =>
   import(/* webpackChunkName: "recorder" */ './views/Recorder')
@@ -25,19 +24,8 @@ const RecordingDetail = React.lazy(() =>
   import(/* webpackChunkName: "recordingDetail" */ './views/RecordingDetail')
 );
 
-const { initDatabase } = effects;
-
 function App() {
   const theme = useTheme();
-  const dispatch = useDispatch();
-
-  const searchParams = new URLSearchParams(window.location.search);
-  const desktopPeerId = searchParams.get('peerid');
-  const recordingsAddrRoot = searchParams.get('address');
-
-  useEffect(() => {
-    dispatch(initDatabase(desktopPeerId, recordingsAddrRoot));
-  }, []);
 
   return (
     <div className="main">
@@ -45,7 +33,9 @@ function App() {
         <Navigation />
       </nav>
       <main style={{ paddingTop: theme.dimensions.Navigation.height }}>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense
+          fallback={<Loader loading={true} loadingMessage="Loading..." />}
+        >
           <Switch>
             <Route path="/library/:id">
               <RecordingDetail />

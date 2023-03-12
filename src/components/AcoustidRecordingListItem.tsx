@@ -1,23 +1,22 @@
-import React, { ReactElement, useState } from 'react';
-import { AcoustidRecording } from '../common/AcoustidResult.interface';
-
+import React from 'react';
+import { AcoustidRecording } from '@/common/AcoustidResult.interface';
 import { Collapse, ListItem, Typography, useTheme } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Recording } from '../common/Recording.interface';
+import { Recording } from '@/common/Recording.interface';
+import { getArtistNameFromAcoustidRecording } from '@/utils';
 
 interface Props {
   acoustidRecording: AcoustidRecording;
   excludeCompilations: boolean;
-  handleEditRecording(recordingId: string, update: any): void;
-  children: ReactElement[];
+  handleEditRecording(recordingId: string, update: Partial<Recording>): void;
+  children: React.ReactNode;
 }
 
 export default function AcoustidRecordingListItem({
   acoustidRecording,
   excludeCompilations,
-  handleEditRecording,
   children,
-}: Props): ReactElement {
+}: Props) {
   const [expanded, setExpanded] = React.useState(false);
 
   const theme = useTheme();
@@ -50,7 +49,8 @@ export default function AcoustidRecordingListItem({
         onClick={handleToggleExpand}
       >
         <Typography>
-          {acoustidRecording.title} by {acoustidRecording.artists[0].name} -{' '}
+          {acoustidRecording.title} by{' '}
+          {getArtistNameFromAcoustidRecording(acoustidRecording)} -{' '}
           {filteredReleaseGroups.length} release
           {filteredReleaseGroups.length > 1 && 's'}
         </Typography>
@@ -61,7 +61,7 @@ export default function AcoustidRecordingListItem({
         />
       </ListItem>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
-        {...children}
+        {children}
       </Collapse>
     </>
   );

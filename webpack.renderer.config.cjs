@@ -31,4 +31,7 @@ module.exports = {
       '@': path.resolve('src'),
     },
   },
+  experiments: {
+    topLevelAwait: true,
+  },
 };

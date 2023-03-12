@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   AcoustidRecording,
   AcoustidReleaseGroup,
-  AcoustidResult,
 } from '../common/AcoustidResult.interface';
 import { MusicBrainzCoverArt } from '../common/MusicBrainzCoverArt.interface';
 import axios from 'axios';
@@ -16,14 +15,14 @@ import Typography from '@mui/material/Typography';
 import { Button, CardHeader, CardMedia, Collapse } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { getArtistNameFromAcoustidRecording } from '@/utils';
 
 interface Props {
   recording: Recording;
   acoustidRecording: AcoustidRecording;
   acoustidReleaseGroup: AcoustidReleaseGroup;
-  handleEditRecording(recordingId: string, update: any): void;
+  handleEditRecording(recordingId: string, update: Partial<Recording>): void;
 }
 
 export default function AcoustidReleaseGroupCard({
@@ -33,7 +32,6 @@ export default function AcoustidReleaseGroupCard({
   handleEditRecording,
 }: Props) {
   const [coverArt, setCoverArt] = useState<MusicBrainzCoverArt>(null);
-  const [error, setError] = useState(null);
   const [expanded, setExpanded] = React.useState(false);
 
   const infoAdded =
@@ -51,7 +49,7 @@ export default function AcoustidReleaseGroupCard({
 
     const newCommon: ICommonTagsResult = {
       ...recording.common,
-      artist: acoustidRecording.artists[0].name,
+      artist: getArtistNameFromAcoustidRecording(acoustidRecording),
       title: acoustidRecording.title,
       album: acoustidReleaseGroup.title,
       releasetype: [acoustidReleaseGroup.type],
@@ -137,7 +135,9 @@ export default function AcoustidReleaseGroupCard({
         <CardContent>
           <div>
             <Typography variant="caption">
-              Artist: {acoustidRecording.artists[0].name || 'No artist info'}
+              Artist:{' '}
+              {getArtistNameFromAcoustidRecording(acoustidRecording) ||
+                'No artist info'}
             </Typography>
           </div>
           <div>

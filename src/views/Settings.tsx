@@ -14,7 +14,6 @@ import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
 import QRCodeModal from '../components/QRCodeModal';
-import StatusMessage from '../components/StatusMessage';
 
 import Typography from '@mui/material/Typography';
 import { useTheme, Theme } from '@mui/material/styles';
@@ -36,8 +35,11 @@ import { Companion } from '../common/Companion.interface';
 import CompanionsList from '../components/CompanionsList';
 import { RECORDING_COLLECTION } from '../common/constants';
 import { Loader } from '../components/Loader';
+import useUser from '@/hooks/useUser';
+import useCompanions from '@/hooks/useCompanions';
+import ErrorModal from '@/components/ErrorModal';
 
-const { setInputDevice, loadAccountInfo, setAccountInfo } = effects;
+const { setInputDevice } = effects;
 
 declare const WEB_CLIENT_URL: string;
 
@@ -62,12 +64,9 @@ interface SettingsProps {
 }
 
 export function Settings({
-  loading,
   loadingMessage,
   recordingSettings,
   debugEnabled,
-  accountInfo,
-  companions,
   setRecordingSettings,
   toggleDebug,
 }: SettingsProps) {
@@ -75,6 +74,10 @@ export function Settings({
   const [QROpen, setQROpen] = useState(false);
   const [showDebug, setShowDebug] = useState(0);
   const [localWebClient, setLocalWebClient] = useState(false);
+
+  const [accountInfo, loading, error, { setAccountInfo, confirmError }] =
+    useUser();
+  const [companions] = useCompanions();
 
   const selectedMediaDeviceId =
     recordingSettings.selectedMediaDeviceId && 'default';
@@ -132,7 +135,7 @@ export function Settings({
   };
 
   const handleUpdateDeviceName = (newDeviceName: string) => {
-    dispatch(setAccountInfo('deviceName', newDeviceName));
+    setAccountInfo('deviceName', newDeviceName);
   };
 
   useEffect(() => {
@@ -149,195 +152,211 @@ export function Settings({
     getMediaDevices();
   }, []);
 
-  useEffect(() => {
-    dispatch(loadAccountInfo());
-  }, []);
-
   if (loading) {
     return <Loader loading={loading} loadingMessage={loadingMessage} />;
   }
 
   return (
-    <div>
-      <StatusMessage />
-      {accountInfo && (
-        <QRCodeModal
-          open={QROpen}
-          value={`${
-            localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
-          }/?peerid=${accountInfo.nodeId ?? ''}&address=${
-            accountInfo.recordingsDb
-              ? `${accountInfo.recordingsDb.root}/${RECORDING_COLLECTION}`
-              : ''
-          }`}
-          onClose={handleCloseQR}
-        />
-      )}
+    <>
+      <div>
+        {accountInfo && (
+          <QRCodeModal
+            open={QROpen}
+            value={`${
+              localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
+            }/?peerid=${accountInfo.nodeId ?? ''}&address=${
+              accountInfo.recordingsDb
+                ? `${accountInfo.recordingsDb.root}/${RECORDING_COLLECTION}`
+                : ''
+            }`}
+            onClose={handleCloseQR}
+          />
+        )}
 
-      <SectionHeader theme={theme}>
-        <Typography>Recording Settings</Typography>
-      </SectionHeader>
-      <div style={{ padding: 8, paddingTop: 0 }}>
-        <Typography variant="caption" color="textSecondary">
-          Set your desired recording format.
-        </Typography>
-      </div>
-      <div style={{ padding: 8 }}>
-        <FormControl variant="outlined" fullWidth style={{ textAlign: 'left' }}>
-          <InputLabel id="audio-input-select-label">Input Device</InputLabel>
-          <Select
-            id="audio-input-select"
-            labelId="audio-input-select-label"
-            value={selectedMediaDeviceId}
-            onChange={handleSelectAudioInput}
-            label="Audio Input Device"
-          >
-            {audioInputDevices.map((device: MediaDeviceInfo) => (
-              <MenuItem key={device.deviceId} value={device.deviceId}>
-                {device.label.replace(/ *\([^)]*\) */g, '')}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </div>
-      <div style={{ padding: 8, textAlign: 'center' }}>
-        <FormControl variant="outlined" fullWidth style={{ textAlign: 'left' }}>
-          <InputLabel id="recording-format-select-label">
-            Recording Format
-          </InputLabel>
-          <Select
-            labelId="recording-format-select-label"
-            id="recording-format-select"
-            value={recordingSettings.format}
-            onChange={handleRecordingFormatChange}
-            label="Recording Format"
-          >
-            <MenuItem value={'flac'}>flac</MenuItem>
-            <MenuItem value={'wav'}>wav</MenuItem>
-          </Select>
-        </FormControl>
-      </div>
-      <div style={{ padding: 8, paddingLeft: 20 }}>
-        <FormControl variant="outlined" fullWidth style={{ textAlign: 'left' }}>
-          <FormLabel id="recording-channel-radio-label">
-            <Typography variant="caption">Recording Channels</Typography>
-          </FormLabel>
-          <RadioGroup
-            style={{
-              display: 'inline',
-            }}
-            value={recordingSettings.channels.toString()}
-            id="input-format-channels"
-            name="channels"
-            onChange={handleChannelSelect}
-          >
-            <FormControlLabel
-              value="1"
-              control={<Radio color="primary" />}
-              label="Mono"
-            />
-            <FormControlLabel
-              value="2"
-              control={<Radio color="primary" />}
-              label="Stereo"
-            />
-          </RadioGroup>
-        </FormControl>
-      </div>
-
-      <SectionHeader theme={theme}>
-        <Typography>Account Info</Typography>
-      </SectionHeader>
-      {loading || !accountInfo ? (
-        <div style={{ padding: 8 }}>
+        <SectionHeader theme={theme}>
+          <Typography>Recording Settings</Typography>
+        </SectionHeader>
+        <div style={{ padding: 8, paddingTop: 0 }}>
           <Typography variant="caption" color="textSecondary">
-            <i>Loading...</i>
+            Set your desired recording format.
           </Typography>
         </div>
-      ) : (
-        <>
-          <div
-            style={{
-              padding: 8,
-              paddingBottom: 0,
-              paddingTop: 0,
-              display: 'flex',
-            }}
-          >
-            <Typography color="textSecondary">Device name:&nbsp;</Typography>
-            <EditableText
-              textValue={accountInfo.deviceName}
-              size="small"
-              onChangeCommitted={handleUpdateDeviceName}
-            >
-              <Typography>{accountInfo.deviceName}</Typography>
-            </EditableText>
-          </div>
-          <div
-            style={{
-              paddingLeft: 8,
-            }}
-          >
-            <CompanionsList companions={companions} />
-          </div>
-        </>
-      )}
-
-      <SectionHeader theme={theme}>
-        <Typography>Account Link</Typography>
-      </SectionHeader>
-      <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
-        <Typography variant="caption" color="textSecondary">
-          Use this link to access your data on multiple devices.
-        </Typography>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-        }}
-      >
-        <Button
-          style={{
-            margin: 8,
-            flex: 1,
-          }}
-          variant="outlined"
-          endIcon={<QrCodeIcon />}
-          onClick={handleOpenQR}
-          disabled={!accountInfo}
-        >
-          <Typography noWrap variant="caption" color="textSecondary">
-            Share account
-          </Typography>
-        </Button>
-      </div>
-
-      {showDebug >= 3 ? (
         <div style={{ padding: 8 }}>
-          <FormGroup>
-            <FormControlLabel
-              control={
-                <Checkbox checked={debugEnabled} onChange={handleToggleDebug} />
-              }
-              label="Debug enabled"
-            />
-          </FormGroup>
-          <FormGroup>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={localWebClient}
-                  onChange={handleToggleLocalWebClient}
-                />
-              }
-              label="Local web client"
-            />
-          </FormGroup>
+          <FormControl
+            variant="outlined"
+            fullWidth
+            style={{ textAlign: 'left' }}
+          >
+            <InputLabel id="audio-input-select-label">Input Device</InputLabel>
+            <Select
+              id="audio-input-select"
+              labelId="audio-input-select-label"
+              value={selectedMediaDeviceId}
+              onChange={handleSelectAudioInput}
+              label="Audio Input Device"
+            >
+              {audioInputDevices.map((device: MediaDeviceInfo) => (
+                <MenuItem key={device.deviceId} value={device.deviceId}>
+                  {device.label.replace(/ *\([^)]*\) */g, '')}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
-      ) : (
-        <div style={{ height: 50, width: '100%' }} onClick={handleDebugClick} />
-      )}
-    </div>
+        <div style={{ padding: 8, textAlign: 'center' }}>
+          <FormControl
+            variant="outlined"
+            fullWidth
+            style={{ textAlign: 'left' }}
+          >
+            <InputLabel id="recording-format-select-label">
+              Recording Format
+            </InputLabel>
+            <Select
+              labelId="recording-format-select-label"
+              id="recording-format-select"
+              value={recordingSettings.format}
+              onChange={handleRecordingFormatChange}
+              label="Recording Format"
+            >
+              <MenuItem value={'flac'}>flac</MenuItem>
+              <MenuItem value={'wav'}>wav</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+        <div style={{ padding: 8, paddingLeft: 20 }}>
+          <FormControl
+            variant="outlined"
+            fullWidth
+            style={{ textAlign: 'left' }}
+          >
+            <FormLabel id="recording-channel-radio-label">
+              <Typography variant="caption">Recording Channels</Typography>
+            </FormLabel>
+            <RadioGroup
+              style={{
+                display: 'inline',
+              }}
+              value={recordingSettings.channels.toString()}
+              id="input-format-channels"
+              name="channels"
+              onChange={handleChannelSelect}
+            >
+              <FormControlLabel
+                value="1"
+                control={<Radio color="primary" />}
+                label="Mono"
+              />
+              <FormControlLabel
+                value="2"
+                control={<Radio color="primary" />}
+                label="Stereo"
+              />
+            </RadioGroup>
+          </FormControl>
+        </div>
+
+        <SectionHeader theme={theme}>
+          <Typography>Account Info</Typography>
+        </SectionHeader>
+        {loading || !accountInfo ? (
+          <div style={{ padding: 8 }}>
+            <Typography variant="caption" color="textSecondary">
+              <i>Loading...</i>
+            </Typography>
+          </div>
+        ) : (
+          <>
+            <div
+              style={{
+                padding: 8,
+                paddingBottom: 0,
+                paddingTop: 0,
+                display: 'flex',
+              }}
+            >
+              <Typography color="textSecondary">Device name:&nbsp;</Typography>
+              <EditableText
+                textValue={accountInfo.deviceName}
+                size="small"
+                onChangeCommitted={handleUpdateDeviceName}
+              >
+                <Typography>{accountInfo.deviceName}</Typography>
+              </EditableText>
+            </div>
+            <div
+              style={{
+                paddingLeft: 8,
+              }}
+            >
+              <CompanionsList companions={companions} />
+            </div>
+          </>
+        )}
+
+        <SectionHeader theme={theme}>
+          <Typography>Account Link</Typography>
+        </SectionHeader>
+        <div style={{ padding: 8, paddingBottom: 0, paddingTop: 0 }}>
+          <Typography variant="caption" color="textSecondary">
+            Use this link to access your data on multiple devices.
+          </Typography>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+          }}
+        >
+          <Button
+            style={{
+              margin: 8,
+              flex: 1,
+            }}
+            variant="outlined"
+            endIcon={<QrCodeIcon />}
+            onClick={handleOpenQR}
+            disabled={!accountInfo}
+          >
+            <Typography noWrap variant="caption" color="textSecondary">
+              Share account
+            </Typography>
+          </Button>
+        </div>
+
+        {showDebug >= 3 ? (
+          <div style={{ padding: 8 }}>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={debugEnabled}
+                    onChange={handleToggleDebug}
+                  />
+                }
+                label="Debug enabled"
+              />
+            </FormGroup>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={localWebClient}
+                    onChange={handleToggleLocalWebClient}
+                  />
+                }
+                label="Local web client"
+              />
+            </FormGroup>
+          </div>
+        ) : (
+          <div
+            style={{ height: 50, width: '100%' }}
+            onClick={handleDebugClick}
+          />
+        )}
+        <ErrorModal error={error} onConfirmError={confirmError} />
+      </div>
+    </>
   );
 }
 
