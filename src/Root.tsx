@@ -11,15 +11,15 @@ import { RecordingsProvider } from '@/contexts/RecordingsContext';
 export default function Root({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
-      <OrbitConnectionProvider>
-        <RecordingsProvider>
-          <Router>
-            <StyledEngineProvider injectFirst>
-              <ThemeProvider theme={theme}>{children}</ThemeProvider>
-            </StyledEngineProvider>
-          </Router>
-        </RecordingsProvider>
-      </OrbitConnectionProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <OrbitConnectionProvider>
+            <RecordingsProvider>
+              <Router>{children}</Router>
+            </RecordingsProvider>
+          </OrbitConnectionProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </Provider>
   );
 }

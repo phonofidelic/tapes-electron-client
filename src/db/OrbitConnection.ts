@@ -86,6 +86,7 @@ export default class OrbitConnection {
       'user',
       this.recordingsAddrRoot
     ).init();
+    // this.user = await this.orbitdb.keyvalue('user', this.defaultOptions);
 
     /*
      * Companions key-value store

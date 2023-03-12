@@ -14,10 +14,7 @@ export const RecordingsProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const searchParams = new URLSearchParams(window.location.search);
-  const desktopPeerId = searchParams.get('peerid');
-  const recordingsAddrRoot = searchParams.get('address');
-  const [connection] = useOrbitConnection(desktopPeerId, recordingsAddrRoot);
+  const connection = useOrbitConnection();
 
   const repository = new RecordingRepository(connection, RECORDING_COLLECTION);
 
@@ -33,7 +30,6 @@ type UseRecordingsReturn = [
   boolean,
   Error | null,
   {
-    loadRecordings: () => Promise<void>;
     addRecording: (recordingData: Recording) => Promise<void>;
     uploadAudioFiles: (audioFiles: File[]) => Promise<void>;
     editRecording: (
@@ -51,7 +47,6 @@ export const useRecordings = (): UseRecordingsReturn => {
   if (recordingsRepository === null) {
     throw new Error('`useRecordings` must be inside a `RecordingsProvider`');
   }
-  const [connection] = useOrbitConnection();
 
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,12 +56,10 @@ export const useRecordings = (): UseRecordingsReturn => {
   const ipc = new IpcService();
 
   const loadRecordings = async () => {
-    if (!connection.initialized) return;
     dispatch(setLoadingMessage('Loading recordings'));
     try {
       const results = await recordingsRepository.find({});
-
-      setRecordings([...recordings, ...results]);
+      setRecordings(results);
       setLoading(false);
       dispatch(setLoadingMessage(null));
     } catch (error) {
@@ -78,10 +71,6 @@ export const useRecordings = (): UseRecordingsReturn => {
   };
 
   const addRecording = async (recordingData: Recording) => {
-    if (!connection) {
-      throw new Error('No OrbitDb connection established');
-    }
-
     const createdRecording = await recordingsRepository.add(recordingData);
     setRecordings([...recordings, createdRecording]);
   };
@@ -181,14 +170,13 @@ export const useRecordings = (): UseRecordingsReturn => {
 
   useEffect(() => {
     loadRecordings();
-  }, [connection.initialized]);
+  }, []);
 
   return [
     recordings,
     loading,
     error,
     {
-      loadRecordings,
       addRecording,
       uploadAudioFiles,
       editRecording,

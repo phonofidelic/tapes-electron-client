@@ -14,7 +14,6 @@ import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { RecordingFormats } from '../common/RecordingFormats.enum';
 
 import QRCodeModal from '../components/QRCodeModal';
-import StatusMessage from '../components/StatusMessage';
 
 import Typography from '@mui/material/Typography';
 import { useTheme, Theme } from '@mui/material/styles';
@@ -160,7 +159,6 @@ export function Settings({
   return (
     <>
       <div>
-        <StatusMessage />
         {accountInfo && (
           <QRCodeModal
             open={QROpen}

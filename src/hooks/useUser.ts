@@ -6,7 +6,7 @@ import { RECORDING_COLLECTION } from '@/common/constants';
 import { setLoadingMessage } from '@/store/actions';
 
 export default function useUser() {
-  const [connection] = useOrbitConnection();
+  const connection = useOrbitConnection();
   const [user, setUser] = useState<AccountInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,11 +50,11 @@ export default function useUser() {
 
         setUser({ ...connection.user.all, recordingsDb });
         setLoading(false);
-        setLoadingMessage(null);
+        dispatch(setLoadingMessage(null));
       } catch (error) {
         console.error(error);
         setLoading(false);
-        setLoadingMessage(null);
+        dispatch(setLoadingMessage(null));
         setError(new Error('Could not load account info'));
       }
     }

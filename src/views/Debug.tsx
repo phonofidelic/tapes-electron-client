@@ -13,8 +13,9 @@ import { RecorderState } from '@/store/types';
 import { connect, useDispatch } from 'react-redux';
 import { AccountInfo } from '@/common/AccountInfo.interface';
 import effects from '@/effects';
+import useCompanions from '@/hooks/useCompanions';
 
-const { loadAccountInfo } = effects;
+// const { loadAccountInfo } = effects;
 
 declare const LIBP2P_SIG_SERVER: string;
 
@@ -27,7 +28,7 @@ const Section = styled.div`
 `;
 
 export function Debug({ accountInfo }: Props) {
-  const [companions, setCompanions] = useState([]);
+  const [companions] = useCompanions();
   const [peerInfo, setPeerInfo] = useState(null);
   const [userData, setUserData] = useState(null);
 
@@ -36,10 +37,6 @@ export function Debug({ accountInfo }: Props) {
   const handleClearCompanions = async () => {
     console.log('TODO: Re-implement clear all companions');
   };
-
-  useEffect(() => {
-    dispatch(loadAccountInfo());
-  }, []);
 
   const renderCopyButton = (data: string) => {
     const [copied, setCopied] = useState(false);

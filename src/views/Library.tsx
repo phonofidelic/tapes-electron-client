@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { matchSorter } from 'match-sorter';
 import { Recording } from '../common/Recording.interface';
@@ -52,13 +52,7 @@ export function Library({
     recordings,
     loading,
     error,
-    {
-      loadRecordings,
-      uploadAudioFiles,
-      editRecording,
-      deleteRecording,
-      confirmError,
-    },
+    { uploadAudioFiles, editRecording, deleteRecording, confirmError },
   ] = useRecordings();
   const [filteredRecordings, setFilteredRecordings] = useState<Recording[]>();
   const [searchTerm, setSearchTerm] = useState('');
@@ -165,10 +159,6 @@ export function Library({
       </List>
     );
   };
-
-  useEffect(() => {
-    loadRecordings();
-  }, []);
 
   if (loading) {
     return <Loader loading={true} loadingMessage="Loading..." />;

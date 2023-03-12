@@ -3,7 +3,7 @@ import { Companion } from '@/common/Companion.interface';
 import { useOrbitConnection } from '@/contexts/OrbitdbConnectionContext';
 
 export default function useCompanions() {
-  const [connection] = useOrbitConnection();
+  const connection = useOrbitConnection();
   const [companions, setCompanions] = useState<Companion[] | null>(null);
   const [error, setError] = useState(null);
 
@@ -12,6 +12,10 @@ export default function useCompanions() {
       throw new Error(
         'No OrbitDB connection established. `useCompanions must be used within an `OrbitConnectionProvider`.`'
       );
+    }
+
+    if (!connection.initialized) {
+      return;
     }
 
     try {
@@ -29,9 +33,9 @@ export default function useCompanions() {
       setCompanions(companionsArray);
     } catch (error) {
       console.error(error);
-      setError('Could not load companions');
+      setError(new Error('Could not load companions'));
     }
-  }, []);
+  }, [connection.initialized]);
 
   return [companions, false, error];
 }
