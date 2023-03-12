@@ -1,38 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import * as actions from '@/store/actions';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button, IconButton, Tooltip, Typography } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import { TreeView, TreeItem } from '@mui/lab';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CircleIcon from '@mui/icons-material/Circle';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CopyButton from '../components/CopyButton';
-import { RecorderState } from '@/store/types';
-import { connect, useDispatch } from 'react-redux';
-import { AccountInfo } from '@/common/AccountInfo.interface';
-import effects from '@/effects';
 import useCompanions from '@/hooks/useCompanions';
-
-// const { loadAccountInfo } = effects;
+import useUser from '@/hooks/useUser';
+import { useOrbitConnection } from '@/contexts/OrbitdbConnectionContext';
 
 declare const LIBP2P_SIG_SERVER: string;
-
-type Props = {
-  accountInfo: AccountInfo;
-};
 
 const Section = styled.div`
   margin: 0px;
 `;
 
-export function Debug({ accountInfo }: Props) {
+export function Debug() {
   const [companions] = useCompanions();
-  const [peerInfo, setPeerInfo] = useState(null);
-  const [userData, setUserData] = useState(null);
-
-  const dispatch = useDispatch();
+  const [accountInfo] = useUser();
+  const connection = useOrbitConnection();
+  const peerInfo = connection.peerInfo;
 
   const handleClearCompanions = async () => {
     console.log('TODO: Re-implement clear all companions');
@@ -205,10 +194,4 @@ export function Debug({ accountInfo }: Props) {
   );
 }
 
-const mapStateToProps = (state: RecorderState) => {
-  return {
-    accountInfo: state.accountInfo,
-  };
-};
-
-export default connect(mapStateToProps, actions)(Debug);
+export default Debug;
