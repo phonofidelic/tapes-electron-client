@@ -123,17 +123,23 @@ export function RecordingsListItem({
               justifyContent: 'space-between',
             }}
           >
-            <EditableText
-              textValue={recording.title}
-              size="small"
-              onChangeCommitted={handleSubimtTitleChange}
-            >
-              <Tooltip title={recording.title} enterDelay={400}>
-                <Typography style={{ maxWidth: '50vw' }} noWrap>
-                  {recording.title}
-                </Typography>
-              </Tooltip>
-            </EditableText>
+            {selected ? (
+              <EditableText
+                textValue={recording.title}
+                size="small"
+                onChangeCommitted={handleSubimtTitleChange}
+              >
+                <Tooltip title={recording.title} enterDelay={400}>
+                  <Typography style={{ maxWidth: '50vw' }} noWrap>
+                    {recording.title}
+                  </Typography>
+                </Tooltip>
+              </EditableText>
+            ) : (
+              <Typography style={{ maxWidth: '50vw' }} noWrap>
+                {recording.title}
+              </Typography>
+            )}
             {selected && (
               <div
                 style={{
