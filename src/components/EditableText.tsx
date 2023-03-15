@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useState, useRef, useEffect } from 'react';
 import { TextField, Fade } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
@@ -20,15 +20,16 @@ export default function EditableText({
   const [editing, setEditing] = useState(false);
   const [newTextValue, setNewTextValue] = useState(textValue);
   const [hoverRef, hovered] = useHover();
+  const inputElement = useRef(null);
 
   const handleClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     setEditing(true);
   };
 
-  const handleChangeCommitted = () => {
+  const commitChanges = (value: string) => {
     setEditing(false);
-    onChangeCommitted(newTextValue);
+    onChangeCommitted(value);
   };
 
   const handleChange = (
@@ -37,17 +38,38 @@ export default function EditableText({
     setNewTextValue(event.target.value);
   };
 
+  const handleBlur = () => {
+    setEditing(false);
+    onChangeCommitted(newTextValue);
+  };
+
+  useEffect(() => {
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        commitChanges(newTextValue);
+      }
+    };
+    if (editing && inputElement.current) {
+      inputElement.current.addEventListener('keydown', handleKeydown);
+    }
+
+    return () => {
+      removeEventListener('keydown', handleKeydown);
+    };
+  }, [editing, newTextValue]);
+
   if (editing)
     return (
       <div style={{ display: 'flex' }}>
         <div>
           <TextField
+            ref={inputElement}
             placeholder={textValue}
             value={newTextValue}
             size={size}
             autoFocus
             fullWidth
-            onBlur={handleChangeCommitted}
+            onBlur={handleBlur}
             onChange={handleChange}
             variant="standard"
             onDoubleClick={(event: React.MouseEvent) => event.stopPropagation()}
