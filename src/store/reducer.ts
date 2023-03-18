@@ -54,9 +54,6 @@ import {
   GET_RECORDING_STORAGE_STATUS_SUCCESS,
   GET_RECORDING_STORAGE_STATUS_FAILURE,
   TOGGLE_DEBUG,
-  GET_COMPANIONS_REQUEST,
-  GET_COMPANIONS_SUCCESS,
-  GET_COMPANIONS_FAILURE,
 } from './types';
 import { RecordingFormats } from '@/common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '@/common/constants';
@@ -66,7 +63,6 @@ export const initialState: RecorderState = {
   audioSrc: null,
   bucketToken: null, // TODO: remove this
   caching: false,
-  companions: [],
   currentPlaying: null,
   currentTime: 0,
   databaseInitializing: true,
@@ -458,26 +454,6 @@ export const reducer = (
       return {
         ...state,
         debugEnabled: !action.payload,
-      };
-
-    case GET_COMPANIONS_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case GET_COMPANIONS_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        companions: action.payload,
-      };
-
-    case GET_COMPANIONS_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
       };
 
     default:

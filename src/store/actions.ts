@@ -104,12 +104,6 @@ import {
   GetRecordingStorageStatusFailureAction,
   TOGGLE_DEBUG,
   ToggleDebugAction,
-  GET_COMPANIONS_SUCCESS,
-  GetCompanionsRequestAction,
-  GET_COMPANIONS_REQUEST,
-  GetCompanionsFailureAction,
-  GET_COMPANIONS_FAILURE,
-  GetCompanionsSuccessAction,
 } from './types';
 import {
   Recording,
@@ -512,27 +506,5 @@ export function toggleDebug(currentDebugState: boolean): ToggleDebugAction {
   return {
     type: TOGGLE_DEBUG,
     payload: currentDebugState,
-  };
-}
-
-export function getCompanionsRequest(): GetCompanionsRequestAction {
-  return {
-    type: GET_COMPANIONS_REQUEST,
-  };
-}
-
-export function getCompanionsSuccess(
-  companions: Companion[]
-): GetCompanionsSuccessAction {
-  return {
-    type: GET_COMPANIONS_SUCCESS,
-    payload: companions,
-  };
-}
-
-export function getCompanionsFailure(error: Error): GetCompanionsFailureAction {
-  return {
-    type: GET_COMPANIONS_FAILURE,
-    payload: error,
   };
 }

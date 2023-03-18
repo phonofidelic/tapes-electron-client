@@ -55,7 +55,6 @@ interface SettingsProps {
   recordingSettings: RecordingSettings;
   debugEnabled: boolean;
   databaseInitializing: boolean;
-  companions: Companion[];
   setRecordingSettings(
     recordingSettings: RecordingSettings
   ): SetRecordingSettingsAction;
@@ -368,7 +367,6 @@ const mapStateToProps = (state: RecorderState) => {
     loadingMessage: state.loadingMessage,
     debugEnabled: state.debugEnabled,
     databaseInitializing: state.databaseInitializing,
-    companions: state.companions,
   };
 };
 

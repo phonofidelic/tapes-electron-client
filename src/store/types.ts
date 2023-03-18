@@ -60,17 +60,13 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   GET_RECORDING_STORAGE_STATUS_SUCCESS = 'get_recording_storage_status_success',
   GET_RECORDING_STORAGE_STATUS_FAILURE = 'get_recording_storage_status_failure',
   CONFIRM_ERROR = 'confirm_error',
-  TOGGLE_DEBUG = 'toggle_debug',
-  GET_COMPANIONS_REQUEST = 'get_companions_request',
-  GET_COMPANIONS_SUCCESS = 'get_companions_success',
-  GET_COMPANIONS_FAILURE = 'get_companions_failure';
+  TOGGLE_DEBUG = 'toggle_debug';
 
 export interface RecorderState {
   accountToken: string | null; // TODO: remove this
   audioSrc: string;
   bucketToken: string | null; // TODO: remove this
   caching: boolean;
-  companions: Companion[];
   currentPlaying: Recording | null;
   currentTime: number;
   databaseInitializing: boolean;
@@ -336,19 +332,6 @@ export interface ToggleDebugAction extends Action {
   type: typeof TOGGLE_DEBUG;
   payload: boolean;
 }
-export interface GetCompanionsRequestAction extends Action {
-  type: typeof GET_COMPANIONS_REQUEST;
-}
-
-export interface GetCompanionsSuccessAction extends Action {
-  type: typeof GET_COMPANIONS_SUCCESS;
-  payload: Companion[];
-}
-
-export interface GetCompanionsFailureAction extends Action {
-  type: typeof GET_COMPANIONS_FAILURE;
-  payload: Error;
-}
 
 export type RecorderAction =
   | StartRecordingRequestAction
@@ -403,7 +386,4 @@ export type RecorderAction =
   | GetRecordingStorageStatusRequestAction
   | GetRecordingStorageStatusSuccessAction
   | GetRecordingStorageStatusFailureAction
-  | ToggleDebugAction
-  | GetCompanionsRequestAction
-  | GetCompanionsSuccessAction
-  | GetCompanionsFailureAction;
+  | ToggleDebugAction;
