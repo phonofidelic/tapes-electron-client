@@ -103,7 +103,7 @@ export function Library({
     setSortBy(sortByValue);
     if (!sortByValue) return;
 
-    const list = filteredRecordings.length ? filteredRecordings : recordings;
+    const list = filteredRecordings?.length ? filteredRecordings : recordings;
     const sorted = list.sort((a, b) =>
       a[sortByValue] > b[sortByValue] ? 1 : -1
     );
