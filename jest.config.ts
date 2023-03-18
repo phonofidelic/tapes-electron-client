@@ -7,7 +7,8 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/src/__e2e__/index.test.ts',
-    'src/db/__tests__',
+    '/src/db/__tests__',
+    '/out',
   ],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   globals: {
