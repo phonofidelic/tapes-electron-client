@@ -23,12 +23,6 @@ import {
   DELETE_RECORDING_FAILURE,
   PLAY_RECORDING,
   PAUSE_RECORDING,
-  GET_BUCKET_TOKEN_REQUEST,
-  GET_BUCKET_TOKEN_SUCCESS,
-  GET_BUCKET_TOKEN_FAILURE,
-  LOAD_ACCOUNT_TOKEN_REQUEST,
-  LOAD_ACCOUNT_TOKEN_SUCCESS,
-  LOAD_ACCOUNT_TOKEN_FAILURE,
   SET_RECORDING_SETTINGS,
   SET_LOADING_MESSAGE,
   INIT_DATABASE_REQUEST,
@@ -53,29 +47,13 @@ import {
   GET_RECORDING_STORAGE_STATUS_REQUEST,
   GET_RECORDING_STORAGE_STATUS_SUCCESS,
   GET_RECORDING_STORAGE_STATUS_FAILURE,
-  ENABLE_DEBUG,
-  DISABLE_DEBUG,
   TOGGLE_DEBUG,
-  LOAD_ACCOUNT_INFO_REQUEST,
-  LOAD_ACCOUNT_INFO_SUCCESS,
-  LOAD_ACCOUNT_INFO_FAILURE,
-  SET_ACCOUNT_INFO_REQUEST,
-  SET_ACCOUNT_INFO_SUCCESS,
-  SET_ACCOUNT_INFO_FAILURE,
-  GET_COMPANIONS_REQUEST,
-  GET_COMPANIONS_SUCCESS,
-  GET_COMPANIONS_FAILURE,
 } from './types';
-import { RecordingFormats } from '../common/RecordingFormats.enum';
-import { IDENTITY_STORE } from '../common/constants';
+import { RecordingFormats } from '@/common/RecordingFormats.enum';
 
 export const initialState: RecorderState = {
-  accountInfo: null,
-  accountToken: localStorage.getItem(IDENTITY_STORE), // TODO: remove this
   audioSrc: null,
-  bucketToken: null, // TODO: remove this
   caching: false,
-  companions: [],
   currentPlaying: null,
   currentTime: 0,
   databaseInitializing: true,
@@ -277,47 +255,6 @@ export const reducer = (
         seekedTime: action.payload,
       };
 
-    case GET_BUCKET_TOKEN_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case GET_BUCKET_TOKEN_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        bucketToken: action.payload,
-      };
-
-    case GET_BUCKET_TOKEN_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
-      };
-
-    case LOAD_ACCOUNT_TOKEN_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case LOAD_ACCOUNT_TOKEN_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        accountToken: action.payload,
-        recordings: [],
-      };
-
-    case LOAD_ACCOUNT_TOKEN_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
-      };
-
     case SET_RECORDING_SETTINGS:
       return {
         ...state,
@@ -463,81 +400,10 @@ export const reducer = (
         error: action.payload,
       };
 
-    case ENABLE_DEBUG:
-      return {
-        ...state,
-        debugEnabled: true,
-      };
-
-    case DISABLE_DEBUG:
-      return {
-        ...state,
-        debugEnabled: false,
-      };
-
     case TOGGLE_DEBUG:
       return {
         ...state,
         debugEnabled: !action.payload,
-      };
-
-    case LOAD_ACCOUNT_INFO_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case LOAD_ACCOUNT_INFO_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        accountInfo: action.payload,
-      };
-
-    case LOAD_ACCOUNT_INFO_FAILURE:
-      return {
-        ...state,
-        error: action.payload,
-      };
-
-    case SET_ACCOUNT_INFO_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case SET_ACCOUNT_INFO_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        accountInfo: action.payload,
-      };
-
-    case SET_ACCOUNT_INFO_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
-      };
-
-    case GET_COMPANIONS_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case GET_COMPANIONS_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        companions: action.payload,
-      };
-
-    case GET_COMPANIONS_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
       };
 
     default:

@@ -14,21 +14,10 @@ import {
   editRecordingRequest,
   editRecordingSuccess,
   editRecordingFailure,
-  loadAccountInfoFailure,
-  loadAccountInfoRequest,
-  loadAccountInfoSuccess,
-  setAccountInfoRequest,
-  setAccountInfoFailure,
-  setAccountInfoSuccess,
-  getCompanionsRequest,
-  getCompanionsSuccess,
-  getCompanionsFailure,
 } from '../store/actions';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
 import { Recording } from '../common/Recording.interface';
 import { RecorderState, RecorderAction } from '../store/types';
-import { AccountInfo } from '../common/AccountInfo.interface';
-import { Companion } from '../common/Companion.interface';
 import OrbitConnection from '../db/OrbitConnection';
 import { RecordingRepository } from '../db/Repository';
 import { RECORDING_COLLECTION } from '@/common/constants';

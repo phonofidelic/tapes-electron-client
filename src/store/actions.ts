@@ -43,18 +43,6 @@ import {
   PlayRecordingAction,
   PAUSE_RECORDING,
   PauseRecordingAction,
-  GET_BUCKET_TOKEN_REQUEST,
-  GetBucketTokenRequestAction,
-  GET_BUCKET_TOKEN_SUCCESS,
-  GetBucketTokenSuccessAction,
-  GET_BUCKET_TOKEN_FAILURE,
-  GetBucketTokenFailureAction,
-  LOAD_ACCOUNT_TOKEN_REQUEST,
-  LoadAccountTokenRequestAction,
-  LOAD_ACCOUNT_TOKEN_SUCCESS,
-  LoadAccountTokenSuccessAction,
-  LOAD_ACCOUNT_TOKEN_FAILURE,
-  LoadAccountTokenFailureAction,
   SET_RECORDING_SETTINGS,
   SetRecordingSettingsAction,
   SET_LOADING_MESSAGE,
@@ -102,38 +90,14 @@ import {
   GetRecordingStorageStatusSuccessAction,
   GET_RECORDING_STORAGE_STATUS_FAILURE,
   GetRecordingStorageStatusFailureAction,
-  ENABLE_DEBUG,
-  EnableDebugAction,
-  DISABLE_DEBUG,
-  DisableDebugAction,
   TOGGLE_DEBUG,
   ToggleDebugAction,
-  LoadAccountInfoRequestActino,
-  LoadAccountInfoSuccessAction,
-  LOAD_ACCOUNT_INFO_SUCCESS,
-  LOAD_ACCOUNT_INFO_REQUEST,
-  LoadAccountInfoFailureAction,
-  LOAD_ACCOUNT_INFO_FAILURE,
-  SetAccountInfoRequstAction,
-  SET_ACCOUNT_INFO_REQUEST,
-  SetAccountInfoSuccessAction,
-  SET_ACCOUNT_INFO_SUCCESS,
-  SetAccountInfoFailureAction,
-  SET_ACCOUNT_INFO_FAILURE,
-  GET_COMPANIONS_SUCCESS,
-  GetCompanionsRequestAction,
-  GET_COMPANIONS_REQUEST,
-  GetCompanionsFailureAction,
-  GET_COMPANIONS_FAILURE,
-  GetCompanionsSuccessAction,
 } from './types';
 import {
   Recording,
   RecordingStorageStatus,
 } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
-import { AccountInfo } from '../common/AccountInfo.interface';
-import { Companion } from '../common/Companion.interface';
 
 export function startMonitor(): StartMonitorAction {
   return {
@@ -314,54 +278,6 @@ export function setSeekedTime(time: number) {
   };
 }
 
-export function getBucketTokenRequest(): GetBucketTokenRequestAction {
-  return {
-    type: GET_BUCKET_TOKEN_REQUEST,
-  };
-}
-
-export function getBucketTokenSuccess(
-  bucketToken: any
-): GetBucketTokenSuccessAction {
-  return {
-    type: GET_BUCKET_TOKEN_SUCCESS,
-    payload: bucketToken,
-  };
-}
-
-export function getBucketTokenFailure(
-  error: Error
-): GetBucketTokenFailureAction {
-  return {
-    type: GET_BUCKET_TOKEN_FAILURE,
-    payload: error,
-  };
-}
-
-export function loadAccountTokenRequest(): LoadAccountTokenRequestAction {
-  return {
-    type: LOAD_ACCOUNT_TOKEN_REQUEST,
-  };
-}
-
-export function loadAccountTokenSuccess(
-  identityString: string
-): LoadAccountTokenSuccessAction {
-  return {
-    type: LOAD_ACCOUNT_TOKEN_SUCCESS,
-    payload: identityString,
-  };
-}
-
-export function loadAccountTokenFailure(
-  error: Error
-): LoadAccountTokenFailureAction {
-  return {
-    type: LOAD_ACCOUNT_TOKEN_FAILURE,
-    payload: error,
-  };
-}
-
 export function setRecordingSettings(
   recordingSettings: RecordingSettings
 ): SetRecordingSettingsAction {
@@ -524,91 +440,9 @@ export function getRecordingStorageStatusFailure(
   };
 }
 
-export function enableDebug() {
-  return {
-    type: ENABLE_DEBUG,
-  };
-}
-
-export function disableDebut() {
-  return {
-    type: DISABLE_DEBUG,
-  };
-}
-
 export function toggleDebug(currentDebugState: boolean): ToggleDebugAction {
   return {
     type: TOGGLE_DEBUG,
     payload: currentDebugState,
-  };
-}
-
-export function loadAccountInfoRequest(): LoadAccountInfoRequestActino {
-  return {
-    type: LOAD_ACCOUNT_INFO_REQUEST,
-  };
-}
-
-export function loadAccountInfoSuccess(
-  accountInfo: AccountInfo
-): LoadAccountInfoSuccessAction {
-  return {
-    type: LOAD_ACCOUNT_INFO_SUCCESS,
-    payload: accountInfo,
-  };
-}
-
-export function loadAccountInfoFailure(
-  error: Error
-): LoadAccountInfoFailureAction {
-  return {
-    type: LOAD_ACCOUNT_INFO_FAILURE,
-    payload: error,
-  };
-}
-
-export function setAccountInfoRequest(): SetAccountInfoRequstAction {
-  return {
-    type: SET_ACCOUNT_INFO_REQUEST,
-  };
-}
-
-export function setAccountInfoSuccess(
-  accountInfoUpdate: AccountInfo
-): SetAccountInfoSuccessAction {
-  return {
-    type: SET_ACCOUNT_INFO_SUCCESS,
-    payload: accountInfoUpdate,
-  };
-}
-
-export function setAccountInfoFailure(
-  error: Error
-): SetAccountInfoFailureAction {
-  return {
-    type: SET_ACCOUNT_INFO_FAILURE,
-    payload: error,
-  };
-}
-
-export function getCompanionsRequest(): GetCompanionsRequestAction {
-  return {
-    type: GET_COMPANIONS_REQUEST,
-  };
-}
-
-export function getCompanionsSuccess(
-  companions: Companion[]
-): GetCompanionsSuccessAction {
-  return {
-    type: GET_COMPANIONS_SUCCESS,
-    payload: companions,
-  };
-}
-
-export function getCompanionsFailure(error: Error): GetCompanionsFailureAction {
-  return {
-    type: GET_COMPANIONS_FAILURE,
-    payload: error,
   };
 }
