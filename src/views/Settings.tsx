@@ -29,9 +29,7 @@ import FormLabel from '@mui/material/FormLabel';
 import QrCodeIcon from '@mui/icons-material/QrCode2';
 import { Checkbox, FormGroup, SelectChangeEvent } from '@mui/material';
 
-import { AccountInfo } from '../common/AccountInfo.interface';
 import EditableText from '../components/EditableText';
-import { Companion } from '../common/Companion.interface';
 import CompanionsList from '../components/CompanionsList';
 import { RECORDING_COLLECTION } from '../common/constants';
 import { Loader } from '../components/Loader';
