@@ -102,10 +102,6 @@ import {
   GetRecordingStorageStatusSuccessAction,
   GET_RECORDING_STORAGE_STATUS_FAILURE,
   GetRecordingStorageStatusFailureAction,
-  ENABLE_DEBUG,
-  EnableDebugAction,
-  DISABLE_DEBUG,
-  DisableDebugAction,
   TOGGLE_DEBUG,
   ToggleDebugAction,
   LoadAccountInfoRequestActino,
@@ -521,18 +517,6 @@ export function getRecordingStorageStatusFailure(
   return {
     type: GET_RECORDING_STORAGE_STATUS_FAILURE,
     payload: error,
-  };
-}
-
-export function enableDebug() {
-  return {
-    type: ENABLE_DEBUG,
-  };
-}
-
-export function disableDebut() {
-  return {
-    type: DISABLE_DEBUG,
   };
 }
 

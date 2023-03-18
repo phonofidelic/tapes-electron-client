@@ -60,8 +60,6 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   GET_RECORDING_STORAGE_STATUS_SUCCESS = 'get_recording_storage_status_success',
   GET_RECORDING_STORAGE_STATUS_FAILURE = 'get_recording_storage_status_failure',
   CONFIRM_ERROR = 'confirm_error',
-  ENABLE_DEBUG = 'enable_debug',
-  DISABLE_DEBUG = 'disable_debug',
   TOGGLE_DEBUG = 'toggle_debug',
   LOAD_ACCOUNT_INFO_REQUEST = 'load_account_info_request',
   LOAD_ACCOUNT_INFO_SUCCESS = 'load_account_info_success',
@@ -341,15 +339,6 @@ export interface GetRecordingStorageStatusFailureAction extends Action {
   type: typeof GET_RECORDING_STORAGE_STATUS_FAILURE;
   payload: Error;
 }
-
-export interface EnableDebugAction extends Action {
-  type: typeof ENABLE_DEBUG;
-}
-
-export interface DisableDebugAction extends Action {
-  type: typeof DISABLE_DEBUG;
-}
-
 export interface ToggleDebugAction extends Action {
   type: typeof TOGGLE_DEBUG;
   payload: boolean;
@@ -450,8 +439,6 @@ export type RecorderAction =
   | GetRecordingStorageStatusRequestAction
   | GetRecordingStorageStatusSuccessAction
   | GetRecordingStorageStatusFailureAction
-  | EnableDebugAction
-  | DisableDebugAction
   | ToggleDebugAction
   | LoadAccountInfoRequestActino
   | LoadAccountInfoSuccessAction
