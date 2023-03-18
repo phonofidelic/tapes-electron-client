@@ -104,18 +104,6 @@ import {
   GetRecordingStorageStatusFailureAction,
   TOGGLE_DEBUG,
   ToggleDebugAction,
-  LoadAccountInfoRequestActino,
-  LoadAccountInfoSuccessAction,
-  LOAD_ACCOUNT_INFO_SUCCESS,
-  LOAD_ACCOUNT_INFO_REQUEST,
-  LoadAccountInfoFailureAction,
-  LOAD_ACCOUNT_INFO_FAILURE,
-  SetAccountInfoRequstAction,
-  SET_ACCOUNT_INFO_REQUEST,
-  SetAccountInfoSuccessAction,
-  SET_ACCOUNT_INFO_SUCCESS,
-  SetAccountInfoFailureAction,
-  SET_ACCOUNT_INFO_FAILURE,
   GET_COMPANIONS_SUCCESS,
   GetCompanionsRequestAction,
   GET_COMPANIONS_REQUEST,
@@ -524,54 +512,6 @@ export function toggleDebug(currentDebugState: boolean): ToggleDebugAction {
   return {
     type: TOGGLE_DEBUG,
     payload: currentDebugState,
-  };
-}
-
-export function loadAccountInfoRequest(): LoadAccountInfoRequestActino {
-  return {
-    type: LOAD_ACCOUNT_INFO_REQUEST,
-  };
-}
-
-export function loadAccountInfoSuccess(
-  accountInfo: AccountInfo
-): LoadAccountInfoSuccessAction {
-  return {
-    type: LOAD_ACCOUNT_INFO_SUCCESS,
-    payload: accountInfo,
-  };
-}
-
-export function loadAccountInfoFailure(
-  error: Error
-): LoadAccountInfoFailureAction {
-  return {
-    type: LOAD_ACCOUNT_INFO_FAILURE,
-    payload: error,
-  };
-}
-
-export function setAccountInfoRequest(): SetAccountInfoRequstAction {
-  return {
-    type: SET_ACCOUNT_INFO_REQUEST,
-  };
-}
-
-export function setAccountInfoSuccess(
-  accountInfoUpdate: AccountInfo
-): SetAccountInfoSuccessAction {
-  return {
-    type: SET_ACCOUNT_INFO_SUCCESS,
-    payload: accountInfoUpdate,
-  };
-}
-
-export function setAccountInfoFailure(
-  error: Error
-): SetAccountInfoFailureAction {
-  return {
-    type: SET_ACCOUNT_INFO_FAILURE,
-    payload: error,
   };
 }
 

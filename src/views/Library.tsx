@@ -20,13 +20,11 @@ import ErrorModal from '../components/ErrorModal';
 import { useTheme } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
-import { AccountInfo } from '@/common/AccountInfo.interface';
 import { useRecordings } from '@/contexts/RecordingsContext';
 
 const { downloadRecording, cacheAndPlayRecording } = effects;
 
 interface LibraryProps {
-  accountInfo: AccountInfo;
   recordings: Recording[];
   loading: boolean;
   databaseInitializing: boolean;
@@ -255,7 +253,6 @@ const mapStateToProps = (state: RecorderState) => {
     error: state.error,
     selectedRecording: state.selectedRecording,
     currentPlaying: state.currentPlaying,
-    accountInfo: state.accountInfo,
   };
 };
 

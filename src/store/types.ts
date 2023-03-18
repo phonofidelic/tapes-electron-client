@@ -61,18 +61,11 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   GET_RECORDING_STORAGE_STATUS_FAILURE = 'get_recording_storage_status_failure',
   CONFIRM_ERROR = 'confirm_error',
   TOGGLE_DEBUG = 'toggle_debug',
-  LOAD_ACCOUNT_INFO_REQUEST = 'load_account_info_request',
-  LOAD_ACCOUNT_INFO_SUCCESS = 'load_account_info_success',
-  LOAD_ACCOUNT_INFO_FAILURE = 'load_account_info_failure',
-  SET_ACCOUNT_INFO_REQUEST = 'set_account_info_request',
-  SET_ACCOUNT_INFO_SUCCESS = 'set_account_info_success',
-  SET_ACCOUNT_INFO_FAILURE = 'set_account_info_failure',
   GET_COMPANIONS_REQUEST = 'get_companions_request',
   GET_COMPANIONS_SUCCESS = 'get_companions_success',
   GET_COMPANIONS_FAILURE = 'get_companions_failure';
 
 export interface RecorderState {
-  accountInfo: AccountInfo;
   accountToken: string | null; // TODO: remove this
   audioSrc: string;
   bucketToken: string | null; // TODO: remove this
@@ -343,35 +336,6 @@ export interface ToggleDebugAction extends Action {
   type: typeof TOGGLE_DEBUG;
   payload: boolean;
 }
-
-export interface LoadAccountInfoRequestActino extends Action {
-  type: typeof LOAD_ACCOUNT_INFO_REQUEST;
-}
-
-export interface LoadAccountInfoSuccessAction extends Action {
-  type: typeof LOAD_ACCOUNT_INFO_SUCCESS;
-  payload: AccountInfo;
-}
-
-export interface LoadAccountInfoFailureAction extends Action {
-  type: typeof LOAD_ACCOUNT_INFO_FAILURE;
-  payload: Error;
-}
-
-export interface SetAccountInfoRequstAction extends Action {
-  type: typeof SET_ACCOUNT_INFO_REQUEST;
-}
-
-export interface SetAccountInfoSuccessAction extends Action {
-  type: typeof SET_ACCOUNT_INFO_SUCCESS;
-  payload: AccountInfo;
-}
-
-export interface SetAccountInfoFailureAction extends Action {
-  type: typeof SET_ACCOUNT_INFO_FAILURE;
-  payload: Error;
-}
-
 export interface GetCompanionsRequestAction extends Action {
   type: typeof GET_COMPANIONS_REQUEST;
 }
@@ -440,12 +404,6 @@ export type RecorderAction =
   | GetRecordingStorageStatusSuccessAction
   | GetRecordingStorageStatusFailureAction
   | ToggleDebugAction
-  | LoadAccountInfoRequestActino
-  | LoadAccountInfoSuccessAction
-  | LoadAccountInfoFailureAction
-  | SetAccountInfoRequstAction
-  | SetAccountInfoSuccessAction
-  | SetAccountInfoFailureAction
   | GetCompanionsRequestAction
   | GetCompanionsSuccessAction
   | GetCompanionsFailureAction;

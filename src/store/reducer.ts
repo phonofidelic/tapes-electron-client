@@ -54,12 +54,6 @@ import {
   GET_RECORDING_STORAGE_STATUS_SUCCESS,
   GET_RECORDING_STORAGE_STATUS_FAILURE,
   TOGGLE_DEBUG,
-  LOAD_ACCOUNT_INFO_REQUEST,
-  LOAD_ACCOUNT_INFO_SUCCESS,
-  LOAD_ACCOUNT_INFO_FAILURE,
-  SET_ACCOUNT_INFO_REQUEST,
-  SET_ACCOUNT_INFO_SUCCESS,
-  SET_ACCOUNT_INFO_FAILURE,
   GET_COMPANIONS_REQUEST,
   GET_COMPANIONS_SUCCESS,
   GET_COMPANIONS_FAILURE,
@@ -68,7 +62,6 @@ import { RecordingFormats } from '@/common/RecordingFormats.enum';
 import { IDENTITY_STORE } from '@/common/constants';
 
 export const initialState: RecorderState = {
-  accountInfo: null,
   accountToken: localStorage.getItem(IDENTITY_STORE), // TODO: remove this
   audioSrc: null,
   bucketToken: null, // TODO: remove this
@@ -465,45 +458,6 @@ export const reducer = (
       return {
         ...state,
         debugEnabled: !action.payload,
-      };
-
-    case LOAD_ACCOUNT_INFO_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case LOAD_ACCOUNT_INFO_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        accountInfo: action.payload,
-      };
-
-    case LOAD_ACCOUNT_INFO_FAILURE:
-      return {
-        ...state,
-        error: action.payload,
-      };
-
-    case SET_ACCOUNT_INFO_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case SET_ACCOUNT_INFO_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        accountInfo: action.payload,
-      };
-
-    case SET_ACCOUNT_INFO_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
       };
 
     case GET_COMPANIONS_REQUEST:
