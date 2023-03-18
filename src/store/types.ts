@@ -1,11 +1,9 @@
 import { Action } from 'redux';
-import { Companion } from '../common/Companion.interface';
-import { AccountInfo } from '../common/AccountInfo.interface';
 import {
   Recording,
   RecordingStorageStatus,
-} from '../common/Recording.interface';
-import { RecordingSettings } from '../common/RecordingSettings.interface';
+} from '@/common/Recording.interface';
+import { RecordingSettings } from '@/common/RecordingSettings.interface';
 
 export const START_RECORDING_REQUEST = 'start_recording_request',
   START_RECORDING_SUCCESS = 'start_recording_success',
@@ -32,9 +30,6 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   PAUSE_RECORDING = 'pause_recording',
   SET_CURRENT_TIME = 'set_current_time',
   SET_SEEKED_TIME = 'set_seeked_time',
-  LOAD_ACCOUNT_TOKEN_REQUEST = 'load_account_token_request',
-  LOAD_ACCOUNT_TOKEN_SUCCESS = 'load_account_token_success',
-  LOAD_ACCOUNT_TOKEN_FAILURE = 'load_account_token_failure',
   SET_RECORDING_SETTINGS = 'set_recording_settings',
   SET_LOADING_MESSAGE = 'set_loading_message',
   INIT_DATABASE_REQUEST = 'init_database_request',
@@ -60,9 +55,7 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   TOGGLE_DEBUG = 'toggle_debug';
 
 export interface RecorderState {
-  accountToken: string | null; // TODO: remove this
   audioSrc: string;
-  bucketToken: string | null; // TODO: remove this
   caching: boolean;
   currentPlaying: Recording | null;
   currentTime: number;
@@ -177,7 +170,7 @@ export interface DeleteRecordingFailureAction extends Action {
   payload: Error;
 }
 
-/**
+/*
  * Player actions
  */
 export interface PlayRecordingAction extends Action {
@@ -196,20 +189,6 @@ export interface SetCurrentTimeAction extends Action {
 export interface SetSeekedTimeAction extends Action {
   type: typeof SET_SEEKED_TIME;
   payload: number;
-}
-
-export interface LoadAccountTokenRequestAction extends Action {
-  type: typeof LOAD_ACCOUNT_TOKEN_REQUEST;
-}
-
-export interface LoadAccountTokenSuccessAction extends Action {
-  type: typeof LOAD_ACCOUNT_TOKEN_SUCCESS;
-  payload: string;
-}
-
-export interface LoadAccountTokenFailureAction extends Action {
-  type: typeof LOAD_ACCOUNT_TOKEN_FAILURE;
-  payload: Error;
 }
 
 export interface SetRecordingSettingsAction extends Action {
@@ -341,9 +320,6 @@ export type RecorderAction =
   | PauseRecordingAction
   | SetCurrentTimeAction
   | SetSeekedTimeAction
-  | LoadAccountTokenRequestAction
-  | LoadAccountTokenSuccessAction
-  | LoadAccountTokenFailureAction
   | SetRecordingSettingsAction
   | SettLoadingMessageAction
   | InitDatabaseRequestAction

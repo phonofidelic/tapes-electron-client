@@ -23,9 +23,6 @@ import {
   DELETE_RECORDING_FAILURE,
   PLAY_RECORDING,
   PAUSE_RECORDING,
-  LOAD_ACCOUNT_TOKEN_REQUEST,
-  LOAD_ACCOUNT_TOKEN_SUCCESS,
-  LOAD_ACCOUNT_TOKEN_FAILURE,
   SET_RECORDING_SETTINGS,
   SET_LOADING_MESSAGE,
   INIT_DATABASE_REQUEST,
@@ -53,12 +50,9 @@ import {
   TOGGLE_DEBUG,
 } from './types';
 import { RecordingFormats } from '@/common/RecordingFormats.enum';
-import { IDENTITY_STORE } from '@/common/constants';
 
 export const initialState: RecorderState = {
-  accountToken: localStorage.getItem(IDENTITY_STORE), // TODO: remove this
   audioSrc: null,
-  bucketToken: null, // TODO: remove this
   caching: false,
   currentPlaying: null,
   currentTime: 0,
@@ -259,27 +253,6 @@ export const reducer = (
       return {
         ...state,
         seekedTime: action.payload,
-      };
-
-    case LOAD_ACCOUNT_TOKEN_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case LOAD_ACCOUNT_TOKEN_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        accountToken: action.payload,
-        recordings: [],
-      };
-
-    case LOAD_ACCOUNT_TOKEN_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
       };
 
     case SET_RECORDING_SETTINGS:

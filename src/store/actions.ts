@@ -43,12 +43,6 @@ import {
   PlayRecordingAction,
   PAUSE_RECORDING,
   PauseRecordingAction,
-  LOAD_ACCOUNT_TOKEN_REQUEST,
-  LoadAccountTokenRequestAction,
-  LOAD_ACCOUNT_TOKEN_SUCCESS,
-  LoadAccountTokenSuccessAction,
-  LOAD_ACCOUNT_TOKEN_FAILURE,
-  LoadAccountTokenFailureAction,
   SET_RECORDING_SETTINGS,
   SetRecordingSettingsAction,
   SET_LOADING_MESSAGE,
@@ -104,8 +98,6 @@ import {
   RecordingStorageStatus,
 } from '../common/Recording.interface';
 import { RecordingSettings } from '../common/RecordingSettings.interface';
-import { AccountInfo } from '../common/AccountInfo.interface';
-import { Companion } from '../common/Companion.interface';
 
 export function startMonitor(): StartMonitorAction {
   return {
@@ -283,30 +275,6 @@ export function setSeekedTime(time: number) {
   return {
     type: SET_SEEKED_TIME,
     payload: time,
-  };
-}
-
-export function loadAccountTokenRequest(): LoadAccountTokenRequestAction {
-  return {
-    type: LOAD_ACCOUNT_TOKEN_REQUEST,
-  };
-}
-
-export function loadAccountTokenSuccess(
-  identityString: string
-): LoadAccountTokenSuccessAction {
-  return {
-    type: LOAD_ACCOUNT_TOKEN_SUCCESS,
-    payload: identityString,
-  };
-}
-
-export function loadAccountTokenFailure(
-  error: Error
-): LoadAccountTokenFailureAction {
-  return {
-    type: LOAD_ACCOUNT_TOKEN_FAILURE,
-    payload: error,
   };
 }
 
