@@ -79,9 +79,6 @@ export function Settings({
     useUser();
   const [companions] = useCompanions();
 
-  const selectedMediaDeviceId =
-    recordingSettings.selectedMediaDeviceId && 'default';
-
   const dispatch = useDispatch();
   const theme: Theme = useTheme();
 
@@ -110,7 +107,6 @@ export function Settings({
       selectedMediaDeviceId: deviceId,
     });
 
-    /** TODO: Needs to use device name */
     dispatch(setInputDevice(deviceInfo.label));
   };
 
@@ -145,6 +141,8 @@ export function Settings({
       const audioInputs = foundDevices.filter(
         (device) => device.kind === 'audioinput'
       );
+
+      console.log('audioInputs', audioInputs);
 
       setAudioInputDevices(audioInputs);
     };
@@ -191,12 +189,16 @@ export function Settings({
             <Select
               id="audio-input-select"
               labelId="audio-input-select-label"
-              value={selectedMediaDeviceId}
+              value={recordingSettings.selectedMediaDeviceId ?? 'default'}
               onChange={handleSelectAudioInput}
               label="Audio Input Device"
             >
               {audioInputDevices.map((device: MediaDeviceInfo) => (
                 <MenuItem key={device.deviceId} value={device.deviceId}>
+                  {/* Matches code that appears in parenthesis after device name.
+                      eg: "VIDBOX NW07 (eb1a:5188)"
+                      results in "VIDBOX NW07"
+                   */}
                   {device.label.replace(/ *\([^)]*\) */g, '')}
                 </MenuItem>
               ))}

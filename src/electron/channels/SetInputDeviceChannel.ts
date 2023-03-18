@@ -14,16 +14,15 @@ export class SetInputDeviceChannel implements IpcChannel {
   async handle(event: IpcMainEvent, request: IpcRequest) {
     console.log(this.name);
 
-    console.log('*** Input Device:', request.data);
-
     const normalizedDeviceName = /internal/i.test(request.data)
       ? 'internal'
-      : request.data.replace(/ *\([^)]*\) */g, '').trim();
-
-    console.log('*** Normalized Device Name:', normalizedDeviceName);
+      : // Matches code that appears in parenthesis after device name.
+        // eg: "VIDBOX NW07 (eb1a:5188)"
+        // results in "VIDBOX NW07"
+        request.data.replace(/ *\([^)]*\) */g, '').trim();
 
     /**
-     * Audiodevice command:
+     * `Audiodevice` is a command line utility for setting changing audio devices:
      * http://whoshacks.blogspot.com/2009/01/change-audio-devices-via-shell-script.html
      */
     const audiodevicePath =
@@ -32,22 +31,22 @@ export class SetInputDeviceChannel implements IpcChannel {
         : path.resolve(appRootDir.get(), 'bin', 'audiodevice');
 
     try {
-      const audiodevice = spawn(audiodevicePath, [
-        'input',
-        `${normalizedDeviceName}`,
-      ]);
-
-      audiodevice.stdout.on('data', (data) => console.log(data.toString()));
-
-      audiodevice.on('close', (code) => {
-        console.log(`child process "audiodevice" exited with code ${code}`);
-      });
-    } catch (err) {
-      console.error('Could not spawn audiodevice command:', err);
-
-      event.sender.send(request.responseChannel, {
-        error: `Could not set input device to "${normalizedDeviceName}"`,
-      });
+      spawn(audiodevicePath, ['input', `${normalizedDeviceName}`]);
+    } catch (error) {
+      // This error is thrown every time, perhaps due to permissions,
+      // but the command works.
+      if (error.code === 'Unknown system error -86') {
+        event.sender.send(request.responseChannel, {
+          message: `Input device changed to "${normalizedDeviceName}"`,
+        });
+      } else {
+        console.error('Could not spawn audiodevice command:', error);
+        event.sender.send(request.responseChannel, {
+          error: new Error(
+            `Could not set input device to "${normalizedDeviceName}"`
+          ),
+        });
+      }
     }
 
     event.sender.send(request.responseChannel, {

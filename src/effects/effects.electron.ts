@@ -293,8 +293,8 @@ export const setInputDevice =
       if (ipcResponse.error) {
         throw ipcResponse.error;
       }
-    } catch (err) {
-      dispatch(setInputDeviceFailure(err));
+    } catch (error) {
+      dispatch(setInputDeviceFailure(error));
     }
 
     dispatch(setInputDeviceSuccess());
