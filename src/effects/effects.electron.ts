@@ -17,9 +17,6 @@ import {
   editRecordingRequest,
   editRecordingSuccess,
   editRecordingFailure,
-  loadAccountTokenRequest,
-  loadAccountTokenSuccess,
-  loadAccountTokenFailure,
   setLoadingMessage,
   initDatabaseRequest,
   initDatabaseSuccess,
@@ -40,25 +37,14 @@ import {
   getRecordingStorageStatusRequest,
   getRecordingStorageStatusFailure,
   getRecordingStorageStatusSuccess,
-  loadAccountInfoRequest,
-  loadAccountInfoFailure,
-  loadAccountInfoSuccess,
-  setAccountInfoRequest,
-  setAccountInfoFailure,
-  setAccountInfoSuccess,
-  getCompanionsRequest,
-  getCompanionsFailure,
-  getCompanionsSuccess,
 } from '@/store/actions';
 import {
   Recording,
   RecordingStorageStatus,
 } from '@/common/Recording.interface';
 import { RecordingSettings } from '@/common/RecordingSettings.interface';
-import { RECORDING_COLLECTION, IDENTITY_STORE } from '@/common/constants';
+import { RECORDING_COLLECTION } from '@/common/constants';
 import { IpcService } from '@/IpcService';
-import { AccountInfo } from '@/common/AccountInfo.interface';
-import { Companion } from '@/common/Companion.interface';
 import OrbitConnection from '@/db/OrbitConnection';
 import { RecordingRepository } from '@/db/Repository';
 
