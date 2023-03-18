@@ -124,27 +124,32 @@ export function RecordingsListItem({
             }}
           >
             {selected ? (
-              <EditableText
-                textValue={recording.title}
-                size="small"
-                onChangeCommitted={handleSubimtTitleChange}
-              >
-                <Tooltip title={recording.title} enterDelay={400}>
+              <Tooltip title={recording.title} enterDelay={600}>
+                <EditableText
+                  textValue={recording.title}
+                  size="small"
+                  onChangeCommitted={handleSubimtTitleChange}
+                >
                   <Typography style={{ maxWidth: '50vw' }} noWrap>
                     {recording.title}
                   </Typography>
-                </Tooltip>
-              </EditableText>
+                </EditableText>
+              </Tooltip>
             ) : (
-              <Typography style={{ maxWidth: '50vw' }} noWrap>
-                {recording.title}
-              </Typography>
+              <Tooltip title={recording.title} enterDelay={600}>
+                <Typography style={{ maxWidth: '50vw' }} noWrap>
+                  {recording.title}
+                </Typography>
+              </Tooltip>
             )}
             {selected && (
               <div
                 style={{
                   color: theme.palette.text.secondary,
                   display: 'flex',
+                  position: 'absolute',
+                  right: 16,
+                  top: 4,
                 }}
               >
                 <div

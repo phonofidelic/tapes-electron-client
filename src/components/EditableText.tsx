@@ -60,26 +60,24 @@ export default function EditableText({
 
   if (editing)
     return (
-      <div style={{ display: 'flex' }}>
-        <div>
-          <TextField
-            ref={inputElement}
-            placeholder={textValue}
-            value={newTextValue}
-            size={size}
-            autoFocus
-            fullWidth
-            onBlur={handleBlur}
-            onChange={handleChange}
-            variant="standard"
-            onDoubleClick={(event: React.MouseEvent) => event.stopPropagation()}
-          />
-        </div>
-      </div>
+      <span style={{ display: 'flex', width: '100%' }}>
+        <TextField
+          ref={inputElement}
+          placeholder={textValue}
+          value={newTextValue}
+          size={size}
+          autoFocus
+          fullWidth
+          onBlur={handleBlur}
+          onChange={handleChange}
+          variant="standard"
+          onDoubleClick={(event: React.MouseEvent) => event.stopPropagation()}
+        />
+      </span>
     );
 
   return (
-    <div
+    <span
       style={{
         display: 'flex',
         cursor: 'pointer',
@@ -95,6 +93,6 @@ export default function EditableText({
           <EditIcon fontSize="small" color="disabled" />
         </Fade>
       </div>
-    </div>
+    </span>
   );
 }
