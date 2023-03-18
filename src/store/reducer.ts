@@ -23,9 +23,6 @@ import {
   DELETE_RECORDING_FAILURE,
   PLAY_RECORDING,
   PAUSE_RECORDING,
-  GET_BUCKET_TOKEN_REQUEST,
-  GET_BUCKET_TOKEN_SUCCESS,
-  GET_BUCKET_TOKEN_FAILURE,
   LOAD_ACCOUNT_TOKEN_REQUEST,
   LOAD_ACCOUNT_TOKEN_SUCCESS,
   LOAD_ACCOUNT_TOKEN_FAILURE,
@@ -262,26 +259,6 @@ export const reducer = (
       return {
         ...state,
         seekedTime: action.payload,
-      };
-
-    case GET_BUCKET_TOKEN_REQUEST:
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case GET_BUCKET_TOKEN_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        bucketToken: action.payload,
-      };
-
-    case GET_BUCKET_TOKEN_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
       };
 
     case LOAD_ACCOUNT_TOKEN_REQUEST:

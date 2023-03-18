@@ -32,9 +32,6 @@ export const START_RECORDING_REQUEST = 'start_recording_request',
   PAUSE_RECORDING = 'pause_recording',
   SET_CURRENT_TIME = 'set_current_time',
   SET_SEEKED_TIME = 'set_seeked_time',
-  GET_BUCKET_TOKEN_REQUEST = 'get_bucket_token_request',
-  GET_BUCKET_TOKEN_SUCCESS = 'get_bucket_token_success',
-  GET_BUCKET_TOKEN_FAILURE = 'get_bucket_token_failure',
   LOAD_ACCOUNT_TOKEN_REQUEST = 'load_account_token_request',
   LOAD_ACCOUNT_TOKEN_SUCCESS = 'load_account_token_success',
   LOAD_ACCOUNT_TOKEN_FAILURE = 'load_account_token_failure',
@@ -201,20 +198,6 @@ export interface SetSeekedTimeAction extends Action {
   payload: number;
 }
 
-export interface GetBucketTokenRequestAction extends Action {
-  type: typeof GET_BUCKET_TOKEN_REQUEST;
-}
-
-export interface GetBucketTokenSuccessAction extends Action {
-  type: typeof GET_BUCKET_TOKEN_SUCCESS;
-  payload: string;
-}
-
-export interface GetBucketTokenFailureAction extends Action {
-  type: typeof GET_BUCKET_TOKEN_FAILURE;
-  payload: Error;
-}
-
 export interface LoadAccountTokenRequestAction extends Action {
   type: typeof LOAD_ACCOUNT_TOKEN_REQUEST;
 }
@@ -358,9 +341,6 @@ export type RecorderAction =
   | PauseRecordingAction
   | SetCurrentTimeAction
   | SetSeekedTimeAction
-  | GetBucketTokenRequestAction
-  | GetBucketTokenSuccessAction
-  | GetBucketTokenFailureAction
   | LoadAccountTokenRequestAction
   | LoadAccountTokenSuccessAction
   | LoadAccountTokenFailureAction

@@ -43,12 +43,6 @@ import {
   PlayRecordingAction,
   PAUSE_RECORDING,
   PauseRecordingAction,
-  GET_BUCKET_TOKEN_REQUEST,
-  GetBucketTokenRequestAction,
-  GET_BUCKET_TOKEN_SUCCESS,
-  GetBucketTokenSuccessAction,
-  GET_BUCKET_TOKEN_FAILURE,
-  GetBucketTokenFailureAction,
   LOAD_ACCOUNT_TOKEN_REQUEST,
   LoadAccountTokenRequestAction,
   LOAD_ACCOUNT_TOKEN_SUCCESS,
@@ -289,30 +283,6 @@ export function setSeekedTime(time: number) {
   return {
     type: SET_SEEKED_TIME,
     payload: time,
-  };
-}
-
-export function getBucketTokenRequest(): GetBucketTokenRequestAction {
-  return {
-    type: GET_BUCKET_TOKEN_REQUEST,
-  };
-}
-
-export function getBucketTokenSuccess(
-  bucketToken: any
-): GetBucketTokenSuccessAction {
-  return {
-    type: GET_BUCKET_TOKEN_SUCCESS,
-    payload: bucketToken,
-  };
-}
-
-export function getBucketTokenFailure(
-  error: Error
-): GetBucketTokenFailureAction {
-  return {
-    type: GET_BUCKET_TOKEN_FAILURE,
-    payload: error,
   };
 }
 
