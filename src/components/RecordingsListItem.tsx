@@ -124,17 +124,17 @@ export function RecordingsListItem({
             }}
           >
             {selected ? (
-              <Tooltip title={recording.title} enterDelay={600}>
-                <EditableText
-                  textValue={recording.title}
-                  size="small"
-                  onChangeCommitted={handleSubimtTitleChange}
-                >
+              <EditableText
+                textValue={recording.title}
+                size="small"
+                onChangeCommitted={handleSubimtTitleChange}
+              >
+                <Tooltip title={recording.title} enterDelay={600}>
                   <Typography style={{ maxWidth: '50vw' }} noWrap>
                     {recording.title}
                   </Typography>
-                </EditableText>
-              </Tooltip>
+                </Tooltip>
+              </EditableText>
             ) : (
               <Tooltip title={recording.title} enterDelay={600}>
                 <Typography style={{ maxWidth: '50vw' }} noWrap>
