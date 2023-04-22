@@ -212,19 +212,14 @@ export default class OrbitConnection {
     }
   }
 
-  private async handlePeerConnected(ipfsPeer: CustomEvent<Connection>) {
-    // console.log('* handlePeerConnected, ipfsPeer', ipfsPeer);
-    //@ts-ignore
-    const connectionKeys = ipfsPeer.target.connectionManager.connections.keys();
-    // console.log('### connectionKeys', connectionKeys);
+  private async handlePeerConnected(event: CustomEvent) {
+    const connectionKeys = event.detail.connectionManager.connections.keys();
 
     this.peerConnectTimeout = setTimeout(async () => {
       for await (const ipfsId of connectionKeys) {
-        // console.log('* Sending message to', ipfsId);
         try {
           await this.sendMessage(ipfsId, {
             userDb: this.user.id,
-            // recordingsDb: this.docStores[RECORDINGS_COLLECTION].identity.id,
           });
         } catch (error) {
           console.error(`Could not send message to ${ipfsId}`, error);
