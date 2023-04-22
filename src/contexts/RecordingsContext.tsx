@@ -172,6 +172,18 @@ export const useRecordings = (): UseRecordingsReturn => {
     loadRecordings();
   }, []);
 
+  useEffect(() => {
+    const onReplicated = () => {
+      loadRecordings();
+    };
+
+    recordingsRepository.addEventListener('replicated', onReplicated);
+
+    return () => {
+      recordingsRepository.removeEventListener('replicated', onReplicated);
+    };
+  }, []);
+
   return [
     recordings,
     loading,

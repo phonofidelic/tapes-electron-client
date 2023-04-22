@@ -91,4 +91,9 @@ export default {
   experiments: {
     topLevelAwait: true,
   },
+  externals: {
+    fs: '{ existsSync: () => true }',
+    'fs-extra': '{ copy: () => {} }',
+    rimraf: '() => {}',
+  },
 };

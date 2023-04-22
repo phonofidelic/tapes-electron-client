@@ -17,7 +17,6 @@ import QRCodeModal from '../components/QRCodeModal';
 
 import Typography from '@mui/material/Typography';
 import { useTheme, Theme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
@@ -27,7 +26,7 @@ import Radio from '@mui/material/Radio';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import QrCodeIcon from '@mui/icons-material/QrCode2';
-import { Checkbox, FormGroup, SelectChangeEvent } from '@mui/material';
+import { Checkbox, Button, FormGroup, SelectChangeEvent } from '@mui/material';
 
 import EditableText from '../components/EditableText';
 import CompanionsList from '../components/CompanionsList';
@@ -73,7 +72,7 @@ export function Settings({
 
   const [accountInfo, loading, error, { setAccountInfo, confirmError }] =
     useUser();
-  const [companions] = useCompanions();
+  const [companions, , companionsError, { clearCompanions }] = useCompanions();
 
   const dispatch = useDispatch();
   const theme: Theme = useTheme();
@@ -157,7 +156,7 @@ export function Settings({
           <QRCodeModal
             open={QROpen}
             value={`${
-              localWebClient ? 'http://localhost:3001' : WEB_CLIENT_URL
+              localWebClient ? `http://localhost:3001` : WEB_CLIENT_URL
             }/?peerid=${accountInfo.nodeId ?? ''}&address=${
               accountInfo.recordingsDb
                 ? `${accountInfo.recordingsDb.root}/${RECORDING_COLLECTION}`
@@ -345,6 +344,9 @@ export function Settings({
                 label="Local web client"
               />
             </FormGroup>
+            <div>
+              <Button onClick={clearCompanions}>Clear Companions</Button>
+            </div>
           </div>
         ) : (
           <div
@@ -352,7 +354,10 @@ export function Settings({
             onClick={handleDebugClick}
           />
         )}
-        <ErrorModal error={error} onConfirmError={confirmError} />
+        <ErrorModal
+          error={error || companionsError}
+          onConfirmError={confirmError}
+        />
       </div>
     </>
   );

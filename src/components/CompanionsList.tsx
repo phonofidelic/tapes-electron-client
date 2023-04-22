@@ -20,6 +20,7 @@ type CompanionsListProps = {
 
 export default function CompanionsList({ companions }: CompanionsListProps) {
   const [open, setOpen] = useState(true);
+  console.log('CompanionList, companions', companions);
 
   return (
     <div>
