@@ -11,6 +11,8 @@ import {
   UserStore,
 } from '@/db/Repository';
 import type { Connection } from '@libp2p/interface-connection';
+import type { Libp2p as Libp2pNode } from '@libp2p/interface-libp2p';
+import { CustomEvent } from '@libp2p/interfaces/events';
 
 declare const LIBP2P_SIG_SERVER: string;
 
@@ -212,18 +214,16 @@ export default class OrbitConnection {
     }
   }
 
-  private async handlePeerConnected(event: CustomEvent) {
-    const connectionKeys = event.detail.connectionManager.connections.keys();
+  private async handlePeerConnected(event: CustomEvent<Connection>) {
+    const remotePeer = event.detail.remotePeer.toString();
 
     this.peerConnectTimeout = setTimeout(async () => {
-      for await (const ipfsId of connectionKeys) {
-        try {
-          await this.sendMessage(ipfsId, {
-            userDb: this.user.id,
-          });
-        } catch (error) {
-          console.error(`Could not send message to ${ipfsId}`, error);
-        }
+      try {
+        await this.sendMessage(remotePeer, {
+          userDb: this.user.id,
+        });
+      } catch (error) {
+        console.error(`Could not send message to ${remotePeer}`, error);
       }
     }, 2000);
   }
@@ -276,11 +276,9 @@ export default class OrbitConnection {
   }
 
   private async connectToCompanions() {
-    const companions = Object.values(this.companions.all)
-      // .filter((companion: Companion) => companion.nodeId)
-      .map((companion) => companion);
-    console.log('* connectToCompanions, companions:', companions);
-    // const connectedPeerIds = await this.getIpfsPeerIds();
+    const companions = Object.values(this.companions.all).filter(
+      (companion) => companion.nodeId
+    );
 
     await Promise.all(
       companions.map(async (companion) => {
