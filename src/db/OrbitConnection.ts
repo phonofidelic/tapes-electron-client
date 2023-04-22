@@ -11,8 +11,6 @@ import {
   UserStore,
 } from '@/db/Repository';
 import type { Connection } from '@libp2p/interface-connection';
-import type { Libp2p as Libp2pNode } from '@libp2p/interface-libp2p';
-import { CustomEvent } from '@libp2p/interfaces/events';
 
 declare const LIBP2P_SIG_SERVER: string;
 
