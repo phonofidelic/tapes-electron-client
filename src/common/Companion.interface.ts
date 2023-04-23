@@ -7,9 +7,7 @@ export enum CompanionStatus {
 export interface Companion {
   dbAddress: { path: string; root: string };
   deviceName: string;
-  docStores: {
-    [key: string]: { path: string; root: string };
-  };
+  recordingsAddrRoot: string;
   nodeId: string;
   status: CompanionStatus;
 }

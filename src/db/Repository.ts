@@ -14,6 +14,7 @@ import { AccountInfo } from '@/common/AccountInfo.interface';
 import { RECORDING_COLLECTION } from '@/common/constants';
 import OrbitConnection from '@/db/OrbitConnection';
 import { IpfsWithLibp2p } from './utils';
+import { Companion } from '@/common/Companion.interface';
 
 interface DocumentReader<T> {
   find(query: Partial<T>): Promise<T[]>;
@@ -40,78 +41,127 @@ type BaseRepository<T> = DocumentReader<T> &
   KeyValueReader<T> &
   KeyValueWriter<T>;
 
-type AccountInfoKey = keyof AccountInfo;
-
-export type UserStore = Omit<
-  KeyValueStore<AccountInfo>,
+export type CustomKeyValueStore<K> = Omit<
+  KeyValueStore<K>,
   'get' | 'put' | 'set' | 'all'
 > & {
-  get<T extends AccountInfoKey>(key: T): AccountInfo[T];
-  put<T extends AccountInfoKey>(key: T, value: AccountInfo[T]): Promise<string>;
-  set<T extends AccountInfoKey>(key: T, value: AccountInfo[T]): Promise<string>;
-  all: AccountInfo;
+  get<T extends keyof K>(key: T): K[T];
+  put<T extends keyof K>(key: T, value: K[T]): Promise<string>;
+  set<T extends keyof K>(key: T, value: K[T]): Promise<string>;
+  all: K;
   id: string;
 };
 
-export class OrbitRepository<T> implements BaseRepository<T> {
-  public kvstore: KeyValueStore<AccountInfo>;
+export type UserStore = CustomKeyValueStore<AccountInfo>;
+
+export type CompanionStore = CustomKeyValueStore<Record<string, Companion>>;
+
+type OrbitRepositoryEventType = 'replicated';
+class OrbitRepositoryEventTarget extends EventTarget {
+  public addEventListener(
+    type: OrbitRepositoryEventType,
+    callback: EventListenerOrEventListenerObject
+  ): void {
+    super.addEventListener(type, callback);
+  }
+
+  public removeEventListener(
+    type: OrbitRepositoryEventType,
+    callback: EventListenerOrEventListenerObject
+  ): void {
+    super.removeEventListener(type, callback);
+  }
+
+  public dispatchEvent(event: Event): boolean {
+    return super.dispatchEvent(event);
+  }
+}
+
+export class OrbitRepository<T>
+  extends OrbitRepositoryEventTarget
+  implements BaseRepository<T>
+{
+  public kvstore: KeyValueStore<unknown>;
   public readonly node: IpfsWithLibp2p;
   public readonly orbitdb: OrbitDB;
 
   constructor(
     private orbitConnection: typeof OrbitConnection.Instance,
-    public readonly dbName: string,
+    public readonly dbName: 'Recording' | 'user' | 'companions',
     public readonly recordingsAddrRoot?: string
   ) {
+    super();
     this.node = this.orbitConnection.node;
     this.orbitdb = this.orbitConnection.orbitdb;
   }
 
-  async init(): Promise<UserStore> {
+  async init(dbName: 'user'): Promise<UserStore>;
+  async init(dbName: 'companion'): Promise<CompanionStore>;
+  async init() {
     try {
-      this.kvstore = await this.orbitdb.kvstore(this.dbName);
-    } catch (error) {
-      console.error('Could not create database:', error);
-    }
-    const nodeId = this.node.libp2p.peerId.toString();
-
-    await this.kvstore.load();
-    await this.kvstore.set('nodeId', nodeId as unknown as AccountInfo);
-    await this.kvstore.set(
-      'dbAddress',
-      this.kvstore.address as unknown as AccountInfo
-    );
-
-    this.recordingsAddrRoot &&
-      (await this.kvstore.set(
-        'recordingsAddrRoot',
-        this.recordingsAddrRoot as unknown as AccountInfo
-      ));
-
-    let deviceName = this.kvstore.get('deviceName');
-    if (!deviceName) {
-      deviceName = generateUsername('-') as unknown as AccountInfo;
-    }
-
-    await this.kvstore.set('deviceName', deviceName);
-
-    return this.kvstore as unknown as UserStore;
-  }
-
-  private async getDb() {
-    const db: DocumentStore<T> = await this.orbitdb.docs(
-      this.recordingsAddrRoot
-        ? '/orbitdb/' + this.recordingsAddrRoot
-        : this.dbName,
-      {
+      this.kvstore = await this.orbitdb.kvstore(this.dbName, {
         accessController: {
           type: 'orbitdb',
           write: ['*'],
         },
+      });
+    } catch (error) {
+      console.error('Could not create database:', error);
+    }
+
+    await this.kvstore.load();
+
+    if (this.dbName === 'user') {
+      const nodeId = this.node.libp2p.peerId.toString();
+      await this.kvstore.set('nodeId', nodeId as unknown as AccountInfo);
+      await this.kvstore.set('dbAddress', this.kvstore.address);
+
+      this.recordingsAddrRoot &&
+        (await this.kvstore.set(
+          'recordingsAddrRoot',
+          this.recordingsAddrRoot as unknown as AccountInfo
+        ));
+
+      let deviceName = this.kvstore.get('deviceName');
+      if (!deviceName) {
+        deviceName = generateUsername('-') as unknown as AccountInfo;
       }
-    );
-    await db.load();
-    return db;
+
+      await this.kvstore.set('deviceName', deviceName);
+
+      return this.kvstore as unknown as UserStore;
+    }
+
+    if (this.dbName === 'companions') {
+      return this.kvstore as unknown as CompanionStore;
+    }
+  }
+
+  private async getDb() {
+    try {
+      const db: DocumentStore<T> = await this.orbitdb.docs(
+        this.orbitConnection.recordingsAddrRoot
+          ? '/orbitdb/' + this.orbitConnection.recordingsAddrRoot
+          : this.dbName,
+        {
+          accessController: {
+            type: 'orbitdb',
+            write: ['*'],
+          },
+        }
+      );
+
+      db.events.on('replicated', () => {
+        const event = new CustomEvent('replicated');
+        this.dispatchEvent(event);
+      });
+
+      await db.load();
+
+      return db;
+    } catch (error) {
+      console.error('Could not get db:', error);
+    }
   }
 
   async find(query: Partial<T>) {
@@ -209,6 +259,7 @@ export class OrbitRepository<T> implements BaseRepository<T> {
     await db.set(key as string, value);
   }
 }
+
 export class RecordingRepository extends OrbitRepository<Recording> {
   async getAddress() {
     const address = await this.orbitdb.determineAddress(
@@ -221,3 +272,4 @@ export class RecordingRepository extends OrbitRepository<Recording> {
 }
 
 export class UserRepository extends OrbitRepository<AccountInfo> {}
+export class CompanionRepository extends OrbitRepository<Companion> {}

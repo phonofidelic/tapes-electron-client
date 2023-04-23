@@ -45,7 +45,13 @@ export default function useUser() {
       try {
         const recordingsDb = (await connection.orbitdb.determineAddress(
           RECORDING_COLLECTION,
-          'docstore'
+          'docstore',
+          {
+            accessController: {
+              type: 'orbitdb',
+              write: ['*'],
+            },
+          }
         )) as unknown as { root: string; path: string };
 
         setUser({ ...connection.user.all, recordingsDb });
