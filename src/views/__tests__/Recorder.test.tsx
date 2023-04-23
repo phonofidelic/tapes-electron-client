@@ -7,14 +7,16 @@ import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { theme } from '../../theme';
 import { RecorderState } from '../../store/types';
 import { initialState } from '../../store/reducer';
-import { store } from '../../store';
 import Recorder from '../Recorder';
 import OrbitConnection from '@/db/OrbitConnection';
 import { OrbitConnectionContext } from '@/contexts/OrbitdbConnectionContext';
 import { RecordingsProvider } from '@/contexts/RecordingsContext';
 
 jest.mock('@/db/Repository', () => ({
-  RecordingRepository: jest.fn(),
+  RecordingRepository: jest.fn().mockImplementation(() => ({
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+  })),
 }));
 
 const renderMockedComponent = (
