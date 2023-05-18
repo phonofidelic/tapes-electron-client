@@ -11,7 +11,10 @@ module.exports = [
     WEB_CLIENT_URL: JSON.stringify(process.env.WEB_CLIENT_URL),
   }),
   new webpack.DefinePlugin({
-    LIBP2P_SIG_SERVER: JSON.stringify(process.env.LIBP2P_SIG_SERVER)
+    LIBP2P_SIG_SERVER: JSON.stringify(process.env.LIBP2P_SIG_SERVER),
+  }),
+  new webpack.DefinePlugin({
+    SENTRY_DNS: JSON.stringify(process.env.SENTRY_DNS),
   }),
   new webpack.ProvidePlugin({
     process: 'process/browser',

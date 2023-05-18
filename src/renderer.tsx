@@ -29,12 +29,26 @@
 import './index.css';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import * as Sentry from '@sentry/react';
 import App from './App';
 import Root from './Root';
+
+declare const SENTRY_DNS: string;
+console.log('🚀 ~ file: renderer.tsx:37 ~ SENTRY_DNS:', SENTRY_DNS);
 
 console.log(
   '👋 This message is being logged by "renderer.js", included via webpack'
 );
+
+Sentry.init({
+  dsn: SENTRY_DNS,
+  integrations: [new Sentry.BrowserTracing(), new Sentry.Replay()],
+  // Performance Monitoring
+  tracesSampleRate: 1.0, // Capture 100% of the transactions, reduce in production!
+  // Session Replay
+  replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+  replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+});
 
 const container = document.getElementById('root');
 const root = createRoot(container);
