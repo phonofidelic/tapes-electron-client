@@ -35,6 +35,7 @@ import { Loader } from '../components/Loader';
 import useUser from '@/hooks/useUser';
 import useCompanions from '@/hooks/useCompanions';
 import ErrorModal from '@/components/ErrorModal';
+import { useOrbitConnection } from '@/contexts/OrbitdbConnectionContext';
 
 const { setInputDevice } = effects;
 
@@ -73,6 +74,8 @@ export function Settings({
   const [accountInfo, loading, error, { setAccountInfo, confirmError }] =
     useUser();
   const [companions, , companionsError, { clearCompanions }] = useCompanions();
+
+  const connection = useOrbitConnection();
 
   const dispatch = useDispatch();
   const theme: Theme = useTheme();
@@ -161,7 +164,7 @@ export function Settings({
               accountInfo.recordingsDb
                 ? `${accountInfo.recordingsDb.root}/${RECORDING_COLLECTION}`
                 : ''
-            }`}
+            }&relay=${connection.relayMultiaddress}`}
             onClose={handleCloseQR}
           />
         )}

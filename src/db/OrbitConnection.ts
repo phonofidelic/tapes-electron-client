@@ -12,8 +12,6 @@ import {
 } from '@/db/Repository';
 import type { Connection } from '@libp2p/interface-connection';
 
-declare const LIBP2P_SIG_SERVER: string;
-
 interface OrbitAccessControllerOptions {
   accessController: {
     type: string;
@@ -38,8 +36,10 @@ export default class OrbitConnection {
 
   public desktopPeerId: string | undefined;
   public recordingsAddrRoot: string | undefined;
+  public relayMultiaddress: string | undefined;
 
   async connect(
+    relayMultiaddress: string,
     desktopPeerId?: string,
     recordingsAddrRoot?: string
   ): Promise<OrbitDB> {
@@ -47,13 +47,13 @@ export default class OrbitConnection {
     this.initializing = true;
     this.desktopPeerId = desktopPeerId;
     this.recordingsAddrRoot = recordingsAddrRoot;
-    console.log('### recordingsAddrRoot', this.recordingsAddrRoot);
+    this.relayMultiaddress = relayMultiaddress;
 
     /*
      * Establish IPFS connection and set peer info
      */
     try {
-      this.node = this.node || (await createIpfsNode());
+      this.node = this.node || (await createIpfsNode(relayMultiaddress));
     } catch (err) {
       console.error('Could not create IPFS node:', err);
       throw new Error('Could not create IPFS node');
@@ -90,15 +90,10 @@ export default class OrbitConnection {
       'user',
       this.recordingsAddrRoot
     ).init('user');
-    // this.user = await this.orbitdb.keyvalue('user', this.defaultOptions);
 
     /*
      * Companions key-value store
      */
-    // this.companions = await this.orbitdb.keyvalue(
-    //   'companions',
-    //   this.defaultOptions
-    // );
 
     this.companions = await new CompanionRepository(this, 'companions').init(
       'companion'
@@ -177,8 +172,8 @@ export default class OrbitConnection {
         console.log('* Connecting to desktop peer', desktopPeerId);
         await this.connectToPeer(desktopPeerId);
         console.log('*** Connected to desktop peer! ***');
-      } catch (err) {
-        console.error('Could not connect to desktop peer:', err);
+      } catch (error) {
+        console.error('Could not connect to desktop peer:', error);
         throw new Error('Could not connect to desktop peer');
       }
     }
@@ -199,16 +194,16 @@ export default class OrbitConnection {
   }
 
   private async connectToPeer(peerId: string) {
+    if (!this.relayMultiaddress) {
+      throw new Error('No relay address is set');
+    }
+
     try {
       await this.node.libp2p.dial(
-        multiaddr(`${LIBP2P_SIG_SERVER}/p2p/${peerId}`)
+        multiaddr(`${this.relayMultiaddress}/p2p-circuit/p2p/${peerId}`)
       );
     } catch (error) {
-      // console.error('Could not connect to peer:', error);
       throw new Error('Could not connect to peer');
-      const peers = this.node.libp2p.getPeers();
-      // console.log(`Deleting ${peers.length} peers`);
-      peers.forEach((peer) => this.node.libp2p.peerStore.delete(peer));
     }
   }
 

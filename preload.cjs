@@ -12,6 +12,7 @@ const validChannels = [
   'storage:cache_recording',
   'storage:get_recording_stats',
   'recordings:delete_one',
+  'relay:start',
 ];
 
 const validResponseChannels = validChannels.map(

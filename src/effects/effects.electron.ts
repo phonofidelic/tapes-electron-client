@@ -52,217 +52,217 @@ const ipc = new IpcService();
 
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
-export const uploadAudioFiles =
-  (audioFiles: File[]): Effect =>
-  async (dispatch) => {
-    dispatch(uploadRecordingsRequest());
-    dispatch(setLoadingMessage('Processing audio files...'));
-    console.log('uploadAudioFiles, audioFiles:', audioFiles);
+// export const uploadAudioFiles =
+//   (audioFiles: File[]): Effect =>
+//   async (dispatch) => {
+//     dispatch(uploadRecordingsRequest());
+//     dispatch(setLoadingMessage('Processing audio files...'));
+//     console.log('uploadAudioFiles, audioFiles:', audioFiles);
 
-    /*
-     * Parse data needed for Recording object
-     */
-    const parsedFiles = audioFiles.map((file) => ({
-      path: file.path,
-      name: file.name,
-      size: file.size,
-    }));
+//     /*
+//      * Parse data needed for Recording object
+//      */
+//     const parsedFiles = audioFiles.map((file) => ({
+//       path: file.path,
+//       name: file.name,
+//       size: file.size,
+//     }));
 
-    /*
-     * Get Recordings with metadata from files
-     */
-    let ipcResponse: { message: string; data: Recording[]; error?: Error };
-    try {
-      ipcResponse = await ipc.send('storage:upload', {
-        data: { files: parsedFiles },
-      });
-      console.log('uploadAudioFiles, response:', ipcResponse);
-      if (ipcResponse.error) throw ipcResponse.error;
-    } catch (err) {
-      console.error('Could not upload audio files:', err.message);
-      return dispatch(uploadRecordingsFailure(err));
-    }
+//     /*
+//      * Get Recordings with metadata from files
+//      */
+//     let ipcResponse: { message: string; data: Recording[]; error?: Error };
+//     try {
+//       ipcResponse = await ipc.send('storage:upload', {
+//         data: { files: parsedFiles },
+//       });
+//       console.log('uploadAudioFiles, response:', ipcResponse);
+//       if (ipcResponse.error) throw ipcResponse.error;
+//     } catch (err) {
+//       console.error('Could not upload audio files:', err.message);
+//       return dispatch(uploadRecordingsFailure(err));
+//     }
 
-    const createdRecordings: Recording[] = [];
-    for await (const recordingData of ipcResponse.data) {
-      console.log(`Creating database entry for ${recordingData.title}`);
-      try {
-        await OrbitConnection.Instance.connect();
-        const repository = new RecordingRepository(
-          OrbitConnection.Instance,
-          RECORDING_COLLECTION
-        );
-        const createdRecording = await repository.add(recordingData);
+//     const createdRecordings: Recording[] = [];
+//     for await (const recordingData of ipcResponse.data) {
+//       console.log(`Creating database entry for ${recordingData.title}`);
+//       try {
+//         await OrbitConnection.Instance.connect();
+//         const repository = new RecordingRepository(
+//           OrbitConnection.Instance,
+//           RECORDING_COLLECTION
+//         );
+//         const createdRecording = await repository.add(recordingData);
 
-        createdRecordings.push(createdRecording);
-      } catch (err) {
-        console.error(
-          `Could not create database entry for ${recordingData.title}:`,
-          err
-        );
-        dispatch(
-          uploadRecordingsFailure(
-            new Error(
-              `Could not create database entry for ${recordingData.title}`
-            )
-          )
-        );
-      }
-    }
+//         createdRecordings.push(createdRecording);
+//       } catch (err) {
+//         console.error(
+//           `Could not create database entry for ${recordingData.title}:`,
+//           err
+//         );
+//         dispatch(
+//           uploadRecordingsFailure(
+//             new Error(
+//               `Could not create database entry for ${recordingData.title}`
+//             )
+//           )
+//         );
+//       }
+//     }
 
-    dispatch(uploadRecordingsSuccess(createdRecordings));
-    dispatch(setLoadingMessage(null));
-  };
+//     dispatch(uploadRecordingsSuccess(createdRecordings));
+//     dispatch(setLoadingMessage(null));
+//   };
 
-export const startRecording =
-  (recordingSettings: RecordingSettings): Effect =>
-  async (dispatch) => {
-    dispatch(startRecordingRequest());
+// export const startRecording =
+//   (recordingSettings: RecordingSettings): Effect =>
+//   async (dispatch) => {
+//     dispatch(startRecordingRequest());
 
-    let ipcResponse: { recordingData: Recording; file?: File; error?: Error };
-    let recordingData;
-    let createdRecording;
-    try {
-      ipcResponse = await ipc.send('recorder:start', {
-        data: { recordingSettings },
-      });
-      console.log('recorder:start, ipcResponse:', ipcResponse);
+//     let ipcResponse: { recordingData: Recording; file?: File; error?: Error };
+//     let recordingData;
+//     let createdRecording;
+//     try {
+//       ipcResponse = await ipc.send('recorder:start', {
+//         data: { recordingSettings },
+//       });
+//       console.log('recorder:start, ipcResponse:', ipcResponse);
 
-      if (ipcResponse.error) {
-        console.error(ipcResponse.error);
-        throw ipcResponse.error;
-      }
+//       if (ipcResponse.error) {
+//         console.error(ipcResponse.error);
+//         throw ipcResponse.error;
+//       }
 
-      recordingData = ipcResponse.recordingData;
+//       recordingData = ipcResponse.recordingData;
 
-      await OrbitConnection.Instance.connect();
-      const repository = new RecordingRepository(
-        OrbitConnection.Instance,
-        RECORDING_COLLECTION
-      );
+//       await OrbitConnection.Instance.connect();
+//       const repository = new RecordingRepository(
+//         OrbitConnection.Instance,
+//         RECORDING_COLLECTION
+//       );
 
-      createdRecording = await repository.add(recordingData);
+//       createdRecording = await repository.add(recordingData);
 
-      console.log('createdRecording:', createdRecording);
-      dispatch(startRecordingSuccess(createdRecording));
+//       console.log('createdRecording:', createdRecording);
+//       dispatch(startRecordingSuccess(createdRecording));
 
-      dispatch(addRecordingSuccess(createdRecording));
-      dispatch(setLoadingMessage(null));
-    } catch (err) {
-      console.error('addRecordingRequest error:', err);
-      dispatch(addRecordingFailure(err));
-      dispatch(setLoadingMessage(null));
-    }
-  };
+//       dispatch(addRecordingSuccess(createdRecording));
+//       dispatch(setLoadingMessage(null));
+//     } catch (err) {
+//       console.error('addRecordingRequest error:', err);
+//       dispatch(addRecordingFailure(err));
+//       dispatch(setLoadingMessage(null));
+//     }
+//   };
 
-export const stopRecording = (): Effect => async (dispatch) => {
-  dispatch(stopRecordingRequest());
+// export const stopRecording = (): Effect => async (dispatch) => {
+//   dispatch(stopRecordingRequest());
 
-  try {
-    ipc.send('recorder:stop');
-    console.log('recorder:stop');
-    // dispatch(stopRecordingSuccess());
-    dispatch(addRecordingRequest());
-    dispatch(setLoadingMessage('Storing file on IPFS...'));
-  } catch (err) {
-    dispatch(stopRecordingFailure(err));
-  }
-};
+//   try {
+//     ipc.send('recorder:stop');
+//     console.log('recorder:stop');
+//     // dispatch(stopRecordingSuccess());
+//     dispatch(addRecordingRequest());
+//     dispatch(setLoadingMessage('Storing file on IPFS...'));
+//   } catch (err) {
+//     dispatch(stopRecordingFailure(err));
+//   }
+// };
 
-export const loadRecordings =
-  (recordingsAddrRoot: string | undefined): Effect =>
-  async (dispatch) => {
-    dispatch(loadRecordingsRequest());
+// export const loadRecordings =
+//   (recordingsAddrRoot: string | undefined): Effect =>
+//   async (dispatch) => {
+//     dispatch(loadRecordingsRequest());
 
-    try {
-      dispatch(setLoadingMessage('Initializing database...'));
-      await OrbitConnection.Instance.connect();
+//     try {
+//       dispatch(setLoadingMessage('Initializing database...'));
+//       await OrbitConnection.Instance.connect();
 
-      console.log('load recordings, recordingsAddrRoot', recordingsAddrRoot);
+//       console.log('load recordings, recordingsAddrRoot', recordingsAddrRoot);
 
-      const repository = new RecordingRepository(
-        OrbitConnection.Instance,
-        RECORDING_COLLECTION,
-        recordingsAddrRoot + `/${RECORDING_COLLECTION}`
-      );
+//       const repository = new RecordingRepository(
+//         OrbitConnection.Instance,
+//         RECORDING_COLLECTION,
+//         recordingsAddrRoot + `/${RECORDING_COLLECTION}`
+//       );
 
-      dispatch(setLoadingMessage('Loading library...'));
-      const recordings = await repository.find({});
+//       dispatch(setLoadingMessage('Loading library...'));
+//       const recordings = await repository.find({});
 
-      dispatch(loadRecordingsSuccess(recordings));
-      dispatch(setLoadingMessage(null));
-    } catch (err) {
-      console.error(err);
-      dispatch(loadRecordingsFailure(new Error('Could not load recordings')));
-    }
-  };
+//       dispatch(loadRecordingsSuccess(recordings));
+//       dispatch(setLoadingMessage(null));
+//     } catch (err) {
+//       console.error(err);
+//       dispatch(loadRecordingsFailure(new Error('Could not load recordings')));
+//     }
+//   };
 
-export const editRecording =
-  (recordingId: string, update: Partial<Recording>): Effect =>
-  async (dispatch) => {
-    dispatch(editRecordingRequest());
-    try {
-      await OrbitConnection.Instance.connect();
-      const repository = new RecordingRepository(
-        OrbitConnection.Instance,
-        RECORDING_COLLECTION,
-        OrbitConnection.Instance.recordingsAddrRoot
-      );
-      const updatedRecording = await repository.update(recordingId, update);
+// export const editRecording =
+//   (recordingId: string, update: Partial<Recording>): Effect =>
+//   async (dispatch) => {
+//     dispatch(editRecordingRequest());
+//     try {
+//       await OrbitConnection.Instance.connect();
+//       const repository = new RecordingRepository(
+//         OrbitConnection.Instance,
+//         RECORDING_COLLECTION,
+//         OrbitConnection.Instance.recordingsAddrRoot
+//       );
+//       const updatedRecording = await repository.update(recordingId, update);
 
-      console.log('updatedRecording:', updatedRecording);
-      dispatch(editRecordingSuccess(updatedRecording));
-    } catch (err) {
-      console.error('Could not update Recording document:', err);
-      dispatch(editRecordingFailure(err));
-    }
-  };
+//       console.log('updatedRecording:', updatedRecording);
+//       dispatch(editRecordingSuccess(updatedRecording));
+//     } catch (err) {
+//       console.error('Could not update Recording document:', err);
+//       dispatch(editRecordingFailure(err));
+//     }
+//   };
 
-export const deleteRecording =
-  (recordingId: string): Effect =>
-  async (dispatch) => {
-    dispatch(deleteRecordingRequest(recordingId));
+// export const deleteRecording =
+//   (recordingId: string): Effect =>
+//   async (dispatch) => {
+//     dispatch(deleteRecordingRequest(recordingId));
 
-    try {
-      dispatch(setLoadingMessage('Deleting recording...'));
-      await OrbitConnection.Instance.connect();
-      const repository = new RecordingRepository(
-        OrbitConnection.Instance,
-        RECORDING_COLLECTION
-      );
+//     try {
+//       dispatch(setLoadingMessage('Deleting recording...'));
+//       await OrbitConnection.Instance.connect();
+//       const repository = new RecordingRepository(
+//         OrbitConnection.Instance,
+//         RECORDING_COLLECTION
+//       );
 
-      const recording = await repository.findById(recordingId);
+//       const recording = await repository.findById(recordingId);
 
-      const deleteRecordingResponse = await ipc.send('recordings:delete_one', {
-        data: { recording },
-      });
-      console.log('deleteRecordingResponse:', deleteRecordingResponse);
+//       const deleteRecordingResponse = await ipc.send('recordings:delete_one', {
+//         data: { recording },
+//       });
+//       console.log('deleteRecordingResponse:', deleteRecordingResponse);
 
-      await repository.delete(recordingId);
+//       await repository.delete(recordingId);
 
-      dispatch(deleteRecordingSuccess(recordingId));
-    } catch (err) {
-      console.error('Could not delete recording:', err);
+//       dispatch(deleteRecordingSuccess(recordingId));
+//     } catch (err) {
+//       console.error('Could not delete recording:', err);
 
-      dispatch(deleteRecordingFailure(err));
-    }
-    dispatch(setLoadingMessage(null));
-  };
+//       dispatch(deleteRecordingFailure(err));
+//     }
+//     dispatch(setLoadingMessage(null));
+//   };
 
-export const initDatabase = (): Effect => async (dispatch) => {
-  dispatch(initDatabaseRequest());
-  dispatch(setLoadingMessage('Initializing database...'));
+// export const initDatabase = (): Effect => async (dispatch) => {
+//   dispatch(initDatabaseRequest());
+//   dispatch(setLoadingMessage('Initializing database...'));
 
-  try {
-    await OrbitConnection.Instance.connect();
+//   try {
+//     await OrbitConnection.Instance.connect();
 
-    console.log('Database initialized');
-    dispatch(initDatabaseSuccess());
-  } catch (err) {
-    console.error('Could not initialize database:', err);
-    dispatch(initDatabaseFailure(err));
-  }
-};
+//     console.log('Database initialized');
+//     dispatch(initDatabaseSuccess());
+//   } catch (err) {
+//     console.error('Could not initialize database:', err);
+//     dispatch(initDatabaseFailure(err));
+//   }
+// };
 
 export const setInputDevice =
   (deviceName: string): Effect =>

@@ -9,13 +9,13 @@ import { RecordingSettings } from '../common/RecordingSettings.interface';
 type Effect = ThunkAction<void, RecorderState, unknown, RecorderAction>;
 
 interface EffectsExport {
-  uploadAudioFiles(audioFiles: File[]): Effect;
-  startRecording(recordingSettings: RecordingSettings): Effect;
-  stopRecording(): Effect;
-  loadRecordings(recordingsAddrRoot?: string): Effect;
-  editRecording(recordingId: string, update: Partial<Recording>): Effect;
-  deleteRecording(recordingId: string): Effect;
-  initDatabase(desktopPeerId?: string, recordingsAddrRoot?: string): Effect;
+  // uploadAudioFiles(audioFiles: File[]): Effect;
+  // startRecording(recordingSettings: RecordingSettings): Effect;
+  // stopRecording(): Effect;
+  // loadRecordings(recordingsAddrRoot?: string): Effect;
+  // editRecording(recordingId: string, update: Partial<Recording>): Effect;
+  // deleteRecording(recordingId: string): Effect;
+  // initDatabase(desktopPeerId?: string, recordingsAddrRoot?: string): Effect;
   setInputDevice(deviceName: string): Effect;
   downloadRecording(recordingId: string): Effect;
   cacheAndPlayRecording(recording: Recording): Effect;

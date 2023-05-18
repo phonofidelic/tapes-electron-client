@@ -7,17 +7,27 @@ import { gossipsub } from '@chainsafe/libp2p-gossipsub';
 import { Libp2p } from 'libp2p';
 // eslint-disable-next-line import/no-unresolved
 import { webRTC } from '@libp2p/webrtc';
-
-declare const LIBP2P_SIG_SERVER: string;
+import { circuitRelayTransport } from 'libp2p/circuit-relay';
+// eslint-disable-next-line import/no-unresolved
+import { webSockets } from '@libp2p/websockets';
+import * as filters from '@libp2p/websockets/filters';
 
 export type IpfsWithLibp2p = IPFS & { libp2p: Libp2p };
 
-export async function createIpfsNode(): Promise<IpfsWithLibp2p> {
+export async function createIpfsNode(
+  relayMultiaddress: string
+): Promise<IpfsWithLibp2p> {
   const libp2pConfig = {
     addresses: {
-      listen: [LIBP2P_SIG_SERVER],
+      listen: [`${relayMultiaddress}/p2p-circuit`],
     },
-    transports: [webRTC({})],
+    transports: [
+      webSockets({
+        filter: filters.all,
+      }),
+      webRTC({}),
+      circuitRelayTransport({}),
+    ],
     connectionEncryption: [noise()],
     streamMuxers: [mplex()],
     pubsub: gossipsub({
