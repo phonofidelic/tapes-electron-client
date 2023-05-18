@@ -86,6 +86,9 @@ export default {
     new webpack.DefinePlugin({
       LIBP2P_SIG_SERVER: JSON.stringify(process.env.LIBP2P_SIG_SERVER),
     }),
+    new webpack.DefinePlugin({
+      SENTRY_DNS: JSON.stringify(process.env.SENTRY_DNS),
+    }),
   ],
   devtool: 'eval-cheap-source-map',
   experiments: {
