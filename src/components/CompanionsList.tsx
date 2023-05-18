@@ -20,7 +20,6 @@ type CompanionsListProps = {
 
 export default function CompanionsList({ companions }: CompanionsListProps) {
   const [open, setOpen] = useState(true);
-  console.log('CompanionList, companions', companions);
 
   return (
     <div>
@@ -33,7 +32,7 @@ export default function CompanionsList({ companions }: CompanionsListProps) {
         </IconButton>
       </div>
       <Collapse in={open}>
-        {companions.length > 0 ? (
+        {companions?.length > 0 ? (
           <List dense>
             {companions.map((companion) => (
               <ListItem key={companion.nodeId} dense>

@@ -5,4 +5,5 @@ export type ValidIpcChanel =
   | 'storage:upload'
   | 'storage:cache_recording'
   | 'storage:get_recording_stats'
-  | 'recordings:delete_one';
+  | 'recordings:delete_one'
+  | 'relay:start';
