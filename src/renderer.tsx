@@ -34,7 +34,6 @@ import App from './App';
 import Root from './Root';
 
 declare const SENTRY_DNS: string;
-console.log('🚀 ~ file: renderer.tsx:37 ~ SENTRY_DNS:', SENTRY_DNS);
 
 console.log(
   '👋 This message is being logged by "renderer.js", included via webpack'
