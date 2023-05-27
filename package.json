@@ -192,7 +192,7 @@
     "@libp2p/tcp": "^7.0.1",
     "@libp2p/webrtc": "^1.1.11",
     "@libp2p/webrtc-star": "^6.0.0",
-    "@libp2p/websockets": "^5.0.2",
+    "@libp2p/websockets": "^6.0.1",
     "@libp2p/webtransport": "^1.0.6",
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",

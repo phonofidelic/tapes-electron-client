@@ -4327,7 +4327,7 @@
     uint8arraylist "^2.4.3"
     uint8arrays "^4.0.3"
 
-"@libp2p/websockets@^5.0.0", "@libp2p/websockets@^5.0.2":
+"@libp2p/websockets@^5.0.0":
   version "5.0.2"
   resolved "https://registry.yarnpkg.com/@libp2p/websockets/-/websockets-5.0.2.tgz#2fde23fa5851a7877013491194f1c61bd28ac1a9"
   integrity sha512-bQIGylJfpAeBaRLYN8KiwbD75qXgKKlK/zgH5hiVfCqFHwchEbr2c1Smf86YsX2Ay07jRqQkrJbJFM72ryePoA==
@@ -4346,6 +4346,26 @@
     p-defer "^4.0.0"
     p-timeout "^6.0.0"
     wherearewe "^2.0.1"
+
+"@libp2p/websockets@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@libp2p/websockets/-/websockets-6.0.1.tgz#db37758636fb29eee3b94c319a3127e03820fbc9"
+  integrity sha512-KlE7sx7dRoHVLALggmIvjag6Vtz/UAraHpZdjToLHfyJGle3To0koaHOczMmrpv2L5kJqv709ex7zBTQ+JtTtg==
+  dependencies:
+    "@libp2p/interface-connection" "^5.0.0"
+    "@libp2p/interface-transport" "^4.0.0"
+    "@libp2p/interfaces" "^3.0.3"
+    "@libp2p/logger" "^2.0.0"
+    "@libp2p/utils" "^3.0.2"
+    "@multiformats/mafmt" "^12.0.0"
+    "@multiformats/multiaddr" "^12.0.0"
+    "@multiformats/multiaddr-to-uri" "^9.0.2"
+    abortable-iterator "^5.0.0"
+    it-ws "^6.0.0"
+    p-defer "^4.0.0"
+    p-timeout "^6.0.0"
+    wherearewe "^2.0.1"
+    ws "^8.12.1"
 
 "@libp2p/webtransport@^1.0.6":
   version "1.0.6"
@@ -6835,6 +6855,14 @@ abortable-iterator@^4.0.2:
   dependencies:
     get-iterator "^2.0.0"
     it-stream-types "^1.0.3"
+
+abortable-iterator@^5.0.0:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/abortable-iterator/-/abortable-iterator-5.0.1.tgz#5d93eba6fa8287a973a9ea090c64ca08b3777780"
+  integrity sha512-hlZ5Z8UwqrKsJcelVPEqDduZowJPBQJ9ZhBC2FXpja3lXy8X6MoI5uMzIgmrA8+3jcVnp8TF/tx+IBBqYJNUrg==
+  dependencies:
+    get-iterator "^2.0.0"
+    it-stream-types "^2.0.1"
 
 abstract-level@^1.0.2, abstract-level@^1.0.3:
   version "1.0.3"
@@ -15788,6 +15816,17 @@ it-ws@^5.0.6:
     event-iterator "^2.0.0"
     iso-url "^1.1.2"
     it-stream-types "^1.0.2"
+    uint8arrays "^4.0.2"
+    ws "^8.4.0"
+
+it-ws@^6.0.0:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/it-ws/-/it-ws-6.0.1.tgz#a58d054df641093c08f0435ce69be3dae066d3c4"
+  integrity sha512-tWsIEN/hYlBGgvikP3B/afBBR0nZesw6mwQjyeBfpOK69mKYNMOqWn/OxurQaK3TLhxTmbAoy/yLX6jYEqcQVw==
+  dependencies:
+    event-iterator "^2.0.0"
+    iso-url "^1.1.2"
+    it-stream-types "^2.0.1"
     uint8arrays "^4.0.2"
     ws "^8.4.0"
 
@@ -25996,6 +26035,11 @@ ws@^7.3.1, ws@^7.4.6:
   version "7.5.9"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.9.tgz#54fa7db29f4c7cec68b1ddd3a89de099942bb591"
   integrity sha512-F+P9Jil7UiSKSkppIiD94dN07AwvFixvLIj1Og1Rl9GGMuNipJnV9JzjD6XuqmAeiswGvUmNLjr5cFuXwNS77Q==
+
+ws@^8.12.1:
+  version "8.13.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.13.0.tgz#9a9fb92f93cf41512a0735c8f4dd09b8a1211cd0"
+  integrity sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==
 
 ws@~8.2.3:
   version "8.2.3"
