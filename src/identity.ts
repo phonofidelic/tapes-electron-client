@@ -96,7 +96,7 @@ export class OrbitIdentity implements AppIdentity {
     return identity
   }
 
-  async export(password: string = 'we@reTheG3ms'): Promise<void> {
+  async export(password: string = ''): Promise<void> {
     console.log('*** exporting identity...')
 
     /**
@@ -122,7 +122,7 @@ export class OrbitIdentity implements AppIdentity {
 
     try {
       // const identity = await Identities.createIdentity({ id: 'tapes-id', migrate: migrate('orbitdb/keystore') })
-      const identity = 'bajs'
+      const identity = ''
 
       console.log('*** exported identity:', identity)
     } catch (err) {
